@@ -128,7 +128,7 @@ function TemplateEngine()
 			return;
 		}
 		
-		if(!$.isPlainObject(data) && !$.isArray(data))
+		if(!$.isPlainObject(data) && !$.isArray(data) && !(data instanceof jQuery))
 		{
 			console.error("Invalid object/array specified for 'data' of <for-each>: " + data);
 			return;
@@ -138,33 +138,73 @@ function TemplateEngine()
 		var indexVar = attrVals["index-var"];
 		var val = null;
 		
-		if($.isArray(data))
+		try
 		{
-			for(var idx = 0; idx < data.length; idx++)
-			{
-				val = data[idx];
-				templateContext[loopVar] = val;
-				templateContext[indexVar] = idx;
-				
+			$.each(data, function(index){
 				try
 				{
+					templateContext[loopVar] = this;
+					templateContext[indexVar] = index;
 					processChildren(elem.contents(), templateContext);
 				}catch(ex)
 				{
 					if(ex["loopControl"])
 					{
-						if(ex["controlType"] == LOOP_CONTROL_BREAK)
+						if(ex["controlType"] == LOOP_CONTROL_CONTINUE)
 						{
-							break;
-						}
-						else if(ex["controlType"] == LOOP_CONTROL_CONTINUE)
-						{
-							continue;
+							return;
 						}
 					}
 					
 					throw ex;
 				}
+			});
+
+		}catch(ex)
+		{
+			if(!ex["loopControl"] || ex["controlType"] != LOOP_CONTROL_BREAK)
+			{
+				throw ex;
+			}
+		}
+		/*
+		var loopIteration = function(data, index) {
+			templateContext[loopVar] = data;
+			templateContext[indexVar] = index;
+			
+			try
+			{
+				processChildren(elem.contents(), templateContext);
+			}catch(ex)
+			{
+				if(ex["loopControl"])
+				{
+					if(ex["controlType"] == LOOP_CONTROL_BREAK)
+					{
+						break;
+					}
+					else if(ex["controlType"] == LOOP_CONTROL_CONTINUE)
+					{
+						continue;
+					}
+				}
+				
+				throw ex;
+			}
+		};
+		
+		if(data instanceof jQuery)
+		{
+			data.each(fucntion(index){
+				loopIteration(this, index);
+			});
+		}
+		else if($.isArray(data))
+		{
+			for(var idx = 0; idx < data.length; idx++)
+			{
+				val = data[idx];
+				loopIteration(val, idx);
 			}
 		}
 		else
@@ -172,30 +212,10 @@ function TemplateEngine()
 			for(var propName in data)
 			{
 				val = data[propName];
-				templateContext[loopVar] = val;
-				templateContext[indexVar] = propName;
-				
-				try
-				{
-					processChildren(elem.contents(), templateContext);
-				}catch(ex)
-				{
-					if(ex["loopControl"])
-					{
-						if(ex["controlType"] == LOOP_CONTROL_BREAK)
-						{
-							break;
-						}
-						else if(ex["controlType"] == LOOP_CONTROL_CONTINUE)
-						{
-							continue;
-						}
-					}
-					
-					throw ex;
-				}
+				loopIteration(val, propName);
 			}
 		}
+		*/
 	};
 
 	this.controlNodes['for'] = ['start', 'end', 'loop-var'];

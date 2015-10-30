@@ -11,7 +11,7 @@ $.addElementDirective = function(directiveObj) {
 			var context = {
 				"attributes": attributes,
 				"$scope": $scope,
-				"element": $element[0],
+				"element": $($element[0]),
 				"invokeAction": function(actionName) {
 					return $.makeJsonCall(actionName, null, {cache: false, dataType: "json", "methodType": "GET"});
 				} 
@@ -33,6 +33,7 @@ $.loadCustomDirectives = function(templateFilePath) {
 	var tagName = null;
 	var CAP_PATTERN = /([A-Z])/g;
 	var child = null, contentChild = null;
+	var postScript = null;
 	
 	for(var i = 0; i < children.length; i++)
 	{
@@ -45,10 +46,12 @@ $.loadCustomDirectives = function(templateFilePath) {
 			tagName = tagName.toLowerCase();
 			
 			contentChild = child.find("content").first();
+			postScript = child.find("post-script").first().text();
 			
 			$.application["directiveTemplateEngine"].addTemplate(tagName, $(contentChild));
 			$.addElementDirective({
-				name : childName
+				name : childName,
+				postScript: postScript
 			});
 		}
 		
