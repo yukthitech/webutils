@@ -401,7 +401,7 @@ function TemplateEngine()
 			{
 				if(!elem.attr(expectedArgs[i]))
 				{
-					throw "Expected attribute '" + expectedArgs[i] + "' is not specified in <" + elem.nodeName + '>';
+					throw "Expected attribute '" + expectedArgs[i] + "' is not specified in <" + domElem.nodeName + '>';
 				}
 				
 				attrVals[expectedArgs[i]] = parseExpressions(elem.attr(expectedArgs[i]), templateContext);

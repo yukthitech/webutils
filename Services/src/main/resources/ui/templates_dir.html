@@ -11,6 +11,12 @@
 				<for-each data="${_data}" loop-var="value" index-var="attr">
 					${attr} = ${value}<BR/>
 				</for-each>
+
+				<set-var name="_data1" expr="context.invokeAction('data.json')"/>
+				<BR/><BR/>
+				<for-each data="${_data1}" loop-var="value" index-var="attr">
+					${attr} = ${value}<BR/>
+				</for-each>
 			</div>
 		</content>
 	</directive>
