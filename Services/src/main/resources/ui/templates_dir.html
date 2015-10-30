@@ -1,0 +1,35 @@
+<directives>
+	<directive name="ykTest">
+		<content>
+			<div>
+				This is test node with attribute ${attributes.attr1}
+				
+				<exe-script var="_data">
+					context.invokeAction("data.json");
+				</exe-script>
+				<BR/><BR/>
+				<for-each data="${_data}" loop-var="value" index-var="attr">
+					${attr} = ${value}<BR/>
+				</for-each>
+			</div>
+		</content>
+	</directive>
+	<!-- Some help tag -->
+	<directive name="ykHelp">
+		<content>
+			<div>
+				Some help message
+			</div>
+		</content>
+	</directive>
+
+	<directive name="ykDiv">
+		<content>
+			<div id="${attributes.id}">
+				${attributes.content}
+				<br/><yk-help></yk-help>
+			</div>
+		</content>
+	</directive>
+
+</directives>
