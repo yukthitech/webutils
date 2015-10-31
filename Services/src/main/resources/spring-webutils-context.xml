@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
 	xmlns:context="http://www.springframework.org/schema/context"
 	xmlns:mvc="http://www.springframework.org/schema/mvc"
 	xsi:schemaLocation="
@@ -20,18 +19,31 @@
 			</bean>
 		</property>
 	</bean>
-	
-	<bean id="jsonMessageConverter"	class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+
+	<bean id="jsonMessageConverter"
+		class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
 		<property name="objectMapper">
-			<ref bean="objectMapper"/>
+			<ref bean="objectMapper" />
 		</property>
 	</bean>
-	
+
+	<!-- Used for service method result caching -->
+	<bean id="cacheManager" class="org.springframework.cache.support.SimpleCacheManager">
+		<property name="caches">
+			<set>
+				<bean
+					class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean"
+					p:name="default" />
+			</set>
+		</property>
+	</bean>
+
+
 	<mvc:annotation-driven>
 		<mvc:message-converters register-defaults="true">
-			<ref bean="jsonMessageConverter"/>
+			<ref bean="jsonMessageConverter" />
 		</mvc:message-converters>
-	</mvc:annotation-driven>	
+	</mvc:annotation-driven>
 
 	<context:component-scan base-package="com.yukthi" />
 </beans>

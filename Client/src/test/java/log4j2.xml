@@ -7,7 +7,7 @@
 	</Appenders>
 	<Loggers>
 		<Logger name="com.yukthi" level="all" />
-		<Logger name="com.yodlee" level="all" />
+		<Logger name="com.test" level="all" />
 		<Logger name="org.springframework" level="all" />
 		
 		<Root level="error">

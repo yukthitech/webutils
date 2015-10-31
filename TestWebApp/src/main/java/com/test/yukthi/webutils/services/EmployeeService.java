@@ -20,39 +20,40 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.webutils.common.test;
 
-import com.yukthi.test.webutils.models.TestBean;
-import com.yukthi.utils.rest.PostRestRequest;
-import com.yukthi.utils.rest.RestClient;
-import com.yukthi.utils.rest.RestResult;
-import com.yukthi.webutils.commons.ICommonConstants;
-import com.yukthi.webutils.models.BaseResponse;
+package com.test.yukthi.webutils.services;
 
-import junit.framework.Assert;
+import javax.annotation.PostConstruct;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.test.yukthi.webutils.entity.EmployeeEntity;
+import com.test.yukthi.webutils.entity.IEmployeeRepository;
+import com.yukthi.persistence.repository.RepositoryFactory;
 
 /**
- * Ensures spring validation is enabled using test controller and test bean
  * @author akiran
+ *
  */
-public class TestSpringValidation
+@Service
+public class EmployeeService
 {
-	@org.testng.annotations.Test
-	public void test()
+	@Autowired
+	private RepositoryFactory repositoryFactory;
+	
+	private IEmployeeRepository employeeRepository;
+	
+	@PostConstruct
+	public void init()
 	{
-		RestClient client = new RestClient("http://localhost:8080/test");
-
-		//check for negative test case, where validation fails
-		PostRestRequest req = new PostRestRequest("/test/test");
-		req.setJsonBody(new TestBean(null));
+		employeeRepository = repositoryFactory.getRepository(IEmployeeRepository.class);
 		
-		RestResult<BaseResponse> result = client.invokeJsonRequest(req, BaseResponse.class);
-		Assert.assertEquals(result.getValue().getCode(), ICommonConstants.RESPONSE_CODE_INVALID_REQUEST);
+		//create test data
+		employeeRepository.deleteAll();
 		
-		//test for positive test case where validation succeeds
-		req.setJsonBody(new TestBean("success"));
-		
-		result = client.invokeJsonRequest(req, BaseResponse.class);
-		Assert.assertEquals(result.getValue().getCode(), ICommonConstants.RESPONSE_CODE_SUCCESS);
+		employeeRepository.save(new EmployeeEntity("Test1", 1000));
+		employeeRepository.save(new EmployeeEntity("Test2", 4000));
+		employeeRepository.save(new EmployeeEntity("Test3", 5000));
 	}
 }

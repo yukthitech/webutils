@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/mvc 
+        http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+
+
+	<bean id="webutilsConfiguration" class="com.yukthi.webutils.WebutilsConfiguration">
+		<property name="basePackages">
+			<list>
+				<value>com.test.yukthi</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="dataSource" class="org.apache.commons.dbcp2.BasicDataSource">
+		<property name="driverClassName" value="org.apache.derby.jdbc.EmbeddedDriver" />
+		<property name="url" value="jdbc:derby:c:/db/testDB;create=true" />
+	</bean>
+
+	<bean id="repositoryFactory" class="com.yukthi.persistence.repository.RepositoryFactory">
+		<property name="createTables" value="true" />
+		
+		<property name="dataStore">
+			<bean class="com.yukthi.persistence.rdbms.RdbmsDataStore">
+				<constructor-arg type="java.lang.String" value="derby"></constructor-arg>
+				
+				<property name="dataSource" ref="dataSource"/>
+			</bean>
+		</property>
+	</bean>
+
+	<context:component-scan base-package="com.test" />
+
+</beans>

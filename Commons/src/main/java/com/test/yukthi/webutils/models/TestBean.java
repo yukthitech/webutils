@@ -1,4 +1,4 @@
-package com.yukthi.test.webutils.models;
+package com.test.yukthi.webutils.models;
 
 import javax.validation.constraints.NotNull;
 

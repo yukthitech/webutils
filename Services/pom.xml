@@ -44,6 +44,14 @@
 			<version>4.2.0.Final</version>
 		</dependency>
 
+		<!-- Used by class scanning services which in turn is used
+				to load repositories, actions, models, etc
+		 -->
+		<dependency>
+			<groupId>org.reflections</groupId>
+			<artifactId>reflections</artifactId>
+			<version>0.9.9-RC2</version>
+		</dependency>
 
 		<dependency>
 			<groupId>javax.validation</groupId>
@@ -56,6 +64,18 @@
 			<artifactId>servlet-api</artifactId>
 			<version>2.4</version>
 			<scope>provided</scope>
+		</dependency>
+
+
+		<dependency>
+			<groupId>com.yukthi</groupId>
+			<artifactId>yukthi-data</artifactId>
+			<version>1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.yukthi</groupId>
+			<artifactId>yukthi-utils</artifactId>
+			<version>1.0</version>
 		</dependency>
 
 

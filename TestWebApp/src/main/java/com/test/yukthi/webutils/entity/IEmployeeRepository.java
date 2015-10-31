@@ -20,37 +20,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.yukthi.test.webutils.controllers;
 
-import javax.validation.Valid;
+package com.test.yukthi.webutils.entity;
 
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import java.util.List;
 
-import com.yukthi.test.webutils.models.TestBean;
-import com.yukthi.webutils.controllers.BaseController;
-import com.yukthi.webutils.models.BaseResponse;
+import com.yukthi.persistence.ICrudRepository;
+import com.yukthi.persistence.repository.annotations.ResultMapping;
+import com.yukthi.persistence.repository.annotations.SearchResult;
+import com.yukthi.webutils.annotations.LovQuery;
+import com.yukthi.webutils.models.ValueLabel;
 
 /**
- * Test controller to test spring validation enablement
  * @author akiran
+ *
  */
-@RestController
-@RequestMapping("/test")
-public class TestController extends BaseController
+public interface IEmployeeRepository extends ICrudRepository<EmployeeEntity>
 {
-	/**
-	 * Simple test control method which is used by client test cases to 
-	 * check for spring validation enabling.
-	 * @param testBean
-	 * @return
-	 */
-	@ResponseBody
-	@RequestMapping("/test")
-	public BaseResponse test(@Valid @RequestBody TestBean testBean)
-	{
-		return new BaseResponse(0, "Sucess - " + testBean.getName());
-	}
+	@LovQuery("employeeLov")
+	@SearchResult(mappings = {
+			@ResultMapping(entityField = "id", property = "value"),
+			@ResultMapping(entityField = "name", property = "label")
+	})
+	public List<ValueLabel> fetchEmployeeLov();
+	
+	public void deleteAll();
 }
