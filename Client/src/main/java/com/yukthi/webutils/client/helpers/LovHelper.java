@@ -23,9 +23,9 @@
 
 package com.yukthi.webutils.client.helpers;
 
-import static com.yukthi.webutils.commons.IActionConstants.ACTION_LOV_FETCH;
-import static com.yukthi.webutils.commons.IActionConstants.PARAM_NAME;
-import static com.yukthi.webutils.commons.IActionConstants.PARAM_TYPE;
+import static com.yukthi.webutils.common.IActionConstants.ACTION_LOV_FETCH;
+import static com.yukthi.webutils.common.IActionConstants.PARAM_NAME;
+import static com.yukthi.webutils.common.IActionConstants.PARAM_TYPE;
 
 import java.util.List;
 
@@ -36,9 +36,9 @@ import com.yukthi.utils.rest.RestResult;
 import com.yukthi.webutils.client.ActionRequestBuilder;
 import com.yukthi.webutils.client.ClientContext;
 import com.yukthi.webutils.client.RestException;
-import com.yukthi.webutils.commons.LovType;
-import com.yukthi.webutils.models.LovListResponse;
-import com.yukthi.webutils.models.ValueLabel;
+import com.yukthi.webutils.common.LovType;
+import com.yukthi.webutils.common.models.LovListResponse;
+import com.yukthi.webutils.common.models.ValueLabel;
 
 /**
  * Helper to provide LOV related functionality

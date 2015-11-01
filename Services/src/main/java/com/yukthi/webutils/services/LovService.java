@@ -41,9 +41,9 @@ import org.springframework.stereotype.Service;
 
 import com.yukthi.webutils.IDynamicRepositoryMethodRegistry;
 import com.yukthi.webutils.InvalidRequestParameterException;
-import com.yukthi.webutils.annotations.Label;
 import com.yukthi.webutils.annotations.LovQuery;
-import com.yukthi.webutils.models.ValueLabel;
+import com.yukthi.webutils.common.annotations.Label;
+import com.yukthi.webutils.common.models.ValueLabel;
 import com.yukthi.webutils.services.dynamic.DynamicMethod;
 
 
@@ -200,5 +200,15 @@ public class LovService implements IDynamicRepositoryMethodRegistry<LovQuery>
 		}
 		
 		return (List<ValueLabel>)method.invoke();
+	}
+	
+	/**
+	 * Checks if the specified name is valid dynamic lov name
+	 * @param name Name to be validated
+	 * @return True, if specified name is valid dynamic lov name
+	 */
+	public boolean isValidDynamicLov(String name)
+	{
+		return nameToLovMet.containsKey(name);
 	}
 }

@@ -22,16 +22,16 @@
  */
 package com.test.yukthi.webutils.client;
 
+import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.test.yukthi.webutils.models.TestBean;
 import com.yukthi.utils.rest.PostRestRequest;
 import com.yukthi.utils.rest.RestClient;
 import com.yukthi.utils.rest.RestResult;
-import com.yukthi.webutils.commons.ICommonConstants;
-import com.yukthi.webutils.models.BaseResponse;
-
-import junit.framework.Assert;
+import com.yukthi.webutils.common.ICommonConstants;
+import com.yukthi.webutils.common.models.BaseResponse;
 
 /**
  * Ensures spring validation is enabled using test controller and test bean
@@ -39,25 +39,41 @@ import junit.framework.Assert;
  */
 public class TestSpringValidation extends TFBase
 {
+	private RestClient client ;
+	
+	@BeforeClass
+	private void setup()
+	{
+		client = new RestClient(super.baseUrl);		
+	}
+	
+	private void test(TestBean bean, int expectedCode, String messageSubstr)
+	{
+		//check for negative test case, where validation fails
+		PostRestRequest req = new PostRestRequest("/test/test");
+		req.setJsonBody(bean);
+		
+		RestResult<BaseResponse> result = client.invokeJsonRequest(req, BaseResponse.class);
+		Assert.assertEquals(result.getValue().getCode(), expectedCode);
+		
+		if(messageSubstr != null)
+		{
+			Assert.assertTrue(result.getValue().getMessage().toLowerCase().contains(messageSubstr.toLowerCase()));
+		}
+	}
+	
 	/**
 	 * Tests that spring validation is working without any problem
 	 */
 	@Test
 	public void testSpringValidation()
 	{
-		RestClient client = new RestClient(super.baseUrl);
-
 		//check for negative test case, where validation fails
-		PostRestRequest req = new PostRestRequest("/test/test");
-		req.setJsonBody(new TestBean(null));
-		
-		RestResult<BaseResponse> result = client.invokeJsonRequest(req, BaseResponse.class);
-		Assert.assertEquals(result.getValue().getCode(), ICommonConstants.RESPONSE_CODE_INVALID_REQUEST);
+		test(new TestBean(null, 25, "test", "test"), ICommonConstants.RESPONSE_CODE_INVALID_REQUEST, "name");
+		test(new TestBean("name", 13, "test", "test"), ICommonConstants.RESPONSE_CODE_INVALID_REQUEST, "age");
+		test(new TestBean("name", 25, "test", "mismatch"), ICommonConstants.RESPONSE_CODE_INVALID_REQUEST, "confirmPassword");
 		
 		//test for positive test case where validation succeeds
-		req.setJsonBody(new TestBean("success"));
-		
-		result = client.invokeJsonRequest(req, BaseResponse.class);
-		Assert.assertEquals(result.getValue().getCode(), ICommonConstants.RESPONSE_CODE_SUCCESS);
+		test(new TestBean("name", 25, "test", "test"), ICommonConstants.RESPONSE_CODE_SUCCESS, "name");
 	}
 }

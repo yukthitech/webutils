@@ -30,8 +30,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.test.yukthi.webutils.models.TestBean;
+import com.yukthi.webutils.common.models.BaseResponse;
 import com.yukthi.webutils.controllers.BaseController;
-import com.yukthi.webutils.models.BaseResponse;
 
 /**
  * Test controller to test spring validation enablement

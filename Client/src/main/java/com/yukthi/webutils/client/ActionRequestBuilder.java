@@ -28,8 +28,8 @@ import java.util.Map;
 import com.yukthi.utils.rest.GetRestRequest;
 import com.yukthi.utils.rest.PostRestRequest;
 import com.yukthi.utils.rest.RestRequest;
-import com.yukthi.webutils.commons.HttpMethod;
-import com.yukthi.webutils.models.ActionModel;
+import com.yukthi.webutils.common.HttpMethod;
+import com.yukthi.webutils.common.models.ActionModel;
 
 /**
  * Utility to build action requests
@@ -48,6 +48,12 @@ public class ActionRequestBuilder
 	public static RestRequest<?> buildRequest(ClientContext context, String action, Object requestEntity, Map<String, String> parameters)
 	{
 		ActionModel actionModel = context.getAction(action);
+		
+		if(actionModel == null)
+		{
+			throw new IllegalArgumentException("Invalid action name specified - " + action);
+		}
+		
 		RestRequest<?> request = null;
 		
 		if(actionModel.getMethod() == HttpMethod.GET)

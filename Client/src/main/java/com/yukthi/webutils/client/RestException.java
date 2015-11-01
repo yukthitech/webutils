@@ -23,7 +23,7 @@
 
 package com.yukthi.webutils.client;
 
-import com.yukthi.webutils.models.BaseResponse;
+import com.yukthi.webutils.common.models.BaseResponse;
 
 /**
  * Exception to be thrown when an error occurs while invoking apis

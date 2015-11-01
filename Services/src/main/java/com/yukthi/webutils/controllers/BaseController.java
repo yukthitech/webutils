@@ -35,8 +35,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.yukthi.webutils.commons.ICommonConstants;
-import com.yukthi.webutils.models.BaseResponse;
+import com.yukthi.webutils.common.ICommonConstants;
+import com.yukthi.webutils.common.models.BaseResponse;
 
 /**
  * Base class for all controllers and provides common exception handling

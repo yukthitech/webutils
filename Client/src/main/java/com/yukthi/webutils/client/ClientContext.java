@@ -30,7 +30,7 @@ import java.util.Map;
 import com.yukthi.utils.rest.GetRestRequest;
 import com.yukthi.utils.rest.RestClient;
 import com.yukthi.utils.rest.RestResult;
-import com.yukthi.webutils.models.ActionModel;
+import com.yukthi.webutils.common.models.ActionModel;
 
 /**
  * Client context to invoke actions

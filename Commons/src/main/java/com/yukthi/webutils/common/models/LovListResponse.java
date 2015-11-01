@@ -21,7 +21,7 @@
  * SOFTWARE.
  */
 
-package com.yukthi.webutils.models;
+package com.yukthi.webutils.common.models;
 
 import java.util.List;
 

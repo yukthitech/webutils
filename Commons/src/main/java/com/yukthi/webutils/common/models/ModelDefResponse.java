@@ -21,26 +21,56 @@
  * SOFTWARE.
  */
 
-package com.test.yukthi.webutils.services.dynamic;
+package com.yukthi.webutils.common.models;
 
-
-import com.yukthi.webutils.annotations.ContextAttribute;
-import com.yukthi.webutils.annotations.RequestParam;
-import com.yukthi.webutils.common.LovType;
+import com.yukthi.webutils.common.models.def.ModelDef;
 
 /**
- * Test class to hold dynamic methods
+ * Response representing Model definition
+ * 
  * @author akiran
  */
-public class DynamicMethodHolder
+public class ModelDefResponse extends BaseResponse
 {
-	public String dynMethod1(@RequestParam("param1") int param1, @ContextAttribute("lovType") LovType lovType)
+	/**
+	 * Model definition
+	 */
+	private ModelDef modelDef;
+
+	/**
+	 * Instantiates a new lov list response.
+	 */
+	public ModelDefResponse()
+	{}
+
+	/**
+	 * Instantiates a new model def response.
+	 *
+	 * @param modelDef the model def
+	 */
+	public ModelDefResponse(ModelDef modelDef)
 	{
-		return "" + param1 + "-" + lovType;
+		this.modelDef = modelDef;
 	}
 
-	public String dynMethod2()
+	/**
+	 * Gets the model definition.
+	 *
+	 * @return the model definition
+	 */
+	public ModelDef getModelDef()
 	{
-		return "success";
+		return modelDef;
 	}
+
+	/**
+	 * Sets the model definition.
+	 *
+	 * @param modelDef the new model definition
+	 */
+	public void setModelDef(ModelDef modelDef)
+	{
+		this.modelDef = modelDef;
+	}
+
 }

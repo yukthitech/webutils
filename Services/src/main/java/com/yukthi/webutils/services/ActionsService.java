@@ -49,8 +49,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.yukthi.webutils.annotations.ActionName;
 import com.yukthi.webutils.annotations.RequestParam;
-import com.yukthi.webutils.commons.HttpMethod;
-import com.yukthi.webutils.models.ActionModel;
+import com.yukthi.webutils.common.HttpMethod;
+import com.yukthi.webutils.common.models.ActionModel;
 
 /**
  * Service to maintain actions that can be invoked from client

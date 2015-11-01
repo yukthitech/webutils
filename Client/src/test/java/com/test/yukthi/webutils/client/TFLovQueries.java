@@ -33,8 +33,8 @@ import org.testng.annotations.Test;
 
 import com.yukthi.utils.CommonUtils;
 import com.yukthi.webutils.client.helpers.LovHelper;
-import com.yukthi.webutils.commons.LovType;
-import com.yukthi.webutils.models.ValueLabel;
+import com.yukthi.webutils.common.LovType;
+import com.yukthi.webutils.common.models.ValueLabel;
 
 /**
  * Test LOV value fetching from server

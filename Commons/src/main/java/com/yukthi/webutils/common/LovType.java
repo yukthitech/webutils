@@ -1,4 +1,4 @@
-package com.yukthi.webutils.commons;
+package com.yukthi.webutils.common;
 
 /**
  * Defines the types of LOV supported

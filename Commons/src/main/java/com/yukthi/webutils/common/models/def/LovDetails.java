@@ -20,83 +20,93 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.yukthi.webutils.models;
+
+package com.yukthi.webutils.common.models.def;
+
+import com.yukthi.webutils.common.LovType;
 
 /**
- * Value label pair. Mainly used to pass LOV data to client
+ * LOV details for lov field
  * @author akiran
  */
-public class ValueLabel
+public class LovDetails
 {
 	/**
-	 * Value of the item
+	 * Type of lov
 	 */
-	private String value;
+	private LovType lovType;
 	
 	/**
-	 * Label for the item, that can be used in client ui.
+	 * Name of the lov
 	 */
-	private String label;
+	private String lovName;
 	
 	/**
-	 * Instantiates a new value label.
+	 * Parent field, based on whose value current field's lov needs to be fetched. 
+	 * Like State list based on country.
 	 */
-	public ValueLabel()
+	private String parentField;
+
+	/**
+	 * Gets the type of lov.
+	 *
+	 * @return the type of lov
+	 */
+	public LovType getLovType()
 	{
+		return lovType;
 	}
 
 	/**
-	 * Instantiates a new value label.
+	 * Sets the type of lov.
 	 *
-	 * @param value the value
-	 * @param label the label
+	 * @param lovType the new type of lov
 	 */
-	public ValueLabel(String value, String label)
+	public void setLovType(LovType lovType)
 	{
-		this.value = value;
-		this.label = label;
+		this.lovType = lovType;
 	}
 
 	/**
-	 * Gets the value of the item.
+	 * Gets the name of the lov.
 	 *
-	 * @return the value of the item
+	 * @return the name of the lov
 	 */
-	public String getValue()
+	public String getLovName()
 	{
-		return value;
+		return lovName;
 	}
 
 	/**
-	 * Sets the value of the item.
+	 * Sets the name of the lov.
 	 *
-	 * @param value the new value of the item
+	 * @param lovName the new name of the lov
 	 */
-	public void setValue(String value)
+	public void setLovName(String lovName)
 	{
-		this.value = value;
+		this.lovName = lovName;
 	}
 
 	/**
-	 * Gets the label for the item, that can be used in client ui.
+	 * Gets the parent field, based on whose value current field's lov needs to be fetched.
 	 *
-	 * @return the label for the item, that can be used in client ui
+	 * @return the parent field, based on whose value current field's lov needs to be fetched
 	 */
-	public String getLabel()
+	public String getParentField()
 	{
-		return label;
+		return parentField;
 	}
 
 	/**
-	 * Sets the label for the item, that can be used in client ui.
+	 * Sets the parent field, based on whose value current field's lov needs to be fetched.
 	 *
-	 * @param label the new label for the item, that can be used in client ui
+	 * @param parentField the new parent field, based on whose value current field's lov needs to be fetched
 	 */
-	public void setLabel(String label)
+	public void setParentField(String parentField)
 	{
-		this.label = label;
+		this.parentField = parentField;
 	}
-
+	
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
@@ -106,10 +116,12 @@ public class ValueLabel
 		StringBuilder builder = new StringBuilder(super.toString());
 		builder.append("[");
 
-		builder.append("Value: ").append(value);
-		builder.append(",").append("Lable: ").append(label);
+		builder.append("Type: ").append(lovType);
+		builder.append(",").append("Name: ").append(lovName);
+		builder.append(",").append("Parent Fld: ").append(parentField);
 
 		builder.append("]");
 		return builder.toString();
 	}
+
 }

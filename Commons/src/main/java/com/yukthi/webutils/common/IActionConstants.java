@@ -21,26 +21,47 @@
  * SOFTWARE.
  */
 
-package com.yukthi.webutils.commons;
+package com.yukthi.webutils.common;
 
 /**
- * Different response codes
+ * Constants to be used for actions
  * @author akiran
  */
-public interface ICommonConstants
+public interface IActionConstants
 {
 	/**
-	 * Success code to be used for successful request processing
+	 * Action to be used for fetch
 	 */
-	public int RESPONSE_CODE_SUCCESS = 0;
+	public String ACTION_TYPE_FETCH = "fetch";
+	
+	
+	////////////////////////////////////////////////////////////////////////////
+	/**
+	 * Action prefix that can be used on LOV controller
+	 */
+	public String ACTION_PREFIX_LOV = "lov";
 	
 	/**
-	 * Response code to be used when input request validation failed
+	 * Actions prefix used on model def controller
 	 */
-	public int RESPONSE_CODE_INVALID_REQUEST = 4400;
+	public String ACTION_PREFIX_MODEL_DEF = "modelDef";
+
+	////////////////////////////////////////////////////////////////////////////
+	/**
+	 * Parameter with name "name"
+	 */
+	public String PARAM_NAME = "name";
 	
 	/**
-	 * Response code to be used when unhandled error occurs on server
+	 * Parameter with name "type"
 	 */
-	public int RESPONSE_CODE_UNHANDLED_SERVER_ERROR = 4500;
+	public String PARAM_TYPE = "type";
+	
+	/////////////////////////////////////////////////////////////////////////////
+	/**
+	 * LOV fetch action name
+	 */
+	public String ACTION_LOV_FETCH = ACTION_PREFIX_LOV + "." + ACTION_TYPE_FETCH;
+	
+	public String ACTION_MODEL_DEF_FETCH = ACTION_PREFIX_MODEL_DEF + "." + ACTION_TYPE_FETCH;
 }

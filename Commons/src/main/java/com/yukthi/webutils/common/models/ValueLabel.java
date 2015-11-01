@@ -20,94 +20,81 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
-package com.yukthi.webutils.models;
-
-import com.yukthi.webutils.commons.ICommonConstants;
+package com.yukthi.webutils.common.models;
 
 /**
- * Base for all response classes to include response code and message
+ * Value label pair. Mainly used to pass LOV data to client
+ * @author akiran
  */
-public class BaseResponse
+public class ValueLabel
 {
-	/** 
-	 * Response code. 
-	 */
-	private int code;
-
-	/** 
-	 * Response message. 
-	 */
-	private String message;
-
 	/**
-	 * Instantiates a new base response.
+	 * Value of the item
 	 */
-	public BaseResponse()
-	{}
-
-	/**
-	 * Instantiates a new base response.
-	 *
-	 * @param code
-	 *            the code
-	 * @param message
-	 *            the message
-	 */
-	public BaseResponse(int code, String message)
-	{
-		this.code = code;
-		this.message = message;
-	}
+	private String value;
 	
 	/**
-	 * Instantiates a new base response.
-	 *
-	 * @param message the message
+	 * Label for the item, that can be used in client ui.
 	 */
-	public BaseResponse(String message)
+	private String label;
+	
+	/**
+	 * Instantiates a new value label.
+	 */
+	public ValueLabel()
 	{
-		this(ICommonConstants.RESPONSE_CODE_SUCCESS, message);
 	}
 
 	/**
-	 * Gets the  Response code.
+	 * Instantiates a new value label.
 	 *
-	 * @return the  Response code
+	 * @param value the value
+	 * @param label the label
 	 */
-	public int getCode()
+	public ValueLabel(String value, String label)
 	{
-		return code;
+		this.value = value;
+		this.label = label;
 	}
 
 	/**
-	 * Sets the  Response code.
+	 * Gets the value of the item.
 	 *
-	 * @param code the new  Response code
+	 * @return the value of the item
 	 */
-	public void setCode(int code)
+	public String getValue()
 	{
-		this.code = code;
+		return value;
 	}
 
 	/**
-	 * Gets the  Response message.
+	 * Sets the value of the item.
 	 *
-	 * @return the  Response message
+	 * @param value the new value of the item
 	 */
-	public String getMessage()
+	public void setValue(String value)
 	{
-		return message;
+		this.value = value;
 	}
 
 	/**
-	 * Sets the  Response message.
+	 * Gets the label for the item, that can be used in client ui.
 	 *
-	 * @param message the new  Response message
+	 * @return the label for the item, that can be used in client ui
 	 */
-	public void setMessage(String message)
+	public String getLabel()
 	{
-		this.message = message;
+		return label;
+	}
+
+	/**
+	 * Sets the label for the item, that can be used in client ui.
+	 *
+	 * @param label the new label for the item, that can be used in client ui
+	 */
+	public void setLabel(String label)
+	{
+		this.label = label;
 	}
 
 	/* (non-Javadoc)
@@ -119,11 +106,10 @@ public class BaseResponse
 		StringBuilder builder = new StringBuilder(super.toString());
 		builder.append("[");
 
-		builder.append("Code: ").append(code);
-		builder.append(",").append("Message: ").append(message);
+		builder.append("Value: ").append(value);
+		builder.append(",").append("Lable: ").append(label);
 
 		builder.append("]");
 		return builder.toString();
 	}
-
 }

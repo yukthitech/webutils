@@ -14,9 +14,9 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>javax.validation</groupId>
-			<artifactId>validation-api</artifactId>
-			<version>1.0.0.GA</version>
+			<groupId>com.yukthi</groupId>
+			<artifactId>yukthi-validators</artifactId>
+			<version>1.0</version>
 		</dependency>
 	</dependencies>
 

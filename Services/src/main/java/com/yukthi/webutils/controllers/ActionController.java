@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.yukthi.webutils.annotations.ActionName;
-import com.yukthi.webutils.models.ActionModel;
+import com.yukthi.webutils.common.models.ActionModel;
 import com.yukthi.webutils.services.ActionsService;
 
 /**

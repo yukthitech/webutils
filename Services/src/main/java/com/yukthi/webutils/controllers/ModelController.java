@@ -23,12 +23,7 @@
 
 package com.yukthi.webutils.controllers;
 
-import static com.yukthi.webutils.common.IActionConstants.ACTION_PREFIX_LOV;
-import static com.yukthi.webutils.common.IActionConstants.ACTION_TYPE_FETCH;
-import static com.yukthi.webutils.common.IActionConstants.PARAM_NAME;
-import static com.yukthi.webutils.common.IActionConstants.PARAM_TYPE;
-
-import javax.servlet.http.HttpServletRequest;
+import static com.yukthi.webutils.common.IActionConstants.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,22 +31,23 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.yukthi.webutils.InvalidRequestParameterException;
 import com.yukthi.webutils.annotations.ActionName;
-import com.yukthi.webutils.common.LovType;
-import com.yukthi.webutils.common.models.LovListResponse;
-import com.yukthi.webutils.services.LovService;
+import com.yukthi.webutils.common.models.ModelDefResponse;
+import com.yukthi.webutils.common.models.def.ModelDef;
+import com.yukthi.webutils.services.ModelDetailsService;
 
 /**
  * Controller for fetching LOV values.
  * @author akiran
  */
 @RestController
-@ActionName(ACTION_PREFIX_LOV)
-@RequestMapping("/lov")
-public class LovController
+@ActionName(ACTION_PREFIX_MODEL_DEF)
+@RequestMapping("/models")
+public class ModelController
 {
 	@Autowired
-	private LovService lovService;
+	private ModelDetailsService modelService;
 	
 	/**
 	 * Service method to fetch LOV values
@@ -61,14 +57,16 @@ public class LovController
 	 * @return
 	 */
 	@ActionName(ACTION_TYPE_FETCH)
-	@RequestMapping(value = "/fetch/{" + PARAM_NAME + "}/{" + PARAM_TYPE + "}", method = RequestMethod.GET)
-	public LovListResponse fetchLov(@PathVariable(PARAM_NAME) String lovName, @PathVariable(PARAM_TYPE) LovType type, HttpServletRequest request)
+	@RequestMapping(value = "/fetch/{" + PARAM_NAME + "}", method = RequestMethod.GET)
+	public ModelDefResponse fetchModel(@PathVariable(PARAM_NAME) String modelName)
 	{
-		if(type == LovType.STATIC_TYPE)
+		ModelDef modelDef = modelService.getModelDef(modelName);
+		
+		if(modelDef == null)
 		{
-			return new LovListResponse( lovService.getEnumLovValues(lovName, request.getLocale()) );
+			throw new InvalidRequestParameterException("Invalid model name specified - " + modelName);
 		}
 		
-		return new LovListResponse( lovService.getDynamicLovValues(lovName, request.getLocale()) );
+		return new ModelDefResponse(modelDef);
 	}
 }

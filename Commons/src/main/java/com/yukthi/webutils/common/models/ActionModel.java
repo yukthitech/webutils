@@ -20,9 +20,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.yukthi.webutils.models;
+package com.yukthi.webutils.common.models;
 
-import com.yukthi.webutils.commons.HttpMethod;
+import com.yukthi.webutils.common.HttpMethod;
 
 /**
  * Represents server action details that can be invoked from client

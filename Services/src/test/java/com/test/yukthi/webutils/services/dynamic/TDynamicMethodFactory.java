@@ -34,7 +34,7 @@ import org.testng.annotations.Test;
 
 import com.yukthi.utils.ReflectionUtils;
 import com.yukthi.webutils.WebutilsContext;
-import com.yukthi.webutils.commons.LovType;
+import com.yukthi.webutils.common.LovType;
 import com.yukthi.webutils.services.dynamic.DynamicMethod;
 import com.yukthi.webutils.services.dynamic.DynamicMethodFactory;
 

@@ -29,7 +29,7 @@ import com.yukthi.persistence.ICrudRepository;
 import com.yukthi.persistence.repository.annotations.ResultMapping;
 import com.yukthi.persistence.repository.annotations.SearchResult;
 import com.yukthi.webutils.annotations.LovQuery;
-import com.yukthi.webutils.models.ValueLabel;
+import com.yukthi.webutils.common.models.ValueLabel;
 
 /**
  * @author akiran

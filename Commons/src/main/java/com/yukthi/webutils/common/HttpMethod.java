@@ -21,7 +21,7 @@
  * SOFTWARE.
  */
 
-package com.yukthi.webutils.commons;
+package com.yukthi.webutils.common;
 
 /**
  * Defines list of supported/used http methods

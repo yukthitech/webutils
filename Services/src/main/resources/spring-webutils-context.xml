@@ -11,6 +11,11 @@
         http://www.springframework.org/schema/mvc 
         http://www.springframework.org/schema/mvc/spring-mvc.xsd">
 
+	<bean id="labelsMessageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+		<property name="basenames">
+			<value>classpath:labels-*</value>
+		</property>
+	</bean>
 
 	<bean id="objectMapper" class="com.fasterxml.jackson.databind.ObjectMapper">
 		<property name="dateFormat">
