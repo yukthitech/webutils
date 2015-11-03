@@ -35,4 +35,6 @@ public interface IWebUtilsInternalConstants
 	public String WEBUTILS_BASE_PACKAGE = "com.yukthi.webutils";
 	
 	public String EXTENSIONS_REPO_BASE_PACKAGE = "com.yukthi.webutils.repository.extensions";
+	
+	public String REQ_ATTR_USER_DETAILS = "request.userDetails";
 }

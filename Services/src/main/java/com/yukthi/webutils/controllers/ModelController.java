@@ -51,9 +51,7 @@ public class ModelController
 	
 	/**
 	 * Service method to fetch LOV values
-	 * @param lovName LOV name whose values needs to be fetched
-	 * @param type Static or dynamic lov
-	 * @param request Current servlet request
+	 * @param modelName Model details whose needs to be fetched
 	 * @return
 	 */
 	@ActionName(ACTION_TYPE_FETCH)

@@ -21,46 +21,21 @@
  * SOFTWARE.
  */
 
-package com.yukthi.webutils.common;
+package com.yukthi.webutils.security;
 
 /**
- * Different response codes
+ * Authentication service to be provided by the webapplication to authenticate 
+ * the users.
  * @author akiran
  */
-public interface ICommonConstants
+public interface IAuthenticationService<R extends Enum<R>>
 {
 	/**
-	 * Success code to be used for successful request processing
+	 * Authenticates the specified user name and password and returns user details, if inputs
+	 * are value
+	 * @param userName User name
+	 * @param password password
+	 * @return User details if authentication is sucessful, otherwise null
 	 */
-	public int RESPONSE_CODE_SUCCESS = 0;
-	
-	/**
-	 * Response code to be used when input request validation failed
-	 */
-	public int RESPONSE_CODE_INVALID_REQUEST = 4400;
-	
-	/**
-	 * Response code to be used when unhandled error occurs on server
-	 */
-	public int RESPONSE_CODE_UNHANDLED_SERVER_ERROR = 4500;
-
-	/**
-	 * Response code to be used when authentication fails
-	 */
-	public int RESPONSE_CODE_AUTHENTICATION_ERROR = 4401;
-
-	/**
-	 * Response code to be used when authorization fails
-	 */
-	public int RESPONSE_CODE_AUTHORIZATION_ERROR = 4402;
-
-	/**
-	 * Request/response header that will hold authroization token
-	 */
-	public String HEADER_AUTHORIZATION_TOKEN = "AUTH_TOKEN";
-	
-	/**
-	 * Request header that should hold authentication (user/pwd) information when auth-token is not available
-	 */
-	public String HEADER_AUTHENTICATION = "Authorization";
+	public UserDetails<R> authenticate(String userName, String password);
 }

@@ -39,4 +39,12 @@
 
 	<context:component-scan base-package="com.test" />
 
+	<mvc:interceptors>
+		<bean class="com.yukthi.webutils.security.SecurityInterceptor">
+			<constructor-arg type="java.lang.Class" value="com.test.yukthi.webutils.SecurityRole"></constructor-arg>
+			<constructor-arg type="java.lang.String" value="ASW@#$234R44@#%#"></constructor-arg>
+			
+			<property name="sessionTime" value="5" />
+		</bean>
+	</mvc:interceptors>
 </beans>

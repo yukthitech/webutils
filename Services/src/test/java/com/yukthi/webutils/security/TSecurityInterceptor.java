@@ -21,46 +21,41 @@
  * SOFTWARE.
  */
 
-package com.yukthi.webutils.common;
+package com.yukthi.webutils.security;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.mockito.Mockito;
+import org.testng.Assert;
+import org.testng.annotations.Test;
+
+import com.yukthi.utils.CommonUtils;
 
 /**
- * Different response codes
  * @author akiran
+ *
  */
-public interface ICommonConstants
+public class TSecurityInterceptor
 {
-	/**
-	 * Success code to be used for successful request processing
-	 */
-	public int RESPONSE_CODE_SUCCESS = 0;
+	private static Logger logger = LogManager.getLogger(TSecurityInterceptor.class);
+	private SecurityInterceptor securityInterceptor = new SecurityInterceptor(TestRole.class, "#AS#$%^Fe135EF@4");
 	
-	/**
-	 * Response code to be used when input request validation failed
-	 */
-	public int RESPONSE_CODE_INVALID_REQUEST = 4400;
-	
-	/**
-	 * Response code to be used when unhandled error occurs on server
-	 */
-	public int RESPONSE_CODE_UNHANDLED_SERVER_ERROR = 4500;
-
-	/**
-	 * Response code to be used when authentication fails
-	 */
-	public int RESPONSE_CODE_AUTHENTICATION_ERROR = 4401;
-
-	/**
-	 * Response code to be used when authorization fails
-	 */
-	public int RESPONSE_CODE_AUTHORIZATION_ERROR = 4402;
-
-	/**
-	 * Request/response header that will hold authroization token
-	 */
-	public String HEADER_AUTHORIZATION_TOKEN = "AUTH_TOKEN";
-	
-	/**
-	 * Request header that should hold authentication (user/pwd) information when auth-token is not available
-	 */
-	public String HEADER_AUTHENTICATION = "Authorization";
+	@Test
+	public void testEncryptDecrypt()
+	{
+		long userId = 1234L;
+		Object roles[] = new Object[]{TestRole.EMP_ADMIN, TestRole.ADMIN};
+		
+		String encryptedVal = securityInterceptor.encrypt(1234, roles);
+		logger.debug("Got encryptes string as - " + encryptedVal);
+		
+		HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
+		UserDetails<?> userDetails = securityInterceptor.decrypt(encryptedVal, response);
+		
+		Assert.assertNotNull(userDetails);
+		Assert.assertEquals(userDetails.getUserId(), userId);
+		Assert.assertEquals( CommonUtils.toSet(userDetails.getRoles()) , CommonUtils.toSet(roles) );
+	}
 }

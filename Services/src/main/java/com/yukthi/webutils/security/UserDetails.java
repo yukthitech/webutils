@@ -21,46 +21,70 @@
  * SOFTWARE.
  */
 
-package com.yukthi.webutils.common;
+package com.yukthi.webutils.security;
 
 /**
- * Different response codes
  * @author akiran
+ *
  */
-public interface ICommonConstants
+public class UserDetails<T>
 {
 	/**
-	 * Success code to be used for successful request processing
+	 * Unique user id
 	 */
-	public int RESPONSE_CODE_SUCCESS = 0;
+	private long userId;
 	
 	/**
-	 * Response code to be used when input request validation failed
+	 * User roles
 	 */
-	public int RESPONSE_CODE_INVALID_REQUEST = 4400;
+	private T roles[];
+
+	public UserDetails()
+	{}
 	
-	/**
-	 * Response code to be used when unhandled error occurs on server
-	 */
-	public int RESPONSE_CODE_UNHANDLED_SERVER_ERROR = 4500;
+	public UserDetails(long userId, T[] roles)
+	{
+		this.userId = userId;
+		this.roles = roles;
+	}
 
 	/**
-	 * Response code to be used when authentication fails
+	 * Gets the unique user id.
+	 *
+	 * @return the unique user id
 	 */
-	public int RESPONSE_CODE_AUTHENTICATION_ERROR = 4401;
+	public long getUserId()
+	{
+		return userId;
+	}
 
 	/**
-	 * Response code to be used when authorization fails
+	 * Sets the unique user id.
+	 *
+	 * @param userId the new unique user id
 	 */
-	public int RESPONSE_CODE_AUTHORIZATION_ERROR = 4402;
+	public void setUserId(long userId)
+	{
+		this.userId = userId;
+	}
 
 	/**
-	 * Request/response header that will hold authroization token
+	 * Gets the user roles.
+	 *
+	 * @return the user roles
 	 */
-	public String HEADER_AUTHORIZATION_TOKEN = "AUTH_TOKEN";
-	
+	public T[] getRoles()
+	{
+		return roles;
+	}
+
 	/**
-	 * Request header that should hold authentication (user/pwd) information when auth-token is not available
+	 * Sets the user roles.
+	 *
+	 * @param roles the new user roles
 	 */
-	public String HEADER_AUTHENTICATION = "Authorization";
+	public void setRoles(T[] roles)
+	{
+		this.roles = roles;
+	}
 }

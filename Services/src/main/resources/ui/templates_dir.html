@@ -12,7 +12,9 @@
 					${attr} = ${value}<BR/>
 				</for-each>
 
+				==================From json data-=====================
 				<set-var name="_data1" expr="context.invokeAction('data.json')"/>
+				
 				<BR/><BR/>
 				<for-each data="${_data1}" loop-var="value" index-var="attr">
 					${attr} = ${value}<BR/>

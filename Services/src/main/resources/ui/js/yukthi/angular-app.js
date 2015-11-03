@@ -12,8 +12,14 @@ $.addElementDirective = function(directiveObj) {
 				"attributes": attributes,
 				"$scope": $scope,
 				"element": $($element[0]),
-				"invokeAction": function(actionName) {
-					return $.makeJsonCall(actionName, null, {cache: false, dataType: "json", "methodType": "GET"});
+				"invokeAction": function(actionName, type) {
+					
+					if(!type)
+					{
+						type = 'json';
+					}
+					
+					return $.makeJsonCall(actionName, null, {cache: false, dataType: type, "methodType": "GET"});
 				} 
 			};
 			

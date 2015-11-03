@@ -584,6 +584,7 @@ $.makeJsonCall = function(url, data, config) {
 	
 	
 	$(document).data("makeJsonCall.data", null);
+	$(document).data("makeJsonCall.dataType", dataTypeVal);
 	
 	$.ajax({
 		  type: methodType,
@@ -600,15 +601,23 @@ $.makeJsonCall = function(url, data, config) {
 		  },
 		  error: function(jqXHR, textStatus, errorThrown){
 			  var resData = null;
+			  var dataType = $(document).data("makeJsonCall.dataType");
 			  
-			  try
+			  if(dataType == 'json')
 			  {
-				  resData = $.parseJSON(jqXHR.responseText);
-			  }catch(ex)
+				  try
+				  {
+					  resData = $.parseJSON(jqXHR.responseText);
+				  }catch(ex)
+				  {
+					  console.error("Failed to parsed response text.");
+					  console.error(ex);
+					  console.error("Response text: " + jqXHR.responseText);
+				  }
+			  }
+			  else
 			  {
-				  console.error("Failed to parsed response text.");
-				  console.error(ex);
-				  console.error("Response text: " + jqXHR.responseText);
+				  resData = jqXHR.responseText;
 			  }
 			  
 			  $(document).data("makeJsonCall.data", {status: jqXHR.statusCode().status, data: resData, error: errorThrown});
