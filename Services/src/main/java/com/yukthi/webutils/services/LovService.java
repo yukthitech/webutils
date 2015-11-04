@@ -187,7 +187,7 @@ public class LovService implements IDynamicRepositoryMethodRegistry<LovQuery>
 	 * Fetches dynamic LOV values based on the specified lov name
 	 * @param name Lov name
 	 * @param locale Locale in which values needs to be fetched. Current this is not used
-	 * @return 
+	 * @return dynamic LOV values based on the specified lov name
 	 */
 	@SuppressWarnings("unchecked")
 	public List<ValueLabel> getDynamicLovValues(String name, Locale locale)

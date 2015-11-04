@@ -15,7 +15,7 @@
 		
 		<dependency>
 			<groupId>com.yukthi.webutils</groupId>
-			<artifactId>Services</artifactId>
+			<artifactId>webutils-services</artifactId>
 			<version>1.0</version>
 		</dependency>
 	</dependencies>

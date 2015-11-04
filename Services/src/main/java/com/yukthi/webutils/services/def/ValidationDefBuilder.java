@@ -62,7 +62,7 @@ public class ValidationDefBuilder
 	
 	/**
 	 * Invoked by xml bean parser, while parsing xml, to add each validation configuration
-	 * @param config
+	 * @param config Configuration to be added
 	 */
 	public void addValidationConfig(ValidationConfigDetails config)
 	{
@@ -71,9 +71,9 @@ public class ValidationDefBuilder
 	
 	/**
 	 * Used to fetch annotation attribute value specified by "name"
-	 * @param annotation
-	 * @param name
-	 * @return
+	 * @param annotation Annotation from which attribute needs to be fetched
+	 * @param name Name of attribute whose value needs to be fetched
+	 * @return Specified attribute value
 	 */
 	private Object getAnnotationAttribute(Annotation annotation, String name)
 	{
@@ -88,6 +88,12 @@ public class ValidationDefBuilder
 		}
 	}
 
+	/**
+	 * Get validations for specified model type and field
+	 * @param modelType Model type whose field validations needs to be fetched
+	 * @param field Field for which validations needs to be fetched
+	 * @return Specified field validations
+	 */
 	public Collection<ValidationDef> getValidations(Class<?> modelType, Field field)
 	{
 		Annotation annotations[] = field.getAnnotations();

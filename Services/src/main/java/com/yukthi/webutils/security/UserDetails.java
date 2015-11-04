@@ -23,9 +23,12 @@
 
 package com.yukthi.webutils.security;
 
+import java.util.Set;
+
 /**
+ * User details representing current user, which is used by security services
+ * 
  * @author akiran
- *
  */
 public class UserDetails<T>
 {
@@ -33,16 +36,32 @@ public class UserDetails<T>
 	 * Unique user id
 	 */
 	private long userId;
-	
+
 	/**
 	 * User roles
 	 */
-	private T roles[];
+	private Set<T> roles;
 
+	/**
+	 * Encrypted authentication/authorization token
+	 */
+	private String authToken;
+
+	/**
+	 * Instantiates a new user details.
+	 */
 	public UserDetails()
 	{}
-	
-	public UserDetails(long userId, T[] roles)
+
+	/**
+	 * Instantiates a new user details.
+	 *
+	 * @param userId
+	 *            the user id
+	 * @param roles
+	 *            the roles
+	 */
+	public UserDetails(long userId, Set<T> roles)
 	{
 		this.userId = userId;
 		this.roles = roles;
@@ -61,7 +80,8 @@ public class UserDetails<T>
 	/**
 	 * Sets the unique user id.
 	 *
-	 * @param userId the new unique user id
+	 * @param userId
+	 *            the new unique user id
 	 */
 	public void setUserId(long userId)
 	{
@@ -73,7 +93,7 @@ public class UserDetails<T>
 	 *
 	 * @return the user roles
 	 */
-	public T[] getRoles()
+	public Set<T> getRoles()
 	{
 		return roles;
 	}
@@ -81,10 +101,45 @@ public class UserDetails<T>
 	/**
 	 * Sets the user roles.
 	 *
-	 * @param roles the new user roles
+	 * @param roles
+	 *            the new user roles
 	 */
-	public void setRoles(T[] roles)
+	public void setRoles(Set<T> roles)
 	{
 		this.roles = roles;
 	}
+
+	/**
+	 * Gets the encrypted authentication/authorization token.
+	 *
+	 * @return the encrypted authentication/authorization token
+	 */
+	public String getAuthToken()
+	{
+		return authToken;
+	}
+
+	/**
+	 * Sets the encrypted authentication/authorization token.
+	 *
+	 * @param authToken
+	 *            the new encrypted authentication/authorization token
+	 */
+	public void setAuthToken(String authToken)
+	{
+		this.authToken = authToken;
+	}
+
+	/**
+	 * Checks for role.
+	 *
+	 * @param role
+	 *            the role
+	 * @return true, if successful
+	 */
+	public boolean hasRole(T role)
+	{
+		return roles.contains(role);
+	}
+
 }

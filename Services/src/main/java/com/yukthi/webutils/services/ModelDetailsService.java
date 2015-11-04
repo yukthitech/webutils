@@ -98,9 +98,9 @@ public class ModelDetailsService
 	}
 	
 	/**
-	 * Used to fetch model definitions for specified model type. 
-	 * @param modelType
-	 * @return
+	 * Used to fetch model definitions for specified model name. 
+	 * @param name of the model whose definition needs to be fetched
+	 * @return model definitions for specified model name. 
 	 */
 	public ModelDef getModelDef(String name)
 	{

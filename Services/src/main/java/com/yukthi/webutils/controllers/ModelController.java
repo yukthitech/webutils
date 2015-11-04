@@ -52,7 +52,7 @@ public class ModelController
 	/**
 	 * Service method to fetch LOV values
 	 * @param modelName Model details whose needs to be fetched
-	 * @return
+	 * @return Response model definition
 	 */
 	@ActionName(ACTION_TYPE_FETCH)
 	@RequestMapping(value = "/fetch/{" + PARAM_NAME + "}", method = RequestMethod.GET)

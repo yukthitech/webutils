@@ -42,7 +42,7 @@ public class WebutilsContext
 	
 	/**
 	 * Fetches WebUtils context specific to current thread
-	 * @return
+	 * @return WebUtils context specific to current thread
 	 */
 	public synchronized static WebutilsContext getContext()
 	{
@@ -63,6 +63,7 @@ public class WebutilsContext
 	 * Adds attribute object with specified name
 	 * @param name Name of the attribute
 	 * @param object Attribute object to be set
+	 * @return Current webutils context
 	 */
 	public WebutilsContext addAttribute(String name, Object object)
 	{

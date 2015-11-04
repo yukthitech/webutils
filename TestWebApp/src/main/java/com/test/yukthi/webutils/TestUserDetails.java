@@ -21,43 +21,60 @@
  * SOFTWARE.
  */
 
-package com.yukthi.webutils.controllers;
+package com.test.yukthi.webutils;
 
-import java.util.List;
+import java.util.Set;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.yukthi.webutils.annotations.ActionName;
-import com.yukthi.webutils.common.models.ActionModel;
-import com.yukthi.webutils.services.ActionsService;
+import com.yukthi.webutils.annotations.SecurityField;
+import com.yukthi.webutils.security.UserDetails;
 
 /**
- * Controller to get actions and their details
+ * User details for test
  * @author akiran
  */
-@RestController
-@ActionName("actions")
-@RequestMapping("/actions")
-public class ActionController
+public class TestUserDetails extends UserDetails<SecurityRole>
 {
+
+	/** The client id. */
+	@SecurityField
+	private long clientId;
+
 	/**
-	 * Service to get action details
+	 * Instantiates a new test user details.
 	 */
-	@Autowired
-	private ActionsService actionsService;
-	
+	public TestUserDetails()
+	{}
+
 	/**
-	 * Controller method to fetch actions
-	 * @return Actions available
+	 * Instantiates a new test user details.
+	 *
+	 * @param userId
+	 *            the user id
+	 * @param roles
+	 *            the roles
+	 * @param clientId
+	 *            the client id
 	 */
-	@ActionName("fetch")
-	@RequestMapping(value = "/fetch", method = RequestMethod.GET)
-	public List<ActionModel> getActions()
+	public TestUserDetails(long userId, Set<SecurityRole> roles, long clientId)
 	{
-		return actionsService.getActions();
+		super(userId, roles);
+		this.clientId = clientId;
 	}
 
+	/**
+	 * @param clientId
+	 *            the {@link #clientId clientId} to set
+	 */
+	public void setClientId(long clientId)
+	{
+		this.clientId = clientId;
+	}
+
+	/**
+	 * @return the {@link #clientId clientId}
+	 */
+	public long getClientId()
+	{
+		return clientId;
+	}
 }

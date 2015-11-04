@@ -44,7 +44,9 @@ public class BaseResponse
 	 * Instantiates a new base response.
 	 */
 	public BaseResponse()
-	{}
+	{
+		this(ICommonConstants.RESPONSE_CODE_SUCCESS, null);
+	}
 
 	/**
 	 * Instantiates a new base response.

@@ -21,43 +21,13 @@
  * SOFTWARE.
  */
 
-package com.yukthi.webutils.controllers;
-
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.yukthi.webutils.annotations.ActionName;
-import com.yukthi.webutils.common.models.ActionModel;
-import com.yukthi.webutils.services.ActionsService;
+package com.yukthi.webutils.security;
 
 /**
- * Controller to get actions and their details
+ * Test user details without security fields
  * @author akiran
  */
-@RestController
-@ActionName("actions")
-@RequestMapping("/actions")
-public class ActionController
+public class UserDetails1 extends UserDetails<TestRole>
 {
-	/**
-	 * Service to get action details
-	 */
-	@Autowired
-	private ActionsService actionsService;
-	
-	/**
-	 * Controller method to fetch actions
-	 * @return Actions available
-	 */
-	@ActionName("fetch")
-	@RequestMapping(value = "/fetch", method = RequestMethod.GET)
-	public List<ActionModel> getActions()
-	{
-		return actionsService.getActions();
-	}
 
 }

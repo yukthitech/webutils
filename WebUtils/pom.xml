@@ -1,14 +1,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.yukthi.webutils</groupId>
-  <artifactId>WebUtils</artifactId>
-  <version>1.0</version>
-  <packaging>pom</packaging>
+	<groupId>com.yukthi.webutils</groupId>
+	<artifactId>WebUtils</artifactId>
+	<version>1.0</version>
+	<packaging>pom</packaging>
 
-  <name>WebUtils</name>
-  <url>http://maven.apache.org</url>
+	<name>WebUtils</name>
+	<url>http://maven.apache.org</url>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -19,7 +19,38 @@
 		<mockito.version>1.9.5</mockito.version>
 	</properties>
 
-  <dependencies>
+
+	<profiles>
+		<profile>
+			<id>test.unit</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<properties>
+				<include.test.groups>unit_test_cases</include.test.groups>
+				<exclude.test.groups>functional_test_cases</exclude.test.groups>
+			</properties>
+		</profile>
+
+		<profile>
+			<id>test.functional</id>
+			<properties>
+				<include.test.groups>functional_test_cases</include.test.groups>
+				<exclude.test.groups>unit_test_cases</exclude.test.groups>
+			</properties>
+		</profile>
+
+		<profile>
+			<id>test.all</id>
+			<properties>
+				<include.test.groups>unit_test_cases,functional_test_cases</include.test.groups>
+				<exclude.test.groups></exclude.test.groups>
+			</properties>
+		</profile>
+	</profiles>
+
+
+	<dependencies>
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-api</artifactId>
@@ -43,7 +74,7 @@
 			<version>${mockito.version}</version>
 			<scope>test</scope>
 		</dependency>
-  </dependencies>
+	</dependencies>
 
 	<build>
 		<plugins>

@@ -26,8 +26,9 @@ package com.test.yukthi.webutils.services;
 import org.springframework.stereotype.Service;
 
 import com.test.yukthi.webutils.SecurityRole;
+import com.test.yukthi.webutils.TestUserDetails;
+import com.yukthi.utils.CommonUtils;
 import com.yukthi.webutils.security.IAuthenticationService;
-import com.yukthi.webutils.security.UserDetails;
 
 /**
  * @author akiran
@@ -41,14 +42,14 @@ public class TestAuthenticationService implements IAuthenticationService<Securit
 	 * @see com.yukthi.webutils.security.IAuthenticationService#authenticate(java.lang.String, java.lang.String)
 	 */
 	@Override
-	public UserDetails<SecurityRole> authenticate(String userName, String password)
+	public TestUserDetails authenticate(String userName, String password)
 	{
 		if(!"admin".equals(userName) || !"admin".equals(password))
 		{
 			return null;
 		}
 		
-		return new UserDetails<>(1234L, new SecurityRole[]{SecurityRole.ADMIN, SecurityRole.CLIENT_ADMIN});
+		return new TestUserDetails(1234L, CommonUtils.toSet(SecurityRole.ADMIN, SecurityRole.CLIENT_ADMIN), 4321L);
 	}
 	
 }

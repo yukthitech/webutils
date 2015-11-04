@@ -23,39 +23,33 @@
 
 package com.yukthi.webutils.security;
 
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.mockito.Mockito;
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
-import com.yukthi.utils.CommonUtils;
-
 /**
+ * Exception to be thrown in case of security problems
  * @author akiran
- *
  */
-public class TSecurityInterceptor
+public class SecurityException extends Exception
 {
-	private static Logger logger = LogManager.getLogger(TSecurityInterceptor.class);
-	private SecurityInterceptor securityInterceptor = new SecurityInterceptor(TestRole.class, "#AS#$%^Fe135EF@4");
-	
-	@Test
-	public void testEncryptDecrypt()
+	private static final long serialVersionUID = 1L;
+
+	/**
+	 * Instantiates a new security exception.
+	 *
+	 * @param message the message
+	 * @param cause the cause
+	 */
+	public SecurityException(String message, Throwable cause)
 	{
-		long userId = 1234L;
-		Object roles[] = new Object[]{TestRole.EMP_ADMIN, TestRole.ADMIN};
-		
-		String encryptedVal = securityInterceptor.encrypt(1234, roles);
-		logger.debug("Got encryptes string as - " + encryptedVal);
-		
-		HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
-		UserDetails<?> userDetails = securityInterceptor.decrypt(encryptedVal, response);
-		
-		Assert.assertNotNull(userDetails);
-		Assert.assertEquals(userDetails.getUserId(), userId);
-		Assert.assertEquals( CommonUtils.toSet(userDetails.getRoles()) , CommonUtils.toSet(roles) );
+		super(message, cause);
 	}
+
+	/**
+	 * Instantiates a new security exception.
+	 *
+	 * @param message the message
+	 */
+	public SecurityException(String message)
+	{
+		super(message);
+	}
+
 }

@@ -2,7 +2,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<artifactId>Services</artifactId>
+	<artifactId>webutils-services</artifactId>
 	<packaging>jar</packaging>
 
 	<name>Services</name>
@@ -81,7 +81,7 @@
 
 		<dependency>
 			<groupId>com.yukthi.webutils</groupId>
-			<artifactId>commons</artifactId>
+			<artifactId>webutils-commons</artifactId>
 			<version>1.0</version>
 		</dependency>
 	</dependencies>

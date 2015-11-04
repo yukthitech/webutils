@@ -25,6 +25,12 @@ package com.yukthi.webutils;
 
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+
+import org.apache.commons.collections.CollectionUtils;
+
+import com.yukthi.webutils.security.UserDetails;
+
 /**
  * Configurations to be specified by web-applications using this web-utils
  * framework
@@ -46,6 +52,59 @@ public class WebutilsConfiguration
 	 * different services automatically.
 	 */
 	private List<String> basePackages;
+	
+	/**
+	 * Web-application roles enum. Which in turn can be used for authorization on service methods
+	 */
+	private Class<? extends Enum<?>> rolesEnumType;
+	
+	/**
+	 * Secret key used to enrypt/decrypt user details by auth services
+	 */
+	private String secretKey;
+	
+	/**
+	 * User details type to be used
+	 */
+	@SuppressWarnings("rawtypes")
+	private Class<? extends UserDetails> userDetailsType = UserDetails.class;
+	
+	/**
+	 * Webutils authentication/authorization is enabled or not
+	 */
+	private boolean enableAuth = true;
+	
+	/**
+	 * Session timeout in minutes
+	 */
+	private int sessionTimeOutInMin = 3;
+	
+	@PostConstruct
+	public void validte()
+	{
+		if(enableAuth)
+		{
+			if(userDetailsType == null)
+			{
+				throw new IllegalStateException("No user-details-type is specified in Web-utils-configurationn bean. It is mandatory when auth is enabled.");
+			}
+			
+			if(rolesEnumType == null)
+			{
+				throw new IllegalStateException("No roles-enum-type is specified in Web-utils-configurationn bean. It is mandatory when auth is enabled.");
+			}
+			
+			if(secretKey == null)
+			{
+				throw new IllegalStateException("No secret key is specified in Web-utils-configurationn bean. It is mandatory when auth is enabled.");
+			}
+		}
+		
+		if(CollectionUtils.isEmpty(basePackages))
+		{
+			throw new IllegalStateException("No base package(s) specified in Web-utils-configurationn bean.");
+		}
+	}
 
 	/**
 	 * Checks whether entity extension fields should be supported.
@@ -85,5 +144,126 @@ public class WebutilsConfiguration
 	public void setBasePackages(List<String> basePackages)
 	{
 		this.basePackages = basePackages;
+	}
+
+	/**
+	 * Gets the web-application roles enum.
+	 *
+	 * @return the web-application roles enum
+	 */
+	public Class<? extends Enum<?>> getRolesEnumType()
+	{
+		return rolesEnumType;
+	}
+
+	/**
+	 * Sets the web-application roles enum.
+	 *
+	 * @param rolesEnumType the new web-application roles enum
+	 */
+	public void setRolesEnumType(Class<? extends Enum<?>> rolesEnumType)
+	{
+		if(!Enum.class.isAssignableFrom(rolesEnumType))
+		{
+			throw new IllegalArgumentException("Non-enum is specified as roles type - " + rolesEnumType.getName());
+		}
+		
+		this.rolesEnumType = rolesEnumType;
+	}
+
+	/**
+	 * Gets the secret key used to enrypt/decrypt user details by auth services.
+	 *
+	 * @return the secret key used to enrypt/decrypt user details by auth services
+	 */
+	public String getSecretKey()
+	{
+		return secretKey;
+	}
+
+	/**
+	 * Sets the secret key used to enrypt/decrypt user details by auth services. Secret key length should be 16.
+	 *
+	 * @param secretKey the new secret key used to enrypt/decrypt user details by auth services
+	 */
+	public void setSecretKey(String secretKey)
+	{
+		if(secretKey.length() != 16)
+		{
+			throw new IllegalArgumentException("Secret key should be of length 16");
+		}
+		
+		this.secretKey = secretKey;
+	}
+
+	/**
+	 * Gets the user details type to be used.
+	 *
+	 * @return the user details type to be used
+	 */
+	@SuppressWarnings("rawtypes")
+	public Class<? extends UserDetails> getUserDetailsType()
+	{
+		return userDetailsType;
+	}
+
+	/**
+	 * Sets the user details type to be used.
+	 *
+	 * @param userDetailsType the new user details type to be used
+	 */
+	public void setUserDetailsType(Class<? extends UserDetails<?>> userDetailsType)
+	{
+		if(!UserDetails.class.isAssignableFrom(userDetailsType))
+		{
+			throw new IllegalArgumentException("Non user-details element is specified as user details type - " + userDetailsType.getName());
+		}
+		
+		this.userDetailsType = userDetailsType;
+	}
+
+	/**
+	 * Checks if is webutils authentication/authorization is enabled or not.
+	 *
+	 * @return the webutils authentication/authorization is enabled or not
+	 */
+	public boolean isEnableAuth()
+	{
+		return enableAuth;
+	}
+
+	/**
+	 * Sets the webutils authentication/authorization is enabled or not.
+	 *
+	 * @param enableAuth the new webutils authentication/authorization is enabled or not
+	 */
+	public void setEnableAuth(boolean enableAuth)
+	{
+		this.enableAuth = enableAuth;
+	}
+
+	/**
+	 * Gets the session timeout in minutes.
+	 *
+	 * @return the session timeout in minutes
+	 */
+	public int getSessionTimeOutInMin()
+	{
+		return sessionTimeOutInMin;
+	}
+
+	/**
+	 * Sets the session timeout in minutes. Time out value should be greater than or equal to 2 mins.
+	 *
+	 * @param sessionTimeOutInMin the new session timeout in minutes
+	 */
+	public void setSessionTimeOutInMin(int sessionTimeOutInMin)
+	{
+		if(sessionTimeOutInMin < 2)
+		{
+			throw new IllegalArgumentException("Session time can not be less than 2 mins - " + sessionTimeOutInMin);
+		}
+		
+		this.sessionTimeOutInMin = sessionTimeOutInMin;
 	}
 }

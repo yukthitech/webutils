@@ -77,11 +77,11 @@ public class ClientContext
 	/**
 	 * Invokes action url and fetches all available actions
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void init()
 	{
 		GetRestRequest request = new GetRestRequest(actionUrl);
-		RestResult<ArrayList<ActionModel>> actionsResult = restClient.invokeJsonRequest(request, ArrayList.class, ActionModel.class);
+		RestResult<ArrayList<ActionModel>> actionsResult = (RestResult)restClient.invokeJsonRequest(request, ArrayList.class, ActionModel.class);
 		
 		if(actionsResult.getValue() == null)
 		{

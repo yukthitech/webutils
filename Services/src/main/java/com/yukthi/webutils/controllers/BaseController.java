@@ -49,9 +49,9 @@ public class BaseController
 	/**
 	 * Handler for MethodArgumentNotValidException. This exception is expected to be thrown
 	 * by spring when request object fails server side validations.
-	 * @param response
-	 * @param ex
-	 * @return
+	 * @param response Response object
+	 * @param ex Exception to be handled
+	 * @return Response with proper error code and message
 	 */
 	@ExceptionHandler(value={MethodArgumentNotValidException.class})
 	@ResponseBody
@@ -85,9 +85,9 @@ public class BaseController
 	
 	/**
 	 * Handler for unhandled exceptions
-	 * @param response
-	 * @param ex
-	 * @return
+	 * @param response Response object
+	 * @param ex Exception to be handled
+	 * @return Response with proper error code and message
 	 */
 	@ExceptionHandler(value={Exception.class})
 	@ResponseBody

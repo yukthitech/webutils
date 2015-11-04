@@ -37,7 +37,7 @@ import com.yukthi.webutils.common.models.BaseResponse;
  * Ensures spring validation is enabled using test controller and test bean
  * @author akiran
  */
-public class TestSpringValidation extends TFBase
+public class TFSpringValidation extends TFBase
 {
 	private RestClient client ;
 	

@@ -58,7 +58,7 @@ public class LovController
 	 * @param lovName LOV name whose values needs to be fetched
 	 * @param type Static or dynamic lov
 	 * @param request Current servlet request
-	 * @return
+	 * @return Response hacing list of LOV values
 	 */
 	@ActionName(ACTION_TYPE_FETCH)
 	@RequestMapping(value = "/fetch/{" + PARAM_NAME + "}/{" + PARAM_TYPE + "}", method = RequestMethod.GET)

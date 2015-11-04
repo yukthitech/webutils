@@ -131,6 +131,7 @@ public class DynamicMethod
 	/**
 	 * Invokes the dynamic method and passing dynamic values.
 	 * @param object Object on which dynamic method needs to be invoked
+	 * @return Result of the dynamic method invocation
 	 */
 	public Object invoke(Object object)
 	{

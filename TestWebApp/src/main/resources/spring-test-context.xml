@@ -13,6 +13,9 @@
 
 
 	<bean id="webutilsConfiguration" class="com.yukthi.webutils.WebutilsConfiguration">
+		<property name="rolesEnumType" value="com.test.yukthi.webutils.SecurityRole"/>
+		<property name="secretKey" value="A123456789ASERFD"/>
+		<property name="userDetailsType" value="com.test.yukthi.webutils.TestUserDetails"/>
 		<property name="basePackages">
 			<list>
 				<value>com.test.yukthi</value>
@@ -39,12 +42,4 @@
 
 	<context:component-scan base-package="com.test" />
 
-	<mvc:interceptors>
-		<bean class="com.yukthi.webutils.security.SecurityInterceptor">
-			<constructor-arg type="java.lang.Class" value="com.test.yukthi.webutils.SecurityRole"></constructor-arg>
-			<constructor-arg type="java.lang.String" value="ASW@#$234R44@#%#"></constructor-arg>
-			
-			<property name="sessionTime" value="5" />
-		</bean>
-	</mvc:interceptors>
 </beans>

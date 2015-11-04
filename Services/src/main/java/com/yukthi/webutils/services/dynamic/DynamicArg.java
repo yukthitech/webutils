@@ -49,6 +49,7 @@ public class DynamicArg
 	 *
 	 * @param type the type
 	 * @param name the name
+	 * @param fieldType Field java type
 	 */
 	public DynamicArg(ArgumentType type, String name, Class<?> fieldType)
 	{
