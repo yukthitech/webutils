@@ -29,7 +29,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.test.yukthi.webutils.Authorization;
+import com.test.yukthi.webutils.SecurityRole;
 import com.test.yukthi.webutils.models.TestBean;
+import com.yukthi.webutils.annotations.ActionName;
 import com.yukthi.webutils.common.models.BaseResponse;
 import com.yukthi.webutils.controllers.BaseController;
 
@@ -39,6 +42,7 @@ import com.yukthi.webutils.controllers.BaseController;
  */
 @RestController
 @RequestMapping("/test")
+@ActionName("test")
 public class TestController extends BaseController
 {
 	/**
@@ -49,7 +53,26 @@ public class TestController extends BaseController
 	 */
 	@ResponseBody
 	@RequestMapping("/test")
+	@ActionName("test")
 	public BaseResponse test(@Valid @RequestBody TestBean testBean)
+	{
+		return new BaseResponse(0, "Sucess - " + testBean.getName());
+	}
+	
+	@ResponseBody
+	@RequestMapping("/secured1")
+	@ActionName("secured1")
+	@Authorization(SecurityRole.PROJ_ADMIN)
+	public BaseResponse secured1(@Valid @RequestBody TestBean testBean)
+	{
+		return new BaseResponse(0, "Sucess - " + testBean.getName());
+	}
+
+	@ResponseBody
+	@RequestMapping("/secured2")
+	@ActionName("secured2")
+	@Authorization({SecurityRole.PROJ_ADMIN, SecurityRole.CLIENT_ADMIN})
+	public BaseResponse secured2(@Valid @RequestBody TestBean testBean)
 	{
 		return new BaseResponse(0, "Sucess - " + testBean.getName());
 	}

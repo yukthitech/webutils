@@ -27,10 +27,20 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.http.Header;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.yukthi.utils.rest.GetRestRequest;
+import com.yukthi.utils.rest.IRestClientListener;
+import com.yukthi.utils.rest.PostRestRequest;
 import com.yukthi.utils.rest.RestClient;
+import com.yukthi.utils.rest.RestRequest;
 import com.yukthi.utils.rest.RestResult;
+import com.yukthi.webutils.common.IWebUtilsCommonConstants;
 import com.yukthi.webutils.common.models.ActionModel;
+import com.yukthi.webutils.common.models.LoginCredentials;
+import com.yukthi.webutils.common.models.LoginResponse;
 
 /**
  * Client context to invoke actions
@@ -38,6 +48,8 @@ import com.yukthi.webutils.common.models.ActionModel;
  */
 public class ClientContext
 {
+	private static Logger logger = LogManager.getLogger(ClientContext.class);
+	
 	/**
 	 * Rest client that can be used to invoke actions
 	 */
@@ -56,7 +68,12 @@ public class ClientContext
 	/**
 	 * Maps name to action details
 	 */
-	private Map<String, ActionModel> actionsMap = new HashMap<>();
+	private Map<String, ActionModel> actionsMap;
+	
+	/**
+	 * Authentication token obtained during authentication and other reponses
+	 */
+	private String authToken;
 	
 	/**
 	 * Instantiates a new client context.
@@ -70,16 +87,16 @@ public class ClientContext
 		
 		this.baseUrl = baseUrl;
 		this.actionUrl = actionUrl;
-		
-		this.init();
 	}
 	
 	/**
 	 * Invokes action url and fetches all available actions
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private void init()
+	private void initActions()
 	{
+		this.actionsMap = new HashMap<>();
+		
 		GetRestRequest request = new GetRestRequest(actionUrl);
 		RestResult<ArrayList<ActionModel>> actionsResult = (RestResult)restClient.invokeJsonRequest(request, ArrayList.class, ActionModel.class);
 		
@@ -92,6 +109,55 @@ public class ClientContext
 		{
 			this.actionsMap.put(action.getName(), action);
 		}
+	}
+	
+	public void authenticate(String userName, String password)
+	{
+		//build request
+		PostRestRequest request = new PostRestRequest(IWebUtilsCommonConstants.LOGIN_URI);
+		request.setSecured(true);
+		request.setJsonBody(new LoginCredentials(userName, password));
+		
+		//invoke login api
+		RestResult<LoginResponse> authResult = restClient.invokeJsonRequest(request, LoginResponse.class);
+		
+		//validate response
+		if(authResult.getValue() == null || authResult.getValue().getCode() != 0)
+		{
+			throw new IllegalStateException("Authentication failed. Got response as - " + authResult);
+		}
+		
+		//if successful, cache auth token
+		this.authToken = authResult.getValue().getAuthToken();
+		
+		/*
+		 * Add rest client listener to the client which would add auth token to request before sending request
+		 * and fetches new auth token from response, if any
+		 */
+		restClient.setRestClientListener(new IRestClientListener()
+		{
+			@Override
+			public void postrequest(RestRequest<?> request, RestResult<?> result)
+			{
+				//get auth token header
+				Header authHeader = result.getHttpResponse().getFirstHeader(IWebUtilsCommonConstants.HEADER_AUTHORIZATION_TOKEN);
+				String newToken = (authHeader != null) ? authHeader.getValue() : null;
+				
+				//if new auth token is provided
+				if(newToken != null && !newToken.equals(ClientContext.this.authToken))
+				{
+					logger.debug("New token sent by server");
+					ClientContext.this.authToken = newToken;
+				}
+			}
+
+			@Override
+			public void prerequest(RestRequest<?> request)
+			{
+				//set auth token header on request
+				request.addHeader(IWebUtilsCommonConstants.HEADER_AUTHORIZATION_TOKEN, ClientContext.this.authToken);
+			}
+		});
 	}
 
 	/**
@@ -131,6 +197,12 @@ public class ClientContext
 	 */
 	public ActionModel getAction(String name)
 	{
+		//if actions are not initialized, initialize actions
+		if(this.actionsMap == null)
+		{
+			initActions();
+		}
+		
 		return this.actionsMap.get(name);
 	}
 }

@@ -23,9 +23,9 @@
 
 package com.yukthi.webutils.client.helpers;
 
-import static com.yukthi.webutils.common.IActionConstants.ACTION_LOV_FETCH;
-import static com.yukthi.webutils.common.IActionConstants.PARAM_NAME;
-import static com.yukthi.webutils.common.IActionConstants.PARAM_TYPE;
+import static com.yukthi.webutils.common.IWebUtilsActionConstants.ACTION_LOV_FETCH;
+import static com.yukthi.webutils.common.IWebUtilsActionConstants.PARAM_NAME;
+import static com.yukthi.webutils.common.IWebUtilsActionConstants.PARAM_TYPE;
 
 import java.util.List;
 

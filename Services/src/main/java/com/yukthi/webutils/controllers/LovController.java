@@ -23,10 +23,10 @@
 
 package com.yukthi.webutils.controllers;
 
-import static com.yukthi.webutils.common.IActionConstants.ACTION_PREFIX_LOV;
-import static com.yukthi.webutils.common.IActionConstants.ACTION_TYPE_FETCH;
-import static com.yukthi.webutils.common.IActionConstants.PARAM_NAME;
-import static com.yukthi.webutils.common.IActionConstants.PARAM_TYPE;
+import static com.yukthi.webutils.common.IWebUtilsActionConstants.ACTION_PREFIX_LOV;
+import static com.yukthi.webutils.common.IWebUtilsActionConstants.ACTION_TYPE_FETCH;
+import static com.yukthi.webutils.common.IWebUtilsActionConstants.PARAM_NAME;
+import static com.yukthi.webutils.common.IWebUtilsActionConstants.PARAM_TYPE;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -34,6 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.yukthi.webutils.annotations.ActionName;
@@ -61,6 +62,7 @@ public class LovController
 	 * @return Response hacing list of LOV values
 	 */
 	@ActionName(ACTION_TYPE_FETCH)
+	@ResponseBody
 	@RequestMapping(value = "/fetch/{" + PARAM_NAME + "}/{" + PARAM_TYPE + "}", method = RequestMethod.GET)
 	public LovListResponse fetchLov(@PathVariable(PARAM_NAME) String lovName, @PathVariable(PARAM_TYPE) LovType type, HttpServletRequest request)
 	{

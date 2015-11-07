@@ -23,8 +23,11 @@
 
 package com.yukthi.webutils.security;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -50,10 +53,15 @@ public class SecurityEncryptionService
 {
 	private static Logger logger = LogManager.getLogger(SecurityEncryptionService.class);
 	
+	private static final String KEY_TIME = "tm";
+	private static final String KEY_USER_ID = "ui";
+	private static final String KEY_USER_ROLES = "ur";
+	private static final String KEY_SECURITY_FIELDS = "sf";
+	
 	/**
-	 * Expected encrypted string pattern
+	 * Pattern for parsing tokens
 	 */
-	private Pattern ENC_STR_PATTERN = Pattern.compile("(\\d+)\\:(\\d+)\\:([\\d\\,]+)\\:([\\w\\.\\,]*)");
+	private Pattern TOKEN_PATTERN = Pattern.compile("(\\w+)\\-(.*)");
 	
 	/**
 	 * Autowired webapp configuration
@@ -75,6 +83,61 @@ public class SecurityEncryptionService
 	 * Wrapper to set or get security fields from user details
 	 */
 	private UserDetailsWrapper userDetailsWrapper;
+	
+	/**
+	 * Encodes the given map into randomized string in plain text
+	 * @param map Map to be encoded
+	 * @return Random encoded string
+	 */
+	private String encryptTokens(Map<String, String> map)
+	{
+		StringBuilder builder = new StringBuilder();
+		
+		//shuffle the map entries so that end result is always random
+		List<Map.Entry<String, String>> entries = new ArrayList<>(map.entrySet());
+		Collections.shuffle(entries);
+		
+		//loop through entries and add to res
+		for(Map.Entry<String, String> entry : entries)
+		{
+			builder.append(entry.getKey()).append("-").append(entry.getValue());
+			builder.append(":");
+		}
+		
+		//delete trailing :
+		builder.deleteCharAt(builder.length() - 1);
+		
+		return builder.toString();
+	}
+	
+	/**
+	 * Decodes the given string into map. String should have been encoded by {@link #encryptTokens(Map)} method
+	 * @param str String to be decoded
+	 * @return Decoded map
+	 */
+	private Map<String, String> decryptTokens(String str)
+	{
+		//split string into tokens
+		String tokens[] = str.split("\\:");
+		Map<String, String> map = new HashMap<>();
+		Matcher matcher = null;
+		
+		//loop through tokens and build map
+		for(String token : tokens)
+		{
+			matcher = TOKEN_PATTERN.matcher(token);
+			
+			if(!matcher.matches())
+			{
+				logger.error("Invalid token encountered - {}", token);
+				throw new InvalidStateException("Invalid token encountered");
+			}
+			
+			map.put(matcher.group(1).trim(), matcher.group(2).trim());
+		}
+		
+		return map;
+	}
 
 	/**
 	 * Post construct method while loads all the roles and user details wrapper
@@ -120,11 +183,13 @@ public class SecurityEncryptionService
 		//get current time in minutes
 		long time = System.currentTimeMillis() / 60000L;
 		
-		StringBuilder builder = new StringBuilder();
+		Map<String, String> tokenMap = new HashMap<>();
 		
 		//add current time stamp, user-id and roles
-		builder.append(time).append(":");
-		builder.append(userDetails.getUserId()).append(":");
+		tokenMap.put(KEY_TIME, "" + time);
+		tokenMap.put(KEY_USER_ID, "" + userDetails.getUserId());
+
+		StringBuilder rolesStr = new StringBuilder();
 		
 		//add user roles to builder
 		for(Object role : userDetails.getRoles())
@@ -135,30 +200,33 @@ public class SecurityEncryptionService
 				throw new InvalidStateException("Invalid role encountered - {}. Expected roles - {}", role, this.roleToId.keySet());
 			}
 			
-			builder.append(this.roleToId.get(role)).append(",");
+			rolesStr.append(this.roleToId.get(role)).append(",");
 		}
 		
 		//delete trailing comma
-		builder.deleteCharAt(builder.length() - 1);
+		rolesStr.deleteCharAt(rolesStr.length() - 1);
+		
+		tokenMap.put(KEY_USER_ROLES, rolesStr.toString());
 		
 		//set security fields
-		builder.append(":");
-		
 		String secFieldValues[] = this.userDetailsWrapper.getSecurityFields(userDetails);
+		StringBuilder secFieldsStr = new StringBuilder();
 		
 		if(secFieldValues.length > 0)
 		{
 			for(String value : secFieldValues)
 			{
-				builder.append(value).append(",");
+				secFieldsStr.append(value).append(",");
 			}
 
 			//delete trailing comma
-			builder.deleteCharAt(builder.length() - 1);
+			secFieldsStr.deleteCharAt(secFieldsStr.length() - 1);
 		}
 		
+		tokenMap.put(KEY_SECURITY_FIELDS, secFieldsStr.toString());
+		
 		//encrypt built string 
-		String userWithRoles = builder.toString();
+		String userWithRoles = encryptTokens(tokenMap);
 		String encryptedStr = time + "-" + CryptoUtils.encrypt(configuration.getSecretKey(), userWithRoles);
 		
 		userDetails.setAuthToken(encryptedStr);
@@ -181,6 +249,8 @@ public class SecurityEncryptionService
 			return null;
 		}
 		
+		String actualEncryptedString = encryptedString;
+		
 		//ensure the pattern is proper
 		int idx = encryptedString.indexOf("-");
 		
@@ -194,18 +264,12 @@ public class SecurityEncryptionService
 		encryptedString = encryptedString.substring(idx + 1);
 		
 		String decryptedStr = CryptoUtils.decrypt(configuration.getSecretKey(), encryptedString);
-		Matcher matcher = ENC_STR_PATTERN.matcher(decryptedStr);
-		
-		if(!matcher.matches())
-		{
-			logger.debug("Invalid auth token. Invalid pattern");
-			throw new SecurityException("Invalid security token encountered");
-		}
+		Map<String, String> tokenMap = decryptTokens(decryptedStr);
 		
 		//extract and ensure time stamps are proper (which ensures token is not malformed)
-		String time1 = matcher.group(1);
+		String time1 = tokenMap.get(KEY_TIME);
 		
-		if(!time1.equals(time))
+		if(time1 == null || !time1.equals(time))
 		{
 			logger.debug("Invalid auth token. Time stamp did not match");
 			throw new SecurityException("Malformed security token encountered");
@@ -224,9 +288,9 @@ public class SecurityEncryptionService
 		}
 		
 		//fetch user id and roles 
-		long userId = Long.parseLong(matcher.group(2));
+		long userId = Long.parseLong(tokenMap.get(KEY_USER_ID));
 		Set<Object> roles = new HashSet<>();
-		String roleIds[] = matcher.group(3).split("\\,");
+		String roleIds[] = tokenMap.get(KEY_USER_ROLES).split("\\,");
 		
 		for(String id : roleIds)
 		{
@@ -234,7 +298,7 @@ public class SecurityEncryptionService
 		}
 		
 		//extract security fields
-		String values[] = matcher.group(4).split("\\,");
+		String values[] = tokenMap.get(KEY_SECURITY_FIELDS).split("\\,");
 		
 		//build the user details object
 		UserDetails<Object> det = (UserDetails)userDetailsWrapper.newDetails();
@@ -249,7 +313,7 @@ public class SecurityEncryptionService
 		}
 		else
 		{
-			det.setAuthToken(encryptedString);
+			det.setAuthToken(actualEncryptedString);
 		}
 		
 		return det;

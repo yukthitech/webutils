@@ -23,12 +23,15 @@
 
 package com.yukthi.webutils;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.collections.CollectionUtils;
 
+import com.yukthi.utils.exceptions.InvalidStateException;
 import com.yukthi.webutils.security.UserDetails;
 
 /**
@@ -74,36 +77,65 @@ public class WebutilsConfiguration
 	 */
 	private boolean enableAuth = true;
 	
+	/** The authorization annotation. */
+	private Class<? extends Annotation> authorizationAnnotation;
+	
 	/**
 	 * Session timeout in minutes
 	 */
 	private int sessionTimeOutInMin = 3;
 	
+	/**
+	 * Validte.
+	 */
 	@PostConstruct
 	public void validte()
 	{
-		if(enableAuth)
-		{
-			if(userDetailsType == null)
-			{
-				throw new IllegalStateException("No user-details-type is specified in Web-utils-configurationn bean. It is mandatory when auth is enabled.");
-			}
-			
-			if(rolesEnumType == null)
-			{
-				throw new IllegalStateException("No roles-enum-type is specified in Web-utils-configurationn bean. It is mandatory when auth is enabled.");
-			}
-			
-			if(secretKey == null)
-			{
-				throw new IllegalStateException("No secret key is specified in Web-utils-configurationn bean. It is mandatory when auth is enabled.");
-			}
-		}
-		
 		if(CollectionUtils.isEmpty(basePackages))
 		{
 			throw new IllegalStateException("No base package(s) specified in Web-utils-configurationn bean.");
 		}
+
+		if(!enableAuth)
+		{
+			return;
+		}
+		
+		if(userDetailsType == null)
+		{
+			throw new IllegalStateException("No user-details-type is specified in Web-utils-configurationn bean. It is mandatory when auth is enabled.");
+		}
+		
+		if(rolesEnumType == null)
+		{
+			throw new IllegalStateException("No roles-enum-type is specified in Web-utils-configurationn bean. It is mandatory when auth is enabled.");
+		}
+		
+		if(secretKey == null)
+		{
+			throw new IllegalStateException("No secret key is specified in Web-utils-configurationn bean. It is mandatory when auth is enabled.");
+		}
+		
+		if(authorizationAnnotation == null)
+		{
+			throw new IllegalStateException("No authroization annotation specified. It is mandatory when auth is enabled.");
+		}
+
+		try
+		{
+			Method valueMethod = authorizationAnnotation.getDeclaredMethod("value");
+	
+			if(valueMethod == null || !valueMethod.getReturnType().isArray() && !rolesEnumType.equals(valueMethod.getReturnType().getComponentType()) )
+			{
+				throw new InvalidStateException("Invalid authorization annotation '{}' specified. Authorization annotation should have value method "
+						+ "and its return type should be roles type '{}' array", 
+						authorizationAnnotation.getClass().getName(), rolesEnumType.getName());
+			}
+		}catch(NoSuchMethodException | SecurityException ex)
+		{
+			throw new IllegalStateException("An error occurred while fetching authorization annotation details", ex);
+		} 
+		
 	}
 
 	/**
@@ -265,5 +297,25 @@ public class WebutilsConfiguration
 		}
 		
 		this.sessionTimeOutInMin = sessionTimeOutInMin;
+	}
+
+	/**
+	 * Gets the authorization annotation.
+	 *
+	 * @return the authorization annotation
+	 */
+	public Class<? extends Annotation> getAuthorizationAnnotation()
+	{
+		return authorizationAnnotation;
+	}
+
+	/**
+	 * Sets the authorization annotation.
+	 *
+	 * @param authorizationAnnotation the new authorization annotation
+	 */
+	public void setAuthorizationAnnotation(Class<? extends Annotation> authorizationAnnotation)
+	{
+		this.authorizationAnnotation = authorizationAnnotation;
 	}
 }

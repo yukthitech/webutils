@@ -33,8 +33,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
-import com.yukthi.webutils.common.ICommonConstants;
+import com.yukthi.webutils.common.IWebUtilsCommonConstants;
 import com.yukthi.webutils.common.models.LoginCredentials;
 import com.yukthi.webutils.common.models.LoginResponse;
 import com.yukthi.webutils.security.IAuthenticationService;
@@ -45,6 +46,8 @@ import com.yukthi.webutils.security.UserDetails;
  * Controller to perform login operation
  * @author akiran
  */
+@RestController
+@RequestMapping(IWebUtilsCommonConstants.AUTH_GROUP_URI)
 public class LoginController extends BaseController
 {
 	private static Logger logger = LogManager.getLogger(LoginController.class);
@@ -63,13 +66,13 @@ public class LoginController extends BaseController
 	
 	/**
 	 * Login operation service method. On success, returns auth token that needs to be included
-	 * in every request header with name specified by {@link ICommonConstants#HEADER_AUTHORIZATION_TOKEN}.
+	 * in every request header with name specified by {@link IWebUtilsCommonConstants#HEADER_AUTHORIZATION_TOKEN}.
 	 * 
 	 * @param credentials Credentials to be used for login
 	 * @return On success, returns auth token as part of response
 	 */
 	@ResponseBody
-	@RequestMapping(value = "/login", method = RequestMethod.POST)
+	@RequestMapping(value = IWebUtilsCommonConstants.LOGIN_URI_PATH, method = RequestMethod.POST)
 	public LoginResponse performLogin(@RequestBody @Valid LoginCredentials credentials, HttpServletResponse response)
 	{
 		logger.debug("Trying to peform login operation for user - {}", credentials.getUserName());
@@ -80,7 +83,7 @@ public class LoginController extends BaseController
 		{
 			logger.error("Authentication failed");
 			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-			return new LoginResponse(ICommonConstants.RESPONSE_CODE_AUTHENTICATION_ERROR, "Authentication failed!");
+			return new LoginResponse(IWebUtilsCommonConstants.RESPONSE_CODE_AUTHENTICATION_ERROR, "Authentication failed!");
 		}
 		
 		logger.debug("Authentication successful");

@@ -23,7 +23,7 @@
 
 package com.yukthi.webutils.common.models;
 
-import com.yukthi.webutils.common.ICommonConstants;
+import com.yukthi.webutils.common.IWebUtilsCommonConstants;
 
 /**
  * Base for all response classes to include response code and message
@@ -45,7 +45,7 @@ public class BaseResponse
 	 */
 	public BaseResponse()
 	{
-		this(ICommonConstants.RESPONSE_CODE_SUCCESS, null);
+		this(IWebUtilsCommonConstants.RESPONSE_CODE_SUCCESS, null);
 	}
 
 	/**
@@ -69,7 +69,7 @@ public class BaseResponse
 	 */
 	public BaseResponse(String message)
 	{
-		this(ICommonConstants.RESPONSE_CODE_SUCCESS, message);
+		this(IWebUtilsCommonConstants.RESPONSE_CODE_SUCCESS, message);
 	}
 
 	/**

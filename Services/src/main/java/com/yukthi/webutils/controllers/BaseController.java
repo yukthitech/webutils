@@ -35,7 +35,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.yukthi.webutils.common.ICommonConstants;
+import com.yukthi.webutils.common.IWebUtilsCommonConstants;
 import com.yukthi.webutils.common.models.BaseResponse;
 
 /**
@@ -80,7 +80,7 @@ public class BaseController
 		
 		response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		
-		return new BaseResponse(ICommonConstants.RESPONSE_CODE_INVALID_REQUEST, responseMsg.toString());
+		return new BaseResponse(IWebUtilsCommonConstants.RESPONSE_CODE_INVALID_REQUEST, responseMsg.toString());
 	}
 	
 	/**
@@ -97,7 +97,7 @@ public class BaseController
 		
 		response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		
-		return new BaseResponse(ICommonConstants.RESPONSE_CODE_UNHANDLED_SERVER_ERROR, "Unknown server error");
+		return new BaseResponse(IWebUtilsCommonConstants.RESPONSE_CODE_UNHANDLED_SERVER_ERROR, "Unknown server error");
 	}
 
 }

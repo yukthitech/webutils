@@ -21,36 +21,47 @@
  * SOFTWARE.
  */
 
-package com.test.yukthi.webutils.client;
-
-import java.util.Properties;
-
-import org.testng.annotations.BeforeClass;
-
-import com.yukthi.webutils.client.ClientContext;
+package com.yukthi.webutils.common;
 
 /**
- * Base class for test cases
+ * Different response codes
  * @author akiran
  */
-public abstract class TFBase
+public interface IWebUtilsCommonConstants
 {
-	protected String baseUrl;
-	protected ClientContext clientContext;
+	/**
+	 * Success code to be used for successful request processing
+	 */
+	public int RESPONSE_CODE_SUCCESS = 0;
 	
-	@BeforeClass
-	public final void init() throws Exception
-	{
-		Properties prop = new Properties();
-		prop.load(TFBase.class.getResourceAsStream("/test-env.properties"));
-		
-		String baseUrl = prop.getProperty("test.base.url");
-		String actionUri = prop.getProperty("actions.uri");
-		
-		clientContext = new ClientContext(baseUrl, actionUri);
-		this.baseUrl = baseUrl;
-		
-		clientContext.authenticate(prop.getProperty("test.username"), prop.getProperty("test.password"));
-	}
+	/**
+	 * Response code to be used when input request validation failed
+	 */
+	public int RESPONSE_CODE_INVALID_REQUEST = 4400;
 	
+	/**
+	 * Response code to be used when unhandled error occurs on server
+	 */
+	public int RESPONSE_CODE_UNHANDLED_SERVER_ERROR = 4500;
+
+	/**
+	 * Response code to be used when authentication fails
+	 */
+	public int RESPONSE_CODE_AUTHENTICATION_ERROR = 4401;
+
+	/**
+	 * Response code to be used when authorization fails
+	 */
+	public int RESPONSE_CODE_AUTHORIZATION_ERROR = 4402;
+
+	/**
+	 * Request/response header that will hold authroization token
+	 */
+	public String HEADER_AUTHORIZATION_TOKEN = "AUTH_TOKEN";
+	
+	
+	public String AUTH_GROUP_URI = "/auth";
+	public String LOGIN_URI_PATH = "/login";
+	
+	public String LOGIN_URI = AUTH_GROUP_URI + LOGIN_URI_PATH;
 }

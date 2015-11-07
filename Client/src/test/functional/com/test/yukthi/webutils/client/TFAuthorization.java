@@ -20,13 +20,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package com.test.yukthi.webutils.client;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import com.test.yukthi.webutils.models.TestBean;
-import com.yukthi.utils.rest.PostRestRequest;
 import com.yukthi.utils.rest.RestClient;
 import com.yukthi.utils.rest.RestRequest;
 import com.yukthi.utils.rest.RestResult;
@@ -35,44 +35,40 @@ import com.yukthi.webutils.common.IWebUtilsCommonConstants;
 import com.yukthi.webutils.common.models.BaseResponse;
 
 /**
- * Ensures spring validation is enabled using test controller and test bean
+ * Test LOV value fetching from server
  * @author akiran
  */
-public class TFSpringValidation extends TFBase
+public class TFAuthorization extends TFBase
 {
-	private void test(TestBean bean, int expectedCode, String messageSubstr)
+	/**
+	 * Tests when roles are not sufficient
+	 */
+	@Test
+	public void testUnauthorizedAction()
 	{
-		//check for negative test case, where validation fails
-		PostRestRequest req = new PostRestRequest("/test/test");
-		req.setJsonBody(bean);
-		
-		//invoke the request
-		RestRequest<?> request = ActionRequestBuilder.buildRequest(super.clientContext, "test.test", bean, null);
+		RestRequest<?> request = ActionRequestBuilder.buildRequest(super.clientContext, "test.secured1", new TestBean("name", 25, "test", "test"), null);
 		
 		RestClient client = clientContext.getRestClient();
 		
 		RestResult<BaseResponse> result = client.invokeJsonRequest(request, BaseResponse.class);
+		BaseResponse response = result.getValue();
 		
-		Assert.assertEquals(result.getValue().getCode(), expectedCode);
-		
-		if(messageSubstr != null)
-		{
-			Assert.assertTrue(result.getValue().getMessage().toLowerCase().contains(messageSubstr.toLowerCase()));
-		}
+		Assert.assertEquals(response.getCode(), IWebUtilsCommonConstants.RESPONSE_CODE_AUTHORIZATION_ERROR);
 	}
-	
+
 	/**
-	 * Tests that spring validation is working without any problem
+	 * Tests when roles are sufficient
 	 */
 	@Test
-	public void testSpringValidation()
+	public void testAuthorizedAction()
 	{
-		//check for negative test case, where validation fails
-		test(new TestBean(null, 25, "test", "test"), IWebUtilsCommonConstants.RESPONSE_CODE_INVALID_REQUEST, "name");
-		test(new TestBean("name", 13, "test", "test"), IWebUtilsCommonConstants.RESPONSE_CODE_INVALID_REQUEST, "age");
-		test(new TestBean("name", 25, "test", "mismatch"), IWebUtilsCommonConstants.RESPONSE_CODE_INVALID_REQUEST, "confirmPassword");
+		RestRequest<?> request = ActionRequestBuilder.buildRequest(super.clientContext, "test.secured2", new TestBean("name", 25, "test", "test"), null);
 		
-		//test for positive test case where validation succeeds
-		test(new TestBean("name", 25, "test", "test"), IWebUtilsCommonConstants.RESPONSE_CODE_SUCCESS, "name");
+		RestClient client = clientContext.getRestClient();
+		
+		RestResult<BaseResponse> result = client.invokeJsonRequest(request, BaseResponse.class);
+		BaseResponse response = result.getValue();
+		
+		Assert.assertEquals(response.getCode(), IWebUtilsCommonConstants.RESPONSE_CODE_SUCCESS);
 	}
 }

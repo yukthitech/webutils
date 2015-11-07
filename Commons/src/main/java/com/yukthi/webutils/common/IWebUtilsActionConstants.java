@@ -27,7 +27,7 @@ package com.yukthi.webutils.common;
  * Constants to be used for actions
  * @author akiran
  */
-public interface IActionConstants
+public interface IWebUtilsActionConstants
 {
 	/**
 	 * Action to be used for fetch

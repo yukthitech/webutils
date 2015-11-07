@@ -23,7 +23,7 @@
 
 package com.yukthi.webutils.client.helpers;
 
-import static com.yukthi.webutils.common.IActionConstants.*;
+import static com.yukthi.webutils.common.IWebUtilsActionConstants.*;
 
 import com.yukthi.utils.CommonUtils;
 import com.yukthi.utils.rest.RestClient;
