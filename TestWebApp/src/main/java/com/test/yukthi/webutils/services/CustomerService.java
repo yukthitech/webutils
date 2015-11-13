@@ -21,21 +21,47 @@
  * SOFTWARE.
  */
 
-package com.yukthi.webutils.security;
+package com.test.yukthi.webutils.services;
+
+import javax.annotation.PostConstruct;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.test.yukthi.webutils.entity.CustomerEntity;
+import com.test.yukthi.webutils.entity.ICustomerRepository;
+import com.yukthi.persistence.repository.RepositoryFactory;
 
 /**
- * Authentication service to be provided by the webapplication to authenticate 
- * the users.
  * @author akiran
+ *
  */
-public interface IAuthenticationService<R extends Enum<R>>
+@Service
+public class CustomerService
 {
-	/**
-	 * Authenticates the specified user name and password and returns user details, if inputs
-	 * are value
-	 * @param userName User name
-	 * @param password password
-	 * @return User details if authentication is successful, otherwise null
-	 */
-	public UserDetails<R> authenticate(String userName, String password);
+	@Autowired
+	private RepositoryFactory repositoryFactory;
+	
+	private ICustomerRepository customerRepository;
+	
+	@PostConstruct
+	public void init()
+	{
+		customerRepository = repositoryFactory.getRepository(ICustomerRepository.class);
+	}
+	
+	public CustomerEntity findByName(String name)
+	{
+		return customerRepository.findByName(name);
+	}
+	
+	public void save(CustomerEntity customer)
+	{
+		customerRepository.save(customer);
+	}
+	
+	public void deleteAll()
+	{
+		customerRepository.deleteAll();
+	}
 }

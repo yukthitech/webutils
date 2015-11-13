@@ -21,21 +21,47 @@
  * SOFTWARE.
  */
 
-package com.yukthi.webutils.security;
+package com.yukthi.webutils.client;
+
+import java.util.Map;
+
+import com.yukthi.utils.rest.RestRequest;
 
 /**
- * Authentication service to be provided by the webapplication to authenticate 
- * the users.
+ * Request customizer ( {@link IRequestCustomizer} ) that can be used to set headers on the next immediate
+ * rest request going to be made.
+ * 
  * @author akiran
  */
-public interface IAuthenticationService<R extends Enum<R>>
+public class RequestHeadersCustomizer implements IRequestCustomizer
 {
 	/**
-	 * Authenticates the specified user name and password and returns user details, if inputs
-	 * are value
-	 * @param userName User name
-	 * @param password password
-	 * @return User details if authentication is successful, otherwise null
+	 * Headers to set on request
 	 */
-	public UserDetails<R> authenticate(String userName, String password);
+	private Map<String, Object> headers;
+	
+	public RequestHeadersCustomizer(Map<String, Object> headers)
+	{
+		this.headers = headers;
+	}
+
+	/* (non-Javadoc)
+	 * @see com.yukthi.webutils.client.IRequestCustomizer#customize(com.yukthi.utils.rest.RestRequest)
+	 */
+	@Override
+	public void customize(RestRequest<?> request)
+	{
+		//if no headers are specified, ignore customization
+		if(headers == null)
+		{
+			return;
+		}
+		
+		//loop through headers and add them to request
+		for(String name : headers.keySet())
+		{
+			request.addHeader(name, "" + headers.get(name));
+		}
+	}
+
 }

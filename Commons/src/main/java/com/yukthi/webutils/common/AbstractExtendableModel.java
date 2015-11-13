@@ -21,21 +21,54 @@
  * SOFTWARE.
  */
 
-package com.yukthi.webutils.security;
+package com.yukthi.webutils.common;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * Authentication service to be provided by the webapplication to authenticate 
- * the users.
+ * Abstract base class foe extendable model
  * @author akiran
  */
-public interface IAuthenticationService<R extends Enum<R>>
+public abstract class AbstractExtendableModel implements IExtendableModel
 {
 	/**
-	 * Authenticates the specified user name and password and returns user details, if inputs
-	 * are value
-	 * @param userName User name
-	 * @param password password
-	 * @return User details if authentication is successful, otherwise null
+	 * Map to hold extended field value
 	 */
-	public UserDetails<R> authenticate(String userName, String password);
+	private Map<Long, String> idToVal = new HashMap<>();
+	
+	/**
+	 * Method to add extended field value
+	 * @param fieldId Extended field id
+	 * @param value Value for extended field
+	 */
+	public void addExtendedField(Long fieldId, Object value)
+	{
+		if(value == null)
+		{
+			idToVal.remove(fieldId);
+			return;
+		}
+		
+		idToVal.put(fieldId, value.toString());
+	}
+	
+	/* (non-Javadoc)
+	 * @see com.yukthi.webutils.common.IExtendableModel#getExtendedFields()
+	 */
+	@Override
+	public Map<Long, String> getExtendedFields()
+	{
+		return idToVal;
+	}
+
+	/* (non-Javadoc)
+	 * @see com.yukthi.webutils.common.IExtendableModel#setExtendedFields(java.util.Map)
+	 */
+	@Override
+	public void setExtendedFields(Map<Long, String> extendedFieldValues)
+	{
+		this.idToVal.clear();
+		this.idToVal.putAll(extendedFieldValues);
+	}
 }

@@ -21,21 +21,24 @@
  * SOFTWARE.
  */
 
-package com.yukthi.webutils.security;
+package com.yukthi.webutils.repository;
+
+import com.yukthi.persistence.ICrudRepository;
+import com.yukthi.persistence.repository.annotations.Condition;
 
 /**
- * Authentication service to be provided by the webapplication to authenticate 
- * the users.
+ * Repository for entity extensions
  * @author akiran
  */
-public interface IAuthenticationService<R extends Enum<R>>
+public interface IExtensionRepository extends ICrudRepository<ExtensionEntity>
 {
 	/**
-	 * Authenticates the specified user name and password and returns user details, if inputs
-	 * are value
-	 * @param userName User name
-	 * @param password password
-	 * @return User details if authentication is successful, otherwise null
+	 * Finder query to find extension based on specified entity and owner details
+	 * @param targetEntity Target entity or which extension is being fetched
+	 * @param ownerEntityType Owner entity which owns the extension
+	 * @param ownerId Owner entity which owns the extension
+	 * @return Matching entity extension
 	 */
-	public UserDetails<R> authenticate(String userName, String password);
+	public ExtensionEntity findEntity(@Condition("targetEntity") String targetEntity, 
+			@Condition("ownerEntityType") String ownerEntityType, @Condition("ownerId") long ownerId);
 }

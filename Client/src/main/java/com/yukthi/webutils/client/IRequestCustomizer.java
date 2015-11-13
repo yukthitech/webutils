@@ -21,21 +21,22 @@
  * SOFTWARE.
  */
 
-package com.yukthi.webutils.security;
+package com.yukthi.webutils.client;
+
+import com.yukthi.utils.rest.RestRequest;
 
 /**
- * Authentication service to be provided by the webapplication to authenticate 
- * the users.
+ * Used to customize the rest-request before sending to server. The instance of this interface can be
+ * passed to client context using {@link ClientContext#setRequestCustomizer(IRequestCustomizer)}, which would be used for
+ * the immediate rest request going to made using this context, with same thread. For consequent requests, customizer should be set explicitly again. 
  * @author akiran
  */
-public interface IAuthenticationService<R extends Enum<R>>
+public interface IRequestCustomizer
 {
 	/**
-	 * Authenticates the specified user name and password and returns user details, if inputs
-	 * are value
-	 * @param userName User name
-	 * @param password password
-	 * @return User details if authentication is successful, otherwise null
+	 * Called by client-context before the request is sent to the server. So that caller can customize the
+	 * request (like adding headers etc).
+	 * @param request Request going to be sent to server
 	 */
-	public UserDetails<R> authenticate(String userName, String password);
+	public void customize(RestRequest<?> request);
 }

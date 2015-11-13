@@ -34,7 +34,26 @@ public interface IWebUtilsActionConstants
 	 */
 	public String ACTION_TYPE_FETCH = "fetch";
 	
+	/**
+	 * Action be be used for save
+	 */
+	public String ACTION_TYPE_SAVE = "save";
 	
+	/**
+	 * Action be be used for update
+	 */
+	public String ACTION_TYPE_UPDATE = "update";
+	
+	/**
+	 * Action be be used for delete
+	 */
+	public String ACTION_TYPE_DELETE = "delete";
+
+	/**
+	 * Action be be used for deleting all 
+	 */
+	public String ACTION_TYPE_DELETE_ALL = "deleteAll";
+
 	////////////////////////////////////////////////////////////////////////////
 	/**
 	 * Action prefix that can be used on LOV controller
@@ -45,6 +64,11 @@ public interface IWebUtilsActionConstants
 	 * Actions prefix used on model def controller
 	 */
 	public String ACTION_PREFIX_MODEL_DEF = "modelDef";
+	
+	/**
+	 * Actions prefix used for extensions controller
+	 */
+	public String ACTION_PREFIX_EXTENSIONS = "extensions";
 
 	////////////////////////////////////////////////////////////////////////////
 	/**
@@ -57,11 +81,24 @@ public interface IWebUtilsActionConstants
 	 */
 	public String PARAM_TYPE = "type";
 	
+	/**
+	 * Parameter with name "id"
+	 */
+	public String PARAM_ID = "id";
+
 	/////////////////////////////////////////////////////////////////////////////
 	/**
 	 * LOV fetch action name
 	 */
 	public String ACTION_LOV_FETCH = ACTION_PREFIX_LOV + "." + ACTION_TYPE_FETCH;
 	
+	/**
+	 * Model DEF fetch action name
+	 */
 	public String ACTION_MODEL_DEF_FETCH = ACTION_PREFIX_MODEL_DEF + "." + ACTION_TYPE_FETCH;
+	
+	/**
+	 * Extension fetch action
+	 */
+	public String ACTION_FETCH_EXTENSION = ACTION_PREFIX_EXTENSIONS + "." + ACTION_LOV_FETCH;
 }

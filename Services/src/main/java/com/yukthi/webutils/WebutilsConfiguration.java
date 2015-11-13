@@ -25,6 +25,7 @@ package com.yukthi.webutils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -32,6 +33,7 @@ import javax.annotation.PostConstruct;
 import org.apache.commons.collections.CollectionUtils;
 
 import com.yukthi.utils.exceptions.InvalidStateException;
+import com.yukthi.webutils.common.IWebUtilsCommonConstants;
 import com.yukthi.webutils.security.UserDetails;
 
 /**
@@ -84,6 +86,11 @@ public class WebutilsConfiguration
 	 * Session timeout in minutes
 	 */
 	private int sessionTimeOutInMin = 3;
+	
+	/**
+	 * Date format to be used for internal data exchange between client and server
+	 */
+	private SimpleDateFormat dateFormat = IWebUtilsCommonConstants.DEFAULT_DATE_FORMAT;
 	
 	/**
 	 * Validte.
@@ -317,5 +324,21 @@ public class WebutilsConfiguration
 	public void setAuthorizationAnnotation(Class<? extends Annotation> authorizationAnnotation)
 	{
 		this.authorizationAnnotation = authorizationAnnotation;
+	}
+	
+	/**
+	 * @param dateFormat the {@link #dateFormat dateFormat} to set
+	 */
+	public void setDateFormat(String dateFormat)
+	{
+		this.dateFormat = new SimpleDateFormat(dateFormat);
+	}
+	
+	/**
+	 * @return the {@link #dateFormat dateFormat}
+	 */
+	public SimpleDateFormat getDateFormat()
+	{
+		return dateFormat;
 	}
 }

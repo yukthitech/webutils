@@ -36,5 +36,8 @@ public interface IWebUtilsInternalConstants
 	
 	public String EXTENSIONS_REPO_BASE_PACKAGE = "com.yukthi.webutils.repository.extensions";
 	
+	/**
+	 * Request attribute to maintian current user details
+	 */
 	public String REQ_ATTR_USER_DETAILS = "request.userDetails";
 }

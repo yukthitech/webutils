@@ -21,21 +21,80 @@
  * SOFTWARE.
  */
 
-package com.yukthi.webutils.security;
+package com.yukthi.webutils.common.extensions;
 
 /**
- * Authentication service to be provided by the webapplication to authenticate 
- * the users.
+ * LOV option that can be used for extension field
  * @author akiran
  */
-public interface IAuthenticationService<R extends Enum<R>>
+public class LovOption
 {
 	/**
-	 * Authenticates the specified user name and password and returns user details, if inputs
-	 * are value
-	 * @param userName User name
-	 * @param password password
-	 * @return User details if authentication is successful, otherwise null
+	 * Value of the LOV option
 	 */
-	public UserDetails<R> authenticate(String userName, String password);
+	private String value;
+
+	/**
+	 * Label of the LOV option
+	 */
+	private String label;
+	
+	/**
+	 * Instantiates a new lov option.
+	 */
+	public LovOption()
+	{}
+	
+	/**
+	 * Instantiates a new lov option.
+	 *
+	 * @param value the value
+	 * @param label the label
+	 */
+	public LovOption(String value, String label)
+	{
+		this.value = value;
+		this.label = label;
+	}
+
+	/**
+	 * Gets the value of the LOV option.
+	 *
+	 * @return the value of the LOV option
+	 */
+	public String getValue()
+	{
+		return value;
+	}
+
+	/**
+	 * Sets the value of the LOV option.
+	 *
+	 * @param value the new value of the LOV option
+	 */
+	public void setValue(String value)
+	{
+		this.value = value;
+	}
+
+	/**
+	 * Gets the label of the LOV option.
+	 *
+	 * @return the label of the LOV option
+	 */
+	public String getLabel()
+	{
+		return label;
+	}
+
+	/**
+	 * Sets the label of the LOV option.
+	 *
+	 * @param label the new label of the LOV option
+	 */
+	public void setLabel(String label)
+	{
+		this.label = label;
+	}
+
 }

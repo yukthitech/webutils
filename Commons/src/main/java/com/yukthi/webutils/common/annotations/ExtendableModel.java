@@ -21,21 +21,29 @@
  * SOFTWARE.
  */
 
-package com.yukthi.webutils.security;
+package com.yukthi.webutils.common.annotations;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+import javax.validation.Constraint;
+
+import com.yukthi.validation.cross.CrossValidationEnabler;
 
 /**
- * Authentication service to be provided by the webapplication to authenticate 
- * the users.
+ * Used to mark an entity as extendable model and link it to extendable entity
  * @author akiran
  */
-public interface IAuthenticationService<R extends Enum<R>>
+@Constraint(validatedBy = CrossValidationEnabler.class)
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface ExtendableModel
 {
 	/**
-	 * Authenticates the specified user name and password and returns user details, if inputs
-	 * are value
-	 * @param userName User name
-	 * @param password password
-	 * @return User details if authentication is successful, otherwise null
+	 * Name of the extension source
+	 * @return Name of the extension source
 	 */
-	public UserDetails<R> authenticate(String userName, String password);
+	public String name();
 }

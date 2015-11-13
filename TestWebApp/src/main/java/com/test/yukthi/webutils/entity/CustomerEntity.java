@@ -21,21 +21,71 @@
  * SOFTWARE.
  */
 
-package com.yukthi.webutils.security;
+package com.test.yukthi.webutils.entity;
+
+import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+import com.yukthi.persistence.annotations.UniqueConstraint;
+import com.yukthi.persistence.annotations.UniqueConstraints;
+import com.yukthi.webutils.annotations.ExtendableEntity;
+import com.yukthi.webutils.annotations.ExtensionOwner;
 
 /**
- * Authentication service to be provided by the webapplication to authenticate 
- * the users.
+ * Test entity
+ * 
  * @author akiran
  */
-public interface IAuthenticationService<R extends Enum<R>>
+@Table(name = "CUSTOMER")
+@UniqueConstraints({
+	@UniqueConstraint(fields = {"name"}, name = "UQ_CUST_NAME")
+})
+@ExtensionOwner
+@ExtendableEntity(name = "Customer")
+public class CustomerEntity
 {
 	/**
-	 * Authenticates the specified user name and password and returns user details, if inputs
-	 * are value
-	 * @param userName User name
-	 * @param password password
-	 * @return User details if authentication is successful, otherwise null
+	 * Employee id
 	 */
-	public UserDetails<R> authenticate(String userName, String password);
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "ID")
+	private long id;
+
+	/**
+	 * Name of the employee
+	 */
+	@Column(name = "NAME")
+	private String name;
+
+	public CustomerEntity()
+	{}
+
+	public CustomerEntity(String name)
+	{
+		this.name = name;
+	}
+
+	public long getId()
+	{
+		return id;
+	}
+
+	public void setId(long id)
+	{
+		this.id = id;
+	}
+
+	public String getName()
+	{
+		return name;
+	}
+
+	public void setName(String name)
+	{
+		this.name = name;
+	}
 }

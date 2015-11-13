@@ -21,21 +21,27 @@
  * SOFTWARE.
  */
 
-package com.yukthi.webutils.security;
+package com.yukthi.webutils.controllers;
+
+import javax.servlet.http.HttpServletRequest;
+
+import com.yukthi.webutils.extensions.Extension;
+import com.yukthi.webutils.extensions.ExtensionPointDetails;
 
 /**
- * Authentication service to be provided by the webapplication to authenticate 
- * the users.
+ * Extension helper to be provided by the web applications.
  * @author akiran
  */
-public interface IAuthenticationService<R extends Enum<R>>
+public interface IExtensionContextProvider
 {
 	/**
-	 * Authenticates the specified user name and password and returns user details, if inputs
-	 * are value
-	 * @param userName User name
-	 * @param password password
-	 * @return User details if authentication is successful, otherwise null
+	 * Should provide owner and other custom extension details. This method should also take care of 
+	 * required authorization.
+	 * @param extensionPointDetails Extension point for which extension needs to be fetched
+	 * @param request Http request, which can be used to fetch current state and user provided params
+	 * @return Extension information with owner details
 	 */
-	public UserDetails<R> authenticate(String userName, String password);
+	public Extension getExtension(ExtensionPointDetails extensionPointDetails, HttpServletRequest request);
+	
+	
 }

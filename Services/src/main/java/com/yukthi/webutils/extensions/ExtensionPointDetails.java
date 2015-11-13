@@ -21,82 +21,79 @@
  * SOFTWARE.
  */
 
-package com.test.yukthi.webutils.entity;
-
-import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-
-import com.yukthi.webutils.annotations.ExtendableEntity;
+package com.yukthi.webutils.extensions;
 
 /**
- * Test entity
- * 
+ * Extension point details
  * @author akiran
  */
-@ExtendableEntity(name = "Employee")
-@Table(name = "EMP")
-public class EmployeeEntity
+public class ExtensionPointDetails
 {
 	/**
-	 * Employee id
+	 * Name of the extension point
 	 */
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "ID")
-	private Long id;
-
-	/**
-	 * Name of the employee
-	 */
-	@Column(name = "NAME")
 	private String name;
-
+	
 	/**
-	 * Salary of the employee
+	 * Entity type which is defined as extension type
 	 */
-	@Column(name = "SALARY")
-	private long salary;
-
-	public EmployeeEntity()
+	private Class<?> entityType;
+	
+	/**
+	 * Instantiates a new extension point details.
+	 */
+	public ExtensionPointDetails()
 	{}
-
-	public EmployeeEntity(String name, long salary)
+	
+	/**
+	 * Instantiates a new extension point details.
+	 *
+	 * @param name the name
+	 * @param entityType the entity type
+	 */
+	public ExtensionPointDetails(String name, Class<?> entityType)
 	{
 		this.name = name;
-		this.salary = salary;
+		this.entityType = entityType;
 	}
 
-	public Long getId()
-	{
-		return id;
-	}
-
-	public void setId(Long id)
-	{
-		this.id = id;
-	}
-
+	/**
+	 * Gets the name of the extension point.
+	 *
+	 * @return the name of the extension point
+	 */
 	public String getName()
 	{
 		return name;
 	}
 
+	/**
+	 * Sets the name of the extension point.
+	 *
+	 * @param name the new name of the extension point
+	 */
 	public void setName(String name)
 	{
 		this.name = name;
 	}
 
-	public long getSalary()
+	/**
+	 * Gets the entity type which is defined as extension type.
+	 *
+	 * @return the entity type which is defined as extension type
+	 */
+	public Class<?> getEntityType()
 	{
-		return salary;
+		return entityType;
 	}
 
-	public void setSalary(long salary)
+	/**
+	 * Sets the entity type which is defined as extension type.
+	 *
+	 * @param entityType the new entity type which is defined as extension type
+	 */
+	public void setEntityType(Class<?> entityType)
 	{
-		this.salary = salary;
+		this.entityType = entityType;
 	}
-
 }

@@ -23,6 +23,9 @@
 
 package com.yukthi.webutils.common;
 
+import java.text.SimpleDateFormat;
+import java.util.regex.Pattern;
+
 /**
  * Different response codes
  * @author akiran
@@ -63,5 +66,24 @@ public interface IWebUtilsCommonConstants
 	public String AUTH_GROUP_URI = "/auth";
 	public String LOGIN_URI_PATH = "/login";
 	
+	/**
+	 * URI for app login
+	 */
 	public String LOGIN_URI = AUTH_GROUP_URI + LOGIN_URI_PATH;
+
+
+	/**
+	 * Pattern to validate numeric string values
+	 */
+	public Pattern INT_PATTERN = Pattern.compile("\\d+");
+	
+	/**
+	 * Pattern to validate decimal string values
+	 */
+	public Pattern DECIMAL_PATTERN = Pattern.compile("\\d+\\.\\d+");
+	
+	/**
+	 * Default date format to be used
+	 */
+	public SimpleDateFormat DEFAULT_DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy");
 }

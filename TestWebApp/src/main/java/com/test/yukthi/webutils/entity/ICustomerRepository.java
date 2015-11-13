@@ -21,21 +21,17 @@
  * SOFTWARE.
  */
 
-package com.yukthi.webutils.security;
+package com.test.yukthi.webutils.entity;
+
+import com.yukthi.persistence.ICrudRepository;
 
 /**
- * Authentication service to be provided by the webapplication to authenticate 
- * the users.
  * @author akiran
+ *
  */
-public interface IAuthenticationService<R extends Enum<R>>
+public interface ICustomerRepository extends ICrudRepository<CustomerEntity>
 {
-	/**
-	 * Authenticates the specified user name and password and returns user details, if inputs
-	 * are value
-	 * @param userName User name
-	 * @param password password
-	 * @return User details if authentication is successful, otherwise null
-	 */
-	public UserDetails<R> authenticate(String userName, String password);
+	public void deleteAll();
+	
+	public CustomerEntity findByName(String name);
 }

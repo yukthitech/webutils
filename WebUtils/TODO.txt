@@ -1,0 +1,23 @@
+Caching
+	for extensions
+	for lov
+	
+	cache interceptor to handle dynamic caches
+	
+Data Layer
+	Add/Delete operation for relations
+	save or update operation
+
+Controller
+	ExtendableModelValidator should use save/update
+	Clean extended fields when owner is deleted
+	clean values when entity is deleted
+	
+	**As part of extended date field def, date-format should go to client
+Docs
+	DAO
+	LOV
+	Search
+	
+	Extensions
+		

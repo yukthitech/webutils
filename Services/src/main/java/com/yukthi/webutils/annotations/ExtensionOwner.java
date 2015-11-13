@@ -21,21 +21,19 @@
  * SOFTWARE.
  */
 
-package com.yukthi.webutils.security;
+package com.yukthi.webutils.annotations;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * Authentication service to be provided by the webapplication to authenticate 
- * the users.
+ * Used to mark an entity as extension owner. That is it can own extesions of other entity
  * @author akiran
  */
-public interface IAuthenticationService<R extends Enum<R>>
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface ExtensionOwner
 {
-	/**
-	 * Authenticates the specified user name and password and returns user details, if inputs
-	 * are value
-	 * @param userName User name
-	 * @param password password
-	 * @return User details if authentication is successful, otherwise null
-	 */
-	public UserDetails<R> authenticate(String userName, String password);
 }

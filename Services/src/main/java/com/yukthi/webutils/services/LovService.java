@@ -94,7 +94,7 @@ public class LovService implements IDynamicRepositoryMethodRegistry<LovQuery>
 	 * @param locale Local in which LOV needs to be fetched
 	 * @return List of LOVs as {@link ValueLabel}
 	 */
-	@Cacheable
+	@Cacheable("default")
 	@SuppressWarnings("rawtypes")
 	public List<ValueLabel> getEnumLovValues(String name, Locale locale)
 	{

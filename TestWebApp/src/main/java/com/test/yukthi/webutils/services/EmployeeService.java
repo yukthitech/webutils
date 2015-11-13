@@ -56,4 +56,24 @@ public class EmployeeService
 		employeeRepository.save(new EmployeeEntity("Test2", 4000));
 		employeeRepository.save(new EmployeeEntity("Test3", 5000));
 	}
+	
+	public void save(EmployeeEntity entity)
+	{
+		employeeRepository.save(entity);
+	}
+	
+	public void update(EmployeeEntity entity)
+	{
+		employeeRepository.update(entity);
+	}
+	
+	public EmployeeEntity fetch(long id)
+	{
+		return employeeRepository.findById(id);
+	}
+	
+	public void deleteAll()
+	{
+		employeeRepository.deleteAll();
+	}
 }

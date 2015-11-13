@@ -21,21 +21,50 @@
  * SOFTWARE.
  */
 
-package com.yukthi.webutils.security;
+package com.test.yukthi.webutils.models;
 
 /**
- * Authentication service to be provided by the webapplication to authenticate 
- * the users.
+ * Test entity
+ * 
  * @author akiran
  */
-public interface IAuthenticationService<R extends Enum<R>>
+public class CustomerModel
 {
 	/**
-	 * Authenticates the specified user name and password and returns user details, if inputs
-	 * are value
-	 * @param userName User name
-	 * @param password password
-	 * @return User details if authentication is successful, otherwise null
+	 * Employee id
 	 */
-	public UserDetails<R> authenticate(String userName, String password);
+	private long id;
+
+	/**
+	 * Name of the employee
+	 */
+	private String name;
+
+	public CustomerModel()
+	{}
+
+	public CustomerModel(String name)
+	{
+		this.name = name;
+	}
+
+	public long getId()
+	{
+		return id;
+	}
+
+	public void setId(long id)
+	{
+		this.id = id;
+	}
+
+	public String getName()
+	{
+		return name;
+	}
+
+	public void setName(String name)
+	{
+		this.name = name;
+	}
 }

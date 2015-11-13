@@ -21,21 +21,24 @@
  * SOFTWARE.
  */
 
-package com.yukthi.webutils.security;
+package com.yukthi.webutils.repository;
+
+import java.util.List;
+
+import com.yukthi.persistence.ICrudRepository;
+import com.yukthi.persistence.repository.annotations.Condition;
 
 /**
- * Authentication service to be provided by the webapplication to authenticate 
- * the users.
+ * Repository for entity extension field values
  * @author akiran
  */
-public interface IAuthenticationService<R extends Enum<R>>
+public interface IExtensionFieldValueRepository extends ICrudRepository<ExtensionFieldValueEntity>
 {
 	/**
-	 * Authenticates the specified user name and password and returns user details, if inputs
-	 * are value
-	 * @param userName User name
-	 * @param password password
-	 * @return User details if authentication is successful, otherwise null
+	 * Finder method to find extension values for specified entity extension
+	 * @param extensionId Extension id for which fields needs to be fetched
+	 * @param entityId Entity id for which values needs to be fetched
+	 * @return List of matching field values
 	 */
-	public UserDetails<R> authenticate(String userName, String password);
+	public List<ExtensionFieldValueEntity> findExtensionValues(@Condition("extensionField.extension.id") long extensionId, @Condition("entityId") long entityId);
 }

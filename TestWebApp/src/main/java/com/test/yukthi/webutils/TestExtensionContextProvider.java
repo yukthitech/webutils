@@ -21,21 +21,39 @@
  * SOFTWARE.
  */
 
-package com.yukthi.webutils.security;
+package com.test.yukthi.webutils;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.stereotype.Component;
+
+import com.test.yukthi.webutils.entity.CustomerEntity;
+import com.yukthi.webutils.controllers.IExtensionContextProvider;
+import com.yukthi.webutils.extensions.Extension;
+import com.yukthi.webutils.extensions.ExtensionPointDetails;
 
 /**
- * Authentication service to be provided by the webapplication to authenticate 
- * the users.
  * @author akiran
+ *
  */
-public interface IAuthenticationService<R extends Enum<R>>
+@Component
+public class TestExtensionContextProvider implements IExtensionContextProvider
 {
-	/**
-	 * Authenticates the specified user name and password and returns user details, if inputs
-	 * are value
-	 * @param userName User name
-	 * @param password password
-	 * @return User details if authentication is successful, otherwise null
+
+	/* (non-Javadoc)
+	 * @see com.yukthi.webutils.controllers.IExtensionContextProvider#getExtension(com.yukthi.webutils.extensions.ExtensionPointDetails, com.yukthi.webutils.controllers.HttpServletRequest)
 	 */
-	public UserDetails<R> authenticate(String userName, String password);
+	@Override
+	public Extension getExtension(ExtensionPointDetails extensionPointDetails, HttpServletRequest request)
+	{
+		String customerId = request.getHeader("customerId");
+		
+		if(customerId == null)
+		{
+			return new Extension();
+		}
+		
+		return new Extension(CustomerEntity.class, Long.parseLong(customerId));
+	}
+
 }

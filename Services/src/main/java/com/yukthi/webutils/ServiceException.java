@@ -21,21 +21,25 @@
  * SOFTWARE.
  */
 
-package com.yukthi.webutils.security;
+package com.yukthi.webutils;
+
+import com.yukthi.utils.MessageFormatter;
 
 /**
- * Authentication service to be provided by the webapplication to authenticate 
- * the users.
+ * To be thrown when service classes encounter errors
  * @author akiran
  */
-public interface IAuthenticationService<R extends Enum<R>>
+public class ServiceException extends RuntimeException
 {
-	/**
-	 * Authenticates the specified user name and password and returns user details, if inputs
-	 * are value
-	 * @param userName User name
-	 * @param password password
-	 * @return User details if authentication is successful, otherwise null
-	 */
-	public UserDetails<R> authenticate(String userName, String password);
+	private static final long serialVersionUID = 1L;
+
+	public ServiceException(Throwable cause, String message, Object... args)
+	{
+		super(MessageFormatter.format(message, args), cause);
+	}
+
+	public ServiceException(String message, Object... args)
+	{
+		super(MessageFormatter.format(message, args));
+	}
 }

@@ -21,21 +21,71 @@
  * SOFTWARE.
  */
 
-package com.yukthi.webutils.security;
+package com.test.yukthi.webutils.models;
+
+import com.yukthi.webutils.common.AbstractExtendableModel;
+import com.yukthi.webutils.common.annotations.ExtendableModel;
 
 /**
- * Authentication service to be provided by the webapplication to authenticate 
- * the users.
+ * Test model
+ * 
  * @author akiran
  */
-public interface IAuthenticationService<R extends Enum<R>>
+@ExtendableModel(name = "Employee")
+public class EmployeeModel extends AbstractExtendableModel
 {
 	/**
-	 * Authenticates the specified user name and password and returns user details, if inputs
-	 * are value
-	 * @param userName User name
-	 * @param password password
-	 * @return User details if authentication is successful, otherwise null
+	 * Employee id
 	 */
-	public UserDetails<R> authenticate(String userName, String password);
+	private Long id;
+
+	/**
+	 * Name of the employee
+	 */
+	private String name;
+
+	/**
+	 * Salary of the employee
+	 */
+	private long salary;
+
+	public EmployeeModel()
+	{}
+
+	public EmployeeModel(String name, long salary)
+	{
+		this.name = name;
+		this.salary = salary;
+	}
+
+	public Long getId()
+	{
+		return id;
+	}
+
+	public void setId(Long id)
+	{
+		this.id = id;
+	}
+
+	public String getName()
+	{
+		return name;
+	}
+
+	public void setName(String name)
+	{
+		this.name = name;
+	}
+
+	public long getSalary()
+	{
+		return salary;
+	}
+
+	public void setSalary(long salary)
+	{
+		this.salary = salary;
+	}
+
 }

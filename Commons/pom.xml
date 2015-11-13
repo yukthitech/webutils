@@ -18,6 +18,11 @@
 			<artifactId>yukthi-validators</artifactId>
 			<version>1.0</version>
 		</dependency>
+		<dependency>
+			<groupId>com.yukthi</groupId>
+			<artifactId>yukthi-data-mapping</artifactId>
+			<version>1.0</version>
+		</dependency>
 	</dependencies>
 
 	<parent>

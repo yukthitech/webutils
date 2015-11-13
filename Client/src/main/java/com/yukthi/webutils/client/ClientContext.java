@@ -75,6 +75,8 @@ public class ClientContext
 	 */
 	private String authToken;
 	
+	private ThreadLocal<IRequestCustomizer> requestCustomizerLocal = new ThreadLocal<>();
+	
 	/**
 	 * Instantiates a new client context.
 	 *
@@ -109,6 +111,19 @@ public class ClientContext
 		{
 			this.actionsMap.put(action.getName(), action);
 		}
+	}
+	
+	/**
+	 * Used to set request customizer for the immediate next rest request. For consequent requests again this method 
+	 * should be called. This method uses thread-local to make customizer setting thread-safe. That means the customizer
+	 * being set will be available only if the request is also being made with same thread.
+	 * @param customizer Customizer to set for next rest request
+	 * @return Current context object
+	 */
+	public ClientContext setRequestCustomizer(IRequestCustomizer customizer)
+	{
+		this.requestCustomizerLocal.set(customizer);
+		return this;
 	}
 	
 	public void authenticate(String userName, String password)
@@ -154,6 +169,18 @@ public class ClientContext
 			@Override
 			public void prerequest(RestRequest<?> request)
 			{
+				//call the request customizer if any
+				IRequestCustomizer requestCustomizer = requestCustomizerLocal.get();
+				
+				if(requestCustomizer != null)
+				{
+					//remove the customizer, so that it will not be used for subsequent requests
+					requestCustomizerLocal.remove();
+					
+					//invoke the customizer, that can customize the request
+					requestCustomizer.customize(request);
+				}
+				
 				//set auth token header on request
 				request.addHeader(IWebUtilsCommonConstants.HEADER_AUTHORIZATION_TOKEN, ClientContext.this.authToken);
 			}

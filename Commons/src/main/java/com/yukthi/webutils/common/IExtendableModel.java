@@ -21,21 +21,31 @@
  * SOFTWARE.
  */
 
-package com.yukthi.webutils.security;
+package com.yukthi.webutils.common;
+
+import java.util.Map;
 
 /**
- * Authentication service to be provided by the webapplication to authenticate 
- * the users.
+ * Abstraction for models which supports extension
  * @author akiran
  */
-public interface IAuthenticationService<R extends Enum<R>>
+public interface IExtendableModel
 {
 	/**
-	 * Authenticates the specified user name and password and returns user details, if inputs
-	 * are value
-	 * @param userName User name
-	 * @param password password
-	 * @return User details if authentication is successful, otherwise null
+	 * Gets extended field values as map.
+	 * @return Map of extended field values
 	 */
-	public UserDetails<R> authenticate(String userName, String password);
+	public Map<Long, String> getExtendedFields();
+	
+	/**
+	 * Used to set extended field values on to the model
+	 * @param extendedFieldValues Extended field values as map
+	 */
+	public void setExtendedFields(Map<Long, String> extendedFieldValues);
+	
+	/**
+	 * Id of the entity for which extended fields needs to be added 
+	 * @return entity id
+	 */
+	public Long getId();
 }

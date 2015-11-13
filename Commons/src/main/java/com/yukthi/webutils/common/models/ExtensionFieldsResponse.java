@@ -21,21 +21,54 @@
  * SOFTWARE.
  */
 
-package com.yukthi.webutils.security;
+package com.yukthi.webutils.common.models;
+
+import java.util.List;
 
 /**
- * Authentication service to be provided by the webapplication to authenticate 
- * the users.
+ * Extesion fields response from server
  * @author akiran
  */
-public interface IAuthenticationService<R extends Enum<R>>
+public class ExtensionFieldsResponse extends BaseResponse
 {
 	/**
-	 * Authenticates the specified user name and password and returns user details, if inputs
-	 * are value
-	 * @param userName User name
-	 * @param password password
-	 * @return User details if authentication is successful, otherwise null
+	 * List of extension fields
 	 */
-	public UserDetails<R> authenticate(String userName, String password);
+	private List<ExtensionFieldModel> extensionFields;
+	
+	/**
+	 * Instantiates a new extension fields response.
+	 */
+	public ExtensionFieldsResponse()
+	{}
+
+	/**
+	 * Instantiates a new extension fields response.
+	 *
+	 * @param extensionFields the extension fields
+	 */
+	public ExtensionFieldsResponse(List<ExtensionFieldModel> extensionFields)
+	{
+		this.extensionFields = extensionFields;
+	}
+
+	/**
+	 * Gets the list of extension fields.
+	 *
+	 * @return the list of extension fields
+	 */
+	public List<ExtensionFieldModel> getExtensionFields()
+	{
+		return extensionFields;
+	}
+
+	/**
+	 * Sets the list of extension fields.
+	 *
+	 * @param extensionFields the new list of extension fields
+	 */
+	public void setExtensionFields(List<ExtensionFieldModel> extensionFields)
+	{
+		this.extensionFields = extensionFields;
+	}
 }

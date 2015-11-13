@@ -21,21 +21,65 @@
  * SOFTWARE.
  */
 
-package com.yukthi.webutils.security;
+package com.yukthi.webutils.common.models;
 
 /**
- * Authentication service to be provided by the webapplication to authenticate 
- * the users.
+ * Generic save response
+ * 
  * @author akiran
  */
-public interface IAuthenticationService<R extends Enum<R>>
+public class BasicSaveResponse extends BaseResponse
 {
 	/**
-	 * Authenticates the specified user name and password and returns user details, if inputs
-	 * are value
-	 * @param userName User name
-	 * @param password password
-	 * @return User details if authentication is successful, otherwise null
+	 * ID of the saved entity
 	 */
-	public UserDetails<R> authenticate(String userName, String password);
+	private long id;
+
+	/**
+	 * Instantiates a new login response.
+	 */
+	public BasicSaveResponse()
+	{}
+
+	/**
+	 * Instantiates a new basic save response.
+	 *
+	 * @param id the id
+	 */
+	public BasicSaveResponse(long id)
+	{
+		this.id = id;
+	}
+
+	/**
+	 * Instantiates a new basic save response.
+	 *
+	 * @param code the code
+	 * @param message the message
+	 */
+	public BasicSaveResponse(int code, String message)
+	{
+		super(code, message);
+	}
+
+	/**
+	 * Gets the iD of the saved entity.
+	 *
+	 * @return the iD of the saved entity
+	 */
+	public long getId()
+	{
+		return id;
+	}
+
+	/**
+	 * Sets the iD of the saved entity.
+	 *
+	 * @param id the new iD of the saved entity
+	 */
+	public void setId(long id)
+	{
+		this.id = id;
+	}
+
 }
