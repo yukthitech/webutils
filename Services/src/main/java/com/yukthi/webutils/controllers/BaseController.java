@@ -23,13 +23,10 @@
 
 package com.yukthi.webutils.controllers;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,13 +38,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.yukthi.utils.CommonUtils;
-import com.yukthi.webutils.common.IExtendableModel;
+import com.yukthi.webutils.InvalidRequestParameterException;
 import com.yukthi.webutils.common.IWebUtilsCommonConstants;
 import com.yukthi.webutils.common.models.BaseResponse;
-import com.yukthi.webutils.repository.ExtensionEntity;
-import com.yukthi.webutils.repository.ExtensionFieldEntity;
-import com.yukthi.webutils.repository.ExtensionFieldValueEntity;
 import com.yukthi.webutils.services.ExtensionService;
 import com.yukthi.webutils.validation.ExtendableModelValidator;
 
@@ -63,10 +56,7 @@ public class BaseController
 	private ExtendableModelValidator extendableModelValidator;
 	
 	@Autowired
-	private ExtensionService extensionService;
-	
-	@Autowired
-	private ExtensionUtil extensionUtil;
+	protected ExtensionService extensionService;
 	
 	@InitBinder
 	private void bindExtendedFieldValidator(WebDataBinder binder)
@@ -112,6 +102,24 @@ public class BaseController
 	}
 	
 	/**
+	 * Handler for MethodArgumentNotValidException. This exception is expected to be thrown
+	 * by spring when request object fails server side validations.
+	 * @param response Response object
+	 * @param ex Exception to be handled
+	 * @return Response with proper error code and message
+	 */
+	@ExceptionHandler(value={InvalidRequestParameterException.class})
+	@ResponseBody
+	public BaseResponse handleInvalidRequestParameterException(HttpServletResponse response, InvalidRequestParameterException ex)
+	{
+		logger.debug("Encountered invalid-request exception - ", ex);
+
+		response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+		
+		return new BaseResponse(IWebUtilsCommonConstants.RESPONSE_CODE_INVALID_REQUEST, ex.getMessage());
+	}
+
+	/**
 	 * Handler for unhandled exceptions
 	 * @param response Response object
 	 * @param ex Exception to be handled
@@ -126,85 +134,5 @@ public class BaseController
 		response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		
 		return new BaseResponse(IWebUtilsCommonConstants.RESPONSE_CODE_UNHANDLED_SERVER_ERROR, "Unknown server error");
-	}
-
-	/**
-	 * Saves extended field values of the specified model
-	 * @param extendableModel Model for which extended values needs to be saved
-	 */
-	protected void saveExtendedFields(long entityId, IExtendableModel extendableModel)
-	{
-		//fetch extended values
-		Map<Long, String> extendedValues = extendableModel.getExtendedFields();
-		
-		//if no values are present
-		if(extendedValues == null || extendedValues.isEmpty())
-		{
-			return;
-		}
-		
-		//fetch extension entity
-		ExtensionEntity extensionEntity = extensionUtil.getExtensionEntity(extendableModel);
-		
-		if(extensionEntity == null)
-		{
-			return;
-		}
-		
-		List<ExtensionFieldValueEntity> existingFieldValues = extensionService.getExtensionValues(extensionEntity.getId(), entityId);
-		
-		//convert existing values into map
-		Map<Long, ExtensionFieldValueEntity> existingValueMap = CommonUtils.buildMap(existingFieldValues, "id", null);
-		
-		if(existingValueMap == null)
-		{
-			existingValueMap = Collections.emptyMap();
-		}
-		
-		ExtensionFieldValueEntity valueEntity = null;
-		
-		//persist the field values
-		for(Long fieldId : extendedValues.keySet())
-		{
-			valueEntity = existingValueMap.get(fieldId);
-			
-			if(valueEntity != null)
-			{
-				extensionService.updateExtensionValue(new ExtensionFieldValueEntity(valueEntity.getId(), new ExtensionFieldEntity(fieldId), entityId, extendedValues.get(fieldId)));
-			}
-			else
-			{
-				extensionService.saveExtensionValue(new ExtensionFieldValueEntity(0, new ExtensionFieldEntity(fieldId), entityId, extendedValues.get(fieldId)));
-			}
-		}
-	}
-	
-	/**
-	 * Fetches extended field values for specified model and sets them on the
-	 * specified model
-	 * @param extendableModel Model for which extended field values needs to be fetched
-	 */
-	protected void fetchExtendedValues(IExtendableModel extendableModel)
-	{
-		//fetch extension entity
-		ExtensionEntity extensionEntity = extensionUtil.getExtensionEntity(extendableModel);
-		
-		if(extensionEntity == null)
-		{
-			return;
-		}
-		
-		long id = extendableModel.getId();
-		List<ExtensionFieldValueEntity> existingFieldValues = extensionService.getExtensionValues(extensionEntity.getId(), id);
-		
-		//return if no values found in db for extended fields
-		if(CollectionUtils.isEmpty(existingFieldValues))
-		{
-			return;
-		}
-		
-		//convert existing values into map
-		Map<Long, String> existingValueMap = CommonUtils.buildMap(existingFieldValues, "extensionField.id", "value");
-		extendableModel.setExtendedFields(existingValueMap);
 	}
 }

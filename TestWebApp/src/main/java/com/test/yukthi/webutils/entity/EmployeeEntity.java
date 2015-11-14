@@ -29,6 +29,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.yukthi.webutils.IEntity;
 import com.yukthi.webutils.annotations.ExtendableEntity;
 
 /**
@@ -38,7 +39,7 @@ import com.yukthi.webutils.annotations.ExtendableEntity;
  */
 @ExtendableEntity(name = "Employee")
 @Table(name = "EMP")
-public class EmployeeEntity
+public class EmployeeEntity implements IEntity
 {
 	/**
 	 * Employee id

@@ -21,54 +21,18 @@
  * SOFTWARE.
  */
 
-package com.yukthi.webutils.common;
-
-import java.util.HashMap;
-import java.util.Map;
+package com.yukthi.webutils;
 
 /**
- * Abstract base class foe extendable model
+ * Abstracted interface for entity classes
+ * 
  * @author akiran
  */
-public abstract class AbstractExtendableModel implements IExtendableModel
+public interface IEntity
 {
 	/**
-	 * Map to hold extended field value
+	 * Fetches id of the entity
+	 * @return Entity id
 	 */
-	private Map<Long, String> idToVal = new HashMap<>();
-	
-	/**
-	 * Method to add extended field value
-	 * @param fieldId Extended field id
-	 * @param value Value for extended field
-	 */
-	public void setExtendedField(Long fieldId, Object value)
-	{
-		if(value == null)
-		{
-			idToVal.remove(fieldId);
-			return;
-		}
-		
-		idToVal.put(fieldId, value.toString());
-	}
-	
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.common.IExtendableModel#getExtendedFields()
-	 */
-	@Override
-	public Map<Long, String> getExtendedFields()
-	{
-		return idToVal;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.common.IExtendableModel#setExtendedFields(java.util.Map)
-	 */
-	@Override
-	public void setExtendedFields(Map<Long, String> extendedFieldValues)
-	{
-		this.idToVal.clear();
-		this.idToVal.putAll(extendedFieldValues);
-	}
+	public Long getId();
 }

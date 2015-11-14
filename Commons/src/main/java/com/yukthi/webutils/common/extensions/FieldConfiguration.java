@@ -21,54 +21,73 @@
  * SOFTWARE.
  */
 
-package com.yukthi.webutils.common;
+package com.yukthi.webutils.common.extensions;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.Set;
 
 /**
- * Abstract base class foe extendable model
+ * Field configuration that can be used for field value validation
  * @author akiran
  */
-public abstract class AbstractExtendableModel implements IExtendableModel
+public class FieldConfiguration
 {
 	/**
-	 * Map to hold extended field value
+	 * Date format to be used for fields
 	 */
-	private Map<Long, String> idToVal = new HashMap<>();
+	private SimpleDateFormat dateFormat;
 	
 	/**
-	 * Method to add extended field value
-	 * @param fieldId Extended field id
-	 * @param value Value for extended field
+	 * Configured LOV values
 	 */
-	public void setExtendedField(Long fieldId, Object value)
-	{
-		if(value == null)
-		{
-			idToVal.remove(fieldId);
-			return;
-		}
-		
-		idToVal.put(fieldId, value.toString());
-	}
+	private Set<String> lovValues;
 	
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.common.IExtendableModel#getExtendedFields()
+	/**
+	 * Configured field max length
 	 */
-	@Override
-	public Map<Long, String> getExtendedFields()
+	private int maxLength;
+
+	/**
+	 * Instantiates a new field configuration.
+	 *
+	 * @param dateFormat the date format
+	 * @param lovValues the lov values
+	 * @param maxLength the max length
+	 */
+	public FieldConfiguration(SimpleDateFormat dateFormat, Set<String> lovValues, int maxLength)
 	{
-		return idToVal;
+		this.dateFormat = dateFormat;
+		this.lovValues = lovValues;
+		this.maxLength = maxLength;
 	}
 
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.common.IExtendableModel#setExtendedFields(java.util.Map)
+	/**
+	 * Gets the date format to be used for fields.
+	 *
+	 * @return the date format to be used for fields
 	 */
-	@Override
-	public void setExtendedFields(Map<Long, String> extendedFieldValues)
+	public SimpleDateFormat getDateFormat()
 	{
-		this.idToVal.clear();
-		this.idToVal.putAll(extendedFieldValues);
+		return dateFormat;
+	}
+
+	/**
+	 * Gets the configured LOV values.
+	 *
+	 * @return the configured LOV values
+	 */
+	public Set<String> getLovValues()
+	{
+		return lovValues;
+	}
+
+	/**
+	 * Gets the configured field max length.
+	 *
+	 * @return the configured field max length
+	 */
+	public int getMaxLength()
+	{
+		return maxLength;
 	}
 }

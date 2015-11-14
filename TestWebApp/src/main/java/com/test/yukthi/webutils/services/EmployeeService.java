@@ -23,57 +23,26 @@
 
 package com.test.yukthi.webutils.services;
 
-import javax.annotation.PostConstruct;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.test.yukthi.webutils.entity.EmployeeEntity;
 import com.test.yukthi.webutils.entity.IEmployeeRepository;
-import com.yukthi.persistence.repository.RepositoryFactory;
+import com.yukthi.webutils.services.BaseCrudService;
 
 /**
  * @author akiran
  *
  */
 @Service
-public class EmployeeService
+public class EmployeeService extends BaseCrudService<EmployeeEntity, IEmployeeRepository>
 {
-	@Autowired
-	private RepositoryFactory repositoryFactory;
-	
-	private IEmployeeRepository employeeRepository;
-	
-	@PostConstruct
-	public void init()
+	public EmployeeService()
 	{
-		employeeRepository = repositoryFactory.getRepository(IEmployeeRepository.class);
-		
-		//create test data
-		employeeRepository.deleteAll();
-		
-		employeeRepository.save(new EmployeeEntity("Test1", 1000));
-		employeeRepository.save(new EmployeeEntity("Test2", 4000));
-		employeeRepository.save(new EmployeeEntity("Test3", 5000));
+		super(IEmployeeRepository.class);
 	}
-	
-	public void save(EmployeeEntity entity)
-	{
-		employeeRepository.save(entity);
-	}
-	
-	public void update(EmployeeEntity entity)
-	{
-		employeeRepository.update(entity);
-	}
-	
-	public EmployeeEntity fetch(long id)
-	{
-		return employeeRepository.findById(id);
-	}
-	
+
 	public void deleteAll()
 	{
-		employeeRepository.deleteAll();
+		repository.deleteAll();
 	}
 }

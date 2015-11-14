@@ -24,12 +24,14 @@
 package com.yukthi.webutils.common.models;
 
 import com.yukthi.validation.annotations.NotEmpty;
+import com.yukthi.webutils.common.annotations.Model;
 
 /**
  * Credentials for login
  * 
  * @author akiran
  */
+@Model
 public class LoginCredentials
 {
 	/**

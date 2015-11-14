@@ -22,9 +22,6 @@
  */
 package com.yukthi.webutils.common.extensions;
 
-import java.text.SimpleDateFormat;
-import java.util.Set;
-
 import com.yukthi.webutils.common.IWebUtilsCommonConstants;
 
 /**
@@ -39,9 +36,9 @@ public enum ExtensionFieldType
 	STRING
 	{
 		@Override
-		public boolean validateValue(String value, SimpleDateFormat dateFormat, Set<String> lovValues)
+		public boolean validateValue(String value, FieldConfiguration fieldConfiguration)
 		{
-			return true;
+			return value.length() <= fieldConfiguration.getMaxLength();
 		}
 	},
 	
@@ -51,16 +48,16 @@ public enum ExtensionFieldType
 	MULTI_LINE_STRING
 	{
 		@Override
-		public boolean validateValue(String value, SimpleDateFormat dateFormat, Set<String> lovValues)
+		public boolean validateValue(String value, FieldConfiguration fieldConfiguration)
 		{
-			return true;
+			return value.length() <= fieldConfiguration.getMaxLength();
 		}
 	},
 	
 	INTEGER
 	{
 		@Override
-		public boolean validateValue(String value, SimpleDateFormat dateFormat, Set<String> lovValues)
+		public boolean validateValue(String value, FieldConfiguration fieldConfiguration)
 		{
 			return IWebUtilsCommonConstants.INT_PATTERN.matcher(value).matches();
 		}
@@ -69,7 +66,7 @@ public enum ExtensionFieldType
 	DECIMAL
 	{
 		@Override
-		public boolean validateValue(String value, SimpleDateFormat dateFormat, Set<String> lovValues)
+		public boolean validateValue(String value, FieldConfiguration fieldConfiguration)
 		{
 			return IWebUtilsCommonConstants.DECIMAL_PATTERN.matcher(value).matches() ||
 					IWebUtilsCommonConstants.INT_PATTERN.matcher(value).matches();
@@ -79,7 +76,7 @@ public enum ExtensionFieldType
 	BOOLEAN
 	{
 		@Override
-		public boolean validateValue(String value, SimpleDateFormat dateFormat, Set<String> lovValues)
+		public boolean validateValue(String value, FieldConfiguration fieldConfiguration)
 		{
 			return "true".equalsIgnoreCase(value) || "false".equalsIgnoreCase(value);
 		}
@@ -88,11 +85,11 @@ public enum ExtensionFieldType
 	DATE
 	{
 		@Override
-		public boolean validateValue(String value, SimpleDateFormat dateFormat, Set<String> lovValues)
+		public boolean validateValue(String value, FieldConfiguration fieldConfiguration)
 		{
 			try
 			{
-				dateFormat.parse(value);
+				fieldConfiguration.getDateFormat().parse(value);
 				return true;
 			}catch(Exception ex)
 			{
@@ -104,11 +101,11 @@ public enum ExtensionFieldType
 	LIST_OF_VALUES
 	{
 		@Override
-		public boolean validateValue(String value, SimpleDateFormat dateFormat, Set<String> lovValues)
+		public boolean validateValue(String value, FieldConfiguration fieldConfiguration)
 		{
-			return lovValues.contains(value);
+			return fieldConfiguration.getLovValues().contains(value);
 		}
 	};
 	
-	public abstract boolean validateValue(String value, SimpleDateFormat dateFormat, Set<String> lovValues);
+	public abstract boolean validateValue(String value, FieldConfiguration fieldConfiguration);
 }

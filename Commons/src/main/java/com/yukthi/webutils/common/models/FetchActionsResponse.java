@@ -21,54 +21,56 @@
  * SOFTWARE.
  */
 
-package com.yukthi.webutils.common;
+package com.yukthi.webutils.common.models;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 /**
- * Abstract base class foe extendable model
+ * Actions response from server
+ * 
  * @author akiran
  */
-public abstract class AbstractExtendableModel implements IExtendableModel
+public class FetchActionsResponse extends BaseResponse
 {
 	/**
-	 * Map to hold extended field value
+	 * List of actions
 	 */
-	private Map<Long, String> idToVal = new HashMap<>();
-	
+	private List<ActionModel> actions;
+
 	/**
-	 * Method to add extended field value
-	 * @param fieldId Extended field id
-	 * @param value Value for extended field
+	 * Instantiates a new fetch actions response.
 	 */
-	public void setExtendedField(Long fieldId, Object value)
-	{
-		if(value == null)
-		{
-			idToVal.remove(fieldId);
-			return;
-		}
-		
-		idToVal.put(fieldId, value.toString());
-	}
-	
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.common.IExtendableModel#getExtendedFields()
+	public FetchActionsResponse()
+	{}
+
+	/**
+	 * Instantiates a new fetch actions response.
+	 *
+	 * @param actions the actions
 	 */
-	@Override
-	public Map<Long, String> getExtendedFields()
+	public FetchActionsResponse(List<ActionModel> actions)
 	{
-		return idToVal;
+		this.actions = actions;
 	}
 
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.common.IExtendableModel#setExtendedFields(java.util.Map)
+	/**
+	 * Gets the list of actions.
+	 *
+	 * @return the list of actions
 	 */
-	@Override
-	public void setExtendedFields(Map<Long, String> extendedFieldValues)
+	public List<ActionModel> getActions()
 	{
-		this.idToVal.clear();
-		this.idToVal.putAll(extendedFieldValues);
+		return actions;
 	}
+
+	/**
+	 * Sets the list of actions.
+	 *
+	 * @param actions the new list of actions
+	 */
+	public void setActions(List<ActionModel> actions)
+	{
+		this.actions = actions;
+	}
+
 }

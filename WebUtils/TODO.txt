@@ -14,6 +14,10 @@ Controller
 	clean values when entity is deleted
 	
 	**As part of extended date field def, date-format should go to client
+	
+	With auth service in webapp, LoginController is throwing dependency error
+		Dependency should be optional. As this is optional feature.
+		Dependency Check can be done when api's are invoked.
 Docs
 	DAO
 	LOV

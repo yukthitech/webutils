@@ -80,10 +80,13 @@ public class ActionsService
 
 	/**
 	 * Loads client executable action details from the specified class "cls"
+	 * 
+	 * @param classActionName Action name defined on main controller class
+	 * @param clsRequestMapping Request mapping path defined on main controller class
 	 * @param cls Class from which service methods needs to be scanned
 	 * @param nameToModel Map into which action details needs to be populated, using action name as key
 	 */
-	private void loadActions(Class<?> cls, Map<String, ActionModel> nameToModel)
+	private void loadActions(String classActionName, String clsRequestMapping, Class<?> cls, Map<String, ActionModel> nameToModel)
 	{
 		//if class is part of core java
 		if(cls.getName().startsWith("java"))
@@ -91,22 +94,8 @@ public class ActionsService
 			return;
 		}
 
-		//get the url mapping defined at controller level
-		String clsRequestMapping = null;
-		RequestMapping requestMapping = cls.getAnnotation(RequestMapping.class);
-
-		if(requestMapping != null)
-		{
-			clsRequestMapping = requestMapping.value()[0];
-		}
-		else
-		{
-			clsRequestMapping = "";
-		}
-
-		//Get the action name from controller level
-		ActionName actName = cls.getAnnotation(ActionName.class);
-		String classActionName = (actName != null) ? actName.value() : null;
+		ActionName actName = null;
+		RequestMapping requestMapping = null;
 
 		String actionName = null;
 		RequestMethod requestMethods[] = null;
@@ -220,6 +209,44 @@ public class ActionsService
 		}
 		
 		return HttpMethod.POST;
+	}
+	
+	/**
+	 * Loads actions from specified class recursively in the specified class hierarchy
+	 * @param cls Class from which actions should be loaded
+	 * @param nameToModel Map to which action models neees to be loaded
+	 */
+	private void loadActions(Class<?> cls, Map<String, ActionModel> nameToModel)
+	{
+		//get the url mapping defined at controller level
+		String clsRequestMapping = null;
+		RequestMapping requestMapping = cls.getAnnotation(RequestMapping.class);
+
+		if(requestMapping != null)
+		{
+			clsRequestMapping = requestMapping.value()[0];
+		}
+		else
+		{
+			clsRequestMapping = "";
+		}
+
+		//Get the action name from controller level
+		ActionName actName = cls.getAnnotation(ActionName.class);
+		String classActionName = (actName != null) ? actName.value() : null;
+		
+		Class<?> currentClass = cls;
+		
+		while(true)
+		{
+			if(currentClass.getName().startsWith("java."))
+			{
+				break;
+			}
+			
+			loadActions(classActionName, clsRequestMapping, currentClass, nameToModel);
+			currentClass = currentClass.getSuperclass();
+		}
 	}
 	
 	/**

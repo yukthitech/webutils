@@ -22,6 +22,8 @@
  */
 package com.test.yukthi.webutils.controllers;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -33,8 +35,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.test.yukthi.webutils.entity.EmployeeEntity;
 import com.test.yukthi.webutils.models.EmployeeModel;
 import com.test.yukthi.webutils.services.EmployeeService;
+import com.yukthi.webutils.InvalidRequestParameterException;
 import com.yukthi.webutils.annotations.ActionName;
 import com.yukthi.webutils.common.models.BaseResponse;
+import com.yukthi.webutils.common.models.BasicCountResponse;
 import com.yukthi.webutils.common.models.BasicSaveResponse;
 import com.yukthi.webutils.controllers.BaseController;
 import com.yukthi.webutils.utils.WebUtils;
@@ -54,11 +58,26 @@ public class EmployeeController extends BaseController
 	@ResponseBody
 	@RequestMapping(value = "/save", method = RequestMethod.POST)
 	@ActionName("save")
-	public BasicSaveResponse save(@RequestBody EmployeeModel model)
+	public BasicSaveResponse save(@RequestBody @Valid EmployeeModel model)
 	{
 		EmployeeEntity entity = WebUtils.convertBean(model, EmployeeEntity.class); 
-		service.save(entity);
-		super.saveExtendedFields(entity.getId(), model);
+		service.save(entity, model);
+		
+		return new BasicSaveResponse(entity.getId());
+	}
+	
+	@ResponseBody
+	@RequestMapping(value = "/update", method = RequestMethod.POST)
+	@ActionName("update")
+	public BasicSaveResponse update(@RequestBody @Valid EmployeeModel model)
+	{
+		if(model.getId() == null || model.getId() <= 0)
+		{
+			throw new InvalidRequestParameterException("Invalid id specified for update: " + model.getId());
+		}
+		
+		EmployeeEntity entity = WebUtils.convertBean(model, EmployeeEntity.class); 
+		service.update(entity, model);
 		
 		return new BasicSaveResponse(entity.getId());
 	}
@@ -69,7 +88,7 @@ public class EmployeeController extends BaseController
 	public EmployeeModel fetch(@PathVariable("id") long id)
 	{
 		EmployeeModel model = WebUtils.convertBean(service.fetch(id), EmployeeModel.class);
-		super.fetchExtendedValues(model);
+		super.extensionService.fetchExtendedValues(model);
 		
 		return model;
 	}
@@ -81,5 +100,13 @@ public class EmployeeController extends BaseController
 	{
 		service.deleteAll();
 		return new BaseResponse();
+	}
+
+	@ResponseBody
+	@RequestMapping("/count")
+	@ActionName("count")
+	public BasicCountResponse count()
+	{
+		return new BasicCountResponse(service.getCount());
 	}
 }

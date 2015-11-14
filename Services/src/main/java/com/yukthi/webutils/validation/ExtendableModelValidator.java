@@ -35,6 +35,7 @@ import org.springframework.validation.Validator;
 
 import com.yukthi.webutils.WebutilsConfiguration;
 import com.yukthi.webutils.common.IExtendableModel;
+import com.yukthi.webutils.common.extensions.FieldConfiguration;
 import com.yukthi.webutils.controllers.ExtensionUtil;
 import com.yukthi.webutils.repository.ExtensionEntity;
 import com.yukthi.webutils.repository.ExtensionFieldEntity;
@@ -82,6 +83,7 @@ public class ExtendableModelValidator implements Validator
 		List<ExtensionFieldEntity> extendedFields = extensionService.getExtensionFields(extensionEntity.getId());
 		Map<Long, String> extendedFieldValues = new HashMap<>( ((IExtendableModel)target).getExtendedFields() );
 		String value = null;
+		FieldConfiguration fieldConfig = null;
 		
 		//loop through the fields and validate the values
 		for(ExtensionFieldEntity field : extendedFields)
@@ -104,8 +106,10 @@ public class ExtendableModelValidator implements Validator
 				continue;
 			}
 			
+			fieldConfig = new FieldConfiguration(webutilsConfiguration.getDateFormat(), field.getLovValues(), field.getMaxLength());
+			
 			//ensure proper value provided according to data type
-			if(field.getType().validateValue(value, webutilsConfiguration.getDateFormat(), field.getLovValues()))
+			if( !field.getType().validateValue(value, fieldConfig) )
 			{
 				errors.reject("extended.invalid.value", new String[]{field.getName()}, "Invalid value specified for field - " + field.getName());
 			}

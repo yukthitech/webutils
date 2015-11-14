@@ -35,16 +35,19 @@ import org.testng.annotations.Test;
 import com.test.yukthi.webutils.models.CustomerModel;
 import com.test.yukthi.webutils.models.EmployeeModel;
 import com.yukthi.utils.CommonUtils;
+import com.yukthi.utils.exceptions.InvalidStateException;
 import com.yukthi.utils.rest.RestClient;
 import com.yukthi.utils.rest.RestRequest;
 import com.yukthi.utils.rest.RestResult;
 import com.yukthi.webutils.client.ActionRequestBuilder;
 import com.yukthi.webutils.client.RequestHeadersCustomizer;
+import com.yukthi.webutils.client.RestException;
 import com.yukthi.webutils.client.helpers.ExtensionsHelper;
 import com.yukthi.webutils.common.IWebUtilsCommonConstants;
 import com.yukthi.webutils.common.extensions.ExtensionFieldType;
 import com.yukthi.webutils.common.extensions.LovOption;
 import com.yukthi.webutils.common.models.BaseResponse;
+import com.yukthi.webutils.common.models.BasicCountResponse;
 import com.yukthi.webutils.common.models.BasicSaveResponse;
 import com.yukthi.webutils.common.models.ExtensionFieldModel;
 
@@ -80,7 +83,7 @@ public class TFExtensionValues extends TFBase
 		
 		for(int i = 0; i < extendedFields.length; i += 2)
 		{
-			emp.addExtendedField(fieldMap.get(extendedFields[i]), extendedFields[i + 1]);
+			emp.setExtendedField(fieldMap.get(extendedFields[i]), extendedFields[i + 1]);
 		}
 		
 		RestRequest<?> request = ActionRequestBuilder.buildRequest(
@@ -92,11 +95,69 @@ public class TFExtensionValues extends TFBase
 		RestResult<BasicSaveResponse> result = client.invokeJsonRequest(request, BasicSaveResponse.class);
 		BasicSaveResponse response = result.getValue();
 		
+		if(response == null || response.getCode() != IWebUtilsCommonConstants.RESPONSE_CODE_SUCCESS)
+		{
+			if(response != null)
+			{
+				throw new RestException(response.getMessage(), response.getCode());
+			}
+			
+			throw new InvalidStateException("Unknow error occurred - {}", result);
+		}
+		
 		Assert.assertEquals(response.getCode(), IWebUtilsCommonConstants.RESPONSE_CODE_SUCCESS);
 	
 		return response.getId();
 	}
 	
+	private long updateEmployee(long customerId, Map<String, Long> fieldMap, long empId, String name, long salary, String... extendedFields)
+	{
+		EmployeeModel emp = new EmployeeModel(name, salary);
+		emp.setId(empId);
+		
+		for(int i = 0; i < extendedFields.length; i += 2)
+		{
+			emp.setExtendedField(fieldMap.get(extendedFields[i]), extendedFields[i + 1]);
+		}
+		
+		RestRequest<?> request = ActionRequestBuilder.buildRequest(
+				clientContext.setRequestCustomizer(new RequestHeadersCustomizer(CommonUtils.toMap("customerId", "" + customerId))), 
+				"employee.update", emp, null);
+		
+		RestClient client = clientContext.getRestClient();
+		
+		RestResult<BasicSaveResponse> result = client.invokeJsonRequest(request, BasicSaveResponse.class);
+		BasicSaveResponse response = result.getValue();
+		
+		if(response == null || response.getCode() != IWebUtilsCommonConstants.RESPONSE_CODE_SUCCESS)
+		{
+			if(response != null)
+			{
+				throw new RestException(response.getMessage(), response.getCode());
+			}
+			
+			throw new InvalidStateException("Unknow error occurred - {}", result);
+		}
+
+		return response.getId();
+	}
+
+	private long getEmployeeCount()
+	{
+		RestRequest<?> request = ActionRequestBuilder.buildRequest(
+				clientContext, 
+				"employee.count", null, null);
+		
+		RestClient client = clientContext.getRestClient();
+		
+		RestResult<BasicCountResponse> result = client.invokeJsonRequest(request, BasicCountResponse.class);
+		BasicCountResponse response = result.getValue();
+		
+		Assert.assertEquals(response.getCode(), IWebUtilsCommonConstants.RESPONSE_CODE_SUCCESS);
+	
+		return response.getCount();
+	}
+
 	private EmployeeModel getEmployee(long customerId, long empId)
 	{
 		RestRequest<?> request = ActionRequestBuilder.buildRequest(
@@ -124,6 +185,9 @@ public class TFExtensionValues extends TFBase
 	}
 
 	
+	/**
+	 * Sets up test environment by creating customer objects and adding extended field definitions
+	 */
 	@BeforeClass
 	private void setup()
 	{
@@ -141,8 +205,8 @@ public class TFExtensionValues extends TFBase
 		//add extension fields for Employee under customer 2
 		addExtensionField(customer2, new ExtensionFieldModel("field1", "Desc1", ExtensionFieldType.BOOLEAN, false), fieldMap2);
 		addExtensionField(customer2, new ExtensionFieldModel("field2", "Desc2", ExtensionFieldType.DATE, true), fieldMap2);
-		addExtensionField(customer2, new ExtensionFieldModel("field3", "Desc3", ExtensionFieldType.MULTI_LINE_STRING, false), fieldMap2);
-		addExtensionField(customer2, new ExtensionFieldModel("field4", "Desc4", ExtensionFieldType.STRING, true), fieldMap2);
+		addExtensionField(customer2, new ExtensionFieldModel("field3", "Desc3", ExtensionFieldType.MULTI_LINE_STRING, false, 10), fieldMap2);
+		addExtensionField(customer2, new ExtensionFieldModel("field4", "Desc4", ExtensionFieldType.STRING, true, 10), fieldMap2);
 	}
 	
 	/**
@@ -151,12 +215,13 @@ public class TFExtensionValues extends TFBase
 	@Test
 	public void testValueAddition()
 	{
+		
 		//create employee objects with extended fields
 		long id1 = addEmployee(customer1, fieldMap1, "emp1", 100, 
 				"field1", "123", "field2", "3.45", "field3", "2");
 		
 		long id2 = addEmployee(customer1, fieldMap1, "emp2", 200, 
-				"field1", "1234", "field2", "4.45", "field3", "1");
+				"field1", "1234", "field2", "4");
 
 		long id3 = addEmployee(customer2, fieldMap2, "emp3", 300, 
 				"field1", "true", "field2", "12/11/2015", "field3", "str1", "field4", "dfdf\ndffd");
@@ -172,10 +237,10 @@ public class TFExtensionValues extends TFBase
 
 		EmployeeModel emp2 = getEmployee(customer1, id2);
 		
-		Assert.assertEquals(emp2.getExtendedFields().size(), 3);
+		Assert.assertEquals(emp2.getExtendedFields().size(), 2);
 		Assert.assertEquals(emp2.getExtendedFields().get(fieldMap1.get("field1")), "1234");
-		Assert.assertEquals(emp2.getExtendedFields().get(fieldMap1.get("field2")), "4.45");
-		Assert.assertEquals(emp2.getExtendedFields().get(fieldMap1.get("field3")), "1");
+		Assert.assertEquals(emp2.getExtendedFields().get(fieldMap1.get("field2")), "4");
+		Assert.assertNull(emp2.getExtendedFields().get(fieldMap1.get("field3")));
 
 		EmployeeModel emp3 = getEmployee(customer2, id3);
 		
@@ -184,6 +249,261 @@ public class TFExtensionValues extends TFBase
 		Assert.assertEquals(emp3.getExtendedFields().get(fieldMap2.get("field2")), "12/11/2015");
 		Assert.assertEquals(emp3.getExtendedFields().get(fieldMap2.get("field3")), "str1");
 		Assert.assertEquals(emp3.getExtendedFields().get(fieldMap2.get("field4")), "dfdf\ndffd");
+	}
+
+	/**
+	 * Tests working of extended field validations during value addition (entity creation)
+	 */
+	@Test
+	public void testValidationsDuringAddition()
+	{
+		long initialCount = getEmployeeCount();
+		
+		
+		//test by passing invalid int
+		try
+		{
+			addEmployee(customer1, fieldMap1, "emp1", 100, 
+					"field1", "123x", "field2", "3.45", "field3", "2");
+			Assert.fail("No exception is thrown when invalid int is passed");
+		}catch(RestException ex)
+		{
+			Assert.assertTrue(ex.getMessage().contains("field1"));
+		}
+		
+		Assert.assertEquals(getEmployeeCount(), initialCount);
+
+		//test by passing invalid decimal
+		try
+		{
+			addEmployee(customer1, fieldMap1, "emp1", 100, 
+					"field1", "123", "field2", "3.x45", "field3", "2");
+			Assert.fail("No exception is thrown when invalid decimal is passed");
+		}catch(RestException ex)
+		{
+			Assert.assertTrue(ex.getMessage().contains("field2"));
+		}
+		
+		Assert.assertEquals(getEmployeeCount(), initialCount);
+		
+		//test by passing invalid lov
+		try
+		{
+			addEmployee(customer1, fieldMap1, "emp1", 100, 
+					"field1", "123", "field2", "3.45", "field3", "4");
+			Assert.fail("No exception is thrown when invalid lov is passed");
+		}catch(RestException ex)
+		{
+			Assert.assertTrue(ex.getMessage().contains("field3"));
+		}
+		
+		Assert.assertEquals(getEmployeeCount(), initialCount);
+
+		//test not passing mandatory value
+		try
+		{
+			addEmployee(customer1, fieldMap1, "emp1", 100, 
+					"field2", "3.45", "field3", "4");
+			Assert.fail("No exception is thrown when invalid lov is passed");
+		}catch(RestException ex)
+		{
+			Assert.assertTrue(ex.getMessage().contains("field1"));
+		}
+		
+		Assert.assertEquals(getEmployeeCount(), initialCount);
+		
+		//test passing invalid boolean value
+		try
+		{
+			addEmployee(customer2, fieldMap2, "emp3", 300, 
+					"field1", "trueSD", "field2", "12/11/2015", "field3", "str1", "field4", "dfdf\ndffd");
+		}catch(RestException ex)
+		{
+			Assert.assertTrue(ex.getMessage().contains("field1"));
+		}
+		
+		Assert.assertEquals(getEmployeeCount(), initialCount);
+
+		//test passing invalid date value
+		try
+		{
+			addEmployee(customer2, fieldMap2, "emp3", 300, 
+					"field1", "false", "field2", "12/qwes/2015", "field3", "str1", "field4", "dfdf\ndffd");
+		}catch(RestException ex)
+		{
+			Assert.assertTrue(ex.getMessage().contains("field2"));
+		}
+		
+		Assert.assertEquals(getEmployeeCount(), initialCount);
+
+		//test passing long string value specified
+		try
+		{
+			addEmployee(customer2, fieldMap2, "emp3", 300, 
+					"field1", "false", "field2", "12/10/2015", "field3", "1234567890123", "field4", "dfdf\ndffd");
+		}catch(RestException ex)
+		{
+			Assert.assertTrue(ex.getMessage().contains("field3"));
+		}
+		
+		Assert.assertEquals(getEmployeeCount(), initialCount);
+
+		//test passing long multi-line string value specified
+		try
+		{
+			addEmployee(customer2, fieldMap2, "emp3", 300, 
+					"field1", "false", "field2", "12/10/2015", "field3", "12345", "field4", "1234567890123");
+		}catch(RestException ex)
+		{
+			Assert.assertTrue(ex.getMessage().contains("field4"));
+		}
+		
+		Assert.assertEquals(getEmployeeCount(), initialCount);
+	}
+
+	/**
+	 * Tests extended value updates during update operation
+	 */
+	@Test
+	public void testValueUpdate()
+	{
+		//create employee objects with extended fields
+		long id1 = addEmployee(customer1, fieldMap1, "empForUpdate", 100, 
+				"field1", "123", "field2", "3.45", "field3", "2");
+		
+		//fetch and validate after basic save
+		EmployeeModel emp1 = getEmployee(customer1, id1);
+		
+		Assert.assertEquals(emp1.getExtendedFields().size(), 3);
+		Assert.assertEquals(emp1.getExtendedFields().get(fieldMap1.get("field1")), "123");
+		Assert.assertEquals(emp1.getExtendedFields().get(fieldMap1.get("field2")), "3.45");
+		Assert.assertEquals(emp1.getExtendedFields().get(fieldMap1.get("field3")), "2");
+
+		//execute update operation
+		updateEmployee(customer1, fieldMap1, id1, "emp1-1", 200, 
+				"field1", "321", "field2", "4.35", "field3", "1");
+
+		//validate updated values
+		emp1 = getEmployee(customer1, id1);
+		
+		Assert.assertEquals(emp1.getExtendedFields().size(), 3);
+		Assert.assertEquals(emp1.getExtendedFields().get(fieldMap1.get("field1")), "321");
+		Assert.assertEquals(emp1.getExtendedFields().get(fieldMap1.get("field2")), "4.35");
+		Assert.assertEquals(emp1.getExtendedFields().get(fieldMap1.get("field3")), "1");
+	}
+	
+	/**
+	 * Tests working of extended field validations during value update (entity update)
+	 */
+	@Test
+	public void testValidationsDuringUpdate()
+	{
+		
+		long empId1 = addEmployee(customer1, fieldMap1, "emp1", 100, 
+				"field1", "123", "field2", "3.45", "field3", "2");
+
+		long empId2 = addEmployee(customer2, fieldMap2, "emp3", 300, 
+				"field1", "true", "field2", "12/11/2015", "field3", "str1", "field4", "dfdf\ndffd");
+
+		//test by passing invalid int
+		try
+		{
+			updateEmployee(customer1, fieldMap1, empId1, "emp1Updated", 100, 
+					"field1", "123x", "field2", "3.45", "field3", "2");
+			Assert.fail("No exception is thrown when invalid int is passed");
+		}catch(RestException ex)
+		{
+			Assert.assertTrue(ex.getMessage().contains("field1"));
+		}
+		
+		Assert.assertEquals(getEmployee(customer1, empId1).getName(), "emp1");
+
+		//test by passing invalid decimal
+		try
+		{
+			updateEmployee(customer1, fieldMap1, empId1, "emp1Updated", 100, 
+					"field1", "123", "field2", "3er.45", "field3", "2");
+			Assert.fail("No exception is thrown when invalid decimal is passed");
+		}catch(RestException ex)
+		{
+			Assert.assertTrue(ex.getMessage().contains("field2"));
+		}
+		
+		Assert.assertEquals(getEmployee(customer1, empId1).getName(), "emp1");
+		
+		//test by passing invalid lov
+		try
+		{
+			updateEmployee(customer1, fieldMap1, empId1, "emp1Updated", 100, 
+					"field1", "123", "field2", "3.45", "field3", "4");
+			Assert.fail("No exception is thrown when invalid lov is passed");
+		}catch(RestException ex)
+		{
+			Assert.assertTrue(ex.getMessage().contains("field3"));
+		}
+		
+		Assert.assertEquals(getEmployee(customer1, empId1).getName(), "emp1");
+
+		//test not passing mandatory value
+		try
+		{
+			updateEmployee(customer1, fieldMap1, empId1, "emp1Updated", 100, 
+					"field2", "3.45", "field3", "2");
+			Assert.fail("No exception is thrown when mandatroy field is missed");
+		}catch(RestException ex)
+		{
+			Assert.assertTrue(ex.getMessage().contains("field1"));
+		}
+		
+		Assert.assertEquals(getEmployee(customer1, empId1).getName(), "emp1");
+		
+		//test passing invalid boolean value
+		try
+		{
+			updateEmployee(customer2, fieldMap2, empId2, "emp3Updated", 300, 
+					"field1", "trueSD", "field2", "12/11/2015", "field3", "str1", "field4", "dfdf\ndffd");
+		}catch(RestException ex)
+		{
+			Assert.assertTrue(ex.getMessage().contains("field1"));
+		}
+		
+		Assert.assertEquals(getEmployee(customer2, empId2).getName(), "emp3");
+
+		//test passing invalid date value
+		try
+		{
+			updateEmployee(customer2, fieldMap2, empId2, "emp3Updated", 300, 
+					"field1", "true", "field2", "12/qwes/2015", "field3", "str1", "field4", "dfdf\ndffd");
+		}catch(RestException ex)
+		{
+			Assert.assertTrue(ex.getMessage().contains("field2"));
+		}
+		
+		Assert.assertEquals(getEmployee(customer2, empId2).getName(), "emp3");
+
+		//test passing long string value specified
+		try
+		{
+			updateEmployee(customer2, fieldMap2, empId2, "emp3Updated", 300, 
+					"field1", "true", "field2", "12/10/2015", "field3", "1234567890123", "field4", "dfdf\ndffd");
+		}catch(RestException ex)
+		{
+			Assert.assertTrue(ex.getMessage().contains("field3"));
+		}
+		
+		Assert.assertEquals(getEmployee(customer2, empId2).getName(), "emp3");
+
+		//test passing long multi-line string value specified
+		try
+		{
+			updateEmployee(customer2, fieldMap2, empId2, "emp3Updated", 300, 
+					"field1", "true", "field2", "12/10/2015", "field3", "1234", "field4", "1234567890123");
+		}catch(RestException ex)
+		{
+			Assert.assertTrue(ex.getMessage().contains("field4"));
+		}
+		
+		Assert.assertEquals(getEmployee(customer2, empId2).getName(), "emp3");
 	}
 
 	@AfterClass

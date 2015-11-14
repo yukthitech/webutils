@@ -29,11 +29,23 @@ import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import com.test.yukthi.webutils.models.EmployeeModel;
 import com.yukthi.utils.CommonUtils;
+import com.yukthi.utils.exceptions.InvalidStateException;
+import com.yukthi.utils.rest.RestClient;
+import com.yukthi.utils.rest.RestRequest;
+import com.yukthi.utils.rest.RestResult;
+import com.yukthi.webutils.client.ActionRequestBuilder;
+import com.yukthi.webutils.client.RestException;
 import com.yukthi.webutils.client.helpers.LovHelper;
+import com.yukthi.webutils.common.IWebUtilsCommonConstants;
 import com.yukthi.webutils.common.LovType;
+import com.yukthi.webutils.common.models.BaseResponse;
+import com.yukthi.webutils.common.models.BasicSaveResponse;
 import com.yukthi.webutils.common.models.ValueLabel;
 
 /**
@@ -45,6 +57,43 @@ public class TFLovQueries extends TFBase
 	private static Logger logger = LogManager.getLogger(TFLovQueries.class);
 	
 	private LovHelper lovHelper = new LovHelper();
+	
+	private long addEmployee(String name, long salary)
+	{
+		EmployeeModel emp = new EmployeeModel(name, salary);
+		
+		RestRequest<?> request = ActionRequestBuilder.buildRequest(
+				clientContext, 
+				"employee.save", emp, null);
+		
+		RestClient client = clientContext.getRestClient();
+		
+		RestResult<BasicSaveResponse> result = client.invokeJsonRequest(request, BasicSaveResponse.class);
+		BasicSaveResponse response = result.getValue();
+		
+		if(response == null || response.getCode() != IWebUtilsCommonConstants.RESPONSE_CODE_SUCCESS)
+		{
+			if(response != null)
+			{
+				throw new RestException(response.getMessage(), response.getCode());
+			}
+			
+			throw new InvalidStateException("Unknow error occurred - {}", result);
+		}
+		
+		Assert.assertEquals(response.getCode(), IWebUtilsCommonConstants.RESPONSE_CODE_SUCCESS);
+	
+		return response.getId();
+	}
+	
+	@BeforeClass
+	private void setup()
+	{
+		addEmployee("Emp1", 100);
+		addEmployee("Emp2", 200);
+		addEmployee("Emp3", 300);
+	}
+
 	
 	/**
 	 * Tests static LOV fetch work properly
@@ -76,7 +125,7 @@ public class TFLovQueries extends TFBase
 		Assert.assertEquals(lovList.size(), 3);
 		
 		//ensure the labels are same test data
-		Set<String> names = CommonUtils.toSet("Test1", "Test2", "Test3");
+		Set<String> names = CommonUtils.toSet("Emp1", "Emp2", "Emp3");
 		
 		for(ValueLabel vl : lovList)
 		{
@@ -85,5 +134,13 @@ public class TFLovQueries extends TFBase
 		}
 		
 		Assert.assertTrue(names.isEmpty());
+	}
+	
+	@AfterClass
+	private void clean()
+	{
+		RestClient client = clientContext.getRestClient();
+		RestRequest<?> request = ActionRequestBuilder.buildRequest(super.clientContext, "employee.deleteAll", null, null);
+		client.invokeJsonRequest(request, BaseResponse.class);
 	}
 }

@@ -23,15 +23,13 @@
 
 package com.yukthi.webutils.controllers;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.yukthi.webutils.annotations.ActionName;
-import com.yukthi.webutils.common.models.ActionModel;
+import com.yukthi.webutils.common.models.FetchActionsResponse;
 import com.yukthi.webutils.services.ActionsService;
 
 /**
@@ -41,7 +39,7 @@ import com.yukthi.webutils.services.ActionsService;
 @RestController
 @ActionName("actions")
 @RequestMapping("/actions")
-public class ActionController
+public class ActionController extends BaseController
 {
 	/**
 	 * Service to get action details
@@ -55,9 +53,9 @@ public class ActionController
 	 */
 	@ActionName("fetch")
 	@RequestMapping(value = "/fetch", method = RequestMethod.GET)
-	public List<ActionModel> getActions()
+	public FetchActionsResponse getActions()
 	{
-		return actionsService.getActions();
+		return new FetchActionsResponse(actionsService.getActions());
 	}
 
 }

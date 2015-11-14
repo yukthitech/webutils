@@ -138,6 +138,16 @@ public class ExtensionController extends BaseController
 				throw new InvalidRequestParameterException("Too many or too long LOV options specified");
 			}
 		}
+
+		//for string fields ensure proper length is specified
+		if(extensionField.getType() == ExtensionFieldType.STRING || extensionField.getType() == ExtensionFieldType.MULTI_LINE_STRING)
+		{
+			if(extensionField.getMaxLength() <= 0 || extensionField.getMaxLength() > 2000)
+			{
+				logger.error("Invalid length specified for string field. Length should be in the range of [1, 2000]. Specified length - " + extensionField.getMaxLength());
+				throw new InvalidRequestParameterException("Invalid length specified for string field. Length should be in the range of [1, 2000]. Specified length - " + extensionField.getMaxLength());
+			}
+		}
 	}
 	
 	/**

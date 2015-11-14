@@ -110,6 +110,11 @@ public class ExtensionFieldEntity
 	private Set<String> lovValues;
 	
 	/**
+	 * Value Max length limit on field 
+	 */
+	private int maxLength;
+	
+	/**
 	 * Instantiates a new extension field entity.
 	 */
 	public ExtensionFieldEntity()
@@ -296,4 +301,25 @@ public class ExtensionFieldEntity
 		this.lovValues = lovValues;
 		return lovValues;
 	}
+
+	/**
+	 * Gets the value Max length limit on field.
+	 *
+	 * @return the value Max length limit on field
+	 */
+	public int getMaxLength()
+	{
+		return maxLength;
+	}
+
+	/**
+	 * Sets the value Max length limit on field.
+	 *
+	 * @param maxLength the new value Max length limit on field
+	 */
+	public void setMaxLength(int maxLength)
+	{
+		this.maxLength = maxLength;
+	}
+	
 }

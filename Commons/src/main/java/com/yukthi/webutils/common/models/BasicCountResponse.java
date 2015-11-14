@@ -21,54 +21,55 @@
  * SOFTWARE.
  */
 
-package com.yukthi.webutils.common;
-
-import java.util.HashMap;
-import java.util.Map;
+package com.yukthi.webutils.common.models;
 
 /**
- * Abstract base class foe extendable model
+ * Generic count response
+ * 
  * @author akiran
  */
-public abstract class AbstractExtendableModel implements IExtendableModel
+public class BasicCountResponse extends BaseResponse
 {
 	/**
-	 * Map to hold extended field value
+	 * ID of the saved entity
 	 */
-	private Map<Long, String> idToVal = new HashMap<>();
-	
+	private long count;
+
 	/**
-	 * Method to add extended field value
-	 * @param fieldId Extended field id
-	 * @param value Value for extended field
+	 * Instantiates a new login response.
 	 */
-	public void setExtendedField(Long fieldId, Object value)
-	{
-		if(value == null)
-		{
-			idToVal.remove(fieldId);
-			return;
-		}
-		
-		idToVal.put(fieldId, value.toString());
-	}
-	
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.common.IExtendableModel#getExtendedFields()
+	public BasicCountResponse()
+	{}
+
+	/**
+	 * Instantiates a new basic count response.
+	 *
+	 * @param count
+	 *            the count
 	 */
-	@Override
-	public Map<Long, String> getExtendedFields()
+	public BasicCountResponse(long count)
 	{
-		return idToVal;
+		this.count = count;
 	}
 
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.common.IExtendableModel#setExtendedFields(java.util.Map)
+	/**
+	 * Gets the iD of the saved entity.
+	 *
+	 * @return the iD of the saved entity
 	 */
-	@Override
-	public void setExtendedFields(Map<Long, String> extendedFieldValues)
+	public long getCount()
 	{
-		this.idToVal.clear();
-		this.idToVal.putAll(extendedFieldValues);
+		return count;
+	}
+
+	/**
+	 * Sets the iD of the saved entity.
+	 *
+	 * @param count
+	 *            the new iD of the saved entity
+	 */
+	public void setCount(long count)
+	{
+		this.count = count;
 	}
 }

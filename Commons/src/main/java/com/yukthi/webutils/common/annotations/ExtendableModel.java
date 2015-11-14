@@ -28,15 +28,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import javax.validation.Constraint;
-
-import com.yukthi.validation.cross.CrossValidationEnabler;
-
 /**
  * Used to mark an entity as extendable model and link it to extendable entity
  * @author akiran
  */
-@Constraint(validatedBy = CrossValidationEnabler.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface ExtendableModel

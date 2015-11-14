@@ -23,7 +23,6 @@
 
 package com.yukthi.webutils.client;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,6 +38,7 @@ import com.yukthi.utils.rest.RestRequest;
 import com.yukthi.utils.rest.RestResult;
 import com.yukthi.webutils.common.IWebUtilsCommonConstants;
 import com.yukthi.webutils.common.models.ActionModel;
+import com.yukthi.webutils.common.models.FetchActionsResponse;
 import com.yukthi.webutils.common.models.LoginCredentials;
 import com.yukthi.webutils.common.models.LoginResponse;
 
@@ -94,20 +94,19 @@ public class ClientContext
 	/**
 	 * Invokes action url and fetches all available actions
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void initActions()
 	{
 		this.actionsMap = new HashMap<>();
 		
 		GetRestRequest request = new GetRestRequest(actionUrl);
-		RestResult<ArrayList<ActionModel>> actionsResult = (RestResult)restClient.invokeJsonRequest(request, ArrayList.class, ActionModel.class);
+		RestResult<FetchActionsResponse> actionsResult = restClient.invokeJsonRequest(request, FetchActionsResponse.class);
 		
-		if(actionsResult.getValue() == null)
+		if(actionsResult.getValue() == null || actionsResult.getValue().getCode() != 0)
 		{
-			throw new IllegalStateException("Failed to fetch actions. Got response as - " + actionsResult);
+			throw new RestException("Failed to fetch actions.", actionsResult.getStatusCode(), actionsResult.getValue());
 		}
 		
-		for(ActionModel action : actionsResult.getValue())
+		for(ActionModel action : actionsResult.getValue().getActions())
 		{
 			this.actionsMap.put(action.getName(), action);
 		}

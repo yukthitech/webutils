@@ -25,6 +25,9 @@ package com.yukthi.webutils.common.models;
 
 import java.util.List;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+
 import com.yukthi.validation.annotations.MaxLen;
 import com.yukthi.validation.annotations.MinLen;
 import com.yukthi.validation.annotations.NotEmpty;
@@ -80,6 +83,16 @@ public class ExtensionFieldModel
 	@IgnoreField
 	private List<LovOption> lovOptions;
 	
+	/**
+	 * Value Max length limit on field 
+	 */
+	@Min(0)
+	@Max(2000)
+	private int maxLength = 0;
+
+	/**
+	 * Instantiates a new extension field model.
+	 */
 	public ExtensionFieldModel()
 	{}
 	
@@ -115,6 +128,25 @@ public class ExtensionFieldModel
 		this.required = required;
 		this.lovOptions = lovOptions;
 	}
+	
+	/**
+	 * Instantiates a new extension field model.
+	 *
+	 * @param name the name
+	 * @param description the description
+	 * @param type the type
+	 * @param required the required
+	 * @param maxLength Max length
+	 */
+	public ExtensionFieldModel(String name, String description, ExtensionFieldType type,  boolean required, int maxLength)
+	{
+		this.name = name;
+		this.description = description;
+		this.type = type;
+		this.required = required;
+		this.maxLength = maxLength;
+	}
+	
 
 	/**
 	 * Gets the primary key of the entity.
@@ -241,6 +273,26 @@ public class ExtensionFieldModel
 		this.lovOptions = lovOptions;
 	}
 
+	/**
+	 * Gets the value Max length limit on field.
+	 *
+	 * @return the value Max length limit on field
+	 */
+	public int getMaxLength()
+	{
+		return maxLength;
+	}
+
+	/**
+	 * Sets the value Max length limit on field.
+	 *
+	 * @param maxLength the new value Max length limit on field
+	 */
+	public void setMaxLength(int maxLength)
+	{
+		this.maxLength = maxLength;
+	}
+
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
@@ -256,6 +308,7 @@ public class ExtensionFieldModel
 		builder.append(",").append("Type: ").append(type);
 		builder.append(",").append("Required: ").append(required);
 		builder.append(",").append("LOV Options: ").append(lovOptions);
+		builder.append(",").append("Max Length: ").append(maxLength);
 		
 
 		builder.append("]");
