@@ -21,25 +21,58 @@
  * SOFTWARE.
  */
 
-package com.yukthi.webutils.annotations;
+package com.test.yukthi.webutils.models;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import com.yukthi.persistence.repository.annotations.Condition;
+import com.yukthi.persistence.repository.annotations.Operator;
+import com.yukthi.webutils.common.annotations.Model;
 
 /**
- * Used to mark a repository method as search query method. So that when required
- * the method can be invoked for search data fetching.
+ * Emp search query
  * @author akiran
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-public @interface SearchQuery
+@Model
+public class EmpSearchQuery
 {
 	/**
-	 * Name of the Search-query to be used by client
-	 * @return Name of the Search-query to be used by client
+	 * Employee search name pattern
 	 */
-	public String name();
+	@Condition(value = "name", op = Operator.LIKE)
+	private String name;
+	
+	/**
+	 * Instantiates a new emp search query.
+	 */
+	public EmpSearchQuery()
+	{}
+
+	/**
+	 * Instantiates a new emp search query.
+	 *
+	 * @param name the name
+	 */
+	public EmpSearchQuery(String name)
+	{
+		this.name = name;
+	}
+
+	/**
+	 * Gets the employee search name pattern.
+	 *
+	 * @return the employee search name pattern
+	 */
+	public String getName()
+	{
+		return name;
+	}
+
+	/**
+	 * Sets the employee search name pattern.
+	 *
+	 * @param name the new employee search name pattern
+	 */
+	public void setName(String name)
+	{
+		this.name = name;
+	}
 }

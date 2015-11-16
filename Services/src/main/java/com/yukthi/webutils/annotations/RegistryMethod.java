@@ -21,31 +21,29 @@
  * SOFTWARE.
  */
 
-package com.test.yukthi.webutils.entity;
+package com.yukthi.webutils.annotations;
 
-import java.util.List;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-import com.test.yukthi.webutils.models.EmpSearchQuery;
-import com.test.yukthi.webutils.models.EmpSearchResult;
-import com.yukthi.persistence.ICrudRepository;
-import com.yukthi.persistence.repository.annotations.OrderBy;
-import com.yukthi.persistence.repository.search.SearchQuery;
-import com.yukthi.webutils.annotations.LovQuery;
-import com.yukthi.webutils.annotations.SearchQueryMethod;
-import com.yukthi.webutils.common.models.ValueLabel;
+import com.yukthi.webutils.IRepositoryMethodRegistry;
 
 /**
+ * Annotation to mark other annotations which in turn can mark repository methods 
+ * as dynamic method
  * @author akiran
- *
  */
-public interface IEmployeeRepository extends ICrudRepository<EmployeeEntity>
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.ANNOTATION_TYPE)
+public @interface RegistryMethod
 {
-	@LovQuery(name = "employeeLov", valueField = "id", labelField = "name")
-	public List<ValueLabel> fetchEmployeeLov();
+	public Class<? extends IRepositoryMethodRegistry<?>> registryType();
 	
-	public void deleteAll();
-	
-	@SearchQueryMethod(name = "empSearch", queryModel = EmpSearchQuery.class)
-	@OrderBy("name")
-	public List<EmpSearchResult> findEmployees(SearchQuery searchQuery);
+	/**
+	 * Indicates that target method accepts only dynamic parameters
+	 * @return True, if target method accepts only dynamic parameters
+	 */
+	public boolean dynamic() default true;
 }

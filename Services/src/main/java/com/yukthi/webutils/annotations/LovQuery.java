@@ -28,6 +28,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import com.yukthi.persistence.repository.annotations.OrderBy;
+import com.yukthi.persistence.repository.annotations.ResultMapping;
+import com.yukthi.persistence.repository.annotations.SearchResult;
+import com.yukthi.utils.annotations.OverrideProperties;
+import com.yukthi.utils.annotations.OverrideProperty;
 import com.yukthi.webutils.services.LovService;
 
 /**
@@ -35,14 +40,36 @@ import com.yukthi.webutils.services.LovService;
  * the method can be invoked for LOV data fetching.
  * @author akiran
  */
-@DynamicRepositoryMethod(registryType = LovService.class)
+@RegistryMethod(registryType = LovService.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
+@SearchResult(mappings = {
+		@ResultMapping(entityField = "valueField", property = "value"),
+		@ResultMapping(entityField = "labelField", property = "label")
+})
+@OrderBy({"labelField"})
 public @interface LovQuery
 {
 	/**
 	 * Name of the LOV to be used by client
 	 * @return Name of the LOV to be used by client
 	 */
-	public String value();
+	public String name();
+	
+	/**
+	 * Specified field that needs to be used for "value" property of ValueLabel beans
+	 * @return Value field
+	 */
+	@OverrideProperty(targetAnnotationType = SearchResult.class, property = "mappings[0].entityField")
+	public String valueField();
+	
+	/**
+	 * Specified field that needs to be used for "label" property of ValueLabel beans
+	 * @return Label field
+	 */
+	@OverrideProperties({
+		@OverrideProperty(targetAnnotationType = SearchResult.class, property = "mappings[1].entityField"),
+		@OverrideProperty(targetAnnotationType = OrderBy.class, property = "value[0]")
+	})
+	public String labelField();
 }

@@ -24,15 +24,15 @@
 package com.test.yukthi.webutils.client;
 
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import com.test.yukthi.webutils.models.EmpSearchQuery;
+import com.test.yukthi.webutils.models.EmpSearchResult;
 import com.test.yukthi.webutils.models.EmployeeModel;
 import com.yukthi.utils.CommonUtils;
 import com.yukthi.utils.exceptions.InvalidStateException;
@@ -41,22 +41,20 @@ import com.yukthi.utils.rest.RestRequest;
 import com.yukthi.utils.rest.RestResult;
 import com.yukthi.webutils.client.ActionRequestBuilder;
 import com.yukthi.webutils.client.RestException;
-import com.yukthi.webutils.client.helpers.LovHelper;
+import com.yukthi.webutils.client.helpers.SearchHelper;
 import com.yukthi.webutils.common.IWebUtilsCommonConstants;
-import com.yukthi.webutils.common.LovType;
 import com.yukthi.webutils.common.models.BaseResponse;
 import com.yukthi.webutils.common.models.BasicSaveResponse;
-import com.yukthi.webutils.common.models.ValueLabel;
+import com.yukthi.webutils.common.models.def.FieldDef;
+import com.yukthi.webutils.common.models.def.ModelDef;
 
 /**
  * Test LOV value fetching from server
  * @author akiran
  */
-public class TFLovQueries extends TFBase
+public class TFSearchQuery extends TFBase
 {
-	private static Logger logger = LogManager.getLogger(TFLovQueries.class);
-	
-	private LovHelper lovHelper = new LovHelper();
+	private SearchHelper searchHelper = new SearchHelper();
 	
 	private long addEmployee(String name, long salary)
 	{
@@ -90,51 +88,50 @@ public class TFLovQueries extends TFBase
 	private void setup()
 	{
 		addEmployee("abc", 100);
-		addEmployee("xyz", 200);
-		addEmployee("efg", 300);
-		addEmployee("zyx", 300);
+		addEmployee("hbc", 200);
+		addEmployee("tab", 300);
+		addEmployee("cab", 400);
+		addEmployee("pop", 500);
+		addEmployee("pip", 600);
+		addEmployee("tap", 700);
+		addEmployee("sap", 710);
+		addEmployee("kap", 830);
+		addEmployee("rap", 710);
+		addEmployee("lap", 7230);
+		addEmployee("dap", 710);
 	}
 
-	
-	/**
-	 * Tests static LOV fetch work properly
-	 */
 	@Test
-	public void testStaticLov()
+	public void testSearchQueryModel()
 	{
-		List<ValueLabel> lovList = lovHelper.getStaticLov(super.clientContext, LovType.class.getName());
-		logger.debug("Got LOV as - " + lovList);
+		ModelDef modelDef = searchHelper.getSearchQueryDef(clientContext, "empSearch");
 		
-		Assert.assertEquals(lovList.size(), LovType.values().length);
-		
-		for(ValueLabel vl : lovList)
-		{
-			Assert.assertNotNull(LovType.valueOf(vl.getValue()));
-		}
+		Assert.assertEquals(modelDef.getName(), EmpSearchQuery.class.getSimpleName());
+		Assert.assertEquals(modelDef.getFields().size(), 1);
+		Assert.assertEquals(modelDef.getFields().get(0).getName(), "name");
 	}
 
-	/**
-	 * Tests dynamic LOV fetch funcionality
-	 */
 	@Test
-	public void testDynamicLov()
+	public void testSearchQueryResult()
 	{
-		//get test lov dynamic values
-		List<ValueLabel> lovList = lovHelper.getDynamicLov(super.clientContext, "employeeLov");
-		logger.debug("Got LOV as - " + lovList);
+		ModelDef modelDef = searchHelper.getSearchResultDef(clientContext, "empSearch");
 		
-		Assert.assertEquals(lovList.size(), 4);
+		Assert.assertEquals(modelDef.getName(), EmpSearchResult.class.getSimpleName());
+		Assert.assertEquals(modelDef.getFields().size(), 3);
 		
-		//ensure the labels are same test data
-		Set<String> names = CommonUtils.toSet("abc", "efg", "xyz", "zyx");
+		Map<String, FieldDef> map = CommonUtils.buildMap(modelDef.getFields(), "name", null);
+		Assert.assertEquals(map.keySet(), CommonUtils.toSet("id", "name", "salary"));
+	}
+
+	@Test
+	public void testSearchResults()
+	{
+		EmpSearchQuery query = new EmpSearchQuery("%a%");
+		List<EmpSearchResult> results = searchHelper.executeSearchQuery(clientContext, "empSearch", query, -1);
+		Assert.assertEquals(results.size(), 9);
 		
-		for(ValueLabel vl : lovList)
-		{
-			Assert.assertTrue(names.remove(vl.getLabel()));
-			Assert.assertTrue(Long.parseLong(vl.getValue()) > 0);
-		}
-		
-		Assert.assertTrue(names.isEmpty());
+		results = searchHelper.executeSearchQuery(clientContext, "empSearch", query, 3);
+		Assert.assertEquals(results.size(), 3);
 	}
 	
 	@AfterClass

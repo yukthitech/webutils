@@ -50,9 +50,24 @@ public interface IWebUtilsActionConstants
 	public String ACTION_TYPE_DELETE = "delete";
 
 	/**
+	 * Action be be used for delete
+	 */
+	public String ACTION_TYPE_EXECUTE = "execute";
+
+	/**
 	 * Action be be used for deleting all 
 	 */
 	public String ACTION_TYPE_DELETE_ALL = "deleteAll";
+
+	/**
+	 * Action to be used for fetch query def
+	 */
+	public String ACTION_TYPE_FETCH_QUERY_DEF = "fetch.queryDef";
+	
+	/**
+	 * Action to be used to fetch query result def
+	 */
+	public String ACTION_TYPE_FETCH_RESULT_DEF = "fetch.resultDef";
 
 	////////////////////////////////////////////////////////////////////////////
 	/**
@@ -60,6 +75,11 @@ public interface IWebUtilsActionConstants
 	 */
 	public String ACTION_PREFIX_LOV = "lov";
 	
+	/**
+	 * Action prefix that is used for search relation methods
+	 */
+	public String ACTION_PREFIX_SEARCH = "search";
+
 	/**
 	 * Actions prefix used on model def controller
 	 */

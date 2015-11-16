@@ -21,31 +21,54 @@
  * SOFTWARE.
  */
 
-package com.test.yukthi.webutils.entity;
+package com.yukthi.webutils.common.models;
 
 import java.util.List;
 
-import com.test.yukthi.webutils.models.EmpSearchQuery;
-import com.test.yukthi.webutils.models.EmpSearchResult;
-import com.yukthi.persistence.ICrudRepository;
-import com.yukthi.persistence.repository.annotations.OrderBy;
-import com.yukthi.persistence.repository.search.SearchQuery;
-import com.yukthi.webutils.annotations.LovQuery;
-import com.yukthi.webutils.annotations.SearchQueryMethod;
-import com.yukthi.webutils.common.models.ValueLabel;
-
 /**
+ * Response model for execute search action
  * @author akiran
- *
  */
-public interface IEmployeeRepository extends ICrudRepository<EmployeeEntity>
+public class ExecuteSearchResponse extends BaseResponse
 {
-	@LovQuery(name = "employeeLov", valueField = "id", labelField = "name")
-	public List<ValueLabel> fetchEmployeeLov();
+	/**
+	 * Search results
+	 */
+	private List<Object> searchResults;
 	
-	public void deleteAll();
-	
-	@SearchQueryMethod(name = "empSearch", queryModel = EmpSearchQuery.class)
-	@OrderBy("name")
-	public List<EmpSearchResult> findEmployees(SearchQuery searchQuery);
+	/**
+	 * Instantiates a new execute search response.
+	 */
+	public ExecuteSearchResponse()
+	{}
+
+	/**
+	 * Instantiates a new execute search response.
+	 *
+	 * @param searchResults the search results
+	 */
+	public ExecuteSearchResponse(List<Object> searchResults)
+	{
+		this.searchResults = searchResults;
+	}
+
+	/**
+	 * Gets the search results.
+	 *
+	 * @return the search results
+	 */
+	public List<Object> getSearchResults()
+	{
+		return searchResults;
+	}
+
+	/**
+	 * Sets the search results.
+	 *
+	 * @param searchResults the new search results
+	 */
+	public void setSearchResults(List<Object> searchResults)
+	{
+		this.searchResults = searchResults;
+	}
 }

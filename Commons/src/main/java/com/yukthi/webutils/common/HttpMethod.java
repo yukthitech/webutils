@@ -37,5 +37,10 @@ public enum HttpMethod
 	/**
 	 * HTTP POST method
 	 */
-	POST;
+	POST,
+	
+	/**
+	 * Http DELETE method
+	 */
+	DELETE
 }

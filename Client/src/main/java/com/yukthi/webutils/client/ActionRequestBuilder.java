@@ -25,6 +25,7 @@ package com.yukthi.webutils.client;
 
 import java.util.Map;
 
+import com.yukthi.utils.rest.DeleteRestRequest;
 import com.yukthi.utils.rest.GetRestRequest;
 import com.yukthi.utils.rest.PostRestRequest;
 import com.yukthi.utils.rest.RestRequest;
@@ -60,6 +61,11 @@ public class ActionRequestBuilder
 		{
 			//build GET request
 			request = new GetRestRequest(actionModel.getUrl());
+			((GetRestRequest)request).addBeanParameters(requestEntity);
+		}
+		else if(actionModel.getMethod() == HttpMethod.DELETE)
+		{
+			request = new DeleteRestRequest(actionModel.getUrl());
 		}
 		else
 		{

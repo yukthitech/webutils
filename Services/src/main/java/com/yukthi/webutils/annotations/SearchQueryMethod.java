@@ -21,31 +21,38 @@
  * SOFTWARE.
  */
 
-package com.test.yukthi.webutils.entity;
+package com.yukthi.webutils.annotations;
 
-import java.util.List;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-import com.test.yukthi.webutils.models.EmpSearchQuery;
-import com.test.yukthi.webutils.models.EmpSearchResult;
-import com.yukthi.persistence.ICrudRepository;
-import com.yukthi.persistence.repository.annotations.OrderBy;
-import com.yukthi.persistence.repository.search.SearchQuery;
-import com.yukthi.webutils.annotations.LovQuery;
-import com.yukthi.webutils.annotations.SearchQueryMethod;
-import com.yukthi.webutils.common.models.ValueLabel;
+import com.yukthi.persistence.repository.annotations.SearchFunction;
+import com.yukthi.persistence.repository.annotations.SearchResult;
+import com.yukthi.webutils.services.SearchService;
 
 /**
+ * Used to mark a repository method as search query method. So that when required
+ * the method can be invoked for search data fetching.
  * @author akiran
- *
  */
-public interface IEmployeeRepository extends ICrudRepository<EmployeeEntity>
+@RegistryMethod(registryType = SearchService.class, dynamic = false)
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+@SearchResult
+@SearchFunction
+public @interface SearchQueryMethod
 {
-	@LovQuery(name = "employeeLov", valueField = "id", labelField = "name")
-	public List<ValueLabel> fetchEmployeeLov();
+	/**
+	 * Name of the Search-query to be used by client
+	 * @return Name of the Search-query to be used by client
+	 */
+	public String name();
 	
-	public void deleteAll();
-	
-	@SearchQueryMethod(name = "empSearch", queryModel = EmpSearchQuery.class)
-	@OrderBy("name")
-	public List<EmpSearchResult> findEmployees(SearchQuery searchQuery);
+	/**
+	 * Model bean to be used for query
+	 * @return Search query model type
+	 */
+	public Class<?> queryModel();
 }

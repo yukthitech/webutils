@@ -24,6 +24,7 @@
 package com.yukthi.webutils.services;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.security.InvalidParameterException;
@@ -39,7 +40,9 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 
-import com.yukthi.webutils.IDynamicRepositoryMethodRegistry;
+import com.yukthi.persistence.ICrudRepository;
+import com.yukthi.utils.exceptions.InvalidStateException;
+import com.yukthi.webutils.IRepositoryMethodRegistry;
 import com.yukthi.webutils.InvalidRequestParameterException;
 import com.yukthi.webutils.annotations.LovQuery;
 import com.yukthi.webutils.common.annotations.Label;
@@ -52,7 +55,7 @@ import com.yukthi.webutils.services.dynamic.DynamicMethod;
  * @author akiran
  */
 @Service
-public class LovService implements IDynamicRepositoryMethodRegistry<LovQuery>
+public class LovService implements IRepositoryMethodRegistry<LovQuery>
 {
 	/**
 	 * Message source to fetch ENUM field labels
@@ -62,13 +65,21 @@ public class LovService implements IDynamicRepositoryMethodRegistry<LovQuery>
 	
 	private Map<String, DynamicMethod> nameToLovMet = new HashMap<>();
 	
-	
+	/* (non-Javadoc)
+	 * @see com.yukthi.webutils.IRepositoryMethodRegistry#registerRepositoryMethod(java.lang.reflect.Method, java.lang.annotation.Annotation)
+	 */
+	@Override
+	public void registerRepositoryMethod(Method method, LovQuery annotation, ICrudRepository<?> repository)
+	{
+		throw new InvalidStateException("This method is not expected to be invoked");
+	}
+
 	/* (non-Javadoc)
 	 * @see com.yukthi.webutils.IDynamicRepositoryMethodRegistry#registerDynamicRepositoryMethod(com.yukthi.webutils.services.dynamic.DynamicMethod, java.lang.annotation.Annotation)
 	 */
 	@SuppressWarnings("rawtypes")
 	@Override
-	public void registerDynamicRepositoryMethod(DynamicMethod method, LovQuery annotation)
+	public void registerDynamicMethod(DynamicMethod method, LovQuery annotation)
 	{
 		Type returnType = method.getMethod().getGenericReturnType();
 		
@@ -85,7 +96,7 @@ public class LovService implements IDynamicRepositoryMethodRegistry<LovQuery>
 			throw new IllegalStateException("Invalid return type specified for lov method - " + method);
 		}
 		
-		nameToLovMet.put(annotation.value(), method);
+		nameToLovMet.put(annotation.name(), method);
 	}
 
 	/**

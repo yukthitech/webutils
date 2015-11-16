@@ -36,10 +36,10 @@ import org.springframework.stereotype.Service;
 
 import com.yukthi.persistence.ICrudRepository;
 import com.yukthi.persistence.repository.RepositoryFactory;
-import com.yukthi.webutils.IDynamicRepositoryMethodRegistry;
+import com.yukthi.webutils.IRepositoryMethodRegistry;
 import com.yukthi.webutils.IWebUtilsInternalConstants;
 import com.yukthi.webutils.WebutilsConfiguration;
-import com.yukthi.webutils.annotations.DynamicRepositoryMethod;
+import com.yukthi.webutils.annotations.RegistryMethod;
 import com.yukthi.webutils.services.dynamic.DynamicMethod;
 import com.yukthi.webutils.services.dynamic.DynamicMethodFactory;
 
@@ -96,7 +96,7 @@ public class RepositoryLoader
 		Set<Class<?>> repos = classScannerService.getClassesOfType(ICrudRepository.class);
 		boolean loadExtensions = configuration.isExtensionsRequired();
 
-		Set<Class<? extends Annotation>> dynAnnotLst = (Set)classScannerService.getClassesWithAnnotation(DynamicRepositoryMethod.class);
+		Set<Class<? extends Annotation>> dynAnnotLst = (Set)classScannerService.getClassesWithAnnotation(RegistryMethod.class);
 		logger.debug("Searching with annotation - " + dynAnnotLst);
 		
 		ICrudRepository<?> repository = null;
@@ -127,8 +127,8 @@ public class RepositoryLoader
 		logger.debug("Scanning {} repository for dynamic methods", repoCls.getName());
 		
 		Method methods[] = repoCls.getMethods();
-		DynamicRepositoryMethod dynamicRepositoryMethod = null;
-		IDynamicRepositoryMethodRegistry registry = null;
+		RegistryMethod dynamicRepositoryMethod = null;
+		IRepositoryMethodRegistry registry = null;
 		Annotation annotation = null;
 		DynamicMethod dynamicMethod = null;
 		
@@ -149,7 +149,7 @@ public class RepositoryLoader
 				logger.debug("Repository method {}.{}() found with dynamic method annotation - {}", 
 									repoCls.getName(), method.getName(), annotType.getName());
 				
-				dynamicRepositoryMethod = annotType.getAnnotation(DynamicRepositoryMethod.class);
+				dynamicRepositoryMethod = annotType.getAnnotation(RegistryMethod.class);
 				registry = applicationContext.getBean(dynamicRepositoryMethod.registryType());
 				
 				if(registry == null)
@@ -158,12 +158,20 @@ public class RepositoryLoader
 							dynamicRepositoryMethod.registryType().getName(), annotType.getName()));
 				}
 				
-				//register the repository method
-				dynamicMethod = dynamicMethodFactory.buildDynamicMethod(repoCls, method);
-				applicationContext.getAutowireCapableBeanFactory().autowireBean(dynamicMethod);
-				dynamicMethod.setDefaultObject(repository);
-				
-				registry.registerDynamicRepositoryMethod(dynamicMethod, annotation);
+				//if the target method is expected to be fully dynamic
+				if(dynamicRepositoryMethod.dynamic())
+				{
+					//register the repository method
+					dynamicMethod = dynamicMethodFactory.buildDynamicMethod(repoCls, method);
+					applicationContext.getAutowireCapableBeanFactory().autowireBean(dynamicMethod);
+					dynamicMethod.setDefaultObject(repository);
+					
+					registry.registerDynamicMethod(dynamicMethod, annotation);
+				}
+				else
+				{
+					registry.registerRepositoryMethod(method, annotation, repository);
+				}
 			}
 		}
 	}

@@ -21,23 +21,33 @@
  * SOFTWARE.
  */
 
-package com.yukthi.webutils.annotations;
+package com.yukthi.webutils;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 
-import com.yukthi.webutils.IDynamicRepositoryMethodRegistry;
+import com.yukthi.persistence.ICrudRepository;
+import com.yukthi.webutils.services.dynamic.DynamicMethod;
 
 /**
- * Annotation to mark other annotations which in turn can mark repository methods 
- * as dynamic method
+ * Implementing classes should provide registry functionality for dynamic repository method 
+ * annotated with particular annotation
  * @author akiran
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.ANNOTATION_TYPE)
-public @interface DynamicRepositoryMethod
+public interface IRepositoryMethodRegistry<A extends Annotation>
 {
-	public Class<? extends IDynamicRepositoryMethodRegistry<?>> registryType();
+	/**
+	 * Invoked to register a dynamic method marked by specified annotation
+	 * @param method Dynamic method being registered
+	 * @param annotation Annotation to mark target method as dynamic method
+	 */
+	public void registerDynamicMethod(DynamicMethod method, A annotation);
+	
+	/**
+	 * Invoked to register non-dynamic method marked by specified annotation
+	 * @param method Repository method to register
+	 * @param annotation Annotation used to mark method as registry method
+	 * @param repository Repository in which method is defined
+	 */
+	public void registerRepositoryMethod(Method method, A annotation, ICrudRepository<?> repository);
 }

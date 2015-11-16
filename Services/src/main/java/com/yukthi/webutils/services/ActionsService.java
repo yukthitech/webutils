@@ -207,6 +207,10 @@ public class ActionsService
 		{
 			return HttpMethod.GET;
 		}
+		else if(requestMethod == RequestMethod.DELETE)
+		{
+			return HttpMethod.DELETE;
+		}
 		
 		return HttpMethod.POST;
 	}

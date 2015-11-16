@@ -22,6 +22,8 @@
  */
 package com.yukthi.webutils;
 
+import com.yukthi.utils.MessageFormatter;
+
 /**
  * Exception to be thrown when input request parameters is found to be invalid
  * @author akiran
@@ -50,4 +52,26 @@ public class InvalidRequestParameterException extends RuntimeException
 	{
 		super(message, cause);
 	}
+	
+	/**
+	 * Var args version of constructor
+	 * @param cause
+	 * @param message
+	 * @param args
+	 */
+	public InvalidRequestParameterException(Throwable cause, String message, Object... args)
+	{
+		super(MessageFormatter.format(message, args), cause);
+	}
+
+	/**
+	 * Var args version of constructor
+	 * @param message
+	 * @param args
+	 */
+	public InvalidRequestParameterException(String message, Object... args)
+	{
+		super(MessageFormatter.format(message, args));
+	}
+
 }

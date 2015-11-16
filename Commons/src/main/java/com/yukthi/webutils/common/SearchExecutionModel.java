@@ -21,31 +21,49 @@
  * SOFTWARE.
  */
 
-package com.test.yukthi.webutils.entity;
+package com.yukthi.webutils.common;
 
-import java.util.List;
-
-import com.test.yukthi.webutils.models.EmpSearchQuery;
-import com.test.yukthi.webutils.models.EmpSearchResult;
-import com.yukthi.persistence.ICrudRepository;
-import com.yukthi.persistence.repository.annotations.OrderBy;
-import com.yukthi.persistence.repository.search.SearchQuery;
-import com.yukthi.webutils.annotations.LovQuery;
-import com.yukthi.webutils.annotations.SearchQueryMethod;
-import com.yukthi.webutils.common.models.ValueLabel;
+import com.yukthi.webutils.common.annotations.Model;
 
 /**
+ * Model used to execute search queries
  * @author akiran
- *
  */
-public interface IEmployeeRepository extends ICrudRepository<EmployeeEntity>
+@Model
+public class SearchExecutionModel
 {
-	@LovQuery(name = "employeeLov", valueField = "id", labelField = "name")
-	public List<ValueLabel> fetchEmployeeLov();
+	/**
+	 * Query object json
+	 */
+	private String queryModelJson;
 	
-	public void deleteAll();
-	
-	@SearchQueryMethod(name = "empSearch", queryModel = EmpSearchQuery.class)
-	@OrderBy("name")
-	public List<EmpSearchResult> findEmployees(SearchQuery searchQuery);
+	/**
+	 * Results page size
+	 */
+	private int pageSize = -1;
+
+	public String getQueryModelJson()
+	{
+		return queryModelJson;
+	}
+
+	public void setQueryModelJson(String queryModelJson)
+	{
+		this.queryModelJson = queryModelJson;
+	}
+
+	public int getPageSize()
+	{
+		return pageSize;
+	}
+
+	/**
+	 * Sets the results page size.
+	 *
+	 * @param pageSize the new results page size
+	 */
+	public void setPageSize(int pageSize)
+	{
+		this.pageSize = pageSize;
+	}
 }

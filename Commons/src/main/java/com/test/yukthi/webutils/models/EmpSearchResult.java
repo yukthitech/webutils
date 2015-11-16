@@ -21,23 +21,56 @@
  * SOFTWARE.
  */
 
-package com.yukthi.webutils;
+package com.test.yukthi.webutils.models;
 
-import java.lang.annotation.Annotation;
-
-import com.yukthi.webutils.services.dynamic.DynamicMethod;
+import com.yukthi.persistence.repository.annotations.Field;
+import com.yukthi.webutils.common.annotations.Model;
 
 /**
- * Implementing classes should provide registry functionality for dynamic repository method 
- * annotated with particular annotation
+ * Emp search result
+ * 
  * @author akiran
  */
-public interface IDynamicRepositoryMethodRegistry<A extends Annotation>
+@Model
+public class EmpSearchResult
 {
-	/**
-	 * Invoked to register a dynamic method marked by specified annotation
-	 * @param method Dynamic method being registered
-	 * @param annotation Annotation to mark target method as dynamic method
-	 */
-	public void registerDynamicRepositoryMethod(DynamicMethod method, A annotation);
+	@Field(value = "id")
+	private long id;
+
+	@Field(value = "name")
+	private String name;
+
+	@Field(value = "salary")
+	private long salary;
+
+	public long getId()
+	{
+		return id;
+	}
+
+	public void setId(long id)
+	{
+		this.id = id;
+	}
+
+	public String getName()
+	{
+		return name;
+	}
+
+	public void setName(String name)
+	{
+		this.name = name;
+	}
+
+	public long getSalary()
+	{
+		return salary;
+	}
+
+	public void setSalary(long salary)
+	{
+		this.salary = salary;
+	}
+
 }
