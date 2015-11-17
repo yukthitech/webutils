@@ -2,8 +2,7 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
 	xmlns:context="http://www.springframework.org/schema/context"
-	xmlns:mvc="http://www.springframework.org/schema/mvc"
-	xmlns:cache="http://www.springframework.org/schema/cache"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:cache="http://www.springframework.org/schema/cache"
 	xsi:schemaLocation="
         http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans.xsd
@@ -19,7 +18,8 @@
 		</bean>
 	</mvc:interceptors>
 
-	<bean id="labelsMessageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+	<bean id="labelsMessageSource"
+		class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
 		<property name="basenames">
 			<value>classpath:labels-*</value>
 		</property>
@@ -54,6 +54,12 @@
 		</property>
 	</bean>
 
+	<!-- Quartz scheduler for jobs -->
+	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="jobFactory">
+			<bean class="com.yukthi.webutils.services.job.QuartzJobFactory"></bean>
+		</property>
+	</bean>
 
 	<mvc:annotation-driven>
 		<mvc:message-converters register-defaults="true">
@@ -62,5 +68,5 @@
 	</mvc:annotation-driven>
 
 	<context:component-scan base-package="com.yukthi" />
-	
+
 </beans>

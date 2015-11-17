@@ -23,14 +23,20 @@
 
 package com.yukthi.webutils.client.helpers;
 
-import static com.yukthi.webutils.common.IWebUtilsActionConstants.*;
+import static com.yukthi.webutils.common.IWebUtilsActionConstants.ACTION_PREFIX_SEARCH;
+import static com.yukthi.webutils.common.IWebUtilsActionConstants.ACTION_TYPE_EXECUTE;
 import static com.yukthi.webutils.common.IWebUtilsActionConstants.ACTION_TYPE_FETCH_QUERY_DEF;
 import static com.yukthi.webutils.common.IWebUtilsActionConstants.ACTION_TYPE_FETCH_RESULT_DEF;
 import static com.yukthi.webutils.common.IWebUtilsActionConstants.PARAM_NAME;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.collections.CollectionUtils;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.yukthi.utils.CommonUtils;
 import com.yukthi.utils.exceptions.InvalidStateException;
 import com.yukthi.utils.rest.RestClient;
@@ -121,8 +127,7 @@ public class SearchHelper
 	 * @param pageSize Query page size
 	 * @return List of search results
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public <T> List<T> executeSearchQuery(ClientContext context, String queryName, Object searchQuery, int pageSize)
+	public <T> List<T> executeSearchQuery(ClientContext context, String queryName, Object searchQuery, int pageSize, Class<T> resultType)
 	{
 		//Build model object
 		SearchExecutionModel searchExecutionModel = new SearchExecutionModel();
@@ -152,6 +157,21 @@ public class SearchHelper
 			throw new RestException("An error occurred while executing search-query - " + queryName, searchResult.getStatusCode(), response);
 		}
 		
-		return (List)response.getSearchResults();
+		if(CollectionUtils.isEmpty(response.getSearchResults()))
+		{
+			return Collections.emptyList();
+		}
+		
+		//Convert generic object list into target result type
+		try
+		{
+			String resultLstAsJson = objectMapper.writeValueAsString(response.getSearchResults());
+			List<T> resLst = objectMapper.readValue(resultLstAsJson, TypeFactory.defaultInstance().constructCollectionType(ArrayList.class, resultType));
+			
+			return resLst;
+		}catch(Exception ex)
+		{
+			throw new InvalidStateException(ex, "An error occurred while converting resulting into target result type - {}", resultType.getName());
+		}
 	}
 }

@@ -127,11 +127,15 @@ public class TFSearchQuery extends TFBase
 	public void testSearchResults()
 	{
 		EmpSearchQuery query = new EmpSearchQuery("%a%");
-		List<EmpSearchResult> results = searchHelper.executeSearchQuery(clientContext, "empSearch", query, -1);
+		List<EmpSearchResult> results = searchHelper.executeSearchQuery(clientContext, "empSearch", query, -1, EmpSearchResult.class);
 		Assert.assertEquals(results.size(), 9);
 		
-		results = searchHelper.executeSearchQuery(clientContext, "empSearch", query, 3);
+		results = searchHelper.executeSearchQuery(clientContext, "empSearch", query, 3, EmpSearchResult.class);
 		Assert.assertEquals(results.size(), 3);
+		
+		//to ensure bean conversion is good, check first bean
+		Assert.assertEquals(results.get(0).getName(), "abc");
+		Assert.assertEquals(results.get(0).getSalary(), 100);
 	}
 	
 	@AfterClass
