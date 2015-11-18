@@ -21,37 +21,57 @@
  * SOFTWARE.
  */
 
-package com.test.yukthi.webutils.jobs;
+package com.yukthi.webutils.services.job;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 
-import com.yukthi.webutils.WebutilsConfiguration;
-import com.yukthi.webutils.annotations.CronJob;
-import com.yukthi.webutils.services.job.IJob;
+import com.yukthi.common.util.JsonWrapper;
 
 /**
  * @author akiran
  *
  */
-@CronJob(name = "Test", cronExpression = "0/45 * * * * ?")
-public class TestJob implements IJob
+public class QuartzJobBridge implements Job
 {
-	private static Logger logger = LogManager.getLogger(TestJob.class);
-	
-	@Autowired
-	private WebutilsConfiguration configuration;
-	
+	/**
+	 * Spring application context that will be set by {@link JobService} during initialization
+	 */
+	static ApplicationContext applicationContext;
+
 	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.services.job.IJob#execute(java.lang.Object, org.quartz.JobExecutionContext)
+	 * @see org.quartz.Job#execute(org.quartz.JobExecutionContext)
 	 */
 	@Override
-	public void execute(Object jobData, JobExecutionContext context) throws JobExecutionException
+	public void execute(JobExecutionContext context) throws JobExecutionException
 	{
-		logger.debug("Executing job with config - " + configuration);
+		IJob job = null;
+		Object jobData = null;
+		
+		try
+		{
+			String jobDataJson = context.getJobDetail().getJobDataMap().getString(IJobConstants.ATTR_JOB_DETAILS);
+			
+			if(jobDataJson != null)
+			{
+				jobData = JsonWrapper.parse(jobDataJson);
+			}
+			
+			String jobType = context.getJobDetail().getJobDataMap().getString(IJobConstants.ATTR_JOB_TYPE);
+			job = (IJob)Class.forName(jobType).newInstance(); 
+		}catch(Exception ex)
+		{
+			throw new JobExecutionException("An error occurred while creating actual job instance", ex);
+		}
+		
+		//autowire dependencies
+		applicationContext.getAutowireCapableBeanFactory().autowireBean(job);
+		
+		//execute the job
+		job.execute(jobData, context);
 	}
+	
 	
 }

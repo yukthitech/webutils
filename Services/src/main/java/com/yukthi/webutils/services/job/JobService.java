@@ -23,28 +23,34 @@
 package com.yukthi.webutils.services.job;
 
 import java.text.ParseException;
-import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.PostConstruct;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.quartz.CronScheduleBuilder;
+import org.quartz.JobBuilder;
+import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
-import org.quartz.impl.JobDetailImpl;
-import org.quartz.impl.triggers.CronTriggerImpl;
+import org.quartz.Trigger;
+import org.quartz.TriggerBuilder;
+import org.quartz.impl.StdSchedulerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.scheduling.quartz.CronTriggerFactoryBean;
-import org.springframework.scheduling.quartz.JobDetailFactoryBean;
-import org.springframework.scheduling.quartz.QuartzJobBean;
 import org.springframework.stereotype.Service;
 
+import com.yukthi.common.util.JsonWrapper;
+import com.yukthi.utils.CommonUtils;
+import com.yukthi.utils.exceptions.InvalidArgumentException;
 import com.yukthi.utils.exceptions.InvalidStateException;
 import com.yukthi.webutils.annotations.CronJob;
+import com.yukthi.webutils.services.ClassScannerService;
 
 /**
- * Service class to load job classes and schedule them as configured
+ * Service class to load job classes and schedule them as configured. Dynamic jobs can be 
+ * scheduled using {@link #scheduleJob(JobDetails)}
  * 
  * @author akiran
  */
@@ -62,75 +68,102 @@ public class JobService
 	/**
 	 * Quartz scheduler for scheduling
 	 */
-	@Autowired
 	private Scheduler scheduler;
+	
+	@Autowired
+	private ClassScannerService classScannerService;
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@PostConstruct
 	private void init() throws ParseException
 	{
-		//fetch all the configured job beans
-		Map<String, Object> quartzJobBeans = applicationContext.getBeansWithAnnotation(CronJob.class);
-		//CronTriggerFactoryBean cronTriggerFactory = null;
-		Object jobObj = null;
-		CronJob cronJob = null;
-		//JobDetailFactoryBean jobDetailFactory = null;
-		JobDetailImpl jobDetail = null;
-		CronTriggerImpl cronTrigger = null;
-
-		for(String name : quartzJobBeans.keySet())
+		//set application context on bridge, which in turn will be used for autowiring
+		QuartzJobBridge.applicationContext = applicationContext;
+		
+		//create scheduler and start it
+		try
 		{
-			jobObj = quartzJobBeans.get(name);
+			scheduler = new StdSchedulerFactory().getScheduler();
+			scheduler.start();
+		}catch(Exception ex)
+		{
+			throw new InvalidStateException(ex, "An error occurred while starting up the scheduler");
+		}
+		
+		//fetch all the configured job beans
+		Set<Class<?>> quartzJobBeanTypes = classScannerService.getClassesWithAnnotation(CronJob.class);
+		CronJob cronJob = null;
 
-			if(!(jobObj instanceof QuartzJobBean))
+		for(Class<?> jobBeanType : quartzJobBeanTypes)
+		{
+			if(!IJob.class.isAssignableFrom(jobBeanType))
 			{
-				logger.error("Non QuartzJobBean is marked as CronJob - {}", jobObj.getClass().getName());
-				throw new InvalidStateException("Non QuartzJobBean is marked as CronJob - {}", jobObj.getClass().getName());
+				logger.error("Non job is marked as CronJob - {}", jobBeanType.getName());
+				throw new InvalidStateException("Non job is marked as CronJob - {}", jobBeanType.getName());
 			}
 			
-			logger.info("Scheduling job class - {}", jobObj.getClass().getName());
-
-			cronJob = jobObj.getClass().getAnnotation(CronJob.class);
-
-			/*
-			cronTriggerFactory = new CronTriggerFactoryBean();
-			cronTriggerFactory.setName(cronJob.name() + "_trigger");
-			cronTriggerFactory.setCronExpression(cronJob.cronExpression());
-
-			jobDetailFactory = new JobDetailFactoryBean();
-			jobDetailFactory.setName(cronJob.name());
-			jobDetailFactory.setJobClass(jobObj.getClass());
-			jobDetail = jobDetailFactory.getObject();
+			cronJob = jobBeanType.getAnnotation(CronJob.class);
 			
-			cronTriggerFactory.setJobDetail(jobDetailFactory.getObject());
-			
+			scheduleJob(new JobDetails(cronJob.name(), cronJob.cronExpression(), (Class)jobBeanType, null));
+		}
+	}
+	
+	/**
+	 * Schedules job with specified details
+	 * @param jobDetails Details of job to configure
+	 */
+	public void scheduleJob(JobDetails jobDetails)
+	{
+		logger.info("Scheduling job with details - {}", jobDetails);
+		
+		String jobDataJson = null;
+		
+		if(jobDetails.getJobData() != null)
+		{
 			try
 			{
-				scheduler.scheduleJob(jobDetail, cronTriggerFactory.getObject());
+				jobDataJson = JsonWrapper.format(jobDetails.getJobData());
 			}catch(Exception ex)
 			{
-				logger.error("An error occurred while scheduling job class - " + jobObj.getClass().getName(), ex);
-				throw new InvalidStateException(ex, "An error occurred while scheduling job class - {}", jobObj.getClass().getName());
+				throw new InvalidStateException(ex, "An error occurred wile converting jobdetails into json - {}", jobDetails);
 			}
-			
-			*/
-			cronTrigger = new CronTriggerImpl();
-			cronTrigger.setName(cronJob.name() + "_trigger");
-			cronTrigger.setCronExpression(cronJob.cronExpression());
+		}
+		
+		//ensure default constructor is available for job type
+		try
+		{
+			if(!(jobDetails.getJobClass().newInstance() instanceof IJob))
+			{
+				throw new InvalidArgumentException("Invalid job type specified - {}", jobDetails.getJobClass().getName());
+			}
+		}catch(Exception ex)
+		{
+			throw new InvalidStateException(ex, "Failed to created specified job type instance - {}", jobDetails.getJobClass().getName());
+		}
+		
+		//create job instance
+		JobDetail job = JobBuilder.newJob(QuartzJobBridge.class)
+				.withIdentity(jobDetails.getName(), "defaultGroup")
+				.usingJobData(new JobDataMap(CommonUtils.toMap(
+							IJobConstants.ATTR_JOB_TYPE, jobDetails.getJobClass().getName(),
+							IJobConstants.ATTR_JOB_DETAILS, jobDataJson,
+							IJobConstants.ATTR_JOB_NAME, jobDetails.getName()
+						)))
+				.build();
 
-			jobDetail = new JobDetailImpl();
-			jobDetail.setName(cronJob.name());
-			jobDetail.setJobClass((Class)jobObj.getClass());
-			
-			try
-			{
-				scheduler.scheduleJob(jobDetail, cronTrigger);
-			}catch(Exception ex)
-			{
-				logger.error("An error occurred while scheduling job class - " + jobObj.getClass().getName(), ex);
-				throw new InvalidStateException(ex, "An error occurred while scheduling job class - {}", jobObj.getClass().getName());
-			}
-			
-			
+		// Trigger the job to run on the next round minute
+		Trigger trigger = TriggerBuilder.newTrigger()
+				.withIdentity(jobDetails.getName() + "_trigger", "defaultGroup")
+				.withSchedule(CronScheduleBuilder.cronSchedule(jobDetails.getCronExpression()))
+				.build();
+
+		// schedule it
+		try
+		{
+			scheduler.scheduleJob(job, trigger);
+		}catch(Exception ex)
+		{
+			throw new InvalidStateException(ex, "An error occurred while scheduling job - {}", jobDetails);
 		}
 	}
 }

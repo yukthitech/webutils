@@ -21,37 +21,22 @@
  * SOFTWARE.
  */
 
-package com.test.yukthi.webutils.jobs;
+package com.yukthi.webutils.services.job;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import com.yukthi.webutils.WebutilsConfiguration;
-import com.yukthi.webutils.annotations.CronJob;
-import com.yukthi.webutils.services.job.IJob;
 
 /**
+ * Job interface to be implemented by job classes for scheduled execution
  * @author akiran
- *
  */
-@CronJob(name = "Test", cronExpression = "0/45 * * * * ?")
-public class TestJob implements IJob
+public interface IJob
 {
-	private static Logger logger = LogManager.getLogger(TestJob.class);
-	
-	@Autowired
-	private WebutilsConfiguration configuration;
-	
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.services.job.IJob#execute(java.lang.Object, org.quartz.JobExecutionContext)
+	/**
+	 * Invoked for triggering this job, when scheduled time is reached
+	 * @param jobData Job data specified during job registration
+	 * @param context Job execution context
+	 * @throws JobExecutionException
 	 */
-	@Override
-	public void execute(Object jobData, JobExecutionContext context) throws JobExecutionException
-	{
-		logger.debug("Executing job with config - " + configuration);
-	}
-	
+	public void execute(Object jobData, JobExecutionContext context) throws JobExecutionException;
 }

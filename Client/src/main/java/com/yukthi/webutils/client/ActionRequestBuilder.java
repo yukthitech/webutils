@@ -46,7 +46,7 @@ public class ActionRequestBuilder
 	 * @param parameters Parameters to be used in url and request parameters
 	 * @return Rest result from server
 	 */
-	public static RestRequest<?> buildRequest(ClientContext context, String action, Object requestEntity, Map<String, String> parameters)
+	public static RestRequest<?> buildRequest(ClientContext context, String action, Object requestEntity, Map<String, ? extends Object> parameters)
 	{
 		ActionModel actionModel = context.getAction(action);
 		
@@ -87,7 +87,7 @@ public class ActionRequestBuilder
 					throw new IllegalArgumentException("Required url-param is not specified with name - " + param);
 				}
 				
-				request.addPathVariable(param, parameters.get(param));
+				request.addPathVariable(param, "" + parameters.get(param));
 			}
 		}
 		
@@ -96,7 +96,7 @@ public class ActionRequestBuilder
 		{
 			for(String param : actionModel.getRequestParameters())
 			{
-				request.addParam(param, parameters.get(param));
+				request.addParam(param, "" + parameters.get(param));
 			}
 		}
 		

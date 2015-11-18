@@ -87,10 +87,18 @@ public class EmployeeController extends BaseController
 	@ActionName("fetch")
 	public EmployeeModel fetch(@PathVariable("id") long id)
 	{
-		EmployeeModel model = WebUtils.convertBean(service.fetch(id), EmployeeModel.class);
-		super.extensionService.fetchExtendedValues(model);
-		
+		EmployeeModel model = service.fetchWithExtensions(id, EmployeeModel.class);
 		return model;
+	}
+	
+	@ResponseBody
+	@RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
+	@ActionName("delete")
+	public BaseResponse delete(@PathVariable("id") long id)
+	{
+		service.deleteById(id);
+		
+		return new BaseResponse();
 	}
 
 	@ResponseBody

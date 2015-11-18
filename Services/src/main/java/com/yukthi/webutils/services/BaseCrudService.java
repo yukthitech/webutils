@@ -34,6 +34,7 @@ import com.yukthi.persistence.ITransaction;
 import com.yukthi.persistence.repository.RepositoryFactory;
 import com.yukthi.webutils.IEntity;
 import com.yukthi.webutils.common.IExtendableModel;
+import com.yukthi.webutils.utils.WebUtils;
 
 /**
  * Abstracts basic functionality that is required for all entities
@@ -153,6 +154,23 @@ public abstract class BaseCrudService<E extends IEntity, R extends ICrudReposito
 	}
 	
 	/**
+	 * To be used when fetching needs to be done with extensions
+	 * @param id Entity id to be fetched
+	 * @param extendableModelType Corresponding entity's model type which can hold extension fields
+	 * @return Converted model with extension fields
+	 */
+	public <M extends IExtendableModel> M fetchWithExtensions(long id, Class<M> extendableModelType)
+	{
+		E entity = repository.findById(id);
+		
+		M model = WebUtils.convertBean(entity, extendableModelType);
+		extensionService.fetchExtendedValues(model);
+		
+		logger.trace("Entity fetch-with-extensions for id '{}' resulted in  - {}", id, entity);
+		return model;
+	}
+ 
+	/**
 	 * Fetches number of entities in DB
 	 * @return entity count
 	 */
@@ -168,9 +186,27 @@ public abstract class BaseCrudService<E extends IEntity, R extends ICrudReposito
 	 * Deletes entity with specified id
 	 * @param id Entity id to delete
 	 */
-	public void deleteById(long id)
+	public boolean deleteById(long id)
 	{
-		boolean res = repository.deleteById(id);
-		logger.trace("Deletion of entity with id '{}' resulted in - {}", id, res);
+		try(ITransaction transaction = repository.newOrExistingTransaction())
+		{
+			logger.trace("Trying to delete entity with id - {}", id);
+			
+			int extDelCount = extensionService.deleteExtensionValues(id);
+			
+			logger.debug("Deleted {} extension field values of entity {}", extDelCount, id);
+			
+			boolean res = repository.deleteById(id);
+			
+			logger.trace("Deletion of entity with id '{}' resulted in - {}", id, res);
+			
+			transaction.commit();
+			
+			return res;
+		}catch(Exception ex)
+		{
+			logger.error("An error occurred while deleting entity with id - " + id, ex);
+			throw new IllegalStateException("An error occurred while deleting entity with id - " + id, ex);
+		}
 	}
 }

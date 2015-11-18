@@ -126,7 +126,7 @@ public class ExtensionService
 	@Cacheable("default")
 	public ExtensionEntity getExtensionEntity(Class<?> entityType, Class<?> ownerEntityType, long ownerId)
 	{
-		logger.debug("Fetching extension entity - [Entity: {}, Owner type: {}, Owner Id: {}]", entityType.getName(), 
+		logger.trace("Fetching extension entity - [Entity: {}, Owner type: {}, Owner Id: {}]", entityType.getName(), 
 				(ownerEntityType != null)? ownerEntityType.getName() : null, ownerId);
 		
 		//if owner entity type is not specified use Object class
@@ -200,7 +200,7 @@ public class ExtensionService
 	@Cacheable(value = "extensionFields", key = "#root.args[0]")
 	public List<ExtensionFieldEntity> getExtensionFields(long extensionId)
 	{
-		logger.debug("Fetching extension fields for extension - {}", extensionId);
+		logger.trace("Fetching extension fields for extension - {}", extensionId);
 		
 		return extensionFieldRepository.findExtensionFields(extensionId);
 	}
@@ -213,7 +213,7 @@ public class ExtensionService
 	@CacheEvict(value = "extensionFields", key = "#root.args[0]")
 	public void saveExtensionField(long extensionId, ExtensionFieldEntity extensionFieldEntity)
 	{
-		logger.debug("Saving new extension field for extension - {}", extensionId);
+		logger.trace("Saving new extension field for extension - {}", extensionId);
 		
 		extensionFieldEntity.setExtension(new ExtensionEntity(extensionId));
 		
@@ -231,7 +231,7 @@ public class ExtensionService
 	@CacheEvict(value = "extensionFields", key = "#root.args[0]")
 	public void updateExtensionField(long extensionId, ExtensionFieldEntity extensionFieldEntity)
 	{
-		logger.debug("Updating extension field for extension - {}", extensionId);
+		logger.trace("Updating extension field for extension - {}", extensionId);
 		
 		extensionFieldEntity.setExtension(new ExtensionEntity(extensionId));
 
@@ -252,6 +252,18 @@ public class ExtensionService
 	}
 	
 	/**
+	 * Deletes extension values for specified entity
+	 * @param entityId Entity id for which fields needs to be deleted
+	 * @return Number of deleted records
+	 */
+	public int deleteExtensionValues(long entityId)
+	{
+		logger.trace("Deleting extension values for entity - {}", entityId);
+		
+		return extensionFieldValueRepository.deleteByEntityId(entityId);
+	}
+	
+	/**
 	 * Deletes extension field
 	 * @param extensionId Extension id under which field should be deleted
 	 * @param extensionFieldId Extension field to be deleted
@@ -259,7 +271,7 @@ public class ExtensionService
 	@CacheEvict(value = "extensionFields", key = "#root.args[0]")
 	public void deleteExtensionField(long extensionId, long extensionFieldId)
 	{
-		logger.debug("Deleting extension field for extension - {}", extensionId);
+		logger.trace("Deleting extension field for extension - {}", extensionId);
 		
 		if(!extensionFieldRepository.deleteById(extensionFieldId))
 		{
@@ -273,7 +285,7 @@ public class ExtensionService
 	@CacheEvict(value = "extensionFields")
 	public void deleteAllExtensionFields()
 	{
-		logger.debug("Deleting all extensions");
+		logger.trace("Deleting all extensions");
 		extensionFieldRepository.deleteAll();
 	}
 	

@@ -41,4 +41,11 @@ public interface IExtensionFieldValueRepository extends ICrudRepository<Extensio
 	 * @return List of matching field values
 	 */
 	public List<ExtensionFieldValueEntity> findExtensionValues(@Condition("extensionField.extension.id") long extensionId, @Condition("entityId") long entityId);
+	
+	/**
+	 * Deletes all extension field values for specified entity
+	 * @param entityId Entity id for which extended values needs to be deleted
+	 * @return Number of deleted records
+	 */
+	public int deleteByEntityId(@Condition("entityId") long entityId);
 }

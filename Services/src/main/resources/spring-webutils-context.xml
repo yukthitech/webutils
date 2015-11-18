@@ -54,13 +54,6 @@
 		</property>
 	</bean>
 
-	<!-- Quartz scheduler for jobs -->
-	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
-		<property name="jobFactory">
-			<bean class="com.yukthi.webutils.services.job.QuartzJobFactory"></bean>
-		</property>
-	</bean>
-
 	<mvc:annotation-driven>
 		<mvc:message-converters register-defaults="true">
 			<ref bean="jsonMessageConverter" />

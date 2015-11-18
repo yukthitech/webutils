@@ -142,6 +142,28 @@ public class TFExtensionValues extends TFBase
 		return response.getId();
 	}
 
+	private void deleteEmployee(long customerId, long empId)
+	{
+		RestRequest<?> request = ActionRequestBuilder.buildRequest(
+				clientContext.setRequestCustomizer(new RequestHeadersCustomizer(CommonUtils.toMap("customerId", "" + customerId))), 
+				"employee.delete", null, CommonUtils.toMap("id", empId));
+		
+		RestClient client = clientContext.getRestClient();
+		
+		RestResult<BaseResponse> result = client.invokeJsonRequest(request, BaseResponse.class);
+		BaseResponse response = result.getValue();
+		
+		if(response == null || response.getCode() != IWebUtilsCommonConstants.RESPONSE_CODE_SUCCESS)
+		{
+			if(response != null)
+			{
+				throw new RestException(response.getMessage(), response.getCode());
+			}
+			
+			throw new InvalidStateException("Unknow error occurred - {}", result);
+		}
+	}
+
 	private long getEmployeeCount()
 	{
 		RestRequest<?> request = ActionRequestBuilder.buildRequest(
@@ -506,6 +528,16 @@ public class TFExtensionValues extends TFBase
 		Assert.assertEquals(getEmployee(customer2, empId2).getName(), "emp3");
 	}
 
+	@Test
+	public void testValueDelete()
+	{
+		//create employee objects with extended fields
+		long id1 = addEmployee(customer1, fieldMap1, "empForUpdate", 100, 
+				"field1", "123", "field2", "3.45", "field3", "2");
+		
+		deleteEmployee(customer1, id1);
+	}
+	
 	@AfterClass
 	private void cleanup()
 	{
