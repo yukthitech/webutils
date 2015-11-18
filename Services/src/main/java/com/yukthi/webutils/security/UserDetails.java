@@ -46,6 +46,11 @@ public class UserDetails<T>
 	 * Encrypted authentication/authorization token
 	 */
 	private String authToken;
+	
+	/**
+	 * Time when session is started
+	 */
+	private long sessionStartTime;
 
 	/**
 	 * Instantiates a new user details.
@@ -142,4 +147,25 @@ public class UserDetails<T>
 		return roles.contains(role);
 	}
 
+	/**
+	 * Gets the time when session is started.
+	 *
+	 * @return the time when session is started
+	 */
+	public long getSessionStartTime()
+	{
+		return sessionStartTime;
+	}
+
+	/**
+	 * Sets the time when session is started.
+	 *
+	 * @param sessionStartTime the new time when session is started
+	 */
+	public void setSessionStartTime(long sessionStartTime)
+	{
+		this.sessionStartTime = sessionStartTime;
+	}
+
+	
 }

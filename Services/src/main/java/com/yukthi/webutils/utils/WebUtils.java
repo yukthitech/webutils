@@ -86,4 +86,13 @@ public class WebUtils
 		
 		return targetLst;
 	}
+	
+	/**
+	 * Fetches current time in mins
+	 * @return current time in mins
+	 */
+	public static long currentTimeInMin()
+	{
+		return System.currentTimeMillis() / 60000L;
+	}
 }

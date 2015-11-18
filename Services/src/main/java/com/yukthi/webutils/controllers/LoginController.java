@@ -41,6 +41,7 @@ import com.yukthi.webutils.common.models.LoginResponse;
 import com.yukthi.webutils.security.IAuthenticationService;
 import com.yukthi.webutils.security.SecurityEncryptionService;
 import com.yukthi.webutils.security.UserDetails;
+import com.yukthi.webutils.utils.WebUtils;
 
 /**
  * Controller to perform login operation
@@ -87,6 +88,7 @@ public class LoginController extends BaseController
 		}
 		
 		logger.debug("Authentication successful");
+		userDetails.setSessionStartTime(WebUtils.currentTimeInMin());
 		return new LoginResponse(securityEncryptionService.encrypt(userDetails));
 	}
 }

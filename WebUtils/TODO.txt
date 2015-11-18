@@ -17,10 +17,13 @@ Controller
 		
 	Search
 		Should support hiding of fields
+		Should have authorization support
 	Extension fields
 		Delete when owner is deleted using listeners
-		clean values when entity is deleted
 		**As part of extended date field def, date-format should go to client
+	
+	Auth 
+		Should have session expiry time
 	
 	Take care of caching	
 Docs

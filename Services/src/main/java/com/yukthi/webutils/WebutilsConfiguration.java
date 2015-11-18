@@ -88,6 +88,11 @@ public class WebutilsConfiguration
 	private int sessionTimeOutInMin = 3;
 	
 	/**
+	 * Time after which session expires even if active. If non-negative or zero, session never gets expired.
+	 */
+	private int sessionExpiryInMin = -1;
+	
+	/**
 	 * Date format to be used for internal data exchange between client and server
 	 */
 	private SimpleDateFormat dateFormat = IWebUtilsCommonConstants.DEFAULT_DATE_FORMAT;
@@ -327,7 +332,9 @@ public class WebutilsConfiguration
 	}
 	
 	/**
-	 * @param dateFormat the {@link #dateFormat dateFormat} to set
+	 * Sets the date format to be used for internal data exchange between client and server.
+	 *
+	 * @param dateFormat the new date format to be used for internal data exchange between client and server
 	 */
 	public void setDateFormat(String dateFormat)
 	{
@@ -335,10 +342,34 @@ public class WebutilsConfiguration
 	}
 	
 	/**
-	 * @return the {@link #dateFormat dateFormat}
+	 * Gets the date format to be used for internal data exchange between client and server.
+	 *
+	 * @return the date format to be used for internal data exchange between client and server
 	 */
 	public SimpleDateFormat getDateFormat()
 	{
 		return dateFormat;
 	}
+
+	/**
+	 * Gets the time after which session expires even if active. If non-negative or zero, session never gets expired.
+	 *
+	 * @return the time after which session expires even if active
+	 */
+	public int getSessionExpiryInMin()
+	{
+		return sessionExpiryInMin;
+	}
+
+	/**
+	 * Sets the time after which session expires even if active. If non-negative or zero, session never gets expired.
+	 *
+	 * @param sessionExpiryInMin the new time after which session expires even if active
+	 */
+	public void setSessionExpiryInMin(int sessionExpiryInMin)
+	{
+		this.sessionExpiryInMin = sessionExpiryInMin;
+	}
+	
+	
 }

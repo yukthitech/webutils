@@ -35,6 +35,7 @@ import java.util.regex.Pattern;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +44,7 @@ import org.springframework.stereotype.Component;
 import com.yukthi.utils.CryptoUtils;
 import com.yukthi.utils.exceptions.InvalidStateException;
 import com.yukthi.webutils.WebutilsConfiguration;
+import com.yukthi.webutils.utils.WebUtils;
 
 /**
  * Service to enrypt and decrypt auth tokens
@@ -54,6 +56,7 @@ public class SecurityEncryptionService
 	private static Logger logger = LogManager.getLogger(SecurityEncryptionService.class);
 	
 	private static final String KEY_TIME = "tm";
+	private static final String KEY_START_TIME = "stm";
 	private static final String KEY_USER_ID = "ui";
 	private static final String KEY_USER_ROLES = "ur";
 	private static final String KEY_SECURITY_FIELDS = "sf";
@@ -89,7 +92,7 @@ public class SecurityEncryptionService
 	 * @param map Map to be encoded
 	 * @return Random encoded string
 	 */
-	private String encryptTokens(Map<String, String> map)
+	private String encodeTokens(Map<String, String> map)
 	{
 		StringBuilder builder = new StringBuilder();
 		
@@ -111,11 +114,11 @@ public class SecurityEncryptionService
 	}
 	
 	/**
-	 * Decodes the given string into map. String should have been encoded by {@link #encryptTokens(Map)} method
+	 * Decodes the given string into map. String should have been encoded by {@link #encodeTokens(Map)} method
 	 * @param str String to be decoded
 	 * @return Decoded map
 	 */
-	private Map<String, String> decryptTokens(String str)
+	private Map<String, String> decodeTokens(String str)
 	{
 		//split string into tokens
 		String tokens[] = str.split("\\:");
@@ -181,13 +184,14 @@ public class SecurityEncryptionService
 		}
 		
 		//get current time in minutes
-		long time = System.currentTimeMillis() / 60000L;
+		long time = WebUtils.currentTimeInMin();
 		
 		Map<String, String> tokenMap = new HashMap<>();
 		
 		//add current time stamp, user-id and roles
 		tokenMap.put(KEY_TIME, "" + time);
 		tokenMap.put(KEY_USER_ID, "" + userDetails.getUserId());
+		tokenMap.put(KEY_START_TIME, "" + userDetails.getSessionStartTime());
 
 		StringBuilder rolesStr = new StringBuilder();
 		
@@ -226,7 +230,7 @@ public class SecurityEncryptionService
 		tokenMap.put(KEY_SECURITY_FIELDS, secFieldsStr.toString());
 		
 		//encrypt built string 
-		String userWithRoles = encryptTokens(tokenMap);
+		String userWithRoles = encodeTokens(tokenMap);
 		String encryptedStr = time + "-" + CryptoUtils.encrypt(configuration.getSecretKey(), userWithRoles);
 		
 		userDetails.setAuthToken(encryptedStr);
@@ -264,27 +268,51 @@ public class SecurityEncryptionService
 		encryptedString = encryptedString.substring(idx + 1);
 		
 		String decryptedStr = CryptoUtils.decrypt(configuration.getSecretKey(), encryptedString);
-		Map<String, String> tokenMap = decryptTokens(decryptedStr);
+		Map<String, String> tokenMap = decodeTokens(decryptedStr);
 		
 		//extract and ensure time stamps are proper (which ensures token is not malformed)
-		String time1 = tokenMap.get(KEY_TIME);
+		String timeStamp = tokenMap.get(KEY_TIME);
+		String sessionStartTimeStr = tokenMap.get(KEY_START_TIME);
 		
-		if(time1 == null || !time1.equals(time))
+		if(timeStamp == null || !timeStamp.equals(time))
 		{
 			logger.debug("Invalid auth token. Time stamp did not match");
 			throw new SecurityException("Malformed security token encountered");
 		}
 		
+		if(StringUtils.isBlank(sessionStartTimeStr))
+		{
+			logger.debug("Invalid auth token. Session start time missing.");
+			throw new SecurityException("Malformed security token encountered");
+		}
+
 		//get current time in minutes and ensure token is not time out
 		long currentTime = System.currentTimeMillis() / 60000L;
-		long reqTime = Long.parseLong(time1);
+		long reqTime = Long.parseLong(timeStamp);
 		long diff = currentTime - reqTime;
-		int sessionTime = this.configuration.getSessionTimeOutInMin();
+		int sessionTimeoutTime = this.configuration.getSessionTimeOutInMin();
+		int sessionExpiryTime = this.configuration.getSessionExpiryInMin();
 		
-		if(diff > sessionTime)
+		if(diff > sessionTimeoutTime)
 		{
 			logger.debug("Invalid auth token. Session timed out.");
-			throw new SecurityException("Session timeout");
+			throw new SecurityException("Session timed out");
+		}
+
+		long sessionStartTime = Long.parseLong(sessionStartTimeStr);
+		
+		//if session expire time is specified
+		if(sessionExpiryTime > 0)
+		{
+			//calculate the session duration
+			long sessionDuration = currentTime - sessionStartTime;
+			
+			//if the session duration has crossed expiry time
+			if(sessionDuration > sessionExpiryTime)
+			{
+				logger.debug("Invalid auth token. Session expired.");
+				throw new SecurityException("Session expired");
+			}
 		}
 		
 		//fetch user id and roles 
@@ -304,10 +332,11 @@ public class SecurityEncryptionService
 		UserDetails<Object> det = (UserDetails)userDetailsWrapper.newDetails();
 		det.setUserId(userId);
 		det.setRoles(roles);
+		det.setSessionStartTime(sessionStartTime);
 		userDetailsWrapper.setSecurityFields(det, values);
 		
 		//when time is about to expire reset the response token
-		if(diff >= (sessionTime - 1))
+		if(diff >= (sessionTimeoutTime - 1))
 		{
 			det.setAuthToken(encrypt(det));
 		}
