@@ -45,22 +45,21 @@ public class TSecurityEncryptionService
 	 * @throws Exception
 	 */
 	@Test
-	public void testEncryptDecryptWithSecurityFields() throws Exception
+	public void testEncryptDecryptWithExtraFields() throws Exception
 	{
 		//set the test service
 		WebutilsConfiguration config = new WebutilsConfiguration();
 		config.setSecretKey("#AS#$%^Fe135EF@4");
-		config.setRolesEnumType(TestRole.class);
 		config.setUserDetailsType(UserDetails2.class);
 		
 		SecurityEncryptionService securityEncryptionService = new SecurityEncryptionService();
 		ReflectionUtils.setFieldValue(securityEncryptionService, "configuration", config);
-		securityEncryptionService.init();
 		
 		//create test user details
 		UserDetails2 userDetails = new UserDetails2();
 		userDetails.setUserId(1234L);
 		userDetails.setRoles(CommonUtils.toSet(TestRole.EMP_ADMIN, TestRole.ADMIN));
+		userDetails.setSessionStartTime(10L);
 		
 		String encryptedVal = securityEncryptionService.encrypt(userDetails);
 		logger.debug("Got encrypted string as - " + encryptedVal);
@@ -74,6 +73,7 @@ public class TSecurityEncryptionService
 		Assert.assertEquals(decryptedUserDetails.getRoles(), userDetails.getRoles());
 		Assert.assertEquals(decryptedUserDetails.getField1(), userDetails.getField1());
 		Assert.assertEquals(decryptedUserDetails.getField2(), userDetails.getField2());
+		Assert.assertEquals(decryptedUserDetails.getSessionStartTime(), userDetails.getSessionStartTime());
 	}
 
 	/**
@@ -81,22 +81,19 @@ public class TSecurityEncryptionService
 	 * @throws Exception
 	 */
 	@Test
-	public void testEncryptDecryptWithoutSecurityFields() throws Exception
+	public void testEncryptDecryptWithoutExtraFields() throws Exception
 	{
 		//set the test service
 		WebutilsConfiguration config = new WebutilsConfiguration();
 		config.setSecretKey("#AS#$%^Fe135EF@4");
-		config.setRolesEnumType(TestRole.class);
 		config.setUserDetailsType(UserDetails1.class);
 		
 		SecurityEncryptionService securityEncryptionService = new SecurityEncryptionService();
 		ReflectionUtils.setFieldValue(securityEncryptionService, "configuration", config);
-		securityEncryptionService.init();
 		
 		//create test user details
 		UserDetails1 userDetails = new UserDetails1();
 		userDetails.setUserId(1234L);
-		userDetails.setRoles(CommonUtils.toSet(TestRole.EMP_ADMIN, TestRole.ADMIN));
 		
 		String encryptedVal = securityEncryptionService.encrypt(userDetails);
 		logger.debug("Got encrypted string as - " + encryptedVal);
@@ -107,6 +104,5 @@ public class TSecurityEncryptionService
 		
 		Assert.assertNotNull(decryptedUserDetails);
 		Assert.assertEquals(decryptedUserDetails.getUserId(), userDetails.getUserId());
-		Assert.assertEquals(decryptedUserDetails.getRoles(), userDetails.getRoles());
 	}
 }

@@ -13,10 +13,8 @@
 
 
 	<bean id="webutilsConfiguration" class="com.yukthi.webutils.WebutilsConfiguration">
-		<property name="rolesEnumType" value="com.test.yukthi.webutils.SecurityRole"/>
 		<property name="secretKey" value="A123456789ASERFD"/>
 		<property name="userDetailsType" value="com.test.yukthi.webutils.TestUserDetails"/>
-		<property name="authorizationAnnotation" value="com.test.yukthi.webutils.Authorization"/>
 		<property name="basePackages">
 			<list>
 				<value>com.test.yukthi</value>

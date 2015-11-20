@@ -23,24 +23,20 @@
 
 package com.yukthi.webutils.security;
 
-import java.util.Set;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * User details representing current user, which is used by security services
  * 
  * @author akiran
  */
-public class UserDetails<T>
+public class UserDetails
 {
 	/**
 	 * Unique user id
 	 */
 	private long userId;
-
-	/**
-	 * User roles
-	 */
-	private Set<T> roles;
 
 	/**
 	 * Encrypted authentication/authorization token
@@ -51,6 +47,11 @@ public class UserDetails<T>
 	 * Time when session is started
 	 */
 	private long sessionStartTime;
+	
+	/**
+	 * Time stamp when current token is created in minutes
+	 */
+	private long timeStamp;
 
 	/**
 	 * Instantiates a new user details.
@@ -63,13 +64,10 @@ public class UserDetails<T>
 	 *
 	 * @param userId
 	 *            the user id
-	 * @param roles
-	 *            the roles
 	 */
-	public UserDetails(long userId, Set<T> roles)
+	public UserDetails(long userId)
 	{
 		this.userId = userId;
-		this.roles = roles;
 	}
 
 	/**
@@ -77,6 +75,7 @@ public class UserDetails<T>
 	 *
 	 * @return the unique user id
 	 */
+	@JsonProperty("u")
 	public long getUserId()
 	{
 		return userId;
@@ -93,32 +92,12 @@ public class UserDetails<T>
 		this.userId = userId;
 	}
 
-	/**
-	 * Gets the user roles.
-	 *
-	 * @return the user roles
-	 */
-	public Set<T> getRoles()
-	{
-		return roles;
-	}
-
-	/**
-	 * Sets the user roles.
-	 *
-	 * @param roles
-	 *            the new user roles
-	 */
-	public void setRoles(Set<T> roles)
-	{
-		this.roles = roles;
-	}
-
-	/**
+/**
 	 * Gets the encrypted authentication/authorization token.
 	 *
 	 * @return the encrypted authentication/authorization token
 	 */
+	@JsonIgnore
 	public String getAuthToken()
 	{
 		return authToken;
@@ -136,22 +115,11 @@ public class UserDetails<T>
 	}
 
 	/**
-	 * Checks for role.
-	 *
-	 * @param role
-	 *            the role
-	 * @return true, if successful
-	 */
-	public boolean hasRole(T role)
-	{
-		return roles.contains(role);
-	}
-
-	/**
 	 * Gets the time when session is started.
 	 *
 	 * @return the time when session is started
 	 */
+	@JsonProperty("st")
 	public long getSessionStartTime()
 	{
 		return sessionStartTime;
@@ -167,5 +135,24 @@ public class UserDetails<T>
 		this.sessionStartTime = sessionStartTime;
 	}
 
-	
+	/**
+	 * Gets the time stamp when current token is created in minutes.
+	 *
+	 * @return the time stamp when current token is created in minutes
+	 */
+	@JsonProperty("t")
+	public long getTimeStamp()
+	{
+		return timeStamp;
+	}
+
+	/**
+	 * Sets the time stamp when current token is created in minutes.
+	 *
+	 * @param timeStamp the new time stamp when current token is created in minutes
+	 */
+	public void setTimeStamp(long timeStamp)
+	{
+		this.timeStamp = timeStamp;
+	}
 }

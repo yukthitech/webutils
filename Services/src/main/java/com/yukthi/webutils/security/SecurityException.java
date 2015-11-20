@@ -23,33 +23,37 @@
 
 package com.yukthi.webutils.security;
 
+import com.yukthi.utils.MessageFormatter;
+
 /**
- * Exception to be thrown in case of security problems
+ * Exception to be thrown in case of security problems. Support var args format
  * @author akiran
  */
-public class SecurityException extends Exception
+public class SecurityException extends RuntimeException
 {
+	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = 1L;
 
 	/**
 	 * Instantiates a new security exception.
 	 *
-	 * @param message the message
 	 * @param cause the cause
+	 * @param message the message
+	 * @param args the args
 	 */
-	public SecurityException(String message, Throwable cause)
+	public SecurityException(Throwable cause, String message, Object... args)
 	{
-		super(message, cause);
+		super(MessageFormatter.format(message, args), cause);
 	}
 
 	/**
 	 * Instantiates a new security exception.
 	 *
 	 * @param message the message
+	 * @param args the args
 	 */
-	public SecurityException(String message)
+	public SecurityException(String message, Object... args)
 	{
-		super(message);
+		super(MessageFormatter.format(message, args));
 	}
-
 }

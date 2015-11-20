@@ -35,19 +35,29 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 
 import com.yukthi.persistence.ICrudRepository;
+import com.yukthi.utils.exceptions.InvalidConfigurationException;
 import com.yukthi.utils.exceptions.InvalidStateException;
 import com.yukthi.webutils.IRepositoryMethodRegistry;
+import com.yukthi.webutils.IWebUtilsInternalConstants;
 import com.yukthi.webutils.InvalidRequestParameterException;
 import com.yukthi.webutils.annotations.LovQuery;
 import com.yukthi.webutils.common.annotations.Label;
 import com.yukthi.webutils.common.models.ValueLabel;
+import com.yukthi.webutils.security.ISecurityService;
+import com.yukthi.webutils.security.UnauthorizedException;
+import com.yukthi.webutils.security.UserDetails;
 import com.yukthi.webutils.services.dynamic.DynamicMethod;
+import com.yukthi.webutils.utils.WebUtils;
 
 
 /**
@@ -57,12 +67,29 @@ import com.yukthi.webutils.services.dynamic.DynamicMethod;
 @Service
 public class LovService implements IRepositoryMethodRegistry<LovQuery>
 {
+	private static Logger logger = LogManager.getLogger(LovService.class);
+	
 	/**
 	 * Message source to fetch ENUM field labels
 	 */
 	@Autowired
 	private MessageSource messageSource;
 	
+	/**
+	 * Security service to check authorization of target method
+	 */
+	@Autowired(required = false)
+	private ISecurityService securityService;
+	
+	/**
+	 * Request to fetch current user details
+	 */
+	@Autowired
+	private HttpServletRequest request;
+
+	/**
+	 * LOV method details cache
+	 */
 	private Map<String, DynamicMethod> nameToLovMet = new HashMap<>();
 	
 	/* (non-Javadoc)
@@ -73,7 +100,7 @@ public class LovService implements IRepositoryMethodRegistry<LovQuery>
 	{
 		throw new InvalidStateException("This method is not expected to be invoked");
 	}
-
+	
 	/* (non-Javadoc)
 	 * @see com.yukthi.webutils.IDynamicRepositoryMethodRegistry#registerDynamicRepositoryMethod(com.yukthi.webutils.services.dynamic.DynamicMethod, java.lang.annotation.Annotation)
 	 */
@@ -95,8 +122,20 @@ public class LovService implements IRepositoryMethodRegistry<LovQuery>
 		{
 			throw new IllegalStateException("Invalid return type specified for lov method - " + method);
 		}
+
+		String lovName = annotation.name();
 		
-		nameToLovMet.put(annotation.name(), method);
+		//if duplicate lov name is encountered throw error
+		if(nameToLovMet.containsKey(lovName))
+		{
+			throw new InvalidConfigurationException("Duplicate LOV configuration encountered. Same name '{}' is used by two LOV methods - {}, {}", 
+					WebUtils.toString( nameToLovMet.get(lovName).getMethod() ), 
+					WebUtils.toString( method.getMethod() ) 
+			);
+		}
+		
+		logger.info("Loading lov method - {}.{}", method.getMethod().getDeclaringClass().getName(), method.getMethod().getName());
+		nameToLovMet.put(lovName, method);
 	}
 
 	/**
@@ -195,7 +234,7 @@ public class LovService implements IRepositoryMethodRegistry<LovQuery>
 	}
 	
 	/**
-	 * Fetches dynamic LOV values based on the specified lov name
+	 * Fetches dynamic LOV values based on the specified lov name. Before execution user authorization will be validated
 	 * @param name Lov name
 	 * @param locale Locale in which values needs to be fetched. Current this is not used
 	 * @return dynamic LOV values based on the specified lov name
@@ -210,6 +249,17 @@ public class LovService implements IRepositoryMethodRegistry<LovQuery>
 			throw new InvalidParameterException("Invalid LOV name specified - " + name);
 		}
 		
+		//if security service is specified, check user authorization for target search method
+		if(securityService != null)
+		{
+			UserDetails userDetails = (UserDetails)request.getAttribute(IWebUtilsInternalConstants.REQ_ATTR_USER_DETAILS);
+			
+			if(!securityService.isAuthorized(userDetails, method.getMethod()))
+			{
+				throw new UnauthorizedException("Current user is not authorized to execute lov query - {}", name);
+			}
+		}
+
 		return (List<ValueLabel>)method.invoke();
 	}
 	

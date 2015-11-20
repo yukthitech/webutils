@@ -23,19 +23,24 @@
 
 package com.test.yukthi.webutils.services;
 
+import java.lang.reflect.Method;
+import java.util.Set;
+
 import org.springframework.stereotype.Service;
 
+import com.test.yukthi.webutils.Authorization;
 import com.test.yukthi.webutils.SecurityRole;
 import com.test.yukthi.webutils.TestUserDetails;
 import com.yukthi.utils.CommonUtils;
-import com.yukthi.webutils.security.IAuthenticationService;
+import com.yukthi.webutils.security.ISecurityService;
+import com.yukthi.webutils.security.UserDetails;
 
 /**
  * @author akiran
  *
  */
 @Service
-public class TestAuthenticationService implements IAuthenticationService<SecurityRole>
+public class TestAuthenticationService implements ISecurityService
 {
 
 	/* (non-Javadoc)
@@ -50,6 +55,35 @@ public class TestAuthenticationService implements IAuthenticationService<Securit
 		}
 		
 		return new TestUserDetails(1234L, CommonUtils.toSet(SecurityRole.ADMIN, SecurityRole.CLIENT_ADMIN), 4321L);
+	}
+
+	/* (non-Javadoc)
+	 * @see com.yukthi.webutils.security.ISecurityService#isAuthorized(com.yukthi.webutils.security.UserDetails, java.lang.reflect.Method)
+	 */
+	@Override
+	public boolean isAuthorized(UserDetails userDetails, Method method)
+	{
+		Authorization authorization = method.getAnnotation(Authorization.class);
+		
+		//if target method is not secured, return true
+		if(authorization == null)
+		{
+			return true;
+		}
+		
+		//check if current user has at least one role from required roles, if found return true 
+		Set<SecurityRole> userRoles = ((TestUserDetails)userDetails).getRoles();
+		
+		for(SecurityRole role : authorization.value())
+		{
+			if(userRoles.contains(role))
+			{
+				return true;
+			}
+		}
+		
+		//if user does not have any of required roles
+		return false;
 	}
 	
 }

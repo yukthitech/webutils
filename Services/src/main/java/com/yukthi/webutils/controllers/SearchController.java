@@ -56,7 +56,7 @@ import com.yukthi.webutils.services.SearchService;
 @RestController
 @ActionName(ACTION_PREFIX_SEARCH)
 @RequestMapping("/search")
-public class SearchController
+public class SearchController extends BaseController
 {
 	private static Logger logger = LogManager.getLogger(SearchController.class);
 	

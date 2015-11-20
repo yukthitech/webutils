@@ -61,11 +61,6 @@ public class ClientContext
 	private String baseUrl;
 	
 	/**
-	 * Action url of the application
-	 */
-	private String actionUrl;
-	
-	/**
 	 * Maps name to action details
 	 */
 	private Map<String, ActionModel> actionsMap;
@@ -83,12 +78,11 @@ public class ClientContext
 	 * @param baseUrl the base url
 	 * @param actionUrl the action url
 	 */
-	public ClientContext(String baseUrl, String actionUrl)
+	public ClientContext(String baseUrl)
 	{
 		this.restClient = new RestClient(baseUrl);
 		
 		this.baseUrl = baseUrl;
-		this.actionUrl = actionUrl;
 	}
 	
 	/**
@@ -98,7 +92,7 @@ public class ClientContext
 	{
 		this.actionsMap = new HashMap<>();
 		
-		GetRestRequest request = new GetRestRequest(actionUrl);
+		GetRestRequest request = new GetRestRequest(IWebUtilsCommonConstants.ACTIONS_FETCH_URI);
 		RestResult<FetchActionsResponse> actionsResult = restClient.invokeJsonRequest(request, FetchActionsResponse.class);
 		
 		if(actionsResult.getValue() == null || actionsResult.getValue().getCode() != 0)
@@ -206,16 +200,6 @@ public class ClientContext
 		return baseUrl;
 	}
 
-	/**
-	 * Gets the action url of the application.
-	 *
-	 * @return the action url of the application
-	 */
-	public String getActionUrl()
-	{
-		return actionUrl;
-	}
-	
 	/**
 	 * Gets the action details with specified name
 	 * @param name Name of action whose details needs to be fetched

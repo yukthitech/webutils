@@ -41,6 +41,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.yukthi.webutils.InvalidRequestParameterException;
 import com.yukthi.webutils.common.IWebUtilsCommonConstants;
 import com.yukthi.webutils.common.models.BaseResponse;
+import com.yukthi.webutils.security.UnauthorizedException;
 import com.yukthi.webutils.services.ExtensionService;
 import com.yukthi.webutils.validation.ExtendableModelValidator;
 
@@ -117,6 +118,24 @@ public class BaseController
 		response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		
 		return new BaseResponse(IWebUtilsCommonConstants.RESPONSE_CODE_INVALID_REQUEST, ex.getMessage());
+	}
+	
+	/**
+	 * Handler for UnauthorizedException. This exception is expected to be thrown
+	 * when current user is not authorized to execute target operation.
+	 * @param response Response object
+	 * @param ex Exception to be handled
+	 * @return Response with proper error code and message
+	 */
+	@ExceptionHandler(value={UnauthorizedException.class})
+	@ResponseBody
+	public BaseResponse handleUnauthorizedException(HttpServletResponse response, UnauthorizedException ex)
+	{
+		logger.debug("Encountered UnauthorizedException exception - ", ex);
+
+		response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+		
+		return new BaseResponse(IWebUtilsCommonConstants.RESPONSE_CODE_AUTHORIZATION_ERROR, ex.getMessage());
 	}
 
 	/**

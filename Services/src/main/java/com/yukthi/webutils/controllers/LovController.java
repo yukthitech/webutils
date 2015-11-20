@@ -49,7 +49,7 @@ import com.yukthi.webutils.services.LovService;
 @RestController
 @ActionName(ACTION_PREFIX_LOV)
 @RequestMapping("/lov")
-public class LovController
+public class LovController extends BaseController
 {
 	@Autowired
 	private LovService lovService;

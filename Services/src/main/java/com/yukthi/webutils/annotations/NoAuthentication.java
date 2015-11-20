@@ -21,13 +21,23 @@
  * SOFTWARE.
  */
 
-package com.yukthi.webutils.security;
+package com.yukthi.webutils.annotations;
+
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * Test user details without security fields
+ * Used to mark controller method as no-authentication method, which means no
+ * authentication is required for invoking target api.
+ * 
  * @author akiran
  */
-public class UserDetails1 extends UserDetails
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+@Documented
+public @interface NoAuthentication
 {
-
 }

@@ -25,6 +25,8 @@ package com.test.yukthi.webutils.entity;
 
 import java.util.List;
 
+import com.test.yukthi.webutils.Authorization;
+import com.test.yukthi.webutils.SecurityRole;
 import com.test.yukthi.webutils.models.EmpSearchQuery;
 import com.test.yukthi.webutils.models.EmpSearchResult;
 import com.yukthi.persistence.ICrudRepository;
@@ -43,9 +45,31 @@ public interface IEmployeeRepository extends ICrudRepository<EmployeeEntity>
 	@LovQuery(name = "employeeLov", valueField = "id", labelField = "name")
 	public List<ValueLabel> fetchEmployeeLov();
 	
-	public void deleteAll();
+	@Authorization(SecurityRole.CLIENT_ADMIN)
+	@LovQuery(name = "employeeLovAuthorized", valueField = "id", labelField = "name")
+	public List<ValueLabel> fetchEmployeeLov1();
+
+	@Authorization(SecurityRole.PROJ_ADMIN)
+	@LovQuery(name = "employeeLovUnauthorized", valueField = "id", labelField = "name")
+	public List<ValueLabel> fetchEmployeeLov2();
+	
+	
 	
 	@SearchQueryMethod(name = "empSearch", queryModel = EmpSearchQuery.class)
 	@OrderBy("name")
 	public List<EmpSearchResult> findEmployees(SearchQuery searchQuery);
+
+	@Authorization(SecurityRole.PROJ_ADMIN)
+	@SearchQueryMethod(name = "empSearchUnauthorized", queryModel = EmpSearchQuery.class)
+	@OrderBy("name")
+	public List<EmpSearchResult> findEmployees1(SearchQuery searchQuery);
+
+	@Authorization(SecurityRole.CLIENT_ADMIN)
+	@SearchQueryMethod(name = "empSearchAuthorized", queryModel = EmpSearchQuery.class)
+	@OrderBy("name")
+	public List<EmpSearchResult> findEmployees2(SearchQuery searchQuery);
+
+	
+	
+	public void deleteAll();
 }

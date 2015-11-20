@@ -45,9 +45,8 @@ public abstract class TFBase
 		prop.load(TFBase.class.getResourceAsStream("/test-env.properties"));
 		
 		String baseUrl = prop.getProperty("test.base.url");
-		String actionUri = prop.getProperty("actions.uri");
 		
-		clientContext = new ClientContext(baseUrl, actionUri);
+		clientContext = new ClientContext(baseUrl);
 		this.baseUrl = baseUrl;
 		
 		clientContext.authenticate(prop.getProperty("test.username"), prop.getProperty("test.password"));

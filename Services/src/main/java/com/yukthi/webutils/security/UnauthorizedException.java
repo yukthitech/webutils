@@ -24,10 +24,34 @@
 package com.yukthi.webutils.security;
 
 /**
- * Test user details without security fields
+ * Exception to be thrown when current user is not authorized to perform current operation
  * @author akiran
  */
-public class UserDetails1 extends UserDetails
+public class UnauthorizedException extends SecurityException
 {
+	/** The Constant serialVersionUID. */
+	private static final long serialVersionUID = 1L;
 
+	/**
+	 * Instantiates a new unauthorized exception.
+	 *
+	 * @param cause the cause
+	 * @param message the message
+	 * @param args the args
+	 */
+	public UnauthorizedException(Throwable cause, String message, Object... args)
+	{
+		super(cause, message, args);
+	}
+
+	/**
+	 * Instantiates a new unauthorized exception.
+	 *
+	 * @param message the message
+	 * @param args the args
+	 */
+	public UnauthorizedException(String message, Object... args)
+	{
+		super(message, args);
+	}
 }

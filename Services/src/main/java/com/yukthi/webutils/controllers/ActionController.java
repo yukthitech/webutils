@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.yukthi.webutils.annotations.ActionName;
+import com.yukthi.webutils.common.IWebUtilsCommonConstants;
 import com.yukthi.webutils.common.models.FetchActionsResponse;
 import com.yukthi.webutils.services.ActionsService;
 
@@ -38,7 +39,7 @@ import com.yukthi.webutils.services.ActionsService;
  */
 @RestController
 @ActionName("actions")
-@RequestMapping("/actions")
+@RequestMapping(IWebUtilsCommonConstants.ACTION_GROUP_URI)
 public class ActionController extends BaseController
 {
 	/**
@@ -52,7 +53,7 @@ public class ActionController extends BaseController
 	 * @return Actions available
 	 */
 	@ActionName("fetch")
-	@RequestMapping(value = "/fetch", method = RequestMethod.GET)
+	@RequestMapping(value = IWebUtilsCommonConstants.FETCH_URI_PATH, method = RequestMethod.GET)
 	public FetchActionsResponse getActions()
 	{
 		return new FetchActionsResponse(actionsService.getActions());

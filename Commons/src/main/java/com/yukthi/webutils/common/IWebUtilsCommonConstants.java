@@ -66,11 +66,18 @@ public interface IWebUtilsCommonConstants
 	public String AUTH_GROUP_URI = "/auth";
 	public String LOGIN_URI_PATH = "/login";
 	
+	public String ACTION_GROUP_URI = "/actions";
+	public String FETCH_URI_PATH = "/fetch";
+	
 	/**
 	 * URI for app login
 	 */
 	public String LOGIN_URI = AUTH_GROUP_URI + LOGIN_URI_PATH;
-
+	
+	/**
+	 * URI to fetch actions
+	 */
+	public String ACTIONS_FETCH_URI = ACTION_GROUP_URI + FETCH_URI_PATH;
 
 	/**
 	 * Pattern to validate numeric string values

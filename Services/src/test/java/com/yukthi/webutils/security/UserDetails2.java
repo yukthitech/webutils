@@ -23,20 +23,22 @@
 
 package com.yukthi.webutils.security;
 
-import com.yukthi.webutils.annotations.SecurityField;
+import java.util.Set;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Test user details with security fields
  * 
  * @author akiran
  */
-public class UserDetails2 extends UserDetails<TestRole>
+public class UserDetails2 extends UserDetails
 {
-	@SecurityField
 	private int field1;
 
-	@SecurityField
 	private long field2;
+
+	private Set<TestRole> roles;
 
 	public UserDetails2()
 	{}
@@ -47,6 +49,7 @@ public class UserDetails2 extends UserDetails<TestRole>
 		this.field2 = field2;
 	}
 
+	@JsonProperty("f1")
 	public int getField1()
 	{
 		return field1;
@@ -57,6 +60,7 @@ public class UserDetails2 extends UserDetails<TestRole>
 		this.field1 = field1;
 	}
 
+	@JsonProperty("f2")
 	public long getField2()
 	{
 		return field2;
@@ -65,6 +69,17 @@ public class UserDetails2 extends UserDetails<TestRole>
 	public void setField2(long field2)
 	{
 		this.field2 = field2;
+	}
+
+	@JsonProperty("ro")
+	public Set<TestRole> getRoles()
+	{
+		return roles;
+	}
+
+	public void setRoles(Set<TestRole> roles)
+	{
+		this.roles = roles;
 	}
 
 }

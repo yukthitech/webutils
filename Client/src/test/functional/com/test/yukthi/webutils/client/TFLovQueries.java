@@ -136,7 +136,35 @@ public class TFLovQueries extends TFBase
 		
 		Assert.assertTrue(names.isEmpty());
 	}
+
+	/**
+	 * Tests execution of lov query which is authorized
+	 */
+	@Test
+	public void testLovAuthorization()
+	{
+		List<ValueLabel> lovList = lovHelper.getDynamicLov(super.clientContext, "employeeLovAuthorized");
+		logger.debug("Got LOV as - " + lovList);
+		
+		Assert.assertEquals(lovList.size(), 4);
+	}
 	
+	/**
+	 * Tests execution of lov query which is unauthorized
+	 */
+	@Test
+	public void testLovUnauthorized()
+	{
+		try
+		{
+			lovHelper.getDynamicLov(super.clientContext, "employeeLovUnauthorized");
+			Assert.fail("No exception is thrown when unauthorized lov method is accessed");
+		}catch(RestException ex)
+		{
+			Assert.assertEquals(ex.getResponseCode(), IWebUtilsCommonConstants.RESPONSE_CODE_AUTHORIZATION_ERROR);
+		}
+	}
+
 	@AfterClass
 	private void clean()
 	{

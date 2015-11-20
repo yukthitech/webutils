@@ -24,10 +24,8 @@
 package com.yukthi.webutils.security;
 
 import java.io.OutputStream;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.util.Set;
 
+import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -40,9 +38,11 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.yukthi.utils.exceptions.InvalidConfigurationException;
 import com.yukthi.utils.exceptions.InvalidStateException;
 import com.yukthi.webutils.IWebUtilsInternalConstants;
 import com.yukthi.webutils.WebutilsConfiguration;
+import com.yukthi.webutils.annotations.NoAuthentication;
 import com.yukthi.webutils.common.IWebUtilsCommonConstants;
 import com.yukthi.webutils.common.models.BaseResponse;
 
@@ -60,7 +60,19 @@ public class SecurityInterceptor extends HandlerInterceptorAdapter
 	@Autowired
 	private WebutilsConfiguration configuration;
 	
+	@Autowired(required = false)
+	private ISecurityService securityService;
+	
 	private ObjectMapper objectMapper = new ObjectMapper();
+	
+	@PostConstruct
+	private void init()
+	{
+		if(configuration.isAuthEnabled() && securityService == null)
+		{
+			throw new InvalidConfigurationException("Authorization is enable but {} implementation is not provided", ISecurityService.class.getName());
+		}
+	}
 
 	/**
 	 * Sends error to client
@@ -92,7 +104,7 @@ public class SecurityInterceptor extends HandlerInterceptorAdapter
 	 * @param response Response
 	 * @return User details who is trying to invoke the action
 	 */
-	private UserDetails<?> checkAuthentication(HttpServletRequest request, HttpServletResponse response)
+	private UserDetails checkAuthenticationToken(HttpServletRequest request, HttpServletResponse response)
 	{
 		String authorizationToken = request.getHeader(IWebUtilsCommonConstants.HEADER_AUTHORIZATION_TOKEN);
 
@@ -108,7 +120,7 @@ public class SecurityInterceptor extends HandlerInterceptorAdapter
 		try
 		{
 			//decrypt user details
-			UserDetails<?> userDetails = securityEncryptionService.decrypt(authorizationToken);
+			UserDetails userDetails = securityEncryptionService.decrypt(authorizationToken);
 			
 			request.setAttribute(IWebUtilsInternalConstants.REQ_ATTR_USER_DETAILS, userDetails);
 			response.setHeader(IWebUtilsCommonConstants.HEADER_AUTHORIZATION_TOKEN, userDetails.getAuthToken());
@@ -118,7 +130,7 @@ public class SecurityInterceptor extends HandlerInterceptorAdapter
 		{
 			logger.error("Failed to parse token", ex);
 			
-			sendError(response, IWebUtilsCommonConstants.RESPONSE_CODE_AUTHENTICATION_ERROR, "Authorization failed. Invalid authorization token provided");
+			sendError(response, IWebUtilsCommonConstants.RESPONSE_CODE_AUTHENTICATION_ERROR, "Authorization failed. " + ex.getMessage());
 			return null;
 		}
 	}
@@ -130,46 +142,15 @@ public class SecurityInterceptor extends HandlerInterceptorAdapter
 	 * @param response Response
 	 * @return True if user is authorized to invoke action
 	 */
-	private boolean isAuthorized(UserDetails<?> userDetails, HandlerMethod handlerMethod, HttpServletResponse response)
+	private boolean isAuthorized(UserDetails userDetails, HandlerMethod handlerMethod, HttpServletResponse response)
 	{
-		try
+		if(!securityService.isAuthorized(userDetails, handlerMethod.getMethod()))
 		{
-			Annotation authAnnotation = handlerMethod.getMethodAnnotation(configuration.getAuthorizationAnnotation());
-			
-			//if handler does not need any authorization, proceed with the flow
-			if(authAnnotation == null)
-			{
-				return true;
-			}
-			
-			Method valueMethod = configuration.getAuthorizationAnnotation().getMethod("value");
-			Object roles[] = (Object[])valueMethod.invoke(authAnnotation);
-			
-			//if no roles are defined
-			if(roles == null || roles.length == 0)
-			{
-				return true;
-			}
-			
-			Set<?> userRoles = userDetails.getRoles();
-			
-			//if at least one of the matching role is present return true
-			for(Object role : roles)
-			{
-				if(userRoles.contains(role))
-				{
-					return true;
-				}
-			}
-			
-			//if no matching roles are found return error
-			sendError(response, IWebUtilsCommonConstants.RESPONSE_CODE_AUTHORIZATION_ERROR, "Authorization failed. User is not authorized to invoke current action.");			
+			sendError(response, IWebUtilsCommonConstants.RESPONSE_CODE_AUTHORIZATION_ERROR, "Authorization failed. User is not authorized to invoke current action.");
 			return false;
-		}catch(Exception ex)
-		{
-			logger.error("An error occurred while checking for authorization", ex);
-			throw new IllegalStateException("An error occurred while checking for authorization");
 		}
+		
+		return true;
 	}
 
 	/**
@@ -183,20 +164,22 @@ public class SecurityInterceptor extends HandlerInterceptorAdapter
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception
 	{
+		 HandlerMethod handlerMethod = (HandlerMethod)handler;
+		 
 		//if the api call is for authentication, dont perform any authorization check
-		if(request.getRequestURI().endsWith(IWebUtilsCommonConstants.LOGIN_URI))
+		if(handlerMethod.getMethodAnnotation(NoAuthentication.class) != null)
 		{
 			return true;
 		}
 		
 		//if auth is disable for the webapp
-		if(!configuration.isEnableAuth())
+		if(!configuration.isAuthEnabled())
 		{
 			return true;
 		}
 
 		//check and validate authorization token
-		UserDetails<?> userDetails = checkAuthentication(request, response);
+		UserDetails userDetails = checkAuthenticationToken(request, response);
 		
 		if(userDetails == null)
 		{
@@ -204,7 +187,7 @@ public class SecurityInterceptor extends HandlerInterceptorAdapter
 		}
 
 		//if the current user is not authorized to access the handler method
-		if(!isAuthorized(userDetails, (HandlerMethod)handler, response))
+		if(!isAuthorized(userDetails, handlerMethod, response))
 		{
 			return false;
 		}

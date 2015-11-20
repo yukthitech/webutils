@@ -23,16 +23,14 @@
 
 package com.yukthi.webutils;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
-import com.yukthi.utils.exceptions.InvalidStateException;
 import com.yukthi.webutils.common.IWebUtilsCommonConstants;
 import com.yukthi.webutils.security.UserDetails;
 
@@ -59,28 +57,19 @@ public class WebutilsConfiguration
 	private List<String> basePackages;
 	
 	/**
-	 * Web-application roles enum. Which in turn can be used for authorization on service methods
-	 */
-	private Class<? extends Enum<?>> rolesEnumType;
-	
-	/**
-	 * Secret key used to enrypt/decrypt user details by auth services
+	 * Secret key used to encrypt/decrypt user details by auth services
 	 */
 	private String secretKey;
 	
 	/**
 	 * User details type to be used
 	 */
-	@SuppressWarnings("rawtypes")
 	private Class<? extends UserDetails> userDetailsType = UserDetails.class;
 	
 	/**
 	 * Webutils authentication/authorization is enabled or not
 	 */
-	private boolean enableAuth = true;
-	
-	/** The authorization annotation. */
-	private Class<? extends Annotation> authorizationAnnotation;
+	private boolean authEnabled = true;
 	
 	/**
 	 * Session timeout in minutes
@@ -108,7 +97,7 @@ public class WebutilsConfiguration
 			throw new IllegalStateException("No base package(s) specified in Web-utils-configurationn bean.");
 		}
 
-		if(!enableAuth)
+		if(!authEnabled)
 		{
 			return;
 		}
@@ -118,36 +107,10 @@ public class WebutilsConfiguration
 			throw new IllegalStateException("No user-details-type is specified in Web-utils-configurationn bean. It is mandatory when auth is enabled.");
 		}
 		
-		if(rolesEnumType == null)
-		{
-			throw new IllegalStateException("No roles-enum-type is specified in Web-utils-configurationn bean. It is mandatory when auth is enabled.");
-		}
-		
-		if(secretKey == null)
+		if(StringUtils.isBlank(secretKey))
 		{
 			throw new IllegalStateException("No secret key is specified in Web-utils-configurationn bean. It is mandatory when auth is enabled.");
 		}
-		
-		if(authorizationAnnotation == null)
-		{
-			throw new IllegalStateException("No authroization annotation specified. It is mandatory when auth is enabled.");
-		}
-
-		try
-		{
-			Method valueMethod = authorizationAnnotation.getDeclaredMethod("value");
-	
-			if(valueMethod == null || !valueMethod.getReturnType().isArray() && !rolesEnumType.equals(valueMethod.getReturnType().getComponentType()) )
-			{
-				throw new InvalidStateException("Invalid authorization annotation '{}' specified. Authorization annotation should have value method "
-						+ "and its return type should be roles type '{}' array", 
-						authorizationAnnotation.getClass().getName(), rolesEnumType.getName());
-			}
-		}catch(NoSuchMethodException | SecurityException ex)
-		{
-			throw new IllegalStateException("An error occurred while fetching authorization annotation details", ex);
-		} 
-		
 	}
 
 	/**
@@ -191,31 +154,6 @@ public class WebutilsConfiguration
 	}
 
 	/**
-	 * Gets the web-application roles enum.
-	 *
-	 * @return the web-application roles enum
-	 */
-	public Class<? extends Enum<?>> getRolesEnumType()
-	{
-		return rolesEnumType;
-	}
-
-	/**
-	 * Sets the web-application roles enum.
-	 *
-	 * @param rolesEnumType the new web-application roles enum
-	 */
-	public void setRolesEnumType(Class<? extends Enum<?>> rolesEnumType)
-	{
-		if(!Enum.class.isAssignableFrom(rolesEnumType))
-		{
-			throw new IllegalArgumentException("Non-enum is specified as roles type - " + rolesEnumType.getName());
-		}
-		
-		this.rolesEnumType = rolesEnumType;
-	}
-
-	/**
 	 * Gets the secret key used to enrypt/decrypt user details by auth services.
 	 *
 	 * @return the secret key used to enrypt/decrypt user details by auth services
@@ -245,7 +183,6 @@ public class WebutilsConfiguration
 	 *
 	 * @return the user details type to be used
 	 */
-	@SuppressWarnings("rawtypes")
 	public Class<? extends UserDetails> getUserDetailsType()
 	{
 		return userDetailsType;
@@ -256,7 +193,7 @@ public class WebutilsConfiguration
 	 *
 	 * @param userDetailsType the new user details type to be used
 	 */
-	public void setUserDetailsType(Class<? extends UserDetails<?>> userDetailsType)
+	public void setUserDetailsType(Class<? extends UserDetails> userDetailsType)
 	{
 		if(!UserDetails.class.isAssignableFrom(userDetailsType))
 		{
@@ -271,9 +208,9 @@ public class WebutilsConfiguration
 	 *
 	 * @return the webutils authentication/authorization is enabled or not
 	 */
-	public boolean isEnableAuth()
+	public boolean isAuthEnabled()
 	{
-		return enableAuth;
+		return authEnabled;
 	}
 
 	/**
@@ -281,9 +218,9 @@ public class WebutilsConfiguration
 	 *
 	 * @param enableAuth the new webutils authentication/authorization is enabled or not
 	 */
-	public void setEnableAuth(boolean enableAuth)
+	public void setAuthEnabled(boolean enableAuth)
 	{
-		this.enableAuth = enableAuth;
+		this.authEnabled = enableAuth;
 	}
 
 	/**
@@ -309,26 +246,6 @@ public class WebutilsConfiguration
 		}
 		
 		this.sessionTimeOutInMin = sessionTimeOutInMin;
-	}
-
-	/**
-	 * Gets the authorization annotation.
-	 *
-	 * @return the authorization annotation
-	 */
-	public Class<? extends Annotation> getAuthorizationAnnotation()
-	{
-		return authorizationAnnotation;
-	}
-
-	/**
-	 * Sets the authorization annotation.
-	 *
-	 * @param authorizationAnnotation the new authorization annotation
-	 */
-	public void setAuthorizationAnnotation(Class<? extends Annotation> authorizationAnnotation)
-	{
-		this.authorizationAnnotation = authorizationAnnotation;
 	}
 	
 	/**

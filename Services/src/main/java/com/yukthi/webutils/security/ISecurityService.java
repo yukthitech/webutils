@@ -23,12 +23,14 @@
 
 package com.yukthi.webutils.security;
 
+import java.lang.reflect.Method;
+
 /**
- * Authentication service to be provided by the webapplication to authenticate 
+ * Authentication service to be provided by the webapplication to authenticate and authorize
  * the users.
  * @author akiran
  */
-public interface IAuthenticationService<R extends Enum<R>>
+public interface ISecurityService
 {
 	/**
 	 * Authenticates the specified user name and password and returns user details, if inputs
@@ -37,5 +39,14 @@ public interface IAuthenticationService<R extends Enum<R>>
 	 * @param password password
 	 * @return User details if authentication is successful, otherwise null
 	 */
-	public UserDetails<R> authenticate(String userName, String password);
+	public UserDetails authenticate(String userName, String password);
+	
+	/**
+	 * Invoked to check if specified user is authorized to invoke specified method. This method is expected to read
+	 * security annotations from the target method and cross check with specified roles and decide the authorization
+	 * @param userDetails Current user details who is trying to invoke target method
+	 * @param method Method being invoked
+	 * @return True, if user is authorized to invoke the method
+	 */
+	public boolean isAuthorized(UserDetails userDetails, Method method);
 }

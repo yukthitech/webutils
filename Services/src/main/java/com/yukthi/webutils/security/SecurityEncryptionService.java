@@ -23,24 +23,15 @@
 
 package com.yukthi.webutils.security;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.annotation.PostConstruct;
-
-import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yukthi.utils.CryptoUtils;
 import com.yukthi.utils.exceptions.InvalidStateException;
 import com.yukthi.webutils.WebutilsConfiguration;
@@ -54,17 +45,14 @@ import com.yukthi.webutils.utils.WebUtils;
 public class SecurityEncryptionService
 {
 	private static Logger logger = LogManager.getLogger(SecurityEncryptionService.class);
+
+	private ObjectMapper objectMapper = new ObjectMapper();
 	
-	private static final String KEY_TIME = "tm";
-	private static final String KEY_START_TIME = "stm";
-	private static final String KEY_USER_ID = "ui";
-	private static final String KEY_USER_ROLES = "ur";
-	private static final String KEY_SECURITY_FIELDS = "sf";
 	
 	/**
 	 * Pattern for parsing tokens
 	 */
-	private Pattern TOKEN_PATTERN = Pattern.compile("(\\w+)\\-(.*)");
+	private Pattern TOKEN_PATTERN = Pattern.compile("(\\w+)\\-(.+)");
 	
 	/**
 	 * Autowired webapp configuration
@@ -73,168 +61,32 @@ public class SecurityEncryptionService
 	private WebutilsConfiguration configuration;
 	
 	/**
-	 * Roles to ordinal map
-	 */
-	private Map<Object, Integer> roleToId = new HashMap<>();
-	
-	/**
-	 * Ordinal to role map
-	 */
-	private Map<String, Object> idToRole = new HashMap<>();
-	
-	/**
-	 * Wrapper to set or get security fields from user details
-	 */
-	private UserDetailsWrapper userDetailsWrapper;
-	
-	/**
-	 * Encodes the given map into randomized string in plain text
-	 * @param map Map to be encoded
-	 * @return Random encoded string
-	 */
-	private String encodeTokens(Map<String, String> map)
-	{
-		StringBuilder builder = new StringBuilder();
-		
-		//shuffle the map entries so that end result is always random
-		List<Map.Entry<String, String>> entries = new ArrayList<>(map.entrySet());
-		Collections.shuffle(entries);
-		
-		//loop through entries and add to res
-		for(Map.Entry<String, String> entry : entries)
-		{
-			builder.append(entry.getKey()).append("-").append(entry.getValue());
-			builder.append(":");
-		}
-		
-		//delete trailing :
-		builder.deleteCharAt(builder.length() - 1);
-		
-		return builder.toString();
-	}
-	
-	/**
-	 * Decodes the given string into map. String should have been encoded by {@link #encodeTokens(Map)} method
-	 * @param str String to be decoded
-	 * @return Decoded map
-	 */
-	private Map<String, String> decodeTokens(String str)
-	{
-		//split string into tokens
-		String tokens[] = str.split("\\:");
-		Map<String, String> map = new HashMap<>();
-		Matcher matcher = null;
-		
-		//loop through tokens and build map
-		for(String token : tokens)
-		{
-			matcher = TOKEN_PATTERN.matcher(token);
-			
-			if(!matcher.matches())
-			{
-				logger.error("Invalid token encountered - {}", token);
-				throw new InvalidStateException("Invalid token encountered");
-			}
-			
-			map.put(matcher.group(1).trim(), matcher.group(2).trim());
-		}
-		
-		return map;
-	}
-
-	/**
-	 * Post construct method while loads all the roles and user details wrapper
-	 */
-	@PostConstruct
-	public void init()
-	{
-		
-		if(!configuration.isEnableAuth())
-		{
-			return;
-		}
-		
-		Class<? extends Enum<?>> roleType = configuration.getRolesEnumType();
-		Enum<?> enumValues[] = roleType.getEnumConstants();
-		
-		for(Enum<?> e : enumValues)
-		{
-			roleToId.put(e, e.ordinal());
-			idToRole.put("" + e.ordinal(), e);
-		}
-		
-		userDetailsWrapper = new UserDetailsWrapper(configuration.getUserDetailsType());
-	}
-	
-	/**
-	 * Generates encrypted string with specified user if and roles
+	 * Generates encrypted string with specified user details
 	 * @param userDetails User details to be encrypted
 	 * @return Encrypted string
 	 */
-	public String encrypt(UserDetails<?> userDetails)
+	public String encrypt(UserDetails userDetails)
 	{
-		if(!configuration.isEnableAuth())
+		if(!configuration.isAuthEnabled())
 		{
 			return null;
 		}
 		
-		if(userDetails.getRoles() == null)
-		{
-			throw new InvalidStateException("No roles found for user - {}", userDetails.getUserId());
-		}
-		
 		//get current time in minutes
 		long time = WebUtils.currentTimeInMin();
+		userDetails.setTimeStamp(time);
 		
-		Map<String, String> tokenMap = new HashMap<>();
-		
-		//add current time stamp, user-id and roles
-		tokenMap.put(KEY_TIME, "" + time);
-		tokenMap.put(KEY_USER_ID, "" + userDetails.getUserId());
-		tokenMap.put(KEY_START_TIME, "" + userDetails.getSessionStartTime());
-
-		StringBuilder rolesStr = new StringBuilder();
-		
-		//add user roles to builder
-		for(Object role : userDetails.getRoles())
+		try
 		{
-			//if invalid role is specified
-			if(!this.roleToId.containsKey(role))
-			{
-				throw new InvalidStateException("Invalid role encountered - {}. Expected roles - {}", role, this.roleToId.keySet());
-			}
+			String userWithRoles = objectMapper.writeValueAsString(userDetails);
+			String encryptedStr = time + "-" + CryptoUtils.encrypt(configuration.getSecretKey(), userWithRoles);
+			userDetails.setAuthToken(encryptedStr);
 			
-			rolesStr.append(this.roleToId.get(role)).append(",");
-		}
-		
-		//delete trailing comma
-		rolesStr.deleteCharAt(rolesStr.length() - 1);
-		
-		tokenMap.put(KEY_USER_ROLES, rolesStr.toString());
-		
-		//set security fields
-		String secFieldValues[] = this.userDetailsWrapper.getSecurityFields(userDetails);
-		StringBuilder secFieldsStr = new StringBuilder();
-		
-		if(secFieldValues.length > 0)
+			return encryptedStr;
+		}catch(Exception ex)
 		{
-			for(String value : secFieldValues)
-			{
-				secFieldsStr.append(value).append(",");
-			}
-
-			//delete trailing comma
-			secFieldsStr.deleteCharAt(secFieldsStr.length() - 1);
+			throw new InvalidStateException(ex, "An error occurred while encrypting user details - {}", userDetails);
 		}
-		
-		tokenMap.put(KEY_SECURITY_FIELDS, secFieldsStr.toString());
-		
-		//encrypt built string 
-		String userWithRoles = encodeTokens(tokenMap);
-		String encryptedStr = time + "-" + CryptoUtils.encrypt(configuration.getSecretKey(), userWithRoles);
-		
-		userDetails.setAuthToken(encryptedStr);
-		return encryptedStr;
 	}
 	
 	/**
@@ -242,13 +94,12 @@ public class SecurityEncryptionService
 	 * gets generated and will be set in result user details.
 	 * 
 	 * @param encryptedString Encrypted user details string
-	 * @return decrypted user details string
+	 * @return decrypted user details
 	 * @throws SecurityException When invalid or expired token is specified.
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public UserDetails<?> decrypt(String encryptedString) throws SecurityException
+	public UserDetails decrypt(String encryptedString) throws SecurityException
 	{
-		if(!configuration.isEnableAuth())
+		if(!configuration.isAuthEnabled())
 		{
 			return null;
 		}
@@ -256,39 +107,40 @@ public class SecurityEncryptionService
 		String actualEncryptedString = encryptedString;
 		
 		//ensure the pattern is proper
-		int idx = encryptedString.indexOf("-");
+		Matcher tokenMatcher = TOKEN_PATTERN.matcher(encryptedString);
 		
-		if(idx <= 0)
+		if(!tokenMatcher.matches())
 		{
 			logger.debug("Invalid auth token. No hyphen (-) found");
 			throw new SecurityException("Invalid security token encountered");
 		}
 		
-		String time = encryptedString.substring(0, idx);
-		encryptedString = encryptedString.substring(idx + 1);
+		String time = tokenMatcher.group(1);
+		encryptedString = tokenMatcher.group(2);
 		
 		String decryptedStr = CryptoUtils.decrypt(configuration.getSecretKey(), encryptedString);
-		Map<String, String> tokenMap = decodeTokens(decryptedStr);
+		UserDetails userDetails = null;
 		
-		//extract and ensure time stamps are proper (which ensures token is not malformed)
-		String timeStamp = tokenMap.get(KEY_TIME);
-		String sessionStartTimeStr = tokenMap.get(KEY_START_TIME);
+		try
+		{
+			userDetails = objectMapper.readValue(decryptedStr, configuration.getUserDetailsType());
+		}catch(Exception ex)
+		{
+			logger.debug("Invalid auth token. Failed to deserialize user details.");
+			throw new SecurityException("Invalid security token encountered");
+		}
 		
-		if(timeStamp == null || !timeStamp.equals(time))
+		//ensure time stamp is proper (which ensures token is not malformed)
+		long reqTime = userDetails.getTimeStamp();
+		
+		if(!time.equals("" + reqTime))
 		{
 			logger.debug("Invalid auth token. Time stamp did not match");
 			throw new SecurityException("Malformed security token encountered");
 		}
 		
-		if(StringUtils.isBlank(sessionStartTimeStr))
-		{
-			logger.debug("Invalid auth token. Session start time missing.");
-			throw new SecurityException("Malformed security token encountered");
-		}
-
 		//get current time in minutes and ensure token is not time out
 		long currentTime = System.currentTimeMillis() / 60000L;
-		long reqTime = Long.parseLong(timeStamp);
 		long diff = currentTime - reqTime;
 		int sessionTimeoutTime = this.configuration.getSessionTimeOutInMin();
 		int sessionExpiryTime = this.configuration.getSessionExpiryInMin();
@@ -299,13 +151,11 @@ public class SecurityEncryptionService
 			throw new SecurityException("Session timed out");
 		}
 
-		long sessionStartTime = Long.parseLong(sessionStartTimeStr);
-		
 		//if session expire time is specified
 		if(sessionExpiryTime > 0)
 		{
 			//calculate the session duration
-			long sessionDuration = currentTime - sessionStartTime;
+			long sessionDuration = currentTime - userDetails.getSessionStartTime();
 			
 			//if the session duration has crossed expiry time
 			if(sessionDuration > sessionExpiryTime)
@@ -315,37 +165,17 @@ public class SecurityEncryptionService
 			}
 		}
 		
-		//fetch user id and roles 
-		long userId = Long.parseLong(tokenMap.get(KEY_USER_ID));
-		Set<Object> roles = new HashSet<>();
-		String roleIds[] = tokenMap.get(KEY_USER_ROLES).split("\\,");
-		
-		for(String id : roleIds)
-		{
-			roles.add(idToRole.get(id));
-		}
-		
-		//extract security fields
-		String values[] = tokenMap.get(KEY_SECURITY_FIELDS).split("\\,");
-		
-		//build the user details object
-		UserDetails<Object> det = (UserDetails)userDetailsWrapper.newDetails();
-		det.setUserId(userId);
-		det.setRoles(roles);
-		det.setSessionStartTime(sessionStartTime);
-		userDetailsWrapper.setSecurityFields(det, values);
-		
 		//when time is about to expire reset the response token
 		if(diff >= (sessionTimeoutTime - 1))
 		{
-			det.setAuthToken(encrypt(det));
+			userDetails.setAuthToken(encrypt(userDetails));
 		}
 		else
 		{
-			det.setAuthToken(actualEncryptedString);
+			userDetails.setAuthToken(actualEncryptedString);
 		}
 		
-		return det;
+		return userDetails;
 	}
 
 }

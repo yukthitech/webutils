@@ -25,19 +25,25 @@ package com.test.yukthi.webutils;
 
 import java.util.Set;
 
-import com.yukthi.webutils.annotations.SecurityField;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.yukthi.webutils.security.UserDetails;
+import com.yukthi.webutils.utils.WebUtils;
 
 /**
  * User details for test
  * @author akiran
  */
-public class TestUserDetails extends UserDetails<SecurityRole>
+public class TestUserDetails extends UserDetails
 {
-
 	/** The client id. */
-	@SecurityField
 	private long clientId;
+	
+	/** The roles. */
+	private Set<SecurityRole> roles;
+	
+	/** The role ids. */
+	private Set<Integer> roleIds;
 
 	/**
 	 * Instantiates a new test user details.
@@ -57,14 +63,16 @@ public class TestUserDetails extends UserDetails<SecurityRole>
 	 */
 	public TestUserDetails(long userId, Set<SecurityRole> roles, long clientId)
 	{
-		super(userId, roles);
+		super(userId);
 		this.clientId = clientId;
+		setRoles(roles);
 	}
 
 	/**
 	 * @param clientId
 	 *            the {@link #clientId clientId} to set
 	 */
+	@JsonProperty("ci")
 	public void setClientId(long clientId)
 	{
 		this.clientId = clientId;
@@ -76,5 +84,49 @@ public class TestUserDetails extends UserDetails<SecurityRole>
 	public long getClientId()
 	{
 		return clientId;
+	}
+
+	/**
+	 * Gets the roles.
+	 *
+	 * @return the roles
+	 */
+	@JsonIgnore
+	public Set<SecurityRole> getRoles()
+	{
+		return roles;
+	}
+
+	/**
+	 * Sets the roles.
+	 *
+	 * @param roles the new roles
+	 */
+	public void setRoles(Set<SecurityRole> roles)
+	{
+		this.roles = roles;
+		this.roleIds = WebUtils.toEnumOrdinals(roles);
+	}
+
+	/**
+	 * Gets the role ids.
+	 *
+	 * @return the role ids
+	 */
+	@JsonProperty("ro")
+	public Set<Integer> getRoleIds()
+	{
+		return roleIds;
+	}
+
+	/**
+	 * Sets the role ids.
+	 *
+	 * @param roleIds the new role ids
+	 */
+	public void setRoleIds(Set<Integer> roleIds)
+	{
+		this.roleIds = roleIds;
+		this.roles = WebUtils.toEnums(roleIds, SecurityRole.class);
 	}
 }

@@ -35,10 +35,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.yukthi.webutils.annotations.NoAuthentication;
 import com.yukthi.webutils.common.IWebUtilsCommonConstants;
 import com.yukthi.webutils.common.models.LoginCredentials;
 import com.yukthi.webutils.common.models.LoginResponse;
-import com.yukthi.webutils.security.IAuthenticationService;
+import com.yukthi.webutils.security.ISecurityService;
 import com.yukthi.webutils.security.SecurityEncryptionService;
 import com.yukthi.webutils.security.UserDetails;
 import com.yukthi.webutils.utils.WebUtils;
@@ -57,7 +58,7 @@ public class LoginController extends BaseController
 	 * Webapp specific authentication service
 	 */
 	@Autowired
-	private IAuthenticationService<?> authenticationService;
+	private ISecurityService authenticationService;
 
 	/**
 	 * Encryption service to generate auth token
@@ -72,13 +73,14 @@ public class LoginController extends BaseController
 	 * @param credentials Credentials to be used for login
 	 * @return On success, returns auth token as part of response
 	 */
+	@NoAuthentication
 	@ResponseBody
 	@RequestMapping(value = IWebUtilsCommonConstants.LOGIN_URI_PATH, method = RequestMethod.POST)
 	public LoginResponse performLogin(@RequestBody @Valid LoginCredentials credentials, HttpServletResponse response)
 	{
 		logger.debug("Trying to peform login operation for user - {}", credentials.getUserName());
 		
-		UserDetails<?> userDetails = authenticationService.authenticate(credentials.getUserName(), credentials.getPassword());
+		UserDetails userDetails = authenticationService.authenticate(credentials.getUserName(), credentials.getPassword());
 		
 		if(userDetails == null)
 		{

@@ -7,6 +7,10 @@ Caching
 Data Layer
 	Add/Delete operation for relations
 	save or update operation
+	Query
+		IN, NOT in
+		functions
+		Group by 
 
 Controller
 	
@@ -28,10 +32,13 @@ Controller
 	Take care of caching	
 Docs
 	DAO
-	LOV
-	Jobs
-	Extensions
+	Auth	
 		
+Web
+	JS
+		functions support inside expressions
+
+
 Auto backup of server
 
 

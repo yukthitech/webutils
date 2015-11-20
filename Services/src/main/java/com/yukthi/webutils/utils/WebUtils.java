@@ -23,10 +23,15 @@
 
 package com.yukthi.webutils.utils;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.collections.CollectionUtils;
@@ -39,6 +44,8 @@ import com.yukthi.utils.exceptions.InvalidStateException;
  */
 public class WebUtils
 {
+	private static Map<Class<?>, Map<Integer, Object>> enumOrdinalCache = new HashMap<>();
+	
 	/**
 	 * Converts "source" bean into bean of type "targetType" by creating new instance,
 	 * and copying properties
@@ -94,5 +101,83 @@ public class WebUtils
 	public static long currentTimeInMin()
 	{
 		return System.currentTimeMillis() / 60000L;
+	}
+	
+	/**
+	 * Converts set of enums into set of integers based on their ordinals 
+	 * @param enums Enums to converted
+	 * @return Set of input enum ordinals
+	 */
+	public static Set<Integer> toEnumOrdinals(Set<? extends Enum<?>> enums)
+	{
+		//if enums is null return null
+		if(enums == null)
+		{
+			return null;
+		}
+		
+		//create result set
+		Set<Integer> ordinalSet = new HashSet<>();
+		
+		//convert enum to int
+		for(Enum<?> e: enums)
+		{
+			ordinalSet.add(e.ordinal());
+		}
+		
+		return ordinalSet;
+	}
+	
+	/**
+	 * Converts set of enum ordinals into set of enums
+	 * @param enumOrdinals Ordinals to convert
+	 * @param enumType Enum type to which conversion should happen
+	 * @return Converted enums
+	 */
+	@SuppressWarnings("unchecked")
+	public static <E extends Enum<E>> Set<E> toEnums(Set<Integer> enumOrdinals, Class<E> enumType)
+	{
+		//if ordinals is null
+		if(enumOrdinals == null)
+		{
+			return null;
+		}
+		
+		//get enum map from cache
+		Map<Integer, Object> enumMap = enumOrdinalCache.get(enumType);
+		
+		//if not present in cache, create one and add it to cache
+		if(enumMap == null)
+		{
+			enumMap = new HashMap<>();
+			E enumConstants[] = enumType.getEnumConstants();
+			
+			for(E e : enumConstants)
+			{
+				enumMap.put(e.ordinal(), e);
+			}
+			
+			enumOrdinalCache.put(enumType, enumMap);
+		}
+		
+		//convert ordinals into enum based on enum map
+		Set<E> enums = new HashSet<>();
+		
+		for(Integer ordinal : enumOrdinals)
+		{
+			enums.add((E)enumMap.get(ordinal));
+		}
+		
+		return enums;
+	}
+
+	/**
+	 * Converts specified method into string
+	 * @param method Method to convert
+	 * @return Converted string
+	 */
+	public static String toString(Method method)
+	{
+		return method.getDeclaringClass().getName() + "." + method.getName() + "()";
 	}
 }

@@ -138,6 +138,36 @@ public class TFSearchQuery extends TFBase
 		Assert.assertEquals(results.get(0).getSalary(), 100);
 	}
 	
+	/**
+	 * Tests execution of search query which is authorized
+	 */
+	@Test
+	public void testSearchAuthorization()
+	{
+		EmpSearchQuery query = new EmpSearchQuery("%a%");
+		List<EmpSearchResult> results = searchHelper.executeSearchQuery(clientContext, "empSearchAuthorized", query, -1, EmpSearchResult.class);
+		
+		Assert.assertNotNull(results);
+	}
+	
+	/**
+	 * Tests execution of search query which is unauthorized
+	 */
+	@Test
+	public void testSearchUnauthorized()
+	{
+		EmpSearchQuery query = new EmpSearchQuery("%a%");
+		
+		try
+		{
+			searchHelper.executeSearchQuery(clientContext, "empSearchUnauthorized", query, -1, EmpSearchResult.class);
+			Assert.fail("No exception is thrown when unauthorized search method is accessed");
+		}catch(RestException ex)
+		{
+			Assert.assertEquals(ex.getResponseCode(), IWebUtilsCommonConstants.RESPONSE_CODE_AUTHORIZATION_ERROR);
+		}
+	}
+
 	@AfterClass
 	private void clean()
 	{

@@ -32,6 +32,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -41,14 +43,19 @@ import org.springframework.stereotype.Service;
 import com.yukthi.persistence.ICrudRepository;
 import com.yukthi.persistence.repository.annotations.Condition;
 import com.yukthi.persistence.repository.search.SearchCondition;
+import com.yukthi.utils.exceptions.InvalidConfigurationException;
 import com.yukthi.utils.exceptions.InvalidStateException;
 import com.yukthi.webutils.IRepositoryMethodRegistry;
+import com.yukthi.webutils.IWebUtilsInternalConstants;
 import com.yukthi.webutils.InvalidRequestParameterException;
 import com.yukthi.webutils.annotations.SearchQueryMethod;
 import com.yukthi.webutils.common.annotations.Model;
 import com.yukthi.webutils.common.models.def.ModelDef;
+import com.yukthi.webutils.security.ISecurityService;
+import com.yukthi.webutils.security.UnauthorizedException;
+import com.yukthi.webutils.security.UserDetails;
 import com.yukthi.webutils.services.dynamic.DynamicMethod;
-
+import com.yukthi.webutils.utils.WebUtils;
 
 /**
  * Service to fetch search query details and execute search queries
@@ -91,10 +98,28 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 		}
 	}
 	
+	/**
+	 * Search method details cache
+	 */
 	private Map<String, SearchQueryDetails> nameToSearchMet = new HashMap<>();
 	
+	/**
+	 * Model details service to fetch model details of query and result types
+	 */
 	@Autowired
 	private ModelDetailsService modelDetailsService;
+	
+	/**
+	 * Security service to check authorization of target search method
+	 */
+	@Autowired(required = false)
+	private ISecurityService securityService;
+	
+	/**
+	 * Request to fetch current user details
+	 */
+	@Autowired
+	private HttpServletRequest request;
 	
 	/* (non-Javadoc)
 	 * @see com.yukthi.webutils.IRepositoryMethodRegistry#registerRepositoryMethod(java.lang.reflect.Method, java.lang.annotation.Annotation)
@@ -130,6 +155,17 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 		if(returnModelType.getAnnotation(Model.class) == null)
 		{
 			throw new InvalidStateException("For search-method {} non-model {} is defined as query-return-type", repository.getClass().getName(), method.getName(), returnModelType.getName());
+		}
+		
+		String queryName = annotation.name();
+		
+		//if duplicate lov name is encountered throw error
+		if(nameToSearchMet.containsKey(queryName))
+		{
+			throw new InvalidConfigurationException("Duplicate search configuration encountered. Same name '{}' is used by two search-query methods - {}, {}", 
+					WebUtils.toString( nameToSearchMet.get(queryName).method ), 
+					WebUtils.toString( method ) 
+			);
 		}
 	
 		logger.info("Loading search method - {}.{}", method.getDeclaringClass().getName(), method.getName());
@@ -220,6 +256,17 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 		if(!searchQueryDetails.queryType.isAssignableFrom(query.getClass()))
 		{
 			throw new InvalidRequestParameterException("Invalid search query bean type {} specified for search query {}. Expected type - {}" + searchQueryName);
+		}
+
+		//if security service is specified, check user authorization for target search method
+		if(securityService != null)
+		{
+			UserDetails userDetails = (UserDetails)request.getAttribute(IWebUtilsInternalConstants.REQ_ATTR_USER_DETAILS);
+			
+			if(!securityService.isAuthorized(userDetails, searchQueryDetails.method))
+			{
+				throw new UnauthorizedException("Current user is not authorized to execute search query - {}", searchQueryName);
+			}
 		}
 		
 		com.yukthi.persistence.repository.search.SearchQuery repoSearchQuery = new com.yukthi.persistence.repository.search.SearchQuery();
