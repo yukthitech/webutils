@@ -24,6 +24,7 @@
 package com.yukthi.webutils.utils;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.List;
@@ -37,6 +38,8 @@ import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.io.IOUtils;
+import org.apache.tika.Tika;
 
 import com.yukthi.webutils.FileDetails;
 
@@ -61,6 +64,7 @@ public class WebAttachmentUtils
 	
 	public static final String EXTENSION_MS_EXCEL_FILE = ".xls";
 	
+	private static final Tika tika = new Tika();
 
 	/**
 	* Sends specified content as attachment on response
@@ -70,17 +74,23 @@ public class WebAttachmentUtils
 	* @param fileName
 	* @param content
 	*/
-	public static void sendAttachment(HttpServletResponse response, String mimeType, String fileName, byte content[])
+	public static void sendAttachment(HttpServletResponse response, String mimeType, String fileName, File content)
 	{
 		if(mimeType == null)
 		{
-			// set to binary type if MIME mapping not found
-			mimeType = MIME_BINARY_FILE;
+			try
+			{
+				// set to binary type if MIME mapping not found
+				mimeType = tika.detect(content);
+			}catch(Exception ex)
+			{
+				throw new IllegalStateException("An error occurred while fetching file's mime type - " + content.getPath(), ex);
+			}
 		}
 
 		// modifies response
 		response.setContentType(mimeType);
-		response.setContentLength(content.length);
+		response.setContentLength((int)content.length());
 
 		// indicator for download
 		String headerKey = "Content-Disposition";
@@ -91,9 +101,11 @@ public class WebAttachmentUtils
 		try
 		{
 			OutputStream os = response.getOutputStream();
-			os.write(content);
+			FileInputStream fis = new FileInputStream(content);
+			IOUtils.copy(fis, os);
 			
 			os.close();
+			fis.close();
 		}catch(Exception ex)
 		{
 			throw new IllegalStateException("An error occurred while writing content to response", ex);
