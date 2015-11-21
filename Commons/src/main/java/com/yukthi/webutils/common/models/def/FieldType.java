@@ -50,7 +50,10 @@ public enum FieldType
 	
 	DATE("date", Date.class),
 	
-	LIST_OF_VALUES("lov");
+	LIST_OF_VALUES("lov"),
+	
+	FILE("file")
+	;
 	
 	/**
 	 * Mapping from java type to this field type

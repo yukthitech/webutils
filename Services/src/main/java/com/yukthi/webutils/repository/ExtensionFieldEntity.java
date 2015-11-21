@@ -23,6 +23,7 @@
 
 package com.yukthi.webutils.repository;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -53,7 +54,7 @@ import com.yukthi.webutils.common.extensions.LovOption;
 @UniqueConstraints({
 	@UniqueConstraint(name = "EXT_ID_NAME", fields = {"extension", "name"})
 })
-public class ExtensionFieldEntity
+public class ExtensionFieldEntity implements ITrackedEntity
 {
 	/**
 	 * Primary key of the entity
@@ -114,6 +115,30 @@ public class ExtensionFieldEntity
 	 */
 	private int maxLength;
 	
+	/**
+	 * Created on date
+	 */
+	@Column(name = "CREATED_ON")
+	private Date createdOn = new Date();
+	
+	/**
+	 * Created By
+	 */
+	@Column(name = "CREATED_BY")
+	private long createdBy;
+	
+	/**
+	 * Created on date
+	 */
+	@Column(name = "UPDATED_ON")
+	private Date updatedOn = new Date();
+	
+	/**
+	 * Created By
+	 */
+	@Column(name = "UPDATED_BY")
+	private long updatedBy;
+
 	/**
 	 * Instantiates a new extension field entity.
 	 */
@@ -321,5 +346,84 @@ public class ExtensionFieldEntity
 	{
 		this.maxLength = maxLength;
 	}
-	
+
+	/**
+	 * Gets the created on date.
+	 *
+	 * @return the created on date
+	 */
+	public Date getCreatedOn()
+	{
+		return createdOn;
+	}
+
+	/**
+	 * Sets the created on date.
+	 *
+	 * @param createdOn the new created on date
+	 */
+	public void setCreatedOn(Date createdOn)
+	{
+		this.createdOn = createdOn;
+	}
+
+	/**
+	 * Gets the created By.
+	 *
+	 * @return the created By
+	 */
+	public long getCreatedBy()
+	{
+		return createdBy;
+	}
+
+	/**
+	 * Sets the created By.
+	 *
+	 * @param createdBy the new created By
+	 */
+	public void setCreatedBy(long createdBy)
+	{
+		this.createdBy = createdBy;
+	}
+
+	/**
+	 * Gets the created on date.
+	 *
+	 * @return the created on date
+	 */
+	public Date getUpdatedOn()
+	{
+		return updatedOn;
+	}
+
+	/**
+	 * Sets the created on date.
+	 *
+	 * @param updatedOn the new created on date
+	 */
+	public void setUpdatedOn(Date updatedOn)
+	{
+		this.updatedOn = updatedOn;
+	}
+
+	/**
+	 * Gets the created By.
+	 *
+	 * @return the created By
+	 */
+	public long getUpdatedBy()
+	{
+		return updatedBy;
+	}
+
+	/**
+	 * Sets the created By.
+	 *
+	 * @param updatedBy the new created By
+	 */
+	public void setUpdatedBy(long updatedBy)
+	{
+		this.updatedBy = updatedBy;
+	}
 }

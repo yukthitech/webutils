@@ -55,6 +55,11 @@ public class WebUtils
 	 */
 	public static <T> T convertBean(Object source, Class<T> targetType)
 	{
+		if(source == null)
+		{
+			return null;
+		}
+		
 		try
 		{
 			T targetBean = targetType.newInstance();

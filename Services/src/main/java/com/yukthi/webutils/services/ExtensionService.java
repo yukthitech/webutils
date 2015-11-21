@@ -77,6 +77,9 @@ public class ExtensionService
 
 	@Autowired
 	private ExtensionUtil extensionUtil;
+	
+	@Autowired
+	private UserService userService;
 
 	private Map<String, ExtensionPointDetails> nameToExtension = new HashMap<>();
 	
@@ -186,6 +189,8 @@ public class ExtensionService
 			}
 		}
 
+		userService.populateTrackingFieldForCreate(extension);
+		
 		if(!extensionRepository.save(extension))
 		{
 			throw new ServiceException("Failed to save extension - {}", extension);
@@ -217,6 +222,8 @@ public class ExtensionService
 		
 		extensionFieldEntity.setExtension(new ExtensionEntity(extensionId));
 		
+		userService.populateTrackingFieldForCreate(extensionFieldEntity);
+		
 		if(!extensionFieldRepository.save(extensionFieldEntity))
 		{
 			throw new ServiceException("Failed to save extension field entity.");
@@ -235,6 +242,8 @@ public class ExtensionService
 		
 		extensionFieldEntity.setExtension(new ExtensionEntity(extensionId));
 
+		userService.populateTrackingFieldForUpdate(extensionFieldEntity);
+		
 		if(!extensionFieldRepository.update(extensionFieldEntity))
 		{
 			throw new ServiceException("Failed to update extension field details");
@@ -306,6 +315,8 @@ public class ExtensionService
 	 */
 	public void saveExtensionValue(ExtensionFieldValueEntity valueEntity)
 	{
+		userService.populateTrackingFieldForCreate(valueEntity);
+		
 		if(!extensionFieldValueRepository.save(valueEntity))
 		{
 			throw new InvalidStateException("Failed to save extension field value - {}", valueEntity);
@@ -318,6 +329,8 @@ public class ExtensionService
 	 */
 	public void updateExtensionValue(ExtensionFieldValueEntity valueEntity)
 	{
+		userService.populateTrackingFieldForUpdate(valueEntity);
+		
 		if(!extensionFieldValueRepository.update(valueEntity))
 		{
 			throw new InvalidStateException("Failed to update extension field value - {}", valueEntity);
@@ -359,7 +372,7 @@ public class ExtensionService
 				existingValueMap = Collections.emptyMap();
 			}
 			
-			ExtensionFieldValueEntity valueEntity = null;
+			ExtensionFieldValueEntity valueEntity = null, persistingEntity = null;
 			
 			//persist the field values
 			for(Long fieldId : extendedValues.keySet())
@@ -368,11 +381,17 @@ public class ExtensionService
 				
 				if(valueEntity != null)
 				{
-					updateExtensionValue(new ExtensionFieldValueEntity(valueEntity.getId(), new ExtensionFieldEntity(fieldId), entityId, extendedValues.get(fieldId)));
+					persistingEntity = new ExtensionFieldValueEntity(valueEntity.getId(), new ExtensionFieldEntity(fieldId), entityId, extendedValues.get(fieldId));
+					userService.populateTrackingFieldForUpdate(persistingEntity);
+					
+					updateExtensionValue(persistingEntity);
 				}
 				else
 				{
-					saveExtensionValue(new ExtensionFieldValueEntity(0, new ExtensionFieldEntity(fieldId), entityId, extendedValues.get(fieldId)));
+					persistingEntity = new ExtensionFieldValueEntity(0, new ExtensionFieldEntity(fieldId), entityId, extendedValues.get(fieldId));
+					userService.populateTrackingFieldForUpdate(persistingEntity);
+					
+					saveExtensionValue(persistingEntity);
 				}
 			}
 			

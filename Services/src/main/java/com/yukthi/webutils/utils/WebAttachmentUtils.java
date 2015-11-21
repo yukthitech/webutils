@@ -25,9 +25,9 @@ package com.yukthi.webutils.utils;
 
 import java.io.File;
 import java.io.OutputStream;
-import java.security.InvalidParameterException;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -37,6 +37,8 @@ import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+
+import com.yukthi.webutils.FileDetails;
 
 /**
  * Utils related to web attachments upload and download
@@ -101,9 +103,9 @@ public class WebAttachmentUtils
 	/**
 	 * Receives the file attachments part of requests and returns file path list
 	 * @param request Request from which file attachments needs to be fetched
-	 * @return List of file paths obtained from request
+	 * @return Map of file details, using input file filed name as key
 	 */
-	public static List<String> recieveImports(HttpServletRequest request)
+	public static Map<String, FileDetails> recieveImports(HttpServletRequest request)
 	{
 		String tempDir = System.getProperty("java.io.tmpdir");
 		DiskFileItemFactory factory = new DiskFileItemFactory(0, new File(tempDir));
@@ -124,19 +126,19 @@ public class WebAttachmentUtils
 		
 		if(items == null || items.isEmpty())
 		{
-			throw new InvalidParameterException("No files found in the request");
+			return null;
 		}
 		
-		if(items.size() > 1)
-		{
-			throw new InvalidParameterException("Too many files found in request. Only one file is expected");
-		}
-		
-		List<String> uploadedFiles = new ArrayList<>(items.size());
+		Map<String, FileDetails> uploadedFiles = new HashMap<>();
+		FileDetails fileDetails = null;
+		File file = null;
 		
 		for(FileItem item: items)
 		{
-			uploadedFiles.add(((DiskFileItem)item).getStoreLocation().getAbsolutePath());
+			file = new File( ((DiskFileItem)item).getStoreLocation().getAbsolutePath() );
+			fileDetails = new FileDetails(item.getName(), file, item.getContentType(), null, 0L);
+			
+			uploadedFiles.put(item.getFieldName(), fileDetails);
 		}
 		
 		return uploadedFiles;

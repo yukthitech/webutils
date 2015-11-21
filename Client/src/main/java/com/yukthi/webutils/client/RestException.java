@@ -91,7 +91,7 @@ public class RestException extends RuntimeException
 	
 	/**
 	 * Instantiates a new rest exception.
-	 *
+	 * @param message Message for exception
 	 * @param statusCode the status code
 	 */
 	public RestException(String message, int statusCode)

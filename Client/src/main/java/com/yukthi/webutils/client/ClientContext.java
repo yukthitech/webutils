@@ -76,7 +76,6 @@ public class ClientContext
 	 * Instantiates a new client context.
 	 *
 	 * @param baseUrl the base url
-	 * @param actionUrl the action url
 	 */
 	public ClientContext(String baseUrl)
 	{

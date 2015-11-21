@@ -23,6 +23,8 @@
 
 package com.yukthi.webutils.repository;
 
+import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -43,7 +45,7 @@ import com.yukthi.persistence.annotations.UniqueConstraints;
 @UniqueConstraints({
 	@UniqueConstraint(name = "EXT_FLD_ENT_ID", fields = {"extensionField", "entityId"})
 })
-public class ExtensionFieldValueEntity
+public class ExtensionFieldValueEntity implements ITrackedEntity
 {
 	/**
 	 * Primary key of the entity
@@ -72,6 +74,31 @@ public class ExtensionFieldValueEntity
 	 */
 	@Column(name = "VALUE", length = 2000)
 	private String value;
+	
+	
+	/**
+	 * Created on date
+	 */
+	@Column(name = "CREATED_ON")
+	private Date createdOn = new Date();
+	
+	/**
+	 * Created By
+	 */
+	@Column(name = "CREATED_BY")
+	private long createdBy;
+	
+	/**
+	 * Created on date
+	 */
+	@Column(name = "UPDATED_ON")
+	private Date updatedOn = new Date();
+	
+	/**
+	 * Created By
+	 */
+	@Column(name = "UPDATED_BY")
+	private long updatedBy;
 	
 	/**
 	 * Instantiates a new extension field value entity.
@@ -173,6 +200,70 @@ public class ExtensionFieldValueEntity
 	public void setValue(String value)
 	{
 		this.value = value;
+	}
+	
+	/* (non-Javadoc)
+	 * @see com.yukthi.webutils.repository.ITrackedEntity#getCreatedOn()
+	 */
+	public Date getCreatedOn()
+	{
+		return createdOn;
+	}
+
+	/* (non-Javadoc)
+	 * @see com.yukthi.webutils.repository.ITrackedEntity#setCreatedOn(java.util.Date)
+	 */
+	public void setCreatedOn(Date createdOn)
+	{
+		this.createdOn = createdOn;
+	}
+
+	/* (non-Javadoc)
+	 * @see com.yukthi.webutils.repository.ITrackedEntity#getCreatedBy()
+	 */
+	public long getCreatedBy()
+	{
+		return createdBy;
+	}
+
+	/* (non-Javadoc)
+	 * @see com.yukthi.webutils.repository.ITrackedEntity#setCreatedBy(long)
+	 */
+	public void setCreatedBy(long createdBy)
+	{
+		this.createdBy = createdBy;
+	}
+
+	/* (non-Javadoc)
+	 * @see com.yukthi.webutils.repository.ITrackedEntity#getUpdatedOn()
+	 */
+	public Date getUpdatedOn()
+	{
+		return updatedOn;
+	}
+
+	/* (non-Javadoc)
+	 * @see com.yukthi.webutils.repository.ITrackedEntity#setUpdatedOn(java.util.Date)
+	 */
+	public void setUpdatedOn(Date updatedOn)
+	{
+		this.updatedOn = updatedOn;
+	}
+
+	/* (non-Javadoc)
+	 * @see com.yukthi.webutils.repository.ITrackedEntity#getUpdatedBy()
+	 */
+	public long getUpdatedBy()
+	{
+		return updatedBy;
+	}
+
+	/* (non-Javadoc)
+	 * @see com.yukthi.webutils.repository.ITrackedEntity#setUpdatedBy(long)
+	 */
+	public void setUpdatedBy(long updatedBy)
+	{
+		this.updatedBy = updatedBy;
 	}
 
 	/* (non-Javadoc)

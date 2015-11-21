@@ -34,6 +34,7 @@ import com.yukthi.persistence.ITransaction;
 import com.yukthi.persistence.repository.RepositoryFactory;
 import com.yukthi.webutils.IEntity;
 import com.yukthi.webutils.common.IExtendableModel;
+import com.yukthi.webutils.repository.ITrackedEntity;
 import com.yukthi.webutils.utils.WebUtils;
 
 /**
@@ -57,6 +58,12 @@ public abstract class BaseCrudService<E extends IEntity, R extends ICrudReposito
 	@Autowired
 	private ExtensionService extensionService;
 
+	/**
+	 * Used to populate tracked fields
+	 */
+	@Autowired
+	private UserService userService;
+	
 	/**
 	 * Repository type
 	 */
@@ -96,7 +103,13 @@ public abstract class BaseCrudService<E extends IEntity, R extends ICrudReposito
 		try(ITransaction transaction = repository.newOrExistingTransaction())
 		{
 			logger.trace("Trying to save entity - {}", entity);
-			
+
+			//populate tracked fields
+			if(entity instanceof ITrackedEntity)
+			{
+				userService.populateTrackingFieldForCreate((ITrackedEntity)entity);
+			}
+
 			repository.save(entity);
 			
 			if(extendedFieldsModel != null)
@@ -124,6 +137,11 @@ public abstract class BaseCrudService<E extends IEntity, R extends ICrudReposito
 		{
 			logger.trace("Trying to update entity - {}", entity);
 			
+			if(entity instanceof ITrackedEntity)
+			{
+				userService.populateTrackingFieldForUpdate((ITrackedEntity)entity);
+			}
+
 			repository.update(entity);
 			
 			if(extendedFieldsModel != null)

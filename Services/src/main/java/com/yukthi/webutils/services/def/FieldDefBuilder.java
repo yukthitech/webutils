@@ -32,9 +32,11 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.yukthi.utils.exceptions.InvalidConfigurationException;
 import com.yukthi.utils.exceptions.InvalidStateException;
 import com.yukthi.webutils.common.LovType;
 import com.yukthi.webutils.common.annotations.DefaultValue;
+import com.yukthi.webutils.common.annotations.File;
 import com.yukthi.webutils.common.annotations.LOV;
 import com.yukthi.webutils.common.annotations.MultilineText;
 import com.yukthi.webutils.common.annotations.NonDisplayable;
@@ -157,6 +159,16 @@ public class FieldDefBuilder
 		else if(field.getAnnotation(LOV.class) != null)
 		{
 			getCustomLovDetails(modelType, fieldDef, field);
+		}
+		//if field is marked as File type
+		else if(field.getAnnotation(File.class) != null)
+		{
+			if(String.class.equals(fieldType))
+			{
+				throw new InvalidConfigurationException("{} annotation is used on non-string field - {}.{}", File.class.getName(), modelType.getName(), field.getName());
+			}
+			
+			fieldDef.setFieldType(FieldType.FILE);
 		}
 		//if it is a simple field
 		else
