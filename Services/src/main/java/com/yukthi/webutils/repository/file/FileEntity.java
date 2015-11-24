@@ -41,7 +41,7 @@ import com.yukthi.webutils.repository.ITrackedEntity;
  * 
  * @author akiran
  */
-@Table(name = "ENTITY_EXTENSIONS")
+@Table(name = "FILE_ENTITY")
 public class FileEntity implements ITrackedEntity
 {
 	/**
@@ -99,7 +99,7 @@ public class FileEntity implements ITrackedEntity
 	 * Created By
 	 */
 	@Column(name = "CREATED_BY")
-	private long createdBy;
+	private Long createdBy;
 
 	/**
 	 * Gets the primary key of the entity.
@@ -200,7 +200,7 @@ public class FileEntity implements ITrackedEntity
 	/* (non-Javadoc)
 	 * @see com.yukthi.webutils.repository.ITrackedEntity#getCreatedBy()
 	 */
-	public long getCreatedBy()
+	public Long getCreatedBy()
 	{
 		return createdBy;
 	}
@@ -208,7 +208,7 @@ public class FileEntity implements ITrackedEntity
 	/* (non-Javadoc)
 	 * @see com.yukthi.webutils.repository.ITrackedEntity#setCreatedBy(long)
 	 */
-	public void setCreatedBy(long createdBy)
+	public void setCreatedBy(Long createdBy)
 	{
 		this.createdBy = createdBy;
 	}
@@ -231,7 +231,7 @@ public class FileEntity implements ITrackedEntity
 	/* (non-Javadoc)
 	 * @see com.yukthi.webutils.repository.ITrackedEntity#getUpdatedBy()
 	 */
-	public long getUpdatedBy()
+	public Long getUpdatedBy()
 	{
 		return createdBy;
 	}
@@ -239,7 +239,7 @@ public class FileEntity implements ITrackedEntity
 	/* (non-Javadoc)
 	 * @see com.yukthi.webutils.repository.ITrackedEntity#setUpdatedBy(long)
 	 */
-	public void setUpdatedBy(long updatedBy)
+	public void setUpdatedBy(Long updatedBy)
 	{
 	}
 

@@ -30,6 +30,18 @@ Controller
 		Should have session expiry time
 	
 	Take care of caching	
+	
+	Notifications
+		Event generation & handlers
+		handlers
+			web hooks
+			mail hooks
+			alerts
+		Event struct should be visible
+		
+	supervise other user
+		Log actual user and supervised user details as user name
+			
 Docs
 	DAO
 	Auth	

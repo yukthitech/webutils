@@ -68,6 +68,7 @@ public class QuartzJobBridge implements Job
 		
 		//autowire dependencies
 		applicationContext.getAutowireCapableBeanFactory().autowireBean(job);
+		applicationContext.getAutowireCapableBeanFactory().applyBeanPostProcessorsBeforeInitialization(job, null);
 		
 		//execute the job
 		job.execute(jobData, context);

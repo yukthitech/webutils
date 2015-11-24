@@ -86,7 +86,7 @@ public class ExtensionFieldValueEntity implements ITrackedEntity
 	 * Created By
 	 */
 	@Column(name = "CREATED_BY")
-	private long createdBy;
+	private Long createdBy;
 	
 	/**
 	 * Created on date
@@ -98,7 +98,7 @@ public class ExtensionFieldValueEntity implements ITrackedEntity
 	 * Created By
 	 */
 	@Column(name = "UPDATED_BY")
-	private long updatedBy;
+	private Long updatedBy;
 	
 	/**
 	 * Instantiates a new extension field value entity.
@@ -221,7 +221,7 @@ public class ExtensionFieldValueEntity implements ITrackedEntity
 	/* (non-Javadoc)
 	 * @see com.yukthi.webutils.repository.ITrackedEntity#getCreatedBy()
 	 */
-	public long getCreatedBy()
+	public Long getCreatedBy()
 	{
 		return createdBy;
 	}
@@ -229,7 +229,7 @@ public class ExtensionFieldValueEntity implements ITrackedEntity
 	/* (non-Javadoc)
 	 * @see com.yukthi.webutils.repository.ITrackedEntity#setCreatedBy(long)
 	 */
-	public void setCreatedBy(long createdBy)
+	public void setCreatedBy(Long createdBy)
 	{
 		this.createdBy = createdBy;
 	}
@@ -253,7 +253,7 @@ public class ExtensionFieldValueEntity implements ITrackedEntity
 	/* (non-Javadoc)
 	 * @see com.yukthi.webutils.repository.ITrackedEntity#getUpdatedBy()
 	 */
-	public long getUpdatedBy()
+	public Long getUpdatedBy()
 	{
 		return updatedBy;
 	}
@@ -261,7 +261,7 @@ public class ExtensionFieldValueEntity implements ITrackedEntity
 	/* (non-Javadoc)
 	 * @see com.yukthi.webutils.repository.ITrackedEntity#setUpdatedBy(long)
 	 */
-	public void setUpdatedBy(long updatedBy)
+	public void setUpdatedBy(Long updatedBy)
 	{
 		this.updatedBy = updatedBy;
 	}

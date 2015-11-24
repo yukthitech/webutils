@@ -50,14 +50,14 @@ public interface ITrackedEntity
 	 *
 	 * @return the created By
 	 */
-	public long getCreatedBy();
+	public Long getCreatedBy();
 	
 	/**
 	 * Sets the created By.
 	 *
 	 * @param createdBy the new created By
 	 */
-	public void setCreatedBy(long createdBy);
+	public void setCreatedBy(Long createdBy);
 
 	/**
 	 * Gets the created on date.
@@ -78,12 +78,12 @@ public interface ITrackedEntity
 	 *
 	 * @return the created By
 	 */
-	public long getUpdatedBy();
+	public Long getUpdatedBy();
 
 	/**
 	 * Sets the created By.
 	 *
 	 * @param updatedBy the new created By
 	 */
-	public void setUpdatedBy(long updatedBy);
+	public void setUpdatedBy(Long updatedBy);
 }

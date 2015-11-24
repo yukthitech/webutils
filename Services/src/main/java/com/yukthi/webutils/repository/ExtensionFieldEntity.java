@@ -125,7 +125,7 @@ public class ExtensionFieldEntity implements ITrackedEntity
 	 * Created By
 	 */
 	@Column(name = "CREATED_BY")
-	private long createdBy;
+	private Long createdBy;
 	
 	/**
 	 * Created on date
@@ -137,7 +137,7 @@ public class ExtensionFieldEntity implements ITrackedEntity
 	 * Created By
 	 */
 	@Column(name = "UPDATED_BY")
-	private long updatedBy;
+	private Long updatedBy;
 
 	/**
 	 * Instantiates a new extension field entity.
@@ -372,7 +372,7 @@ public class ExtensionFieldEntity implements ITrackedEntity
 	 *
 	 * @return the created By
 	 */
-	public long getCreatedBy()
+	public Long getCreatedBy()
 	{
 		return createdBy;
 	}
@@ -382,7 +382,7 @@ public class ExtensionFieldEntity implements ITrackedEntity
 	 *
 	 * @param createdBy the new created By
 	 */
-	public void setCreatedBy(long createdBy)
+	public void setCreatedBy(Long createdBy)
 	{
 		this.createdBy = createdBy;
 	}
@@ -412,7 +412,7 @@ public class ExtensionFieldEntity implements ITrackedEntity
 	 *
 	 * @return the created By
 	 */
-	public long getUpdatedBy()
+	public Long getUpdatedBy()
 	{
 		return updatedBy;
 	}
@@ -422,7 +422,7 @@ public class ExtensionFieldEntity implements ITrackedEntity
 	 *
 	 * @param updatedBy the new created By
 	 */
-	public void setUpdatedBy(long updatedBy)
+	public void setUpdatedBy(Long updatedBy)
 	{
 		this.updatedBy = updatedBy;
 	}

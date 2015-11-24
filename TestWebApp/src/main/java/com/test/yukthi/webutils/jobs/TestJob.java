@@ -23,6 +23,8 @@
 
 package com.test.yukthi.webutils.jobs;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.quartz.JobExecutionContext;
@@ -44,6 +46,12 @@ public class TestJob implements IJob
 	
 	@Autowired
 	private WebutilsConfiguration configuration;
+	
+	@PostConstruct
+	private void init()
+	{
+		logger.debug("================> Post construct is called");
+	}
 	
 	/* (non-Javadoc)
 	 * @see com.yukthi.webutils.services.job.IJob#execute(java.lang.Object, org.quartz.JobExecutionContext)
