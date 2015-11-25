@@ -79,7 +79,7 @@ public class ExtensionService
 	private ExtensionUtil extensionUtil;
 	
 	@Autowired
-	private UserService userService;
+	private CurrentUserService userService;
 
 	private Map<String, ExtensionPointDetails> nameToExtension = new HashMap<>();
 	

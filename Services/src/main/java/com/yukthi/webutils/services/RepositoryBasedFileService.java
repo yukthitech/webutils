@@ -55,7 +55,7 @@ public class RepositoryBasedFileService implements IFileService
 	 * Used to populate tracked fields
 	 */
 	@Autowired
-	private UserService userService;
+	private CurrentUserService userService;
 
 	private IFileRepository repository;
 	

@@ -39,7 +39,7 @@ import com.yukthi.webutils.security.UserDetails;
  * @author akiran
  */
 @Service
-public class UserService
+public class CurrentUserService
 {
 	@Autowired
 	private HttpServletRequest request;

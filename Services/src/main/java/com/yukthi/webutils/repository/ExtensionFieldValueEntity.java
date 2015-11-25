@@ -53,7 +53,7 @@ public class ExtensionFieldValueEntity implements ITrackedEntity
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "ID")
-	private long id;
+	private Long id;
 
 	/**
 	 * Extension field for which value is being stored
@@ -127,7 +127,7 @@ public class ExtensionFieldValueEntity implements ITrackedEntity
 	 *
 	 * @return the primary key of the entity
 	 */
-	public long getId()
+	public Long getId()
 	{
 		return id;
 	}
@@ -137,7 +137,7 @@ public class ExtensionFieldValueEntity implements ITrackedEntity
 	 *
 	 * @param id the new primary key of the entity
 	 */
-	public void setId(long id)
+	public void setId(Long id)
 	{
 		this.id = id;
 	}

@@ -80,6 +80,7 @@ public class ClientContext
 	public ClientContext(String baseUrl)
 	{
 		this.restClient = new RestClient(baseUrl);
+		this.restClient.getObjectMapper().setDateFormat(IWebUtilsCommonConstants.DEFAULT_DATE_FORMAT);
 		
 		this.baseUrl = baseUrl;
 	}

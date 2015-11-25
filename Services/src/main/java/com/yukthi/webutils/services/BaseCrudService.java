@@ -62,7 +62,7 @@ public abstract class BaseCrudService<E extends IEntity, R extends ICrudReposito
 	 * Used to populate tracked fields
 	 */
 	@Autowired
-	private UserService userService;
+	private CurrentUserService userService;
 	
 	/**
 	 * Repository type

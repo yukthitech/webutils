@@ -50,7 +50,7 @@ public class FileEntity implements ITrackedEntity
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "ID")
-	private long id;
+	private Long id;
 
 	/**
 	 * Name of the file
@@ -106,7 +106,7 @@ public class FileEntity implements ITrackedEntity
 	 *
 	 * @return the primary key of the entity
 	 */
-	public long getId()
+	public Long getId()
 	{
 		return id;
 	}
@@ -116,7 +116,7 @@ public class FileEntity implements ITrackedEntity
 	 *
 	 * @param id the new primary key of the entity
 	 */
-	public void setId(long id)
+	public void setId(Long id)
 	{
 		this.id = id;
 	}

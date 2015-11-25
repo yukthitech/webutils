@@ -25,11 +25,17 @@ package com.yukthi.webutils.repository;
 
 import java.util.Date;
 
+import com.yukthi.webutils.IEntity;
+import com.yukthi.webutils.services.CurrentUserService;
+
 /**
+ * Abstraction for tracking properties. Entity implementing this interface can get
+ * tracked properties auto-populated using {@link CurrentUserService#populateTrackingFieldForCreate(ITrackedEntity)} or 
+ * {@link CurrentUserService#populateTrackingFieldForUpdate(ITrackedEntity)}
+ * 
  * @author akiran
- *
  */
-public interface ITrackedEntity
+public interface ITrackedEntity extends IEntity
 {
 	/**
 	 * Gets the created on date.
