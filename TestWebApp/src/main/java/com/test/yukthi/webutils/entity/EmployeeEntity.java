@@ -23,14 +23,16 @@
 
 package com.test.yukthi.webutils.entity;
 
+import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import com.yukthi.webutils.IEntity;
 import com.yukthi.webutils.annotations.ExtendableEntity;
+import com.yukthi.webutils.repository.ITrackedEntity;
 
 /**
  * Test entity
@@ -39,7 +41,7 @@ import com.yukthi.webutils.annotations.ExtendableEntity;
  */
 @ExtendableEntity(name = "Employee")
 @Table(name = "EMP")
-public class EmployeeEntity implements IEntity
+public class EmployeeEntity implements ITrackedEntity
 {
 	/**
 	 * Employee id
@@ -60,6 +62,14 @@ public class EmployeeEntity implements IEntity
 	 */
 	@Column(name = "SALARY")
 	private long salary;
+	
+	private Date createdOn;
+	
+	private Long createdBy;
+	
+	private Date updatedOn;
+	
+	private Long updatedBy;
 
 	public EmployeeEntity()
 	{}
@@ -100,4 +110,45 @@ public class EmployeeEntity implements IEntity
 		this.salary = salary;
 	}
 
+	public Date getCreatedOn()
+	{
+		return createdOn;
+	}
+
+	public void setCreatedOn(Date createdOn)
+	{
+		this.createdOn = createdOn;
+	}
+
+	public Long getCreatedBy()
+	{
+		return createdBy;
+	}
+
+	public void setCreatedBy(Long createdBy)
+	{
+		this.createdBy = createdBy;
+	}
+
+	public Date getUpdatedOn()
+	{
+		return updatedOn;
+	}
+
+	public void setUpdatedOn(Date updatedOn)
+	{
+		this.updatedOn = updatedOn;
+	}
+
+	public Long getUpdatedBy()
+	{
+		return updatedBy;
+	}
+
+	public void setUpdatedBy(Long updatedBy)
+	{
+		this.updatedBy = updatedBy;
+	}
+
+	
 }
