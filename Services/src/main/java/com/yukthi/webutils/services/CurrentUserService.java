@@ -27,6 +27,8 @@ import java.util.Date;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -41,6 +43,8 @@ import com.yukthi.webutils.security.UserDetails;
 @Service
 public class CurrentUserService
 {
+	private static Logger logger = LogManager.getLogger(CurrentUserService.class);
+	
 	@Autowired
 	private HttpServletRequest request;
 	
@@ -50,7 +54,14 @@ public class CurrentUserService
 	 */
 	public UserDetails getCurrentUserDetails()
 	{
-		return (UserDetails)request.getAttribute(IWebUtilsInternalConstants.REQ_ATTR_USER_DETAILS);
+		try
+		{
+			return (UserDetails)request.getAttribute(IWebUtilsInternalConstants.REQ_ATTR_USER_DETAILS);
+		}catch(Exception ex)
+		{
+			logger.info("An error occurred while fetching user details from request", ex);
+			return null;
+		}
 	}
 	
 	/**

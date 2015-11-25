@@ -634,11 +634,6 @@ $.makeJsonCall = function(url, data, config) {
 		}
 		else
 		{
-			if(result.status == 401)
-			{
-				location.reload();
-			}
-			
 			if(result.data)
 			{
 				throw result.data;
