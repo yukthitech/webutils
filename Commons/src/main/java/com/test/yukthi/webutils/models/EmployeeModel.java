@@ -40,6 +40,11 @@ public class EmployeeModel extends AbstractExtendableModel
 	 * Employee id
 	 */
 	private Long id;
+	
+	/**
+	 * Version of the entity
+	 */
+	private Integer version;
 
 	/**
 	 * Name of the employee
@@ -136,6 +141,16 @@ public class EmployeeModel extends AbstractExtendableModel
 	public void setUpdatedBy(Long updatedBy)
 	{
 		this.updatedBy = updatedBy;
+	}
+
+	public Integer getVersion()
+	{
+		return version;
+	}
+
+	public void setVersion(Integer version)
+	{
+		this.version = version;
 	}
 
 	

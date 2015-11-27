@@ -157,6 +157,7 @@ public class TFExtensions extends TFBase
 		//update and validate
 		field1.setId(fieldId1);
 		field1.setType(ExtensionFieldType.DATE);
+		field1.setVersion(1);
 		
 		extensionsHelper.updateExtensionField(
 				clientContext.setRequestCustomizer(new RequestHeadersCustomizer(CommonUtils.toMap("customerId", id1))), 
@@ -260,6 +261,7 @@ public class TFExtensions extends TFBase
 		//update and validate
 		field1.setId(fieldId1);
 		field1.setType(ExtensionFieldType.DATE);
+		field1.setVersion(1);
 		
 		extensionsHelper.updateExtensionField(clientContext, "Customer", field1);
 		

@@ -27,6 +27,7 @@ import java.util.Date;
 
 import org.apache.commons.lang3.time.DateUtils;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
 import com.test.yukthi.webutils.models.EmployeeModel;
@@ -38,6 +39,7 @@ import com.yukthi.utils.rest.RestResult;
 import com.yukthi.webutils.client.ActionRequestBuilder;
 import com.yukthi.webutils.client.RestException;
 import com.yukthi.webutils.common.IWebUtilsCommonConstants;
+import com.yukthi.webutils.common.models.BaseResponse;
 import com.yukthi.webutils.common.models.BasicSaveResponse;
 
 /**
@@ -92,5 +94,13 @@ public class TFCrud extends TFBase
 		Assert.assertEquals(savedEmp.getSalary(), 1000L);
 		Assert.assertTrue( DateUtils.isSameDay(savedEmp.getCreatedOn(), new Date()));
 		Assert.assertTrue( DateUtils.isSameDay(savedEmp.getUpdatedOn(), new Date()));
+	}
+
+	@AfterClass
+	private void clean()
+	{
+		RestClient client = clientContext.getRestClient();
+		RestRequest<?> request = ActionRequestBuilder.buildRequest(super.clientContext, "employee.deleteAll", null, null);
+		client.invokeJsonRequest(request, BaseResponse.class);
 	}
 }

@@ -31,6 +31,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Version;
 
 import com.yukthi.persistence.annotations.DeleteWithParent;
 import com.yukthi.persistence.annotations.UniqueConstraint;
@@ -54,6 +55,13 @@ public class ExtensionFieldValueEntity implements ITrackedEntity
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "ID")
 	private Long id;
+
+	/**
+	 * Version of the entity
+	 */
+	@Column(name = "VERSION")
+	@Version
+	private Integer version;
 
 	/**
 	 * Extension field for which value is being stored
@@ -265,6 +273,22 @@ public class ExtensionFieldValueEntity implements ITrackedEntity
 	{
 		this.updatedBy = updatedBy;
 	}
+	
+	/* (non-Javadoc)
+	 * @see com.yukthi.webutils.IEntity#getVersion()
+	 */
+	public Integer getVersion()
+	{
+		return version;
+	}
+
+	/* (non-Javadoc)
+	 * @see com.yukthi.webutils.IEntity#setVersion(java.lang.Integer)
+	 */
+	public void setVersion(Integer version)
+	{
+		this.version = version;
+	}
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
@@ -285,3 +309,4 @@ public class ExtensionFieldValueEntity implements ITrackedEntity
 	}
 
 }
+ 

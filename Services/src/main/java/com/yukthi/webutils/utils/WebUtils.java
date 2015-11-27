@@ -37,6 +37,8 @@ import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.collections.CollectionUtils;
 
 import com.yukthi.utils.exceptions.InvalidStateException;
+import com.yukthi.webutils.IEntity;
+import com.yukthi.webutils.InvalidRequestParameterException;
 
 /**
  * Common utilities for web applications
@@ -184,5 +186,24 @@ public class WebUtils
 	public static String toString(Method method)
 	{
 		return method.getDeclaringClass().getName() + "." + method.getName() + "()";
+	}
+	
+	/**
+	 * Validates if the required parameters are set on entity during update operation
+	 * @param entity Entity to be validated for update
+	 */
+	public static void validateEntityForUpdate(IEntity entity)
+	{
+		//if invalid id is specified
+		if(entity.getId() == null || entity.getId() <= 0)
+		{
+			throw new InvalidRequestParameterException("No id specified for update");
+		}
+
+		//if invalid version is specified
+		if(entity.getVersion() == null || entity.getVersion() <= 0)
+		{
+			throw new InvalidRequestParameterException("No version specified for update");
+		}
 	}
 }

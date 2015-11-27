@@ -110,10 +110,11 @@ public class TFExtensionValues extends TFBase
 		return response.getId();
 	}
 	
-	private long updateEmployee(long customerId, Map<String, Long> fieldMap, long empId, String name, long salary, String... extendedFields)
+	private long updateEmployee(long customerId, Map<String, Long> fieldMap, long empId, int version, String name, long salary, String... extendedFields)
 	{
 		EmployeeModel emp = new EmployeeModel(name, salary);
 		emp.setId(empId);
+		emp.setVersion(version);
 		
 		for(int i = 0; i < extendedFields.length; i += 2)
 		{
@@ -402,7 +403,7 @@ public class TFExtensionValues extends TFBase
 		Assert.assertEquals(emp1.getExtendedFields().get(fieldMap1.get("field3")), "2");
 
 		//execute update operation
-		updateEmployee(customer1, fieldMap1, id1, "emp1-1", 200, 
+		updateEmployee(customer1, fieldMap1, id1, emp1.getVersion(), "emp1-1", 200, 
 				"field1", "321", "field2", "4.35", "field3", "1");
 
 		//validate updated values
@@ -423,14 +424,18 @@ public class TFExtensionValues extends TFBase
 		
 		long empId1 = addEmployee(customer1, fieldMap1, "emp1", 100, 
 				"field1", "123", "field2", "3.45", "field3", "2");
+		
+		EmployeeModel emp1 = getEmployee(customer1, empId1);
 
 		long empId2 = addEmployee(customer2, fieldMap2, "emp3", 300, 
 				"field1", "true", "field2", "12/11/2015", "field3", "str1", "field4", "dfdf\ndffd");
 
+		EmployeeModel emp2 = getEmployee(customer2, empId2);
+		
 		//test by passing invalid int
 		try
 		{
-			updateEmployee(customer1, fieldMap1, empId1, "emp1Updated", 100, 
+			updateEmployee(customer1, fieldMap1, empId1, emp1.getVersion(), "emp1Updated", 100, 
 					"field1", "123x", "field2", "3.45", "field3", "2");
 			Assert.fail("No exception is thrown when invalid int is passed");
 		}catch(RestException ex)
@@ -443,7 +448,7 @@ public class TFExtensionValues extends TFBase
 		//test by passing invalid decimal
 		try
 		{
-			updateEmployee(customer1, fieldMap1, empId1, "emp1Updated", 100, 
+			updateEmployee(customer1, fieldMap1, empId1, emp1.getVersion(), "emp1Updated", 100, 
 					"field1", "123", "field2", "3er.45", "field3", "2");
 			Assert.fail("No exception is thrown when invalid decimal is passed");
 		}catch(RestException ex)
@@ -456,7 +461,7 @@ public class TFExtensionValues extends TFBase
 		//test by passing invalid lov
 		try
 		{
-			updateEmployee(customer1, fieldMap1, empId1, "emp1Updated", 100, 
+			updateEmployee(customer1, fieldMap1, empId1, emp1.getVersion(), "emp1Updated", 100, 
 					"field1", "123", "field2", "3.45", "field3", "4");
 			Assert.fail("No exception is thrown when invalid lov is passed");
 		}catch(RestException ex)
@@ -469,7 +474,7 @@ public class TFExtensionValues extends TFBase
 		//test not passing mandatory value
 		try
 		{
-			updateEmployee(customer1, fieldMap1, empId1, "emp1Updated", 100, 
+			updateEmployee(customer1, fieldMap1, empId1, emp1.getVersion(), "emp1Updated", 100, 
 					"field2", "3.45", "field3", "2");
 			Assert.fail("No exception is thrown when mandatroy field is missed");
 		}catch(RestException ex)
@@ -482,7 +487,7 @@ public class TFExtensionValues extends TFBase
 		//test passing invalid boolean value
 		try
 		{
-			updateEmployee(customer2, fieldMap2, empId2, "emp3Updated", 300, 
+			updateEmployee(customer2, fieldMap2, empId2, emp2.getVersion(), "emp3Updated", 300, 
 					"field1", "trueSD", "field2", "12/11/2015", "field3", "str1", "field4", "dfdf\ndffd");
 		}catch(RestException ex)
 		{
@@ -494,7 +499,7 @@ public class TFExtensionValues extends TFBase
 		//test passing invalid date value
 		try
 		{
-			updateEmployee(customer2, fieldMap2, empId2, "emp3Updated", 300, 
+			updateEmployee(customer2, fieldMap2, empId2, emp2.getVersion(), "emp3Updated", 300, 
 					"field1", "true", "field2", "12/qwes/2015", "field3", "str1", "field4", "dfdf\ndffd");
 		}catch(RestException ex)
 		{
@@ -506,7 +511,7 @@ public class TFExtensionValues extends TFBase
 		//test passing long string value specified
 		try
 		{
-			updateEmployee(customer2, fieldMap2, empId2, "emp3Updated", 300, 
+			updateEmployee(customer2, fieldMap2, empId2, emp2.getVersion(), "emp3Updated", 300, 
 					"field1", "true", "field2", "12/10/2015", "field3", "1234567890123", "field4", "dfdf\ndffd");
 		}catch(RestException ex)
 		{
@@ -518,7 +523,7 @@ public class TFExtensionValues extends TFBase
 		//test passing long multi-line string value specified
 		try
 		{
-			updateEmployee(customer2, fieldMap2, empId2, "emp3Updated", 300, 
+			updateEmployee(customer2, fieldMap2, empId2, emp2.getVersion(), "emp3Updated", 300, 
 					"field1", "true", "field2", "12/10/2015", "field3", "1234", "field4", "1234567890123");
 		}catch(RestException ex)
 		{

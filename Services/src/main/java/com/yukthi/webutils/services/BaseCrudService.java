@@ -109,6 +109,9 @@ public abstract class BaseCrudService<E extends IEntity, R extends ICrudReposito
 			{
 				userService.populateTrackingFieldForCreate((ITrackedEntity)entity);
 			}
+			
+			//set the default version
+			entity.setVersion(1);
 
 			repository.save(entity);
 			
@@ -133,6 +136,8 @@ public abstract class BaseCrudService<E extends IEntity, R extends ICrudReposito
 	 */
 	public void update(E entity, IExtendableModel extendedFieldsModel)
 	{
+		WebUtils.validateEntityForUpdate(entity);
+		
 		try(ITransaction transaction = repository.newOrExistingTransaction())
 		{
 			logger.trace("Trying to update entity - {}", entity);

@@ -30,6 +30,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Version;
 
 import com.yukthi.persistence.annotations.DataType;
 import com.yukthi.persistence.annotations.DataTypeMapping;
@@ -54,6 +55,13 @@ public class ExtensionEntity implements ITrackedEntity
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "ID")
 	private Long id;
+	
+	/**
+	 * Version of the entity
+	 */
+	@Column(name = "VERSION")
+	@Version
+	private Integer version;
 	
 	/**
 	 * Name of the target entity for which this extended field is defined
@@ -338,5 +346,21 @@ public class ExtensionEntity implements ITrackedEntity
 	public void setUpdatedBy(Long updatedBy)
 	{
 		this.updatedBy = updatedBy;
+	}
+
+	/* (non-Javadoc)
+	 * @see com.yukthi.webutils.IEntity#getVersion()
+	 */
+	public Integer getVersion()
+	{
+		return version;
+	}
+
+	/* (non-Javadoc)
+	 * @see com.yukthi.webutils.IEntity#setVersion(java.lang.Integer)
+	 */
+	public void setVersion(Integer version)
+	{
+		this.version = version;
 	}
 }

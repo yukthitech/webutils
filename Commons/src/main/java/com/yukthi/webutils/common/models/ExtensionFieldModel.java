@@ -50,6 +50,11 @@ public class ExtensionFieldModel
 	 * Primary key of the entity
 	 */
 	private long id;
+	
+	/**
+	 * Version of the entity
+	 */
+	private Integer version;
 
 	/**
 	 * Name of the field
@@ -292,6 +297,26 @@ public class ExtensionFieldModel
 	{
 		this.maxLength = maxLength;
 	}
+	
+	/**
+	 * Gets the version of the entity.
+	 *
+	 * @return the version of the entity
+	 */
+	public Integer getVersion()
+	{
+		return version;
+	}
+
+	/**
+	 * Sets the version of the entity.
+	 *
+	 * @param version the new version of the entity
+	 */
+	public void setVersion(Integer version)
+	{
+		this.version = version;
+	}
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
@@ -304,6 +329,7 @@ public class ExtensionFieldModel
 
 		builder.append("Name: ").append(name);
 		builder.append(",").append("Id: ").append(id);
+		builder.append(",").append("Version: ").append(version);
 		builder.append(",").append("Description: ").append(description);
 		builder.append(",").append("Type: ").append(type);
 		builder.append(",").append("Required: ").append(required);

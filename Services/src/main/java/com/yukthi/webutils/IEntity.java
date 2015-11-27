@@ -35,4 +35,16 @@ public interface IEntity
 	 * @return Entity id
 	 */
 	public Long getId();
+	
+	/**
+	 * Gets the current version of the entity
+	 * @return Current version of entity
+	 */
+	public Integer getVersion();
+	
+	/**
+	 * Sets the version of the entity
+	 * @param version Version of entity
+	 */
+	public void setVersion(Integer version);
 }

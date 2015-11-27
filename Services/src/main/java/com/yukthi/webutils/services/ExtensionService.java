@@ -56,6 +56,7 @@ import com.yukthi.webutils.repository.ExtensionFieldValueEntity;
 import com.yukthi.webutils.repository.IExtensionFieldRepository;
 import com.yukthi.webutils.repository.IExtensionFieldValueRepository;
 import com.yukthi.webutils.repository.IExtensionRepository;
+import com.yukthi.webutils.utils.WebUtils;
 
 /**
  * Service related to extensions, fields and values
@@ -191,6 +192,9 @@ public class ExtensionService
 
 		userService.populateTrackingFieldForCreate(extension);
 		
+		//set default version
+		extension.setVersion(1);
+		
 		if(!extensionRepository.save(extension))
 		{
 			throw new ServiceException("Failed to save extension - {}", extension);
@@ -224,6 +228,9 @@ public class ExtensionService
 		
 		userService.populateTrackingFieldForCreate(extensionFieldEntity);
 		
+		//set default version
+		extensionFieldEntity.setVersion(1);
+		
 		if(!extensionFieldRepository.save(extensionFieldEntity))
 		{
 			throw new ServiceException("Failed to save extension field entity.");
@@ -239,6 +246,8 @@ public class ExtensionService
 	public void updateExtensionField(long extensionId, ExtensionFieldEntity extensionFieldEntity)
 	{
 		logger.trace("Updating extension field for extension - {}", extensionId);
+		
+		WebUtils.validateEntityForUpdate(extensionFieldEntity);
 		
 		extensionFieldEntity.setExtension(new ExtensionEntity(extensionId));
 
@@ -317,6 +326,9 @@ public class ExtensionService
 	{
 		userService.populateTrackingFieldForCreate(valueEntity);
 		
+		//set default version
+		valueEntity.setVersion(1);
+		
 		if(!extensionFieldValueRepository.save(valueEntity))
 		{
 			throw new InvalidStateException("Failed to save extension field value - {}", valueEntity);
@@ -329,6 +341,9 @@ public class ExtensionService
 	 */
 	public void updateExtensionValue(ExtensionFieldValueEntity valueEntity)
 	{
+		//validate entity for update
+		WebUtils.validateEntityForUpdate(valueEntity);
+		
 		userService.populateTrackingFieldForUpdate(valueEntity);
 		
 		if(!extensionFieldValueRepository.update(valueEntity))
@@ -382,6 +397,8 @@ public class ExtensionService
 				if(valueEntity != null)
 				{
 					persistingEntity = new ExtensionFieldValueEntity(valueEntity.getId(), new ExtensionFieldEntity(fieldId), entityId, extendedValues.get(fieldId));
+					persistingEntity.setVersion(valueEntity.getVersion());
+					
 					userService.populateTrackingFieldForUpdate(persistingEntity);
 					
 					updateExtensionValue(persistingEntity);
