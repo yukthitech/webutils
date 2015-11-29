@@ -15,6 +15,7 @@ var LOOP_CONTROL_BREAK = "BREAK";
 var LOOP_CONTROL_CONTINUE = "CONTINUE";
 var BREAK_CONTROL_EXCEPTION = {"loopControl": true, "controlType": LOOP_CONTROL_BREAK};
 var CONTINUE_CONTROL_EXCEPTION = {"loopControl": true, "controlType": LOOP_CONTROL_CONTINUE};
+var RETURN_CONTROL_EXCEPTION = {"loopControl": false, "controlType": "RETURN"};
 
 function TemplateEngine()
 {
@@ -44,7 +45,11 @@ function TemplateEngine()
 			
 			//process target template and append to output
 			var res = this.templateEngine.processTemplate(context, name);
-			currentContext["$res"] += res;
+			
+			if(res)
+			{
+				currentContext["$res"] += res;
+			}
 			
 			//revert to actual context
 			this.templateEngine.templateContext = currentContext;
@@ -261,6 +266,16 @@ function TemplateEngine()
 		throw CONTINUE_CONTROL_EXCEPTION;
 	};
 	
+	this.controlNodes['return'] = [];
+	this.controlNodes['return'][PROCESS_FUNC] = function(elem, attrVals, processChildren, templateContext){
+		throw RETURN_CONTROL_EXCEPTION;
+	};
+	
+	this.controlNodes['log'] = [];
+	this.controlNodes['log'][PROCESS_FUNC] = function(elem, attrVals, processChildren, templateContext){
+		console.log(parseExpressions(elem.text(), templateContext));
+	};
+
 	this.controlNodes['set-var'] = ['name', 'expr'];
 	this.controlNodes['set-var'][PROCESS_FUNC] = function(elem, attrVals, processChildren, templateContext){
 		var name = attrVals["name"];
@@ -308,8 +323,12 @@ function TemplateEngine()
 		//if result var is not defined
 		else
 		{
-			//append the result to template result
-			templateContext["$res"] += exprVal;
+			//if expression resulted in value, append it to output
+			if(exprVal)
+			{
+				//append the result to template result
+				templateContext["$res"] += exprVal;
+			}
 		}
 	};
 	
@@ -383,6 +402,11 @@ function TemplateEngine()
 			return this.processTemplateContents(context, children, targetSelector);
 		}catch(ex)
 		{
+			if(ex == RETURN_CONTROL_EXCEPTION)
+			{
+				return;
+			}
+			
 			console.error("An error occurred while processing template: " + templateName);
 			console.error(ex);
 			
@@ -506,12 +530,12 @@ function parseExpressions(template, params, throwError){
 		return "";
 	}
 	
-	var fullPattern = /^\$\{([\w\-\.\(\)\,]+\$?)\}$/;
+	var fullPattern = /^\$\{([\w\-\.\(\)\,\'\"\$\[\]]+)\}$/;
 	var res = null;
 
 	//Define parse function
 	var parseExpresion = function(expression){
-		var stringExpr = (expression.indexOf("$") > 0);
+		var stringExpr = (expression.lastIndexOf("$") == (expression.length - 1));
 		expression = stringExpr? expression.substr(0, expression.length - 1) : expression;
 		
 		//set var context so that it is available in eval expressions
@@ -547,7 +571,7 @@ function parseExpressions(template, params, throwError){
 	
 	params[PARSE_RESULT] = PARSE_RESULT_STRING;
 	
-	var pattern = /\$\{([\w\-\.\[\]\(\)\,\/\"\'\<\>]+\$?)\}/g;
+	var pattern = /\$\{([\w\-\.\[\]\(\)\,\/\"\'\<\>\$\[\]]+)\}/g;
 	res = template.replace(pattern, function(match, p1){
 		var val = parseExpresion(p1);
 		

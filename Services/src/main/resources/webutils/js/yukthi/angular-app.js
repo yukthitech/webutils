@@ -1,5 +1,15 @@
-$.application = angular.module("application", ["ngSanitize"]);
+$.application = angular.module("application", ["ngSanitize", "ui.router"]);
 $.application["directiveTemplateEngine"] = new TemplateEngine();
+
+
+$.application.controller('mainController', ["$scope", "$rootScope", function($scope, $rootScope) {
+	$rootScope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState, fromParams)
+	{
+		console.log('Moved to state - ' + toState.name + ". Activating tab - " + toState.tab);
+		$("#" + toState.tab + "_tab").tab("show");
+	});
+}]);
+
 
 /*
  * Function to define custom angular element directive
@@ -12,6 +22,8 @@ $.addElementDirective = function(directiveObj) {
 		var directive = {};
 
 		directive.restrict = 'E'; /* restrict this directive to elements */
+		
+		directive.priority = 1005;
 
 		directive.compile =  $.proxy(function($element, attributes) {
 			//if mandatory attr is specified for tag
@@ -43,6 +55,31 @@ $.addElementDirective = function(directiveObj) {
 						},
 						"bodyAsHtml" : function() {
 							return this.element.html();
+						},
+						"flexAttr" : function(name) {
+							var attrVal = this.element.attr(name);
+							
+							if(!attrVal || attrVal.length <= 0)
+							{
+								attrVal = this.element.find(name).html();
+							}
+							
+							if(!attrVal)
+							{
+								return "";
+							}
+							
+							return attrVal;
+						},
+						"attr" : function(name, defVal, elem) {
+							if(!elem)
+							{
+								elem = this.element;
+							}
+							
+							var attrVal = elem.attr(name);
+							
+							return (!attrVal || attrVal.length == 0) ? defVal : attrVal;
 						}
 					};
 					
@@ -233,3 +270,28 @@ $.loadCustomDirectives = function(templateFilePath) {
 	
 };
 
+/*
+ * Load the custom directive templates at starting
+ */
+function init()
+{
+	if(!$.appConfiguration)
+	{
+		console.error("No appliation configuration is defined.");
+		return;
+	}
+	
+	//Load templates
+	var templateFiles = $.appConfiguration.templates;
+
+	if(templateFiles)
+	{
+		for(var i = 0; i < templateFiles.length; i++)
+		{
+			console.log("Loading template file - " + templateFiles[i]);
+			$.loadCustomDirectives(templateFiles[i]);
+		}
+	}
+};
+
+init();

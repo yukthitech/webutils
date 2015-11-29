@@ -7,8 +7,8 @@
 			<set-var name="_nameAttr" expr="context.attributes.name ? context.attributes.name : (context.attributes.model ? context.attributes.model : '')"/>
 			
 			<div class="form-group">
-				<label for="${_nameAttr}" class="col-md-3 control-label">${attributes.label}</label>
-				<div class="col-md-9" style="padding-left: 0.5em;">
+				<label for="${_nameAttr}" class="col-md-4 control-label">${attributes.label}</label>
+				<div class="col-md-8" style="padding-left: 0.5em;">
 					<input type="${_typeAttr}" class="form-control" 
 						id="${_idAttr}" name="${_nameAttr}" 
 						placeholder="${attributes.label}" ng-model="${_modelAttr}"/>
@@ -54,6 +54,119 @@
 		</content>
 	</directive>
 	
+	<directive name="ykDropDown" required-attr="id, icon">
+		<content>
+			<set-var name="_label" expr="context.flexAttr('label')"/>
+			<set-var name="_header" expr="context.flexAttr('header')"/>
+			<set-var name="_footer" expr="context.flexAttr('footer')"/>
+			<set-var name="_content" expr="context.element.find('content').html()"/>
+			
+			<div class="dropdown" style="display: inline;">
+				<a id="${attributes.id}" style="text-decoration: none;" data-target="#" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+					<i class="glyphicon appIcon ${attributes.icon}" style="color: ${attr('icon-color','')};font-weight: bold;" aria-hidden="true"></i>
+					${_label}
+				</a>
+				
+				<div id="${attributes.id}-dropdown" class="dropdown-menu dropdown-menu-right" aria-labelledby="${attributes.id}">
+					<if test="context._header.length > 0">
+						<div class="yk-dropdown-header">
+							${_header}
+						</div>
+					</if>
+					${_content}
+					<if test="context._footer.length > 0">
+						<div class="yk-dropdown-footer">
+							${_footer}
+						</div>
+					</if>
+				</div>
+			</div>
+
+		</content>
+	</directive>
+
+	<directive name="ykTabs">
+
+		<content>
+			<set-var name="_tabs" expr="context.element.find('tab')"/>
+			
+			<set-var name="_footer" expr="context.flexAttr('footer')"/>
+			<set-var name="_content" expr="context.element.find('content').html()"/>
+			
+			<div>
+				<!-- Nav tabs -->
+				<ul class="nav nav-tabs" role="tablist">
+					<for-each data="${_tabs}" loop-var="tab" index-var="tabIdx">
+						<set-var name="_tab" expr="$(context.tab)"/>
+						<set-var name="_tabId" expr="context._tab.attr('id')"/>
+						<set-var name="_tabActive" expr="context.tabIdx == 0 ? 'active' : ''"/>
+						
+						<li role="presentation" class="${_tabActive}">
+							<a id="${_tabId}_tab" ui-sref="${_tab.attr('state')}" href="#${_tabId}" onfocus="blur()" data-target="#${_tabId}" data-toggle="tab">
+								<if test="context.attr('icon', null, context._tab)">
+									<i class="glyphicon appIcon ${_tab.attr('icon')}" style="color: ${attr('icon-color', '', context._tab)};font-weight: bold;" aria-hidden="true"></i>
+								</if>
+								${_tab.attr('label')}
+							</a>
+						</li>
+					</for-each>
+				</ul>
+			
+				<!-- Tab panes -->
+				<div class="tab-content">
+					<for-each data="${_tabs}" loop-var="tab" index-var="tabIdx">
+						<set-var name="_tab" expr="$(context.tab)"/>
+						<set-var name="_tabActive" expr="context.tabIdx == 0 ? 'active' : ''"/>
+						<set-var name="_tabContent" expr="context._tab.html()"/>
+						
+						<div role="tabpanel" class="tab-pane ${_tabActive}" id="${_tab.attr('id')}" ui-view="${_tab.attr('view')}" style="padding: 0.5em;">
+							${_tabContent}
+						</div>
+
+					</for-each>
+				</div>
+			</div>
+		</content>
+	</directive>
+
+
+	<directive name="ykNavTree">
+		<content>
+			<exe-script>
+				context.executeTemplate({
+					"parent" : context.element
+				}, "processTreeItems");
+			</exe-script>
+		</content>
+	</directive>
+	
+	<template name="processTreeItems">
+		<set-var name="_items" expr="context.parent.children('tree-item')"/>
+		
+		<if test="context._items.length &lt;= 0">
+			<return/>
+		</if>
+		
+		<ul class="yk-nav-list">
+			<for-each data="${_items}" loop-var="item" index-var="itemIdx">
+				<set-var name="_item" expr="$(context.item)"/>
+				
+				<li role="presentation">
+					<a id="${_item.attr('id')}" ui-sref="${_item.attr('state')}">
+						${_item.attr('label')}
+					</a>
+		
+					<exe-script>
+						context.executeTemplate({
+							"parent" : context._item
+						}, "processTreeItems");
+					</exe-script>
+				</li>
+			</for-each>
+		</ul>
+	</template>
+	
+
 	<attr-directive name="ykHideFrom">
 		<script>
 			var hideFrom = context.attributeValue;
@@ -83,4 +196,77 @@
             context.element.attr("class", curCssClasses);
 		</script>
 	</attr-directive>
+	
+	<!--
+		Adds ng-repeat with same expression as this attribute value. In some cases ng-repeat may get compiled into a comment which 
+		may get removed during directive processing. In order to retain ng-repeat this attribute directive can be used  
+	 -->
+	<attr-directive name="ykRepeat">
+		<script>
+			var repeatExpr = context.attributeValue;
+			context.element.attr("ng-repeat", repeatExpr);
+		</script>
+	</attr-directive>
+
+	<attr-directive name="ykRepeatStart">
+		<script>
+			var repeatExpr = context.attributeValue;
+			context.element.attr("ng-repeat-start", repeatExpr);
+		</script>
+	</attr-directive>
+
+	<attr-directive name="ykRepeatEnd">
+		<script>
+			var repeatExpr = context.attributeValue;
+			context.element.attr("ng-repeat-end", "");
+		</script>
+	</attr-directive>
+
+	<attr-directive name="ykFullHeight">
+		<script>
+		
+			var viewportHeight;
+			var viewportWidth;
+			
+			if (document.compatMode === 'BackCompat') 
+			{
+			    viewportHeight = document.body.clientHeight;
+			    viewportWidth = document.body.clientWidth;
+			} 
+			else 
+			{
+			    viewportHeight = document.documentElement.clientHeight;
+			    viewportWidth = document.documentElement.clientWidth;
+			}
+		
+		
+			var attrVal = context.attributeValue;
+			var top = context.element.offset().top;
+			var docHeight = 0;
+			
+			if(attrVal == 'document')
+			{
+				docHeight = viewportHeight;
+			}
+			else
+			{
+				docHeight = $(context.element.parent()).height();
+			}
+			
+			var currentStyle = context.element.attr("style");
+			
+			if(currentStyle &amp;&amp; currentStyle.length > 0)
+			{
+				currentStyle += ";";
+			}
+			else
+			{
+				currentStyle = "";
+			}
+			
+			context.element.attr("style",  currentStyle + "height : " + (docHeight - top) + "px;");
+		</script>
+	</attr-directive>
+
+
 </directives>
