@@ -96,6 +96,17 @@ $.application.factory('clientContext', function()
 	{
 		clientContext.authToken = tokenFromStorage;
 	}
+	else
+	{
+		var currentLocation = window.location.pathname;
+		console.log("Found location '" + currentLocation + "' usage without auth-token");
+		debugger;
+		
+		if(currentLocation != $.appConfiguration.loginPageUrl)
+		{
+			window.location.href = $.appConfiguration.loginPageUrl;
+		}
+	}
 		
 	return clientContext;
 });
