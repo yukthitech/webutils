@@ -56,14 +56,14 @@ public interface ITrackedEntity extends IEntity
 	 *
 	 * @return the created By
 	 */
-	public Long getCreatedBy();
+	public UserEntity getCreatedBy();
 	
 	/**
 	 * Sets the created By.
 	 *
 	 * @param createdBy the new created By
 	 */
-	public void setCreatedBy(Long createdBy);
+	public void setCreatedBy(UserEntity createdBy);
 
 	/**
 	 * Gets the created on date.
@@ -84,12 +84,12 @@ public interface ITrackedEntity extends IEntity
 	 *
 	 * @return the created By
 	 */
-	public Long getUpdatedBy();
+	public UserEntity getUpdatedBy();
 
 	/**
 	 * Sets the created By.
 	 *
 	 * @param updatedBy the new created By
 	 */
-	public void setUpdatedBy(Long updatedBy);
+	public void setUpdatedBy(UserEntity updatedBy);
 }

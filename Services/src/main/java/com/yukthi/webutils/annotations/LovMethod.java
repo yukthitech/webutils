@@ -21,58 +21,24 @@
  * SOFTWARE.
  */
 
-package com.yukthi.webutils.security;
+package com.yukthi.webutils.annotations;
 
-import com.yukthi.utils.MessageFormatter;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * Exception to be thrown in case of security problems. Support var args format
+ * Used to mark a service method as LOV provider
  * @author akiran
  */
-public class SecurityException extends RuntimeException
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface LovMethod
 {
-	/** The Constant serialVersionUID. */
-	private static final long serialVersionUID = 1L;
-
 	/**
-	 * Response error code
+	 * Name of the LOV to be used by client
+	 * @return Name of the LOV to be used by client
 	 */
-	private int statusCode;
-	
-	/**
-	 * Instantiates a new security exception.
-	 *
-	 * @param statusCode Status code
-	 * @param cause the cause
-	 * @param message the message
-	 * @param args the args
-	 */
-	public SecurityException(int statusCode, Throwable cause, String message, Object... args)
-	{
-		super(MessageFormatter.format(message, args), cause);
-		this.statusCode = statusCode;
-	}
-
-	/**
-	 * Instantiates a new security exception.
-	 *
-	 * @param statusCode Status code
-	 * @param message the message
-	 * @param args the args
-	 */
-	public SecurityException(int statusCode, String message, Object... args)
-	{
-		super(MessageFormatter.format(message, args));
-		this.statusCode = statusCode;
-	}
-	
-	/**
-	 * Gets the response error code.
-	 *
-	 * @return the response error code
-	 */
-	public int getStatusCode()
-	{
-		return statusCode;
-	}
+	public String name();
 }

@@ -34,6 +34,7 @@ import org.springframework.stereotype.Service;
 
 import com.yukthi.webutils.IWebUtilsInternalConstants;
 import com.yukthi.webutils.repository.ITrackedEntity;
+import com.yukthi.webutils.repository.UserEntity;
 import com.yukthi.webutils.security.UserDetails;
 
 /**
@@ -86,8 +87,8 @@ public class CurrentUserService
 		
 		//set user fields
 		long userId = userDetails.getUserId();
-		trackedEntity.setCreatedBy(userId);
-		trackedEntity.setUpdatedBy(userId);
+		trackedEntity.setCreatedBy(new UserEntity(userId));
+		trackedEntity.setUpdatedBy(new UserEntity(userId));
 	}
 
 	/**
@@ -111,6 +112,6 @@ public class CurrentUserService
 		
 		//set user fields
 		long userId = userDetails.getUserId();
-		trackedEntity.setUpdatedBy(userId);
+		trackedEntity.setUpdatedBy(new UserEntity(userId));
 	}
 }

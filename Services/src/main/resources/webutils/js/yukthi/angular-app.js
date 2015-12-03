@@ -16,14 +16,14 @@ $.application.controller('mainController', ["$scope", "$rootScope", function($sc
  */
 $.addElementDirective = function(directiveObj) {
 	
-	console.log("Adding custom directive - " + directiveObj.name);
+	console.log("Adding custom directive - '" + directiveObj.name + "' with priority - " + directiveObj.priority);
 
-	$.application.directive(directiveObj.name, function($compile) {
+	$.application.directive(directiveObj.name, ['$compile', 'actionHelper', function($compile, actionHelper) {
 		var directive = {};
 
 		directive.restrict = 'E'; /* restrict this directive to elements */
 		
-		directive.priority = 1005;
+		directive.priority = this.priority;
 
 		directive.compile =  $.proxy(function($element, attributes) {
 			//if mandatory attr is specified for tag
@@ -44,14 +44,8 @@ $.addElementDirective = function(directiveObj) {
 						"attributes": attributes,
 						"$scope": $scope,
 						"element": $($element[0]),
-						"invokeAction": function(actionName, type) {
-							
-							if(!type)
-							{
-								type = 'json';
-							}
-							
-							return $.makeJsonCall(actionName, null, {cache: false, dataType: type, "methodType": "GET"});
+						"invokeAction": function(actionName, requestEntity, params) {
+							return actionHelper.invokeAction(actionName, requestEntity, params);
 						},
 						"bodyAsHtml" : function() {
 							return this.element.html();
@@ -80,16 +74,26 @@ $.addElementDirective = function(directiveObj) {
 							var attrVal = elem.attr(name);
 							
 							return (!attrVal || attrVal.length == 0) ? defVal : attrVal;
+						},
+						"log": function(mssg) {
+							console.log(mssg);
 						}
 					};
-					
-				var html = $.application["directiveTemplateEngine"].processTemplate(context, $element[0].localName);
-				var e = $compile(html)($scope);
-				$element.replaceWith(e);
-				
-				if(this.postScript)
+
+				try
 				{
-					this.postScript(context);
+					var html = $.application["directiveTemplateEngine"].processTemplate(context, $element[0].localName);
+					var e = $compile(html)($scope);
+					$element.replaceWith(e);
+				
+					if(this.postScript)
+					{
+						this.postScript(context);
+					}
+				}catch(ex)
+				{
+					console.error("An error occurred while processing directive - " + $element[0].localName);
+					console.error(ex);
 				}
 			}, this);
 			
@@ -98,40 +102,7 @@ $.addElementDirective = function(directiveObj) {
 			
 
 		return directive;
-	});
-
-
-	/*
-	directive.link = $.proxy(function($scope, $element, attributes) {
-		var context = {
-			"attributes": attributes,
-			"$scope": $scope,
-			"element": $($element[0]),
-			"invokeAction": function(actionName, type) {
-				
-				if(!type)
-				{
-					type = 'json';
-				}
-				
-				return $.makeJsonCall(actionName, null, {cache: false, dataType: type, "methodType": "GET"});
-			},
-			"bodyAsHtml" : function() {
-				return this.element.html();
-			}
-		};
-		
-		var html = $.application["directiveTemplateEngine"].processTemplate(context, $element[0].localName);
-		var e = $compile(html)($scope);
-		$element.replaceWith(e);
-		
-		if(this.postScript)
-		{
-			this.postScript(context);
-		}
-		
-    }, directiveObj);
-    */
+	}]);
 };
 
 /*
@@ -139,9 +110,9 @@ $.addElementDirective = function(directiveObj) {
  */
 $.addAttributeDirective = function(directiveObj) {
 	
-	console.log("Adding custom attribute directive - " + directiveObj.name);
+	console.log("Adding custom attribute directive - '" + directiveObj.name + "' with priority - " + directiveObj.priority);
 
-	$.application.directive(directiveObj.name, function($compile) {
+	$.application.directive(directiveObj.name, ['$compile', 'actionHelper', function($compile, actionHelper) {
 		var directive = {};
 
 		directive.restrict = 'A'; /* restrict this directive to attributes */
@@ -157,14 +128,8 @@ $.addAttributeDirective = function(directiveObj) {
 				"$scope": $scope,
 				"element": element,
 				"attributeValue" : attrValue,
-				"invokeAction": function(actionName, type) {
-					
-					if(!type)
-					{
-						type = 'json';
-					}
-					
-					return $.makeJsonCall(actionName, null, {cache: false, dataType: type, "methodType": "GET"});
+				"invokeAction": function(actionName, requestEntity, params) {
+					return actionHelper.invokeAction(actionName, requestEntity, params);
 				},
 				"bodyAsHtml" : function() {
 					return this.element.html();
@@ -177,12 +142,17 @@ $.addAttributeDirective = function(directiveObj) {
 			//eval directive script
 			this.scriptFunc(context);
 			
+			if(this.recompile)
+			{
+				$compile(element.contents())($scope);
+			}
+			
 			//IMP NOTE: Done do anything here as eval() can have return statement (and if it does this part will never
 					//gets executed) 
         }, directiveObj);
 
 		return directive;
-	});
+	}]);
 };
 
 /*
@@ -196,6 +166,7 @@ $.loadCustomDirectives = function(templateFilePath) {
 	var CAP_PATTERN = /([A-Z])/g;
 	var child = null, contentChild = null, scriptChild= null;
 	var postScript = null;
+	var priority = null;
 	
 	for(var i = 0; i < children.length; i++)
 	{
@@ -204,6 +175,10 @@ $.loadCustomDirectives = function(templateFilePath) {
 			child = $(children[i]);
 			childName = child.attr("name");
 			requiredAttr = child.attr("required-attr");
+			
+			priority = child.attr("priority");
+			priority = priority ? parseInt(priority) : 1005;
+			
 			
 			if(requiredAttr && requiredAttr.length > 0)
 			{
@@ -236,7 +211,8 @@ $.loadCustomDirectives = function(templateFilePath) {
 				name : childName,
 				postScript: scriptFunc,
 				tagName: tagName,
-				requiredAttr: requiredAttr
+				requiredAttr: requiredAttr,
+				priority: priority
 			});
 		}
 
@@ -248,6 +224,9 @@ $.loadCustomDirectives = function(templateFilePath) {
 			tagName = childName.replace(CAP_PATTERN, '-$1');
 			tagName = tagName.toLowerCase();
 			
+			priority = child.attr("priority");
+			priority = priority ? parseInt(priority) : 1005;
+
 			scriptChild = child.find("script").first();
 			
 			//create dynamic function with name scriptFunc which has code from template
@@ -256,7 +235,9 @@ $.loadCustomDirectives = function(templateFilePath) {
 			$.addAttributeDirective({
 				name : childName,
 				scriptFunc: scriptFunc,
-				attrName: tagName
+				attrName: tagName,
+				"recompile" : (child.attr("recompile") == "true") ? true : false,
+				priority: priority
 			});
 		}
 

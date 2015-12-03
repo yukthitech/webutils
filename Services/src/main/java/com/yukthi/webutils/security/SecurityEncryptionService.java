@@ -35,6 +35,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yukthi.utils.CryptoUtils;
 import com.yukthi.utils.exceptions.InvalidStateException;
 import com.yukthi.webutils.WebutilsConfiguration;
+import com.yukthi.webutils.common.IWebUtilsCommonConstants;
 import com.yukthi.webutils.utils.WebUtils;
 
 /**
@@ -112,7 +113,7 @@ public class SecurityEncryptionService
 		if(!tokenMatcher.matches())
 		{
 			logger.debug("Invalid auth token. No hyphen (-) found");
-			throw new SecurityException("Invalid security token encountered");
+			throw new SecurityException(IWebUtilsCommonConstants.RESPONSE_CODE_AUTHENTICATION_ERROR, "Invalid security token encountered");
 		}
 		
 		String time = tokenMatcher.group(1);
@@ -127,7 +128,7 @@ public class SecurityEncryptionService
 		}catch(Exception ex)
 		{
 			logger.debug("Invalid auth token. Failed to deserialize user details.");
-			throw new SecurityException("Invalid security token encountered");
+			throw new SecurityException(IWebUtilsCommonConstants.RESPONSE_CODE_AUTHENTICATION_ERROR, "Invalid security token encountered");
 		}
 		
 		//ensure time stamp is proper (which ensures token is not malformed)
@@ -136,7 +137,7 @@ public class SecurityEncryptionService
 		if(!time.equals("" + reqTime))
 		{
 			logger.debug("Invalid auth token. Time stamp did not match");
-			throw new SecurityException("Malformed security token encountered");
+			throw new SecurityException(IWebUtilsCommonConstants.RESPONSE_CODE_AUTHENTICATION_ERROR, "Malformed security token encountered");
 		}
 		
 		//get current time in minutes and ensure token is not time out
@@ -148,7 +149,7 @@ public class SecurityEncryptionService
 		if(diff > sessionTimeoutTime)
 		{
 			logger.debug("Invalid auth token. Session timed out.");
-			throw new SecurityException("Session timed out");
+			throw new SecurityException(IWebUtilsCommonConstants.RESPONSE_CODE_SESSION_TIMEOUT_ERROR, "Session timed out");
 		}
 
 		//if session expire time is specified
@@ -161,7 +162,7 @@ public class SecurityEncryptionService
 			if(sessionDuration > sessionExpiryTime)
 			{
 				logger.debug("Invalid auth token. Session expired.");
-				throw new SecurityException("Session expired");
+				throw new SecurityException(IWebUtilsCommonConstants.RESPONSE_CODE_SESSION_TIMEOUT_ERROR, "Session expired");
 			}
 		}
 		

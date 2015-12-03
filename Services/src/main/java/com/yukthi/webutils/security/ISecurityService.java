@@ -25,8 +25,10 @@ package com.yukthi.webutils.security;
 
 import java.lang.reflect.Method;
 
+import com.yukthi.webutils.extensions.ExtensionPointDetails;
+
 /**
- * Authentication service to be provided by the webapplication to authenticate and authorize
+ * Authentication service to be provided by the web-application to authenticate and authorize
  * the users.
  * @author akiran
  */
@@ -49,4 +51,12 @@ public interface ISecurityService
 	 * @return True, if user is authorized to invoke the method
 	 */
 	public boolean isAuthorized(UserDetails userDetails, Method method);
+	
+	/**
+	 * Invoked to check if specified extension can be accessed by specified user
+	 * @param userDetails Current user details
+	 * @param extensionPoint Extension point details
+	 * @return true if specified user is authorized to access specified extension
+	 */
+	public boolean isExtensionAuthorized(UserDetails userDetails, ExtensionPointDetails extensionPoint);
 }

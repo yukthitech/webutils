@@ -34,13 +34,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
+import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 
@@ -50,6 +53,7 @@ import com.yukthi.utils.exceptions.InvalidStateException;
 import com.yukthi.webutils.IRepositoryMethodRegistry;
 import com.yukthi.webutils.IWebUtilsInternalConstants;
 import com.yukthi.webutils.InvalidRequestParameterException;
+import com.yukthi.webutils.annotations.LovMethod;
 import com.yukthi.webutils.annotations.LovQuery;
 import com.yukthi.webutils.common.annotations.Label;
 import com.yukthi.webutils.common.models.ValueLabel;
@@ -86,11 +90,58 @@ public class LovService implements IRepositoryMethodRegistry<LovQuery>
 	 */
 	@Autowired
 	private HttpServletRequest request;
+	
+	@Autowired
+	private ApplicationContext applicationContext;
+
+	@Autowired
+	private ClassScannerService classScannerService;
 
 	/**
 	 * LOV method details cache
 	 */
 	private Map<String, DynamicMethod> nameToLovMet = new HashMap<>();
+	
+	@PostConstruct
+	private void init()
+	{
+		Set<Method> lovMethods = classScannerService.getMethodsAnnotatedWith(LovMethod.class);
+		LovMethod lovMethod = null;
+		DynamicMethod dynamicMethod = null;
+		String name = null;
+		Object springComponent = null;
+		
+		//loop through all registered services
+		for(Method method: lovMethods)
+		{
+			springComponent = applicationContext.getBean(method.getDeclaringClass());
+			
+			if(springComponent == null)
+			{
+				logger.info("Ignoring lov-method {}.{}() as the declaring class instance is not present in spring scope", method.getDeclaringClass().getName(), method.getName());
+				continue;
+			}
+			
+			lovMethod = method.getAnnotation(LovMethod.class);
+				
+			if(method.getParameterTypes().length > 0)
+			{
+				throw new InvalidConfigurationException("Non zero parameter method is declared as LOV method - {}.{}()", method.getDeclaringClass().getName(), method.getName());
+			}
+				
+			name = lovMethod.name();
+			
+			dynamicMethod = new DynamicMethod(method.getDeclaringClass(), method, null);
+			dynamicMethod.setDefaultObject(springComponent);
+			
+			if(nameToLovMet.containsKey(name))
+			{
+				throw new InvalidConfigurationException("Duplicate lov found with same name - {}, {}", nameToLovMet.get(name), dynamicMethod);
+			}
+			
+			nameToLovMet.put(name, dynamicMethod);
+		}
+	}
 	
 	/* (non-Javadoc)
 	 * @see com.yukthi.webutils.IRepositoryMethodRegistry#registerRepositoryMethod(java.lang.reflect.Method, java.lang.annotation.Annotation)

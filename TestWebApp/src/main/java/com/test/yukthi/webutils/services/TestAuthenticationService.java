@@ -32,6 +32,7 @@ import com.test.yukthi.webutils.Authorization;
 import com.test.yukthi.webutils.SecurityRole;
 import com.test.yukthi.webutils.TestUserDetails;
 import com.yukthi.utils.CommonUtils;
+import com.yukthi.webutils.extensions.ExtensionPointDetails;
 import com.yukthi.webutils.security.ISecurityService;
 import com.yukthi.webutils.security.UserDetails;
 
@@ -84,6 +85,15 @@ public class TestAuthenticationService implements ISecurityService
 		
 		//if user does not have any of required roles
 		return false;
+	}
+
+	/* (non-Javadoc)
+	 * @see com.yukthi.webutils.security.ISecurityService#isExtensionAuthorized(com.yukthi.webutils.security.UserDetails, com.yukthi.webutils.extensions.ExtensionPointDetails)
+	 */
+	@Override
+	public boolean isExtensionAuthorized(UserDetails userDetails, ExtensionPointDetails extensionPoint)
+	{
+		return true;
 	}
 	
 }

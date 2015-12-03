@@ -23,6 +23,7 @@
 package com.yukthi.webutils.services;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -33,6 +34,7 @@ import javax.annotation.PostConstruct;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.reflections.Reflections;
+import org.reflections.scanners.MethodAnnotationsScanner;
 import org.reflections.scanners.SubTypesScanner;
 import org.reflections.scanners.TypeAnnotationsScanner;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,7 +92,7 @@ public class ClassScannerService
 		for(String pack: packages)
 		{
 			logger.debug("Enabling class scanning service for base package - '{}'", pack);
-			reflections.add(new Reflections(pack, new TypeAnnotationsScanner(), new SubTypesScanner()));
+			reflections.add(new Reflections(pack, new TypeAnnotationsScanner(), new SubTypesScanner(), new MethodAnnotationsScanner()));
 		}
 	}
 
@@ -149,5 +151,33 @@ public class ClassScannerService
 		
 		return result;
 	}
-	
+
+	/**
+	 * Fetches methods with specified annotation
+	 * @param type Annotation type
+	 * @return Set of methods having specified annotation
+	 */
+	public Set<Method> getMethodsAnnotatedWith(Class<? extends Annotation> type)
+	{
+		Set<Method> result = new HashSet<>();
+		Set<Method> methods = null;
+		
+		//loop through reflection object of each base package
+		for(Reflections reflection: reflections)
+		{
+			//find the methods for current base package
+			methods = reflection.getMethodsAnnotatedWith(type);
+			
+			if(methods == null)
+			{
+				continue;
+			}
+			
+			//add to final result
+			result.addAll(methods);
+		}
+		
+		return result;
+	}
 }
+ 

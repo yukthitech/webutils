@@ -28,6 +28,11 @@ import java.util.List;
 import com.yukthi.persistence.ICrudRepository;
 import com.yukthi.persistence.repository.annotations.Condition;
 import com.yukthi.persistence.repository.annotations.Field;
+import com.yukthi.persistence.repository.annotations.OrderBy;
+import com.yukthi.persistence.repository.search.SearchQuery;
+import com.yukthi.webutils.annotations.SearchQueryMethod;
+import com.yukthi.webutils.common.extensions.ExtensionFieldSearchQuery;
+import com.yukthi.webutils.common.extensions.ExtensionFieldSearchResult;
 
 /**
  * Repository for entity extension fields
@@ -54,4 +59,9 @@ public interface IExtensionFieldRepository extends ICrudRepository<ExtensionFiel
 	 * Deletes all extension fields of all owners
 	 */
 	public void deleteAll();
+	
+	@SearchQueryMethod(name = "extensionFieldSearch", queryModel = ExtensionFieldSearchQuery.class)
+	@OrderBy("name")
+	public List<ExtensionFieldSearchResult> findEmployees(SearchQuery searchQuery);
+
 }

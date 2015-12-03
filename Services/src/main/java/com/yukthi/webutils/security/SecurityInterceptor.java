@@ -130,7 +130,7 @@ public class SecurityInterceptor extends HandlerInterceptorAdapter
 		{
 			logger.error("Failed to parse token", ex);
 			
-			sendError(response, IWebUtilsCommonConstants.RESPONSE_CODE_AUTHENTICATION_ERROR, "Authorization failed. " + ex.getMessage());
+			sendError(response, ex.getStatusCode(), "Authorization failed. " + ex.getMessage());
 			return null;
 		}
 	}

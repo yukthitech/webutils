@@ -101,6 +101,10 @@ public class RepositoryLoader
 		
 		ICrudRepository<?> repository = null;
 		
+		logger.debug("*******************************************************************");
+		logger.debug("Repository loading started..............");
+		logger.debug("*******************************************************************");
+		
 		for(Class<?> type: repos)
 		{
 			if(!loadExtensions && type.getName().startsWith(IWebUtilsInternalConstants.EXTENSIONS_REPO_BASE_PACKAGE))
@@ -114,6 +118,10 @@ public class RepositoryLoader
 			repository = repositoryFactory.getRepository((Class)type);
 			registerDynamicMethods(type, repository, dynAnnotLst);
 		}
+		
+		logger.debug("*******************************************************************");
+		logger.debug("Repository loading completed");
+		logger.debug("*******************************************************************");
 	}
 	
 	/**

@@ -33,6 +33,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
+import com.yukthi.persistence.annotations.DataType;
+import com.yukthi.persistence.annotations.DataTypeMapping;
 import com.yukthi.persistence.annotations.DeleteWithParent;
 import com.yukthi.persistence.annotations.UniqueConstraint;
 import com.yukthi.persistence.annotations.UniqueConstraints;
@@ -85,28 +87,32 @@ public class ExtensionFieldValueEntity implements ITrackedEntity
 	
 	
 	/**
-	 * Created on date
+	 * Created by user
+	 */
+	@ManyToOne
+	@Column(name = "CREATED_BY_ID")
+	private UserEntity createdBy;
+	
+	/**
+	 * Created on time
 	 */
 	@Column(name = "CREATED_ON")
-	private Date createdOn = new Date();
-	
+	@DataTypeMapping(type = DataType.DATE_TIME)
+	private Date createdOn;
+
 	/**
-	 * Created By
+	 * Updating user
 	 */
-	@Column(name = "CREATED_BY")
-	private Long createdBy;
+	@ManyToOne
+	@Column(name = "UPDATED_BY_ID")
+	private UserEntity updatedBy;
 	
 	/**
-	 * Created on date
+	 * Updated on
 	 */
 	@Column(name = "UPDATED_ON")
-	private Date updatedOn = new Date();
-	
-	/**
-	 * Created By
-	 */
-	@Column(name = "UPDATED_BY")
-	private Long updatedBy;
+	@DataTypeMapping(type = DataType.DATE_TIME)
+	private Date updatedOn;
 	
 	/**
 	 * Instantiates a new extension field value entity.
@@ -209,7 +215,39 @@ public class ExtensionFieldValueEntity implements ITrackedEntity
 	{
 		this.value = value;
 	}
+
+	/* (non-Javadoc)
+	 * @see com.yukthi.webutils.IEntity#getVersion()
+	 */
+	public Integer getVersion()
+	{
+		return version;
+	}
+
+	/* (non-Javadoc)
+	 * @see com.yukthi.webutils.IEntity#setVersion(java.lang.Integer)
+	 */
+	public void setVersion(Integer version)
+	{
+		this.version = version;
+	}
 	
+	/* (non-Javadoc)
+	 * @see com.yukthi.webutils.repository.ITrackedEntity#getCreatedBy()
+	 */
+	public UserEntity getCreatedBy()
+	{
+		return createdBy;
+	}
+
+	/* (non-Javadoc)
+	 * @see com.yukthi.webutils.repository.ITrackedEntity#setCreatedBy(com.yukthi.webutils.repository.UserEntity)
+	 */
+	public void setCreatedBy(UserEntity createdBy)
+	{
+		this.createdBy = createdBy;
+	}
+
 	/* (non-Javadoc)
 	 * @see com.yukthi.webutils.repository.ITrackedEntity#getCreatedOn()
 	 */
@@ -227,19 +265,19 @@ public class ExtensionFieldValueEntity implements ITrackedEntity
 	}
 
 	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.repository.ITrackedEntity#getCreatedBy()
+	 * @see com.yukthi.webutils.repository.ITrackedEntity#getUpdatedBy()
 	 */
-	public Long getCreatedBy()
+	public UserEntity getUpdatedBy()
 	{
-		return createdBy;
+		return updatedBy;
 	}
 
 	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.repository.ITrackedEntity#setCreatedBy(long)
+	 * @see com.yukthi.webutils.repository.ITrackedEntity#setUpdatedBy(com.yukthi.webutils.repository.UserEntity)
 	 */
-	public void setCreatedBy(Long createdBy)
+	public void setUpdatedBy(UserEntity updatedBy)
 	{
-		this.createdBy = createdBy;
+		this.updatedBy = updatedBy;
 	}
 
 	/* (non-Javadoc)
@@ -256,38 +294,6 @@ public class ExtensionFieldValueEntity implements ITrackedEntity
 	public void setUpdatedOn(Date updatedOn)
 	{
 		this.updatedOn = updatedOn;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.repository.ITrackedEntity#getUpdatedBy()
-	 */
-	public Long getUpdatedBy()
-	{
-		return updatedBy;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.repository.ITrackedEntity#setUpdatedBy(long)
-	 */
-	public void setUpdatedBy(Long updatedBy)
-	{
-		this.updatedBy = updatedBy;
-	}
-	
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.IEntity#getVersion()
-	 */
-	public Integer getVersion()
-	{
-		return version;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.IEntity#setVersion(java.lang.Integer)
-	 */
-	public void setVersion(Integer version)
-	{
-		this.version = version;
 	}
 
 	/* (non-Javadoc)

@@ -30,12 +30,14 @@ import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
 import com.yukthi.persistence.annotations.DataType;
 import com.yukthi.persistence.annotations.DataTypeMapping;
 import com.yukthi.webutils.repository.ITrackedEntity;
+import com.yukthi.webutils.repository.UserEntity;
 
 /**
  * Entity to store files
@@ -99,16 +101,32 @@ public class FileEntity implements ITrackedEntity
 	private long usedByEntityId;
 
 	/**
-	 * Created on date
+	 * Created by user
 	 */
-	@Column(name = "CREATED_ON")
-	private Date createdOn = new Date();
+	@ManyToOne
+	@Column(name = "CREATED_BY_ID")
+	private UserEntity createdBy;
 	
 	/**
-	 * Created By
+	 * Created on time
 	 */
-	@Column(name = "CREATED_BY")
-	private Long createdBy;
+	@Column(name = "CREATED_ON")
+	@DataTypeMapping(type = DataType.DATE_TIME)
+	private Date createdOn;
+
+	/**
+	 * Updating user
+	 */
+	@ManyToOne
+	@Column(name = "UPDATED_BY_ID")
+	private UserEntity updatedBy;
+	
+	/**
+	 * Updated on
+	 */
+	@Column(name = "UPDATED_ON")
+	@DataTypeMapping(type = DataType.DATE_TIME)
+	private Date updatedOn;
 
 	/**
 	 * Gets the primary key of the entity.
@@ -190,68 +208,6 @@ public class FileEntity implements ITrackedEntity
 		this.sizeInMb = sizeInMb;
 	}
 
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.repository.ITrackedEntity#getCreatedOn()
-	 */
-	public Date getCreatedOn()
-	{
-		return createdOn;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.repository.ITrackedEntity#setCreatedOn(java.util.Date)
-	 */
-	public void setCreatedOn(Date createdOn)
-	{
-		this.createdOn = createdOn;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.repository.ITrackedEntity#getCreatedBy()
-	 */
-	public Long getCreatedBy()
-	{
-		return createdBy;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.repository.ITrackedEntity#setCreatedBy(long)
-	 */
-	public void setCreatedBy(Long createdBy)
-	{
-		this.createdBy = createdBy;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.repository.ITrackedEntity#getUpdatedOn()
-	 */
-	public Date getUpdatedOn()
-	{
-		return createdOn;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.repository.ITrackedEntity#setUpdatedOn(java.util.Date)
-	 */
-	public void setUpdatedOn(Date updatedOn)
-	{
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.repository.ITrackedEntity#getUpdatedBy()
-	 */
-	public Long getUpdatedBy()
-	{
-		return createdBy;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.repository.ITrackedEntity#setUpdatedBy(long)
-	 */
-	public void setUpdatedBy(Long updatedBy)
-	{
-	}
-
 	/**
 	 * Gets the type of entity using this file.
 	 *
@@ -326,6 +282,70 @@ public class FileEntity implements ITrackedEntity
 	public void setVersion(Integer version)
 	{
 		this.version = version;
+	}
+
+	/* (non-Javadoc)
+	 * @see com.yukthi.webutils.repository.ITrackedEntity#getCreatedBy()
+	 */
+	public UserEntity getCreatedBy()
+	{
+		return createdBy;
+	}
+
+	/* (non-Javadoc)
+	 * @see com.yukthi.webutils.repository.ITrackedEntity#setCreatedBy(com.yukthi.webutils.repository.UserEntity)
+	 */
+	public void setCreatedBy(UserEntity createdBy)
+	{
+		this.createdBy = createdBy;
+	}
+
+	/* (non-Javadoc)
+	 * @see com.yukthi.webutils.repository.ITrackedEntity#getCreatedOn()
+	 */
+	public Date getCreatedOn()
+	{
+		return createdOn;
+	}
+
+	/* (non-Javadoc)
+	 * @see com.yukthi.webutils.repository.ITrackedEntity#setCreatedOn(java.util.Date)
+	 */
+	public void setCreatedOn(Date createdOn)
+	{
+		this.createdOn = createdOn;
+	}
+
+	/* (non-Javadoc)
+	 * @see com.yukthi.webutils.repository.ITrackedEntity#getUpdatedBy()
+	 */
+	public UserEntity getUpdatedBy()
+	{
+		return updatedBy;
+	}
+
+	/* (non-Javadoc)
+	 * @see com.yukthi.webutils.repository.ITrackedEntity#setUpdatedBy(com.yukthi.webutils.repository.UserEntity)
+	 */
+	public void setUpdatedBy(UserEntity updatedBy)
+	{
+		this.updatedBy = updatedBy;
+	}
+
+	/* (non-Javadoc)
+	 * @see com.yukthi.webutils.repository.ITrackedEntity#getUpdatedOn()
+	 */
+	public Date getUpdatedOn()
+	{
+		return updatedOn;
+	}
+
+	/* (non-Javadoc)
+	 * @see com.yukthi.webutils.repository.ITrackedEntity#setUpdatedOn(java.util.Date)
+	 */
+	public void setUpdatedOn(Date updatedOn)
+	{
+		this.updatedOn = updatedOn;
 	}
 
 	

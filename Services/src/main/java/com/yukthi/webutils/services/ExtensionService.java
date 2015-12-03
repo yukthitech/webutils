@@ -23,6 +23,7 @@
 
 package com.yukthi.webutils.services;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -47,7 +48,9 @@ import com.yukthi.utils.exceptions.InvalidStateException;
 import com.yukthi.webutils.ServiceException;
 import com.yukthi.webutils.annotations.ExtendableEntity;
 import com.yukthi.webutils.annotations.ExtensionOwner;
+import com.yukthi.webutils.annotations.LovMethod;
 import com.yukthi.webutils.common.IExtendableModel;
+import com.yukthi.webutils.common.extensions.LovOption;
 import com.yukthi.webutils.controllers.ExtensionUtil;
 import com.yukthi.webutils.extensions.ExtensionPointDetails;
 import com.yukthi.webutils.repository.ExtensionEntity;
@@ -56,6 +59,7 @@ import com.yukthi.webutils.repository.ExtensionFieldValueEntity;
 import com.yukthi.webutils.repository.IExtensionFieldRepository;
 import com.yukthi.webutils.repository.IExtensionFieldValueRepository;
 import com.yukthi.webutils.repository.IExtensionRepository;
+import com.yukthi.webutils.security.ISecurityService;
 import com.yukthi.webutils.utils.WebUtils;
 
 /**
@@ -81,6 +85,9 @@ public class ExtensionService
 	
 	@Autowired
 	private CurrentUserService userService;
+	
+	@Autowired
+	private ISecurityService securityService;
 
 	private Map<String, ExtensionPointDetails> nameToExtension = new HashMap<>();
 	
@@ -108,6 +115,29 @@ public class ExtensionService
 			extendableEntity = type.getAnnotation(ExtendableEntity.class);
 			nameToExtension.put(extendableEntity.name(), new ExtensionPointDetails(extendableEntity.name(), type));
 		}
+	}
+	
+	/**
+	 * Fetches extensions as LOV list. This method returns extensions which are current user
+	 * is authorized for.
+	 * @return Extensions as lov list
+	 */
+	@LovMethod(name = "extensionLov")
+	public List<LovOption> getExtensionList()
+	{
+		List<LovOption> filteredExtensions = new ArrayList<>(nameToExtension.size());
+		
+		//loop through extensions
+		for(ExtensionPointDetails extPoint : this.nameToExtension.values())
+		{
+			//if current user has access to current extension
+			if(securityService.isExtensionAuthorized(userService.getCurrentUserDetails(), extPoint))
+			{
+				filteredExtensions.add(new LovOption(extPoint.getName(), extPoint.getEntityType().getName()));
+			}
+		}
+		
+		return filteredExtensions;
 	}
 	
 	/**

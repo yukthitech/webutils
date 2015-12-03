@@ -165,7 +165,227 @@
 			</for-each>
 		</ul>
 	</template>
+
+	<directive name="ykSearchQuery" required-attr="id, name, title">
+		<content>
+			<exe-script var="_tmp">
+				var response = null;
+				var name = context.attr("name");
+				try
+				{
+					response = context.invokeAction("search.fetch.queryDef", null, {"name" : name});
+				}catch(ex)
+				{
+					console.error("Invalid search query name specified - " + name);
+					console.error(ex);
+					
+					throw "Invalid search query name specified - " + name;
+				}
+				
+				if(!response.modelDef)
+				{
+					console.error("Failed to fetch search query def from server - " + name);
+					throw "Invalid search query name specified - " + name;
+				}
+
+				context["searchModel"] = response.modelDef;
+				
+				context["rowRestartHtml"] = "&lt;/div&gt;&lt;div class=\"row\" style=\"padding-bottom: 0.5em\" &gt;" ;
+			</exe-script>
+			
+			<div class="panel panel-default" ng-controller="searchQueryController">
+				<div class="panel-heading" style="padding: 0.3em 1em; font-weight: bold;">
+					${attr('title')}
+				</div>
+
+				<div class="panel-body"  yk-model="${searchModel.name}">
+					<form>
+						<div class="row" style="padding-bottom: 0.5em">
+							<for-each data="${searchModel.fields}" loop-var="field" index-var="idx">
+								<if test="context.idx != 0 &amp;&amp; (context.idx % 3) == 0">
+									${rowRestartHtml}
+								</if>
+								
+								<div class="col-md-4 col-xs-12" style="padding-bottom: 0.2em;">
+									<model-field name="${field.name}" modelobj="searchQuery"></model-field>
+								</div>
+							</for-each>
+						</div>
+						
+						<div class="row" style="text-align: right; padding-right: 2em;">
+							<input type="submit" value="Search" class="btn btn-primary" style="font-weight: bold;" yk-click="performSearch($event)"/>
+						</div>
+					</form>
+				</div>
+			</div>
+
+			<div class="panel panel-default" ng-controller="searchQueryController">
+				<div class="panel-heading" style="padding: 0.3em 1em; font-weight: bold;">
+					${attr('title')} - Results
+				</div>
+
+				<div class="panel-body"  yk-model="${searchModel.name}">
+				</div>
+			</div>
+
+		</content>
+	</directive>
+
+	<!-- 
+		Fetches the specified model from the server and its as modelDef attribute to current 
+		$scope. Which in turn can be used by yk-model-field
+	 -->
+	<attr-directive name="ykModel" recompile="true">
+		<script>
+			var modelName = context.attributeValue;
+			var modelDefResponse = context.invokeAction('modelDef.fetch', null, {"name": modelName});
+			
+			if(!modelDefResponse || !modelDefResponse.modelDef)
+			{
+				throw "Invalid model name specified - " + modelName;
+			}
+
+			var modelDef = modelDefResponse.modelDef;
+			
+			modelDef.fieldMap = {};
+			
+			for(var i = 0; i &lt; modelDef.fields.length; i++)
+			{
+				modelDef.fieldMap[ modelDef.fields[i].name ] = modelDef.fields[i];
+			}
+			
+			context["$scope"].modelDef = modelDef;
+			
+			context.element.find("model-field").each(function(idx){
+				var element = $(this);
+				var name = element.attr("name");
+				var modelobj = element.attr("modelobj");
+				
+				if(!modelobj)
+				{
+					modelobj = "";
+				}
+				
+				element.replaceWith("&lt;yk-model-field name=\"" + name + "\"  modelobj=\"" + modelobj + "\"  &gt; &lt;/yk-model-field&gt;");
+			});
+		</script>
+	</attr-directive>
+
+	<directive name="ykModelField" required-attr="name">
+		<content>
+			<exe-script var="_tmp">
+				var modelDef = context["$scope"].modelDef;
+				var name = context.attr('name');
+				
+				if(!modelDef)
+				{
+					throw "No model is defined for yk-model-field with name - " + name;
+				}
+				
+				var fieldDef = modelDef.fieldMap[name];
+				
+				if(!fieldDef)
+				{
+					throw "Invalid field name specified under yk-model-field. No field with name '" + name + "' exists under model - " + modelDef.name;
+				}
+				
+				var modelPrefix = context.attr('modelobj');
+				
+				if(modelPrefix &amp;&amp; modelPrefix.length &gt; 0)
+				{
+					context["modelField"] = modelPrefix + "." + name;
+				}
+				else
+				{
+					context["modelField"] = name;
+				}
+				
+				context["fieldDef"] = fieldDef;
+			</exe-script>
+			<div class="row">
+				<div class="col-md-6" yk-hide-from="sm">
+					${fieldDef.label}
+				</div>
+				<div  class="col-md-6">
+					<if test="context.fieldDef.fieldType == 'STRING'">
+						<input type="text" name="${fieldDef.name}" placeholder="${fieldDef.label}" ng-model="${modelField}"></input>
+					</if>
+					<else-if test="context.fieldDef.fieldType == 'MULTI_LINE_STRING'">
+						<textarea name="${fieldDef.name}" placeholder="${fieldDef.label}" ng-model="${modelField}"></textarea>
+					</else-if>
+					<else-if test="context.fieldDef.fieldType == 'INTEGER'">
+						<input type="number" name="${fieldDef.name}" placeholder="${fieldDef.label}" ng-model="${modelField}"></input>
+					</else-if>
+					<else-if test="context.fieldDef.fieldType == 'FLOAT'">
+						<input type="number" name="${fieldDef.name}" placeholder="${fieldDef.label}" ng-model="${modelField}"></input>
+					</else-if>
+					<else-if test="context.fieldDef.fieldType == 'BOOLEAN'">
+						<select name="${fieldDef.name}" ng-model="${modelField}">
+							<option value="" disabled="" selected=""> -- Select ${fieldDef.label} -- </option>
+							<option value="true">True</option>
+							<option value="false">False</option>
+						</select>
+					</else-if>
+					<else-if test="context.fieldDef.fieldType == 'DATE'">
+						<input type="date" name="${fieldDef.name}" placeholder="${fieldDef.label}" ng-model="${modelField}"></input>
+					</else-if>
+					<else-if test="context.fieldDef.fieldType == 'LIST_OF_VALUES'">
+						<yk-lov-field name="${fieldDef.name}" label="${fieldDef.label}" lov="${fieldDef.lovDetails.lovName}" 
+									type="${fieldDef.lovDetails.lovType}" model="${modelField}"></yk-lov-field> 
+					</else-if>
+					<else-if test="context.fieldDef.fieldType == 'FILE'">
+						<input type="text" name="${fieldDef.name}" placeholder="${fieldDef.label}" ng-model="${modelField}"></input>
+					</else-if>
+					<else>
+						<exe-script var="_tmp1">
+							throw "Unsupported field type encountered - " + context.fieldDef.fieldType;
+						</exe-script>
+					</else>
+				</div>
+			</div>
+		</content>
+	</directive>
 	
+	<directive name="ykLovField" required-attr="name, label, lov, type">
+		<content>
+			<exe-script var="_tmp">
+				var modelDef = context["$scope"].modelDef;
+				var lovName = context.attr('lov');
+				var type = context.attr('type');
+				var model = context.attr('model');
+
+				if(!model || model.length &gt;= 0)
+				{
+					context["modelField"] = model; 
+				}
+				else
+				{
+					context["modelField"] = context.attr('name');
+				}
+				
+				type = (type == "static" || type == "STATIC_TYPE")? "STATIC_TYPE" : "DYNAMIC_TYPE";
+				
+				var lovResponse = context.invokeAction('lov.fetch', null, {"name": lovName, "type": type});
+				
+				if(!lovResponse || !lovResponse.lovList)
+				{
+					throw "Invalid lov name specified - " + lovName;
+				}
+	
+				var lovList = lovResponse.lovList;
+				
+				context["lovList"] = lovList;
+			</exe-script>
+			
+			<select name="${attr('name')}"  ng-model="${modelField}">
+				<option value="" disabled="" selected=""> -- Select ${attr('label')} -- </option>
+				
+				<for-each data="${lovList}" loop-var="lov" index-var="idx">
+					<option value="${lov.value}">${lov.label}</option>
+				</for-each>
+			</select>
+		</content>
+	</directive>
 
 	<attr-directive name="ykHideFrom">
 		<script>
@@ -196,7 +416,7 @@
             context.element.attr("class", curCssClasses);
 		</script>
 	</attr-directive>
-	
+
 	<!--
 		Adds ng-repeat with same expression as this attribute value. In some cases ng-repeat may get compiled into a comment which 
 		may get removed during directive processing. In order to retain ng-repeat this attribute directive can be used  
@@ -212,6 +432,13 @@
 		<script>
 			var repeatExpr = context.attributeValue;
 			context.element.attr("ng-repeat-start", repeatExpr);
+		</script>
+	</attr-directive>
+
+	<attr-directive name="ykClick">
+		<script>
+			var repeatExpr = context.attributeValue;
+			context.element.attr("ng-click", repeatExpr);
 		</script>
 	</attr-directive>
 

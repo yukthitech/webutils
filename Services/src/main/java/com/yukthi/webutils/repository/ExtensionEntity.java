@@ -29,6 +29,7 @@ import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
@@ -93,30 +94,34 @@ public class ExtensionEntity implements ITrackedEntity
 	@Column(name = "CUSTOM_ATTR", length = 2000)
 	@DataTypeMapping(type = DataType.STRING, converterType = JsonConverter.class)
 	private Object attributes;
+
+	/**
+	 * Created by user
+	 */
+	@ManyToOne
+	@Column(name = "CREATED_BY_ID")
+	private UserEntity createdBy;
 	
 	/**
-	 * Created on date
+	 * Created on time
 	 */
 	@Column(name = "CREATED_ON")
-	private Date createdOn = new Date();
-	
+	@DataTypeMapping(type = DataType.DATE_TIME)
+	private Date createdOn;
+
 	/**
-	 * Created By
+	 * Updating user
 	 */
-	@Column(name = "CREATED_BY")
-	private Long createdBy;
+	@ManyToOne
+	@Column(name = "UPDATED_BY_ID")
+	private UserEntity updatedBy;
 	
 	/**
-	 * Created on date
+	 * Updated on
 	 */
 	@Column(name = "UPDATED_ON")
-	private Date updatedOn = new Date();
-	
-	/**
-	 * Created By
-	 */
-	@Column(name = "UPDATED_BY")
-	private Long updatedBy;
+	@DataTypeMapping(type = DataType.DATE_TIME)
+	private Date updatedOn;
 
 	/**
 	 * Instantiates a new extension entity.
@@ -268,86 +273,6 @@ public class ExtensionEntity implements ITrackedEntity
 		this.attributes = attributes;
 	}
 
-	/**
-	 * Gets the created on date.
-	 *
-	 * @return the created on date
-	 */
-	public Date getCreatedOn()
-	{
-		return createdOn;
-	}
-
-	/**
-	 * Sets the created on date.
-	 *
-	 * @param createdOn the new created on date
-	 */
-	public void setCreatedOn(Date createdOn)
-	{
-		this.createdOn = createdOn;
-	}
-
-	/**
-	 * Gets the created By.
-	 *
-	 * @return the created By
-	 */
-	public Long getCreatedBy()
-	{
-		return createdBy;
-	}
-
-	/**
-	 * Sets the created By.
-	 *
-	 * @param createdBy the new created By
-	 */
-	public void setCreatedBy(Long createdBy)
-	{
-		this.createdBy = createdBy;
-	}
-
-	/**
-	 * Gets the created on date.
-	 *
-	 * @return the created on date
-	 */
-	public Date getUpdatedOn()
-	{
-		return updatedOn;
-	}
-
-	/**
-	 * Sets the created on date.
-	 *
-	 * @param updatedOn the new created on date
-	 */
-	public void setUpdatedOn(Date updatedOn)
-	{
-		this.updatedOn = updatedOn;
-	}
-
-	/**
-	 * Gets the created By.
-	 *
-	 * @return the created By
-	 */
-	public Long getUpdatedBy()
-	{
-		return updatedBy;
-	}
-
-	/**
-	 * Sets the created By.
-	 *
-	 * @param updatedBy the new created By
-	 */
-	public void setUpdatedBy(Long updatedBy)
-	{
-		this.updatedBy = updatedBy;
-	}
-
 	/* (non-Javadoc)
 	 * @see com.yukthi.webutils.IEntity#getVersion()
 	 */
@@ -363,4 +288,70 @@ public class ExtensionEntity implements ITrackedEntity
 	{
 		this.version = version;
 	}
+
+	/* (non-Javadoc)
+	 * @see com.yukthi.webutils.repository.ITrackedEntity#getCreatedBy()
+	 */
+	public UserEntity getCreatedBy()
+	{
+		return createdBy;
+	}
+
+	/* (non-Javadoc)
+	 * @see com.yukthi.webutils.repository.ITrackedEntity#setCreatedBy(com.yukthi.webutils.repository.UserEntity)
+	 */
+	public void setCreatedBy(UserEntity createdBy)
+	{
+		this.createdBy = createdBy;
+	}
+
+	/* (non-Javadoc)
+	 * @see com.yukthi.webutils.repository.ITrackedEntity#getCreatedOn()
+	 */
+	public Date getCreatedOn()
+	{
+		return createdOn;
+	}
+
+	/* (non-Javadoc)
+	 * @see com.yukthi.webutils.repository.ITrackedEntity#setCreatedOn(java.util.Date)
+	 */
+	public void setCreatedOn(Date createdOn)
+	{
+		this.createdOn = createdOn;
+	}
+
+	/* (non-Javadoc)
+	 * @see com.yukthi.webutils.repository.ITrackedEntity#getUpdatedBy()
+	 */
+	public UserEntity getUpdatedBy()
+	{
+		return updatedBy;
+	}
+
+	/* (non-Javadoc)
+	 * @see com.yukthi.webutils.repository.ITrackedEntity#setUpdatedBy(com.yukthi.webutils.repository.UserEntity)
+	 */
+	public void setUpdatedBy(UserEntity updatedBy)
+	{
+		this.updatedBy = updatedBy;
+	}
+
+	/* (non-Javadoc)
+	 * @see com.yukthi.webutils.repository.ITrackedEntity#getUpdatedOn()
+	 */
+	public Date getUpdatedOn()
+	{
+		return updatedOn;
+	}
+
+	/* (non-Javadoc)
+	 * @see com.yukthi.webutils.repository.ITrackedEntity#setUpdatedOn(java.util.Date)
+	 */
+	public void setUpdatedOn(Date updatedOn)
+	{
+		this.updatedOn = updatedOn;
+	}
+
+	
 }

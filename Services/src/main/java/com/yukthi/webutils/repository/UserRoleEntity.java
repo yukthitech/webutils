@@ -20,8 +20,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
-package com.test.yukthi.webutils.entity;
+package com.yukthi.webutils.repository;
 
 import java.util.Date;
 
@@ -35,42 +34,59 @@ import javax.persistence.Version;
 
 import com.yukthi.persistence.annotations.DataType;
 import com.yukthi.persistence.annotations.DataTypeMapping;
-import com.yukthi.webutils.annotations.ExtendableEntity;
-import com.yukthi.webutils.repository.ITrackedEntity;
-import com.yukthi.webutils.repository.UserEntity;
+import com.yukthi.persistence.annotations.UniqueConstraint;
+import com.yukthi.persistence.annotations.UniqueConstraints;
+import com.yukthi.persistence.conversion.impl.JsonConverter;
 
 /**
- * Test entity
+ * Represents roles assigned to an user
  * 
  * @author akiran
  */
-@ExtendableEntity(name = "Employee")
-@Table(name = "EMP")
-public class EmployeeEntity implements ITrackedEntity
+@Table(name = "USER_ROLES")
+@UniqueConstraints({
+	@UniqueConstraint(name = "UQ_UROLE_ROLE", fields = {"user", "role", "ownerType", "ownerId"})
+})
+public class UserRoleEntity implements ITrackedEntity
 {
 	/**
-	 * Employee id
+	 * Primary key
 	 */
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "ID")
 	private Long id;
-
+	
 	/** The version. */
 	@Version
-	private Integer version;
-	
-	/**
-	 * Name of the employee
-	 */
-	@Column(name = "NAME")
-	private String name;
+	@Column(name = "VERSION", nullable = false)
+	private Integer version = 1;
 
 	/**
-	 * Salary of the employee
+	 * User for which role is being added
 	 */
-	@Column(name = "SALARY")
-	private long salary;
+	@ManyToOne
+	@Column(name = "USER_ID", nullable = false)
+	private UserEntity user;
+	
+	/**
+	 * Role being assigned
+	 */
+	@DataTypeMapping(type = DataType.STRING, converterType = JsonConverter.class)
+	@Column(name = "ROLE", nullable = false, length = 500)
+	private Object role;
+	
+	/**
+	 * Owner type under which this this role is being assigned. For global roles assign Object.class.getName()
+	 */
+	@Column(name = "OWNER_TYPE", nullable = false)
+	private String ownerType;
+	
+	/**
+	 * Owner id under which this role is being assigned. For global roles this can be zero 
+	 */
+	@Column(name = "OWNER_ID", nullable = false)
+	private Long ownerId = 0L;
 	
 	/**
 	 * Created by user
@@ -90,7 +106,7 @@ public class EmployeeEntity implements ITrackedEntity
 	 * Updating user
 	 */
 	@ManyToOne
-	@Column(name = "CREATED_BY_ID")
+	@Column(name = "UPDATED_BY_ID")
 	private UserEntity updatedBy;
 	
 	/**
@@ -99,24 +115,6 @@ public class EmployeeEntity implements ITrackedEntity
 	@Column(name = "UPDATED_ON")
 	@DataTypeMapping(type = DataType.DATE_TIME)
 	private Date updatedOn;
-
-	/**
-	 * Instantiates a new employee entity.
-	 */
-	public EmployeeEntity()
-	{}
-
-	/**
-	 * Instantiates a new employee entity.
-	 *
-	 * @param name the name
-	 * @param salary the salary
-	 */
-	public EmployeeEntity(String name, long salary)
-	{
-		this.name = name;
-		this.salary = salary;
-	}
 
 	/* (non-Javadoc)
 	 * @see com.yukthi.webutils.IEntity#getId()
@@ -127,9 +125,9 @@ public class EmployeeEntity implements ITrackedEntity
 	}
 
 	/**
-	 * Sets the employee id.
+	 * Sets the primary key.
 	 *
-	 * @param id the new employee id
+	 * @param id the new primary key
 	 */
 	public void setId(Long id)
 	{
@@ -137,48 +135,89 @@ public class EmployeeEntity implements ITrackedEntity
 	}
 
 	/**
-	 * Gets the name of the employee.
+	 * Gets the user for which role is being added.
 	 *
-	 * @return the name of the employee
+	 * @return the user for which role is being added
 	 */
-	public String getName()
+	public UserEntity getUser()
 	{
-		return name;
+		return user;
 	}
 
 	/**
-	 * Sets the name of the employee.
+	 * Sets the user for which role is being added.
 	 *
-	 * @param name the new name of the employee
+	 * @param user the new user for which role is being added
 	 */
-	public void setName(String name)
+	public void setUser(UserEntity user)
 	{
-		this.name = name;
+		this.user = user;
 	}
 
 	/**
-	 * Gets the salary of the employee.
+	 * Gets the role being assigned.
 	 *
-	 * @return the salary of the employee
+	 * @return the role being assigned
 	 */
-	public long getSalary()
+	public Object getRole()
 	{
-		return salary;
+		return role;
 	}
 
 	/**
-	 * Sets the salary of the employee.
+	 * Sets the role being assigned.
 	 *
-	 * @param salary the new salary of the employee
+	 * @param role the new role being assigned
 	 */
-	public void setSalary(long salary)
+	public void setRole(Object role)
 	{
-		this.salary = salary;
+		this.role = role;
+	}
+
+	/**
+	 * Gets the owner type under which this this role is being assigned. For global roles assign Object.class.getName().
+	 *
+	 * @return the owner type under which this this role is being assigned
+	 */
+	public String getOwnerType()
+	{
+		return ownerType;
+	}
+
+	/**
+	 * Sets the owner type under which this this role is being assigned. For global roles assign Object.class.getName().
+	 *
+	 * @param ownerType the new owner type under which this this role is being assigned
+	 */
+	public void setOwnerType(String ownerType)
+	{
+		this.ownerType = ownerType;
+	}
+
+	/**
+	 * Gets the owner id under which this role is being assigned. For global roles this can be zero.
+	 *
+	 * @return the owner id under which this role is being assigned
+	 */
+	public Long getOwnerId()
+	{
+		return ownerId;
+	}
+
+	/**
+	 * Sets the owner id under which this role is being assigned. For global roles this can be zero.
+	 *
+	 * @param ownerId the new owner id under which this role is being assigned
+	 */
+	public void setOwnerId(Long ownerId)
+	{
+		this.ownerId = ownerId;
 	}
 
 	/* (non-Javadoc)
 	 * @see com.yukthi.webutils.IEntity#getVersion()
 	 */
+	@Override
 	public Integer getVersion()
 	{
 		return version;
@@ -187,6 +226,7 @@ public class EmployeeEntity implements ITrackedEntity
 	/* (non-Javadoc)
 	 * @see com.yukthi.webutils.IEntity#setVersion(java.lang.Integer)
 	 */
+	@Override
 	public void setVersion(Integer version)
 	{
 		this.version = version;
@@ -255,7 +295,6 @@ public class EmployeeEntity implements ITrackedEntity
 	{
 		this.updatedOn = updatedOn;
 	}
-	
 	
 	
 }

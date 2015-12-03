@@ -58,7 +58,12 @@ public interface IWebUtilsCommonConstants
 	public int RESPONSE_CODE_AUTHORIZATION_ERROR = 4402;
 
 	/**
-	 * Request/response header that will hold authroization token
+	 * Response code to be used when session is timed out or expired
+	 */
+	public int RESPONSE_CODE_SESSION_TIMEOUT_ERROR = 4403;
+
+	/**
+	 * Request/response header that will hold authorization token
 	 */
 	public String HEADER_AUTHORIZATION_TOKEN = "AUTH_TOKEN";
 	

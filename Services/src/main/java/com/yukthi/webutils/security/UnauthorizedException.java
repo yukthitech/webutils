@@ -23,6 +23,8 @@
 
 package com.yukthi.webutils.security;
 
+import com.yukthi.webutils.common.IWebUtilsCommonConstants;
+
 /**
  * Exception to be thrown when current user is not authorized to perform current operation
  * @author akiran
@@ -41,7 +43,7 @@ public class UnauthorizedException extends SecurityException
 	 */
 	public UnauthorizedException(Throwable cause, String message, Object... args)
 	{
-		super(cause, message, args);
+		super(IWebUtilsCommonConstants.RESPONSE_CODE_AUTHENTICATION_ERROR, cause, message, args);
 	}
 
 	/**
@@ -52,6 +54,6 @@ public class UnauthorizedException extends SecurityException
 	 */
 	public UnauthorizedException(String message, Object... args)
 	{
-		super(message, args);
+		super(IWebUtilsCommonConstants.RESPONSE_CODE_AUTHENTICATION_ERROR, message, args);
 	}
 }
