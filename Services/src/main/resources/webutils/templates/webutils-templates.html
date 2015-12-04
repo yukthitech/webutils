@@ -267,7 +267,72 @@
 		</content>
 	</directive>
 
+	<directive name="ykDialog" required-attr="id, title">
+		<content>
+			<set-var name="_size" expr="(context.attr('size') == 'small') ? 'modal-sm' : 'modal-lg'"/>
+			<set-var name="_content" expr="context.element.find('content').html()"/>
+			<set-var name="_footer" expr="context.element.find('footer').html()"/>
+			
+			<div class="modal fade" id="${attr('id')}" tabindex="-1" role="dialog" data-backdrop="static">
+				<div class="modal-dialog ${_size}" role="document">
+					<div class="modal-content">
+						<!-- Header -->
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+								<span aria-hidden="true">&amp;times;</span>
+							</button>
+							<h4 class="modal-title">${attr('title')}</h4>
+						</div>
+						
+						<!-- Content -->
+						<div class="modal-body" yk-model="${attr('name')}">
+							${_content}
+						</div>
+						
+						<!-- Footer -->
+						<div class="modal-footer">
+							${_footer}
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</content>
+	</directive>
+
 	<directive name="ykModelDialog" required-attr="id, name, columns, title, actionmethod">
+		<content>
+			<set-var name="_size" expr="(context.attr('size') == 'small') ? 'modal-sm' : 'modal-lg'"/>
+			
+			<div class="modal fade" id="${attr('id')}" tabindex="-1" role="dialog" data-backdrop="static">
+				<div class="modal-dialog ${_size}" role="document">
+					<div class="modal-content">
+						<!-- Header -->
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+								<span aria-hidden="true">&amp;times;</span>
+							</button>
+							<h4 class="modal-title">${attr('title')}</h4>
+						</div>
+						
+						<!-- Content -->
+						<div class="modal-body" yk-model="${attr('name')}">
+							<yk-model-form name="${attr('name')}" columns="${attr('columns')}"></yk-model-form>
+						</div>
+						
+						<!-- Footer -->
+						<div class="modal-footer">
+							<button type="button" class="btn btn-primary action-button" ng-click="${attr('actionMethod')}">Save</button>
+							<button type="button" class="btn btn-danger cancel-button" data-dismiss="modal">Cancel</button>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</content>
+	</directive>
+
+	<directive name="ykModelForm" required-attr="name, columns">
 		<content>
 			<exe-script var="_tmp">
 				var modelName = context.attr('name');
@@ -292,47 +357,22 @@
 				context["$scope"].model = {};
 			</exe-script>
 
-			<set-var name="_size" expr="(context.attr('size') == 'small') ? 'modal-sm' : 'modal-lg'"/>
-			
-			<div class="modal fade" id="${attr('id')}" tabindex="-1" role="dialog" data-backdrop="static">
-				<div class="modal-dialog ${_size}" role="document">
-					<div class="modal-content">
-						<!-- Header -->
-						<div class="modal-header">
-							<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-								<span aria-hidden="true">&amp;times;</span>
-							</button>
-							<h4 class="modal-title">${attr('title')}</h4>
+			<div class="row">
+				<for-each data="${modelDef.fields}" loop-var="field" index-var="idx">
+					<if test="!context.field.displayable">
+						<continue/>
+					</if>
+				
+					<if test="context.idx != 0 &amp;&amp; (context.idx % context.columnCount) == 0"><![CDATA[
 						</div>
-						
-						<!-- Content -->
-						<div class="modal-body" yk-model="${attr('name')}">
-							<div class="row">
-								<for-each data="${modelDef.fields}" loop-var="field" index-var="idx">
-									<if test="!context.field.displayable">
-										<continue/>
-									</if>
-								
-									<if test="context.idx != 0 &amp;&amp; (context.idx % context.columnCount) == 0"><![CDATA[
-										</div>
-										<div class="row">
-									]]></if>
-									
-									<div class="${columnCountClass} col-xs-12" style="padding-bottom: 0.2em;">
-										<model-field name="${field.name}" modelobj="model"></model-field>
-									</div>
-								</for-each>
-							</div>							
-						</div>
-						
-						<!-- Footer -->
-						<div class="modal-footer">
-							<button type="button" class="btn btn-primary action-button" ng-click="${attr('actionMethod')}">Save</button>
-							<button type="button" class="btn btn-danger cancel-button" data-dismiss="modal">Cancel</button>
-						</div>
+						<div class="row">
+					]]></if>
+					
+					<div class="${columnCountClass} col-xs-12" style="padding-bottom: 0.2em;">
+						<model-field name="${field.name}" modelobj="model"></model-field>
 					</div>
-				</div>
-			</div>
+				</for-each>
+			</div>							
 
 		</content>
 	</directive>
