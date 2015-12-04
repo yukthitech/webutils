@@ -49,7 +49,7 @@ public class ExtensionFieldSearchQuery
 	/**
 	 * Name field search pattern
 	 */
-	@Condition(value = "name", op = Operator.LIKE)
+	@Condition(value = "name", op = Operator.LIKE, ignoreCase = true)
 	private String name;
 
 	/**

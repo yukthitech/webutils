@@ -18,7 +18,7 @@ $.addElementDirective = function(directiveObj) {
 	
 	console.log("Adding custom directive - '" + directiveObj.name + "' with priority - " + directiveObj.priority);
 
-	$.application.directive(directiveObj.name, ['$compile', 'actionHelper', function($compile, actionHelper) {
+	$.application.directive(directiveObj.name, ['$compile', 'actionHelper', 'clientContext', function($compile, actionHelper, clientContext) {
 		var directive = {};
 
 		directive.restrict = 'E'; /* restrict this directive to elements */
@@ -44,6 +44,7 @@ $.addElementDirective = function(directiveObj) {
 						"attributes": attributes,
 						"$scope": $scope,
 						"element": $($element[0]),
+						"clientContext": clientContext,
 						"invokeAction": function(actionName, requestEntity, params) {
 							return actionHelper.invokeAction(actionName, requestEntity, params);
 						},
@@ -112,7 +113,7 @@ $.addAttributeDirective = function(directiveObj) {
 	
 	console.log("Adding custom attribute directive - '" + directiveObj.name + "' with priority - " + directiveObj.priority);
 
-	$.application.directive(directiveObj.name, ['$compile', 'actionHelper', function($compile, actionHelper) {
+	$.application.directive(directiveObj.name, ['$compile', 'actionHelper', 'clientContext', function($compile, actionHelper, clientContext) {
 		var directive = {};
 
 		directive.restrict = 'A'; /* restrict this directive to attributes */
@@ -127,6 +128,7 @@ $.addAttributeDirective = function(directiveObj) {
 				"attributes": attributes,
 				"$scope": $scope,
 				"element": element,
+				"clientContext": clientContext,
 				"attributeValue" : attrValue,
 				"invokeAction": function(actionName, requestEntity, params) {
 					return actionHelper.invokeAction(actionName, requestEntity, params);

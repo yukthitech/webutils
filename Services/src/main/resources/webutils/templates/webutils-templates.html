@@ -113,7 +113,7 @@
 				</ul>
 			
 				<!-- Tab panes -->
-				<div class="tab-content">
+				<div class="tab-content" style="height: 0.3em;">
 					<for-each data="${_tabs}" loop-var="tab" index-var="tabIdx">
 						<set-var name="_tab" expr="$(context.tab)"/>
 						<set-var name="_tabActive" expr="context.tabIdx == 0 ? 'active' : ''"/>
@@ -191,16 +191,28 @@
 				context["searchModel"] = response.modelDef;
 				
 				context["rowRestartHtml"] = "&lt;/div&gt;&lt;div class=\"row\" style=\"padding-bottom: 0.5em\" &gt;" ;
+				
+				//set the actions on context
+				var actions = context.element.children("action");
+				
+				if(actions.length &gt; 0)
+				{
+					context["actions"] = context.element.children("action");
+				}
+				else
+				{
+					context["actions"] = null;
+				}
 			</exe-script>
 			
-			<div class="panel panel-default" ng-controller="searchQueryController">
+			<div class="panel panel-default" ng-controller="searchQueryController" style="margin-bottom: 0.4em;">
 				<div class="panel-heading" style="padding: 0.3em 1em; font-weight: bold;">
 					${attr('title')}
 				</div>
 
 				<div class="panel-body"  yk-model="${searchModel.name}">
 					<form>
-						<div class="row" style="padding-bottom: 0.5em">
+						<div class="row">
 							<for-each data="${searchModel.fields}" loop-var="field" index-var="idx">
 								<if test="context.idx != 0 &amp;&amp; (context.idx % 3) == 0">
 									${rowRestartHtml}
@@ -213,18 +225,112 @@
 						</div>
 						
 						<div class="row" style="text-align: right; padding-right: 2em;">
-							<input type="submit" value="Search" class="btn btn-primary" style="font-weight: bold;" yk-click="performSearch($event)"/>
+							<!-- Submit button is added to support enter key in search form. This will be hidden.
+								Instead iconic link button will be used for click 
+							 -->
+							<input type="submit" value="Search" style="display: none;" yk-click="performSearch($event)"/>
+							
+							<a class="btn btn-primary" role="button" yk-click="performSearch($event)">
+								<i class="glyphicon glyphicon-search"></i>
+								Search
+							</a>
 						</div>
 					</form>
 				</div>
 			</div>
+			
+			<div class="row">
+				<if test="context.actions">
+					<div class="col-xs-12" style="text-align: right; padding-bottom: 0.4em;">
+						<for-each data="${actions}" loop-var="action" index-var="actionIdx">
+							<set-var name="_action" expr="$(context.action)"/>
+							<set-var name="_label" expr="context._action.attr('label') ? context._action.attr('label') : ''"/>
+							
+							<a role="button" ng-click="${_action.attr('method')}" style="text-decoration: none; color: ${_action.attr('color')};" class="yk-icon-link" 
+										data-toggle="tooltip" title="${_action.attr('label')}">
+								<i class="glyphicon ${_action.attr('icon')}"></i>
+							</a>
+						</for-each>
+					</div>
+				</if>
+			</div>
 
-			<div class="panel panel-default" ng-controller="searchQueryController">
+			<div class="panel panel-default">
 				<div class="panel-heading" style="padding: 0.3em 1em; font-weight: bold;">
 					${attr('title')} - Results
 				</div>
 
 				<div class="panel-body"  yk-model="${searchModel.name}">
+				</div>
+			</div>
+
+		</content>
+	</directive>
+
+	<directive name="ykModelDialog" required-attr="id, name, columns, title, actionmethod">
+		<content>
+			<exe-script var="_tmp">
+				var modelName = context.attr('name');
+				var modelDefResponse = context.invokeAction('modelDef.fetch', null, {"name": modelName});
+				
+				if(!modelDefResponse || !modelDefResponse.modelDef)
+				{
+					throw "Invalid model name specified - " + modelName;
+				}
+	
+				var modelDef = modelDefResponse.modelDef;
+				context["modelDef"] = modelDef;
+				
+				
+				var columnCount = parseInt(context.attr('columns'));
+				columnCount = (columnCount &gt; 3) ? 3 : columnCount;
+				columnCount = (columnCount &lt; 1) ? 1 : columnCount;
+				
+				context["columnCount"] = columnCount;
+				context["columnCountClass"] = "col-md-" + (12 / columnCount);
+				
+				context["$scope"].model = {};
+			</exe-script>
+
+			<set-var name="_size" expr="(context.attr('size') == 'small') ? 'modal-sm' : 'modal-lg'"/>
+			
+			<div class="modal fade" id="${attr('id')}" tabindex="-1" role="dialog" data-backdrop="static">
+				<div class="modal-dialog ${_size}" role="document">
+					<div class="modal-content">
+						<!-- Header -->
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+								<span aria-hidden="true">&amp;times;</span>
+							</button>
+							<h4 class="modal-title">${attr('title')}</h4>
+						</div>
+						
+						<!-- Content -->
+						<div class="modal-body" yk-model="${attr('name')}">
+							<div class="row">
+								<for-each data="${modelDef.fields}" loop-var="field" index-var="idx">
+									<if test="!context.field.displayable">
+										<continue/>
+									</if>
+								
+									<if test="context.idx != 0 &amp;&amp; (context.idx % context.columnCount) == 0"><![CDATA[
+										</div>
+										<div class="row">
+									]]></if>
+									
+									<div class="${columnCountClass} col-xs-12" style="padding-bottom: 0.2em;">
+										<model-field name="${field.name}" modelobj="model"></model-field>
+									</div>
+								</for-each>
+							</div>							
+						</div>
+						
+						<!-- Footer -->
+						<div class="modal-footer">
+							<button type="button" class="btn btn-primary action-button" ng-click="${attr('actionMethod')}">Save</button>
+							<button type="button" class="btn btn-danger cancel-button" data-dismiss="modal">Cancel</button>
+						</div>
+					</div>
 				</div>
 			</div>
 
@@ -384,6 +490,16 @@
 					<option value="${lov.value}">${lov.label}</option>
 				</for-each>
 			</select>
+		</content>
+	</directive>
+
+	<directive name="ykIncludeScript" required-attr="path">
+		<content>
+			<exe-script>
+				var path = context.attr("path");
+				
+				context.clientContext.addScript(path);
+			</exe-script>
 		</content>
 	</directive>
 

@@ -21,6 +21,11 @@ $.application.factory('clientContext', function()
 		"actionsMap" : null,
 		
 		/**
+		 * Maintains the list of scripts added dynamically via client context
+		 */
+		scriptsAdded: [],
+		
+		/**
 		 * Checks and return true if the current context is initialize, that
 		 * is current is authenticated
 		 */
@@ -290,6 +295,31 @@ $.application.factory('clientContext', function()
 			console.log("Discarding session. Reason - " + reason);
 			this.authToken = null;
 			localStorage.removeItem("authToken");
+		},
+		
+		"addScript" : function(path) {
+			
+			//check if specified script is already added
+			if(this.scriptsAdded.indexOf(path) >= 0)
+			{
+				console.log("Specified script is already part of context. Ignoring add script request - " + path);
+				return;
+			}
+			
+			var sucessFunc = $.proxy(function(){
+				//add script entry to context
+				this.scriptsAdded[this.scriptsAdded.length] = path;
+				console.log("Added dynamic script - " + path);
+			}, this);
+			
+			console.log("Loading script: " + path);
+			//load the script
+			$.ajax({
+				  url: path,
+				  dataType: 'script',
+				  success: sucessFunc,
+				  async: false
+			});
 		}
 	};
 	

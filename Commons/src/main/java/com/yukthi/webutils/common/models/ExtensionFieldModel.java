@@ -35,6 +35,7 @@ import com.yukthi.validation.annotations.Required;
 import com.yukthi.webutils.common.annotations.IgnoreField;
 import com.yukthi.webutils.common.annotations.Model;
 import com.yukthi.webutils.common.annotations.MultilineText;
+import com.yukthi.webutils.common.annotations.NonDisplayable;
 import com.yukthi.webutils.common.extensions.ExtensionFieldType;
 import com.yukthi.webutils.common.extensions.LovOption;
 
@@ -49,11 +50,13 @@ public class ExtensionFieldModel
 	/**
 	 * Primary key of the entity
 	 */
+	@NonDisplayable
 	private long id;
 	
 	/**
 	 * Version of the entity
 	 */
+	@NonDisplayable
 	private Integer version;
 
 	/**

@@ -62,3 +62,20 @@
 	background-color: #eee;
 	border-radius: 0.4em;
 }
+
+.yk-icon-link
+{
+	font-size: 1.5em; 
+	text-decoration: none;
+}
+
+.yk-icon-link > i
+{
+	padding: 0.3em;	
+	border-radius: 0.2em;
+}
+
+.yk-icon-link i:hover
+{
+	background-color: #eee;
+}

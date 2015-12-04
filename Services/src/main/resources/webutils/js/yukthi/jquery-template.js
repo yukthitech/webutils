@@ -1,6 +1,7 @@
 var ELEMENT_NODE = 1;
 var TEXT_NODE = 3;
 var COMMENT_NODE = 8;
+var CDATA_NODE = 4;
 
 var PROCESS_FUNC = "processFunc";
 var IF_RESULT = "ifResult";
@@ -501,6 +502,11 @@ function TemplateEngine()
 			}
 			
 			if(element.nodeType == TEXT_NODE)
+			{
+				templateContext["$res"] += parseExpressions(element.nodeValue, templateContext);
+			}
+			
+			if(element.nodeType == CDATA_NODE)
 			{
 				templateContext["$res"] += parseExpressions(element.nodeValue, templateContext);
 			}
