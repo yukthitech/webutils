@@ -21,24 +21,55 @@
  * SOFTWARE.
  */
 
-package com.yukthi.webutils.repository;
+package com.yukthi.webutils;
 
-import com.yukthi.persistence.ICrudRepository;
-import com.yukthi.persistence.repository.annotations.Condition;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Repository for entity extensions
  * @author akiran
+ *
  */
-public interface IExtensionRepository extends ICrudRepository<ExtensionEntity>
+public class BeanValidationException extends RuntimeException
 {
-	/**
-	 * Finder query to find extension based on specified entity and owner details
-	 * @param targetPointName Target point for which extension is being fetched
-	 * @param ownerPointName Owner point which owns the extension
-	 * @param ownerId Owner id which owns the extension
-	 * @return Matching entity extension
-	 */
-	public ExtensionEntity findEntity(@Condition("targetPointName") String targetPointName, 
-			@Condition("ownerPointName") String ownerPointName, @Condition("ownerId") long ownerId);
+	private static final long serialVersionUID = 1L;
+	
+	public static class PropertyError
+	{
+		private String name;
+		private String error;
+
+		public PropertyError(String name, String error)
+		{
+			this.name = name;
+			this.error = error;
+		}
+
+		public String getName()
+		{
+			return name;
+		}
+
+		public String getError()
+		{
+			return error;
+		}
+	}
+
+	private List<PropertyError> errors = new ArrayList<>();
+	
+	public BeanValidationException()
+	{
+		super("Validation failed");
+	}
+	
+	public void addError(String property, String message)
+	{
+		this.errors.add(new PropertyError(property, message));
+	}
+	
+	public List<PropertyError> getErrors()
+	{
+		return errors;
+	}
 }

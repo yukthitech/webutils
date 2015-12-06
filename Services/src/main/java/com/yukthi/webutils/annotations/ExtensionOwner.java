@@ -29,11 +29,16 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Used to mark an entity as extension owner. That is it can own extesions of other entity
+ * Used to mark an entity as extension owner. That is it can own extensions of other entity
  * @author akiran
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface ExtensionOwner
 {
+	/**
+	 * Name of extension owner
+	 * @return name of the extension owner
+	 */
+	public String name();
 }

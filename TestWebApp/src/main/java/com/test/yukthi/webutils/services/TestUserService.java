@@ -21,24 +21,55 @@
  * SOFTWARE.
  */
 
-package com.yukthi.webutils.repository;
+package com.test.yukthi.webutils.services;
 
-import com.yukthi.persistence.ICrudRepository;
-import com.yukthi.persistence.repository.annotations.Condition;
+import javax.annotation.PostConstruct;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.yukthi.persistence.repository.RepositoryFactory;
+import com.yukthi.webutils.repository.IUserRepository;
+import com.yukthi.webutils.repository.UserEntity;
 
 /**
- * Repository for entity extensions
  * @author akiran
+ *
  */
-public interface IExtensionRepository extends ICrudRepository<ExtensionEntity>
+@Service
+public class TestUserService
 {
+	@Autowired
+	private RepositoryFactory repositoryFactory;
+	
+	private long userId;
+	
+	@PostConstruct
+	private void init()
+	{
+		IUserRepository userRepository = repositoryFactory.getRepository(IUserRepository.class);
+		
+		UserEntity user = userRepository.fetchUser("admin", Object.class.getName(), 0L);
+		
+		if(user != null)
+		{
+			this.userId = user.getId();
+			return;
+		}
+		
+		user = new UserEntity("admin", "admin", "admin", Object.class.getName(), 0L);
+		user.setVersion(1);
+		
+		userRepository.save(user);
+		
+		this.userId = user.getId();
+	}
+	
 	/**
-	 * Finder query to find extension based on specified entity and owner details
-	 * @param targetPointName Target point for which extension is being fetched
-	 * @param ownerPointName Owner point which owns the extension
-	 * @param ownerId Owner id which owns the extension
-	 * @return Matching entity extension
+	 * @return the {@link #userId userId}
 	 */
-	public ExtensionEntity findEntity(@Condition("targetPointName") String targetPointName, 
-			@Condition("ownerPointName") String ownerPointName, @Condition("ownerId") long ownerId);
+	public long getUserId()
+	{
+		return userId;
+	}
 }

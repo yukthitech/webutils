@@ -26,6 +26,8 @@ package com.test.yukthi.webutils.client;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -54,6 +56,8 @@ import com.yukthi.webutils.common.models.def.ModelDef;
  */
 public class TFSearchQuery extends TFBase
 {
+	private static Logger logger = LogManager.getLogger(TFSearchQuery.class);
+	
 	private SearchHelper searchHelper = new SearchHelper();
 	
 	private long addEmployee(String name, long salary)
@@ -165,6 +169,22 @@ public class TFSearchQuery extends TFBase
 		}catch(RestException ex)
 		{
 			Assert.assertEquals(ex.getResponseCode(), IWebUtilsCommonConstants.RESPONSE_CODE_AUTHORIZATION_ERROR);
+		}
+	}
+	
+	@Test
+	public void testSearchWithViolations()
+	{
+		EmpSearchQuery query = new EmpSearchQuery(null);
+		
+		try
+		{
+			searchHelper.executeSearchQuery(clientContext, "empSearchAuthorized", query, -1, EmpSearchResult.class);
+			Assert.fail("No exception is thrown when query is passing with mandatory fields as null");
+		}catch(RestException ex)
+		{
+			ex.printStackTrace();
+			Assert.assertEquals(ex.getResponseCode(), IWebUtilsCommonConstants.RESPONSE_CODE_INVALID_REQUEST);
 		}
 	}
 

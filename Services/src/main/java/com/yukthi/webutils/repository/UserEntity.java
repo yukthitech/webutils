@@ -34,6 +34,7 @@ import javax.persistence.Version;
 
 import com.yukthi.persistence.annotations.DataType;
 import com.yukthi.persistence.annotations.DataTypeMapping;
+import com.yukthi.persistence.annotations.NotUpdateable;
 import com.yukthi.persistence.annotations.UniqueConstraint;
 import com.yukthi.persistence.annotations.UniqueConstraints;
 import com.yukthi.persistence.conversion.impl.PasswordEncryptionConverter;
@@ -117,6 +118,7 @@ public class UserEntity implements ITrackedEntity
 	/**
 	 * Created by user
 	 */
+	@NotUpdateable
 	@ManyToOne
 	@Column(name = "CREATED_BY_ID")
 	private UserEntity createdBy;
@@ -124,6 +126,7 @@ public class UserEntity implements ITrackedEntity
 	/**
 	 * Created on time
 	 */
+	@NotUpdateable
 	@Column(name = "CREATED_ON")
 	@DataTypeMapping(type = DataType.DATE_TIME)
 	private Date createdOn;
@@ -156,6 +159,24 @@ public class UserEntity implements ITrackedEntity
 	public UserEntity(Long id)
 	{
 		this.id = id;
+	}
+	
+	/**
+	 * Instantiates a new user entity.
+	 *
+	 * @param userName the user name
+	 * @param password the password
+	 * @param displayName the display name
+	 * @param ownerType the owner type
+	 * @param ownerId the owner id
+	 */
+	public UserEntity(String userName, String password, String displayName, String ownerType, Long ownerId)
+	{
+		this.userName = userName;
+		this.password = password;
+		this.displayName = displayName;
+		this.ownerType = ownerType;
+		this.ownerId = ownerId;
 	}
 
 	/**

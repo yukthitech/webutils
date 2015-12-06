@@ -52,6 +52,7 @@ import com.yukthi.webutils.annotations.LovMethod;
 import com.yukthi.webutils.common.IExtendableModel;
 import com.yukthi.webutils.common.extensions.LovOption;
 import com.yukthi.webutils.controllers.ExtensionUtil;
+import com.yukthi.webutils.extensions.ExtensionOwnerDetails;
 import com.yukthi.webutils.extensions.ExtensionPointDetails;
 import com.yukthi.webutils.repository.ExtensionEntity;
 import com.yukthi.webutils.repository.ExtensionFieldEntity;
@@ -70,6 +71,9 @@ import com.yukthi.webutils.utils.WebUtils;
 public class ExtensionService
 {
 	private static Logger logger = LogManager.getLogger(ExtensionService.class);
+	
+	private static final String DEF_OWNER_POINT = Object.class.getSimpleName();
+	private static final long DEF_OWNER_ID = 0L;
 	
 	/**
 	 * Used to fetch repository instances
@@ -90,6 +94,10 @@ public class ExtensionService
 	private ISecurityService securityService;
 
 	private Map<String, ExtensionPointDetails> nameToExtension = new HashMap<>();
+	private Map<Class<?>, ExtensionPointDetails> typeToExtension = new HashMap<>();
+	
+	private Map<String, ExtensionOwnerDetails> nameToExtensionOwner = new HashMap<>();
+	private Map<Class<?>, ExtensionOwnerDetails> typeToExtensionOwner = new HashMap<>();
 	
 	private IExtensionRepository extensionRepository;
 	
@@ -107,13 +115,32 @@ public class ExtensionService
 		this.extensionFieldRepository = repositoryFactory.getRepository(IExtensionFieldRepository.class);
 		this.extensionFieldValueRepository = repositoryFactory.getRepository(IExtensionFieldValueRepository.class);
 		
+		//load extension points
 		Set<Class<?>> extendableTypes = classScannerService.getClassesWithAnnotation(ExtendableEntity.class);
 		ExtendableEntity extendableEntity = null;
+		ExtensionPointDetails extensionPointDetails = null;
 		
 		for(Class<?> type : extendableTypes)
 		{
 			extendableEntity = type.getAnnotation(ExtendableEntity.class);
-			nameToExtension.put(extendableEntity.name(), new ExtensionPointDetails(extendableEntity.name(), type));
+			extensionPointDetails = new ExtensionPointDetails(extendableEntity.name(), type);
+			
+			nameToExtension.put(extendableEntity.name(), extensionPointDetails);
+			typeToExtension.put(type, extensionPointDetails);
+		}
+
+		//load extension owners
+		Set<Class<?>> ownerTypes = classScannerService.getClassesWithAnnotation(ExtensionOwner.class);
+		ExtensionOwner extensionOwner = null;
+		ExtensionOwnerDetails extensionOwnerDetails = null;
+		
+		for(Class<?> type : ownerTypes)
+		{
+			extensionOwner = type.getAnnotation(ExtensionOwner.class);
+			extensionOwnerDetails = new ExtensionOwnerDetails(extensionOwner.name(), type);
+			
+			nameToExtensionOwner.put(extensionOwner.name(), extensionOwnerDetails);
+			typeToExtensionOwner.put(type, extensionOwnerDetails);
 		}
 	}
 	
@@ -131,9 +158,9 @@ public class ExtensionService
 		for(ExtensionPointDetails extPoint : this.nameToExtension.values())
 		{
 			//if current user has access to current extension
-			if(securityService.isExtensionAuthorized(userService.getCurrentUserDetails(), extPoint))
+			if(securityService.isExtensionAuthorized(extPoint))
 			{
-				filteredExtensions.add(new LovOption(extPoint.getName(), extPoint.getEntityType().getName()));
+				filteredExtensions.add(new LovOption(extPoint.getName(), extPoint.getName()));
 			}
 		}
 		
@@ -151,6 +178,26 @@ public class ExtensionService
 	}
 	
 	/**
+	 * Fetches the extension owner details with specified nae
+	 * @param name Name of the extension owner
+	 * @return Extension owner details
+	 */
+	public ExtensionOwnerDetails getExtensionOwner(String name)
+	{
+		return this.nameToExtensionOwner.get(name);
+	}
+	
+	/**
+	 * Gets extension owner details with specified type
+	 * @param ownerType
+	 * @return
+	 */
+	public ExtensionOwnerDetails getExtensionOwner(Class<?> ownerType)
+	{
+		return this.typeToExtensionOwner.get(ownerType);
+	}
+
+	/**
 	 * Fetches extension with specified criteria. 
 	 * @param entityType Entity type for which extension is being fetched
 	 * @param ownerEntityType Owner entity type, this is optional
@@ -163,23 +210,36 @@ public class ExtensionService
 		logger.trace("Fetching extension entity - [Entity: {}, Owner type: {}, Owner Id: {}]", entityType.getName(), 
 				(ownerEntityType != null)? ownerEntityType.getName() : null, ownerId);
 		
+		ExtensionPointDetails extensionPointDetails = typeToExtension.get(entityType);
+		
+		if(extensionPointDetails == null)
+		{
+			throw new InvalidArgumentException("Specified entity type is not an extension entity - {}", entityType.getName());
+		}
+		
+		String ownerName = null;
+		
 		//if owner entity type is not specified use Object class
 		if(ownerEntityType == null)
 		{
-			ownerEntityType = Object.class;
+			ownerName = DEF_OWNER_POINT;
 		}
 		//if owner type is specified
 		else
 		{
+			ExtensionOwnerDetails extensionOwnerDetails = typeToExtensionOwner.get(ownerEntityType);
+			
 			//if owner entity does not have required annotation
-			if(ownerEntityType.getAnnotation(ExtensionOwner.class) == null)
+			if(extensionOwnerDetails == null)
 			{
 				throw new InvalidArgumentException("Invalid extension owner specified - {}. Owner entity should be marked with @{}", ownerEntityType.getName(), ExtensionOwner.class.getName());
 			}
+			
+			ownerName = extensionOwnerDetails.getName();
 		}
 		
 		//try to find extension with specified details
-		return extensionRepository.findEntity(entityType.getName(), ownerEntityType.getName(), ownerId);
+		return extensionRepository.findEntity(extensionPointDetails.getName(), ownerName, ownerId);
 	}
 	
 	/**
@@ -188,35 +248,28 @@ public class ExtensionService
 	 */
 	public void saveExtensionEntity(ExtensionEntity extension)
 	{
-		//if owner entity type is not specified use Object class
-		if(extension.getOwnerEntityType() == null)
+		ExtensionPointDetails extensionPointDetails = nameToExtension.get(extension.getTargetPointName());
+		
+		if(extensionPointDetails == null)
 		{
-			extension.setOwnerEntityType(Object.class.getName());
-			extension.setOwnerId(0L);
+			throw new InvalidArgumentException("Specified entity type is not an extension entity - {}", extension.getTargetPointName());
+		}
+		
+		//if owner entity type is not specified use Object class
+		if(extension.getOwnerPointName() == null)
+		{
+			extension.setOwnerPointName(DEF_OWNER_POINT);
+			extension.setOwnerId(DEF_OWNER_ID);
 		}
 		//if owner type is specified
 		else
 		{
-			Class<?> ownerEntityType = null;
-			
-			try
-			{
-				ownerEntityType = Class.forName(extension.getOwnerEntityType());
-			}catch(Exception ex)
-			{
-				throw new InvalidStateException(ex, "Invalid owner entity type specified", extension.getOwnerEntityType());
-			}
+			ExtensionOwnerDetails extensionOwnerDetails = nameToExtensionOwner.get(extension.getOwnerPointName());
 			
 			//if owner entity does not have required annotation
-			if(ownerEntityType.getAnnotation(ExtensionOwner.class) == null)
+			if(extensionOwnerDetails == null)
 			{
-				throw new InvalidArgumentException("Invalid extension owner specified - {}. Owner entity should be marked with @{}", ownerEntityType.getName(), ExtensionOwner.class);
-			}
-
-			//if owner entity does not have @Table annotation
-			if(ownerEntityType.getAnnotation(ExtensionOwner.class) == null)
-			{
-				throw new InvalidArgumentException("Non-entity is specified as extension owner - {}", ownerEntityType.getName());
+				throw new InvalidArgumentException("Invalid extension owner specified - {}.", extension.getOwnerPointName());
 			}
 		}
 
@@ -245,6 +298,19 @@ public class ExtensionService
 	}
 	
 	/**
+	 * Fetches the extension field for specified extension with specified id
+	 * @param extensionName Extension under which field is defined
+	 * @param fieldId Id of the field that needs to be fetched
+	 * @return Extension field entity
+	 */
+	public ExtensionFieldEntity fetchExtensionField(String extensionName, long fieldId)
+	{
+		logger.trace("Fetching extension fields for extension - {}", extensionName);
+		
+		return extensionFieldRepository.findExtensionField(extensionName, fieldId);
+	}
+
+	/**
 	 * Saves specified extension field for specified extension id
 	 * @param extensionId Extension id under which field should be save
 	 * @param extensionFieldEntity Extension field to be saved
@@ -269,18 +335,14 @@ public class ExtensionService
 	
 	/**
 	 * updates specified extension field under specified extension
-	 * @param extensionId
 	 * @param extensionFieldEntity
 	 */
-	@CacheEvict(value = "extensionFields", key = "#root.args[0]")
-	public void updateExtensionField(long extensionId, ExtensionFieldEntity extensionFieldEntity)
+	public void updateExtensionField(ExtensionFieldEntity extensionFieldEntity)
 	{
-		logger.trace("Updating extension field for extension - {}", extensionId);
+		logger.trace("Updating extension field - {}", extensionFieldEntity.getId());
 		
 		WebUtils.validateEntityForUpdate(extensionFieldEntity);
 		
-		extensionFieldEntity.setExtension(new ExtensionEntity(extensionId));
-
 		userService.populateTrackingFieldForUpdate(extensionFieldEntity);
 		
 		if(!extensionFieldRepository.update(extensionFieldEntity))
@@ -313,17 +375,15 @@ public class ExtensionService
 	
 	/**
 	 * Deletes extension field
-	 * @param extensionId Extension id under which field should be deleted
 	 * @param extensionFieldId Extension field to be deleted
 	 */
-	@CacheEvict(value = "extensionFields", key = "#root.args[0]")
-	public void deleteExtensionField(long extensionId, long extensionFieldId)
+	public void deleteExtensionField(long extensionFieldId)
 	{
-		logger.trace("Deleting extension field for extension - {}", extensionId);
+		logger.trace("Deleting extension field with id - {}", extensionFieldId);
 		
 		if(!extensionFieldRepository.deleteById(extensionFieldId))
 		{
-			throw new ServiceException("Failed to delete extension field with id- {}", extensionFieldId);
+			throw new ServiceException("Failed to delete extension field with id '{}'", extensionFieldId);
 		}
 	}
 	

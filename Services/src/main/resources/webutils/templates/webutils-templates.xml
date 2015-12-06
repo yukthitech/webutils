@@ -190,6 +190,8 @@
 
 				context["searchModel"] = response.modelDef;
 				
+				context["rowRestartHtml"] = "&lt;/div&gt;&lt;div class=\"row\" style=\"padding-bottom: 0.5em\" &gt;" ;
+				
 				//set the actions on context
 				var actions = context.element.children("action");
 				
@@ -203,20 +205,20 @@
 				}
 			</exe-script>
 			
-			<div id="${attr('id')}" class="container-fluid" style="padding: 0px; margin: 0px" ng-controller="searchQueryController">
-				<div class="panel panel-default" style="margin-bottom: 0.4em;" ng-init="searchQueryId = '${attr('id')}'">
+			<div class="container-fluid" style="padding: 0px; margin: 0px" ng-controller="searchQueryController">
+				<div class="panel panel-default" style="margin-bottom: 0.4em;">
 					<div class="panel-heading" style="padding: 0.3em 1em; font-weight: bold;">
 						${attr('title')}
 					</div>
 	
-					<div class="panel-body"  yk-model="${searchModel.name}" ng-init="searchQueryName = '${attr('name')}'">
+					<div class="panel-body"  yk-model="${searchModel.name}">
 						<form>
+							<input type="hidden" value="${context.attr('name')}" ng-model="searchQueryName" 
 							<div class="row">
 								<for-each data="${searchModel.fields}" loop-var="field" index-var="idx">
-									<if test="context.idx != 0 &amp;&amp; (context.idx % 3) == 0"><![CDATA[
-										</div>
-										<div class="row" style="padding-bottom: 0.5em">
-									]]></if>
+									<if test="context.idx != 0 &amp;&amp; (context.idx % 3) == 0">
+										${rowRestartHtml}
+									</if>
 									
 									<div class="col-md-4 col-xs-12" style="padding-bottom: 0.2em;">
 										<model-field name="${field.name}" modelobj="searchQuery"></model-field>
@@ -260,28 +262,29 @@
 						${attr('title')} - Results
 					</div>
 	
-					<div class="panel-body table-responsive"  yk-model="${searchModel.name}" style="padding: 0px;">
-						<table class="table table-striped table-bordered table-hover searchResults" ng-if="searchResults.length &gt; 0">
+					<div class="panel-body"  yk-model="${searchModel.name}" class="table-responsive">
+						<table class="table table-striped table-bordered table-hover" ng-if="searchResults.length &gt; 0">
 							<!-- Headings row -->
 							<tr>
 								<th>#</th>
-								<th ng-repeat="field in searchResultDef.fields" ng-if="field.displayable">
+								<th ng-repeat="field in searchResultDef.fields">
 									{{field.label}}
 								</th>
 							</tr>
 							
-							<tr ng-repeat="result in searchResults" ng-click="rowSelected($index)" search-row-id="{{$index}}" style="cursor: pointer;">
+							<tr ng-repeat="result in searchResults">
 								<td>{{$index + 1}}</td>
-								<td ng-repeat="field in searchResultDef.fields" ng-if="field.displayable">
+								<td ng-repeat="field in searchResultDef.fields">
 									{{result[field.name]}}
 								</td>
 							</tr>
 						</table>
 						
-						<div ng-if="searchResults.length &lt;= 0" style="margin: 0.5em;">No records found for specified criteria.</div>
+						<span ng-if="searchResults.length &lt;= 0">No records found for specified criteria.</span>
 					</div>
 				</div>
 			</div>
+
 		</content>
 	</directive>
 
@@ -340,7 +343,7 @@
 						
 						<!-- Footer -->
 						<div class="modal-footer">
-							<button type="button" class="btn btn-primary action-button" ng-click="${attr('actionMethod')}">{{newModelMode ? 'Save' : 'Update'}}</button>
+							<button type="button" class="btn btn-primary action-button" ng-click="${attr('actionMethod')}">Save</button>
 							<button type="button" class="btn btn-danger cancel-button" data-dismiss="modal">Cancel</button>
 						</div>
 					</div>
@@ -475,33 +478,33 @@
 				</div>
 				<div  class="col-md-6">
 					<if test="context.fieldDef.fieldType == 'STRING'">
-						<input type="text" name="${fieldDef.name}" placeholder="${fieldDef.label}" ng-model="${modelField}" yk-read-only="${fieldDef.readOnly}"></input>
+						<input type="text" name="${fieldDef.name}" placeholder="${fieldDef.label}" ng-model="${modelField}"></input>
 					</if>
 					<else-if test="context.fieldDef.fieldType == 'MULTI_LINE_STRING'">
-						<textarea name="${fieldDef.name}" placeholder="${fieldDef.label}" ng-model="${modelField}" yk-read-only="${fieldDef.readOnly}"></textarea>
+						<textarea name="${fieldDef.name}" placeholder="${fieldDef.label}" ng-model="${modelField}"></textarea>
 					</else-if>
 					<else-if test="context.fieldDef.fieldType == 'INTEGER'">
-						<input type="number" name="${fieldDef.name}" placeholder="${fieldDef.label}" ng-model="${modelField}"  yk-read-only="${fieldDef.readOnly}"></input>
+						<input type="number" name="${fieldDef.name}" placeholder="${fieldDef.label}" ng-model="${modelField}"></input>
 					</else-if>
 					<else-if test="context.fieldDef.fieldType == 'FLOAT'">
-						<input type="number" name="${fieldDef.name}" placeholder="${fieldDef.label}" ng-model="${modelField}"  yk-read-only="${fieldDef.readOnly}"></input>
+						<input type="number" name="${fieldDef.name}" placeholder="${fieldDef.label}" ng-model="${modelField}"></input>
 					</else-if>
 					<else-if test="context.fieldDef.fieldType == 'BOOLEAN'">
-						<select name="${fieldDef.name}" ng-model="${modelField}"  yk-read-only="${fieldDef.readOnly}">
+						<select name="${fieldDef.name}" ng-model="${modelField}">
 							<option value="" selected=""> -- Select ${fieldDef.label} -- </option>
 							<option value="true">True</option>
 							<option value="false">False</option>
 						</select>
 					</else-if>
 					<else-if test="context.fieldDef.fieldType == 'DATE'">
-						<input type="date" name="${fieldDef.name}" placeholder="${fieldDef.label}" ng-model="${modelField}" yk-read-only="${fieldDef.readOnly}"></input>
+						<input type="date" name="${fieldDef.name}" placeholder="${fieldDef.label}" ng-model="${modelField}"></input>
 					</else-if>
 					<else-if test="context.fieldDef.fieldType == 'LIST_OF_VALUES'">
-						<yk-lov-field name="${fieldDef.name}" label="${fieldDef.label}" lov="${fieldDef.lovDetails.lovName}" yk-read-only="${fieldDef.readOnly}"
+						<yk-lov-field name="${fieldDef.name}" label="${fieldDef.label}" lov="${fieldDef.lovDetails.lovName}" 
 									type="${fieldDef.lovDetails.lovType}" model="${modelField}"></yk-lov-field> 
 					</else-if>
 					<else-if test="context.fieldDef.fieldType == 'FILE'">
-						<input type="text" name="${fieldDef.name}" placeholder="${fieldDef.label}" ng-model="${modelField}" yk-read-only="${fieldDef.readOnly}"></input>
+						<input type="text" name="${fieldDef.name}" placeholder="${fieldDef.label}" ng-model="${modelField}"></input>
 					</else-if>
 					<else>
 						<exe-script var="_tmp1">
@@ -544,9 +547,7 @@
 				context["lovList"] = lovList;
 			</exe-script>
 			
-			<set-var name="_readOnly" expr="(context.attr('yk-read-only') == 'true') ? 'true' : 'false'"/>
-			
-			<select name="${attr('name')}"  ng-model="${modelField}" yk-read-only="${_readOnly}">
+			<select name="${attr('name')}"  ng-model="${modelField}">
 				<option value="" selected=""> -- Select ${attr('label')} -- </option>
 				
 				<for-each data="${lovList}" loop-var="lov" index-var="idx">

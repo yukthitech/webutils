@@ -61,9 +61,6 @@ public class ModelDetailsService
 	@Autowired
 	private ClassScannerService classScannerService;
 
-	@Autowired
-	private LovService lovService;
-
 	/**
 	 * Added as dependency to ensure all repositories are loaded before this class init is called . Note init() 
 	 * loads model def which depends LOV service which in turn depends on repository-loader. Hence the autowiring is done

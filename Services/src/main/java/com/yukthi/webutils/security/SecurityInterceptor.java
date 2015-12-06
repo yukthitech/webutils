@@ -144,7 +144,7 @@ public class SecurityInterceptor extends HandlerInterceptorAdapter
 	 */
 	private boolean isAuthorized(UserDetails userDetails, HandlerMethod handlerMethod, HttpServletResponse response)
 	{
-		if(!securityService.isAuthorized(userDetails, handlerMethod.getMethod()))
+		if(!securityService.isAuthorized(handlerMethod.getMethod()))
 		{
 			sendError(response, IWebUtilsCommonConstants.RESPONSE_CODE_AUTHORIZATION_ERROR, "Authorization failed. User is not authorized to invoke current action.");
 			return false;

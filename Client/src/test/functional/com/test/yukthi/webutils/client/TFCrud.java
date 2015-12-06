@@ -23,9 +23,6 @@
 
 package com.test.yukthi.webutils.client;
 
-import java.util.Date;
-
-import org.apache.commons.lang3.time.DateUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
@@ -92,8 +89,6 @@ public class TFCrud extends TFBase
 		EmployeeModel savedEmp = getEmployee(response.getId());
 		Assert.assertEquals(savedEmp.getName(), "TestEmp");
 		Assert.assertEquals(savedEmp.getSalary(), 1000L);
-		Assert.assertTrue( DateUtils.isSameDay(savedEmp.getCreatedOn(), new Date()));
-		Assert.assertTrue( DateUtils.isSameDay(savedEmp.getUpdatedOn(), new Date()));
 	}
 
 	@AfterClass

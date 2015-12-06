@@ -48,6 +48,14 @@ public interface IExtensionFieldRepository extends ICrudRepository<ExtensionFiel
 	public List<ExtensionFieldEntity> findExtensionFields(@Condition("extension.id") long extensionId);
 	
 	/**
+	 * Fetches the extension field for specified extension with specified id
+	 * @param extensionName Extension under which field is defined
+	 * @param id Id of the field that needs to be fetched
+	 * @return Extension field
+	 */
+	public ExtensionFieldEntity findExtensionField(@Condition("extension.targetPointName") String extensionName, @Condition("id") long id);
+
+	/**
 	 * Fetches extension id for specified field id
 	 * @param id Field id for which extension needs to be fetched
 	 * @return Extension id
@@ -62,6 +70,6 @@ public interface IExtensionFieldRepository extends ICrudRepository<ExtensionFiel
 	
 	@SearchQueryMethod(name = "extensionFieldSearch", queryModel = ExtensionFieldSearchQuery.class)
 	@OrderBy("name")
-	public List<ExtensionFieldSearchResult> findEmployees(SearchQuery searchQuery);
+	public List<ExtensionFieldSearchResult> searchExtensionFields(SearchQuery searchQuery);
 
 }

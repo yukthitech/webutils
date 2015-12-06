@@ -32,8 +32,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -46,14 +44,12 @@ import com.yukthi.persistence.repository.search.SearchCondition;
 import com.yukthi.utils.exceptions.InvalidConfigurationException;
 import com.yukthi.utils.exceptions.InvalidStateException;
 import com.yukthi.webutils.IRepositoryMethodRegistry;
-import com.yukthi.webutils.IWebUtilsInternalConstants;
 import com.yukthi.webutils.InvalidRequestParameterException;
 import com.yukthi.webutils.annotations.SearchQueryMethod;
 import com.yukthi.webutils.common.annotations.Model;
 import com.yukthi.webutils.common.models.def.ModelDef;
 import com.yukthi.webutils.security.ISecurityService;
 import com.yukthi.webutils.security.UnauthorizedException;
-import com.yukthi.webutils.security.UserDetails;
 import com.yukthi.webutils.services.dynamic.DynamicMethod;
 import com.yukthi.webutils.utils.WebUtils;
 
@@ -114,12 +110,6 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 	 */
 	@Autowired(required = false)
 	private ISecurityService securityService;
-	
-	/**
-	 * Request to fetch current user details
-	 */
-	@Autowired
-	private HttpServletRequest request;
 	
 	/* (non-Javadoc)
 	 * @see com.yukthi.webutils.IRepositoryMethodRegistry#registerRepositoryMethod(java.lang.reflect.Method, java.lang.annotation.Annotation)
@@ -261,9 +251,7 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 		//if security service is specified, check user authorization for target search method
 		if(securityService != null)
 		{
-			UserDetails userDetails = (UserDetails)request.getAttribute(IWebUtilsInternalConstants.REQ_ATTR_USER_DETAILS);
-			
-			if(!securityService.isAuthorized(userDetails, searchQueryDetails.method))
+			if(!securityService.isAuthorized(searchQueryDetails.method))
 			{
 				throw new UnauthorizedException("Current user is not authorized to execute search query - {}", searchQueryName);
 			}
@@ -273,6 +261,9 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 		Field queryFields[] = searchQueryDetails.queryType.getDeclaredFields();
 		Condition condition = null;
 		Object value = null;
+		String strValue = null;
+		
+		SearchCondition searchCondition = null;
 				
 		//loop through query object fields and extract conditions and add it repo search query
 		for(Field field : queryFields)
@@ -294,12 +285,30 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 				throw new InvalidStateException("An error occurred while fetching field value - {}", field.getName());
 			}
 			
+			//ignore nulls
 			if(value == null)
 			{
 				continue;
 			}
 			
-			repoSearchQuery.addCondition(new SearchCondition(condition.value(), condition.op(), value));
+			//ignore blank value
+			if(value instanceof String)
+			{
+				strValue = (String)value;
+				
+				if(strValue.trim().length() == 0)
+				{
+					continue;
+				}
+				
+				strValue = strValue.replace("*", "%");
+				value = strValue;
+			}
+			
+			searchCondition = new SearchCondition(condition.value(), condition.op(), value);
+			searchCondition.setIgnoreCase(condition.ignoreCase());
+			
+			repoSearchQuery.addCondition(searchCondition);
 		}
 		
 		//set limit on repo search query

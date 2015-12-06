@@ -38,6 +38,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.yukthi.webutils.BeanValidationException;
 import com.yukthi.webutils.InvalidRequestParameterException;
 import com.yukthi.webutils.common.IWebUtilsCommonConstants;
 import com.yukthi.webutils.common.models.BaseResponse;
@@ -89,7 +90,7 @@ public class BaseController
 			if(error instanceof FieldError)
 			{
 				fldError = (FieldError)error;
-				responseMsg.append( String.format("Field '%s'. Error - %s", fldError.getField(), fldError.getDefaultMessage()) ).append("\n");
+				responseMsg.append( String.format("Field '%s' [Error - %s]", fldError.getField(), fldError.getDefaultMessage()) ).append("\n");
 			}
 			else
 			{
@@ -102,6 +103,27 @@ public class BaseController
 		return new BaseResponse(IWebUtilsCommonConstants.RESPONSE_CODE_INVALID_REQUEST, responseMsg.toString());
 	}
 	
+	@ExceptionHandler(value={BeanValidationException.class})
+	@ResponseBody
+	public BaseResponse handleBeanValidationException(HttpServletResponse response, BeanValidationException ex)
+	{
+		logger.debug("Encountered param-validation exception - " + ex);
+		
+		//Compute the error message
+		List<BeanValidationException.PropertyError> errors = ex.getErrors();
+		
+		StringBuilder responseMsg = new StringBuilder();
+		
+		for(BeanValidationException.PropertyError error: errors)
+		{
+			responseMsg.append( String.format("Field '%s'  [Error - %s]", error.getName(), error.getError()) ).append("\n");
+		}
+		
+		response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+		
+		return new BaseResponse(IWebUtilsCommonConstants.RESPONSE_CODE_INVALID_REQUEST, responseMsg.toString());
+	}
+
 	/**
 	 * Handler for MethodArgumentNotValidException. This exception is expected to be thrown
 	 * by spring when request object fails server side validations.

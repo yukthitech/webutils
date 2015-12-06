@@ -34,6 +34,7 @@ import javax.validation.Valid;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -48,6 +49,7 @@ import com.yukthi.webutils.common.SearchExecutionModel;
 import com.yukthi.webutils.common.models.ExecuteSearchResponse;
 import com.yukthi.webutils.common.models.ModelDefResponse;
 import com.yukthi.webutils.services.SearchService;
+import com.yukthi.webutils.services.ValidationService;
 
 /**
  * Controller for fetching LOV values.
@@ -62,6 +64,9 @@ public class SearchController extends BaseController
 	
 	@Autowired
 	private SearchService searchService;
+
+	@Autowired
+	private ValidationService validationService;
 	
 	private ObjectMapper objectMapper = new ObjectMapper();
 	
@@ -104,11 +109,12 @@ public class SearchController extends BaseController
 	 * @param queryName Name of the query to execute
 	 * @param searchExecutionModel Query object
 	 * @return List of search results
+	 * @throws MethodArgumentNotValidException 
 	 */
 	@ActionName(ACTION_TYPE_EXECUTE)
 	@ResponseBody
 	@RequestMapping(value = "/execute/{" + PARAM_NAME + "}", method = RequestMethod.GET)
-	public ExecuteSearchResponse executeSearch(@PathVariable(PARAM_NAME) String queryName, @Valid SearchExecutionModel searchExecutionModel)
+	public ExecuteSearchResponse executeSearch(@PathVariable(PARAM_NAME) String queryName, @Valid SearchExecutionModel searchExecutionModel) throws MethodArgumentNotValidException
 	{
 		logger.trace("executeSearch is called for query - {}", queryName);
 		
@@ -125,6 +131,8 @@ public class SearchController extends BaseController
 				throw new InvalidRequestParameterException(ex, "Failed to convert input json to {}. Input json - ", queryType.getName(), searchExecutionModel.getQueryModelJson());
 			}
 		}
+		
+		validationService.validate(query);
 		
 		return new ExecuteSearchResponse( searchService.executeSearch(queryName, query, searchExecutionModel.getPageSize()) );
 	}

@@ -34,6 +34,7 @@ import javax.persistence.Version;
 
 import com.yukthi.persistence.annotations.DataType;
 import com.yukthi.persistence.annotations.DataTypeMapping;
+import com.yukthi.persistence.annotations.NotUpdateable;
 import com.yukthi.persistence.annotations.UniqueConstraint;
 import com.yukthi.persistence.annotations.UniqueConstraints;
 import com.yukthi.persistence.conversion.impl.JsonConverter;
@@ -91,6 +92,7 @@ public class UserRoleEntity implements ITrackedEntity
 	/**
 	 * Created by user
 	 */
+	@NotUpdateable
 	@ManyToOne
 	@Column(name = "CREATED_BY_ID")
 	private UserEntity createdBy;
@@ -98,6 +100,7 @@ public class UserRoleEntity implements ITrackedEntity
 	/**
 	 * Created on time
 	 */
+	@NotUpdateable
 	@Column(name = "CREATED_ON")
 	@DataTypeMapping(type = DataType.DATE_TIME)
 	private Date createdOn;

@@ -90,7 +90,7 @@ public class EmployeeEntity implements ITrackedEntity
 	 * Updating user
 	 */
 	@ManyToOne
-	@Column(name = "CREATED_BY_ID")
+	@Column(name = "UPDATED_BY_ID")
 	private UserEntity updatedBy;
 	
 	/**

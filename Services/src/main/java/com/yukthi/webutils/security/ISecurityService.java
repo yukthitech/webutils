@@ -46,17 +46,15 @@ public interface ISecurityService
 	/**
 	 * Invoked to check if specified user is authorized to invoke specified method. This method is expected to read
 	 * security annotations from the target method and cross check with specified roles and decide the authorization
-	 * @param userDetails Current user details who is trying to invoke target method
 	 * @param method Method being invoked
 	 * @return True, if user is authorized to invoke the method
 	 */
-	public boolean isAuthorized(UserDetails userDetails, Method method);
+	public boolean isAuthorized(Method method);
 	
 	/**
 	 * Invoked to check if specified extension can be accessed by specified user
-	 * @param userDetails Current user details
 	 * @param extensionPoint Extension point details
 	 * @return true if specified user is authorized to access specified extension
 	 */
-	public boolean isExtensionAuthorized(UserDetails userDetails, ExtensionPointDetails extensionPoint);
+	public boolean isExtensionAuthorized(ExtensionPointDetails extensionPoint);
 }

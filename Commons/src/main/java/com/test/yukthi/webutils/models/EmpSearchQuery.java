@@ -25,6 +25,7 @@ package com.test.yukthi.webutils.models;
 
 import com.yukthi.persistence.repository.annotations.Condition;
 import com.yukthi.persistence.repository.annotations.Operator;
+import com.yukthi.validation.annotations.Required;
 import com.yukthi.webutils.common.annotations.Model;
 
 /**
@@ -37,6 +38,7 @@ public class EmpSearchQuery
 	/**
 	 * Employee search name pattern
 	 */
+	@Required
 	@Condition(value = "name", op = Operator.LIKE)
 	private String name;
 	

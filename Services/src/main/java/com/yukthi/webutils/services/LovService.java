@@ -37,7 +37,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.PostConstruct;
-import javax.servlet.http.HttpServletRequest;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -51,7 +50,6 @@ import com.yukthi.persistence.ICrudRepository;
 import com.yukthi.utils.exceptions.InvalidConfigurationException;
 import com.yukthi.utils.exceptions.InvalidStateException;
 import com.yukthi.webutils.IRepositoryMethodRegistry;
-import com.yukthi.webutils.IWebUtilsInternalConstants;
 import com.yukthi.webutils.InvalidRequestParameterException;
 import com.yukthi.webutils.annotations.LovMethod;
 import com.yukthi.webutils.annotations.LovQuery;
@@ -59,7 +57,6 @@ import com.yukthi.webutils.common.annotations.Label;
 import com.yukthi.webutils.common.models.ValueLabel;
 import com.yukthi.webutils.security.ISecurityService;
 import com.yukthi.webutils.security.UnauthorizedException;
-import com.yukthi.webutils.security.UserDetails;
 import com.yukthi.webutils.services.dynamic.DynamicMethod;
 import com.yukthi.webutils.utils.WebUtils;
 
@@ -84,12 +81,6 @@ public class LovService implements IRepositoryMethodRegistry<LovQuery>
 	 */
 	@Autowired(required = false)
 	private ISecurityService securityService;
-	
-	/**
-	 * Request to fetch current user details
-	 */
-	@Autowired
-	private HttpServletRequest request;
 	
 	@Autowired
 	private ApplicationContext applicationContext;
@@ -303,9 +294,7 @@ public class LovService implements IRepositoryMethodRegistry<LovQuery>
 		//if security service is specified, check user authorization for target search method
 		if(securityService != null)
 		{
-			UserDetails userDetails = (UserDetails)request.getAttribute(IWebUtilsInternalConstants.REQ_ATTR_USER_DETAILS);
-			
-			if(!securityService.isAuthorized(userDetails, method.getMethod()))
+			if(!securityService.isAuthorized(method.getMethod()))
 			{
 				throw new UnauthorizedException("Current user is not authorized to execute lov query - {}", name);
 			}

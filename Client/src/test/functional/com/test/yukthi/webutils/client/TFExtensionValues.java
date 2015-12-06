@@ -199,7 +199,6 @@ public class TFExtensionValues extends TFBase
 	{
 		long id = extensionsHelper.addExtensionField(
 				clientContext.setRequestCustomizer(new RequestHeadersCustomizer(CommonUtils.toMap("customerId", "" + customerId))), 
-				"Employee", 
 				field );
 		
 		fieldMap.put(field.getName(), id);
@@ -218,18 +217,18 @@ public class TFExtensionValues extends TFBase
 		customer2 = addCustomer("Customer4Val2");
 		
 		//add extension fields for Employee under customer 1
-		addExtensionField(customer1, new ExtensionFieldModel("field1", "Desc1", ExtensionFieldType.INTEGER, true), fieldMap1);
-		addExtensionField(customer1, new ExtensionFieldModel("field2", "Desc2", ExtensionFieldType.DECIMAL, false), fieldMap1);
-		addExtensionField(customer1, new ExtensionFieldModel( "field3", "Desc3", false, 
+		addExtensionField(customer1, new ExtensionFieldModel("Employee", "field1", "Desc1", ExtensionFieldType.INTEGER, true), fieldMap1);
+		addExtensionField(customer1, new ExtensionFieldModel("Employee", "field2", "Desc2", ExtensionFieldType.DECIMAL, false), fieldMap1);
+		addExtensionField(customer1, new ExtensionFieldModel("Employee", "field3", "Desc3", false, 
 				Arrays.asList(
 						new LovOption("1", "Label1"),
 						new LovOption("2", "Label2")) ), fieldMap1);
 		
 		//add extension fields for Employee under customer 2
-		addExtensionField(customer2, new ExtensionFieldModel("field1", "Desc1", ExtensionFieldType.BOOLEAN, false), fieldMap2);
-		addExtensionField(customer2, new ExtensionFieldModel("field2", "Desc2", ExtensionFieldType.DATE, true), fieldMap2);
-		addExtensionField(customer2, new ExtensionFieldModel("field3", "Desc3", ExtensionFieldType.MULTI_LINE_STRING, false, 10), fieldMap2);
-		addExtensionField(customer2, new ExtensionFieldModel("field4", "Desc4", ExtensionFieldType.STRING, true, 10), fieldMap2);
+		addExtensionField(customer2, new ExtensionFieldModel("Employee", "field1", "Desc1", ExtensionFieldType.BOOLEAN, false), fieldMap2);
+		addExtensionField(customer2, new ExtensionFieldModel("Employee", "field2", "Desc2", ExtensionFieldType.DATE, true), fieldMap2);
+		addExtensionField(customer2, new ExtensionFieldModel("Employee", "field3", "Desc3", ExtensionFieldType.MULTI_LINE_STRING, false, 10), fieldMap2);
+		addExtensionField(customer2, new ExtensionFieldModel("Employee", "field4", "Desc4", ExtensionFieldType.STRING, true, 10), fieldMap2);
 	}
 	
 	/**

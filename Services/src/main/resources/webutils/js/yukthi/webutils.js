@@ -2,12 +2,121 @@ var LOGIN_URI = "/auth/login";
 var ACTIONS_URI = "/actions/fetch";
 var URL_PARAM_PATTERN = /\{(\w+)\}/g;
 
+$.application.factory('utils', [function(){
+	var utils = {
+		"ARG_PATERN" : /\{\}/g,
+		"format": function(message, args, argIdx) {
+			
+			var idx = (argIdx == null || argIdx == undefined) ? 1 : argIdx;
+			var finalMsg = null;
+			
+			if(typeof message == "string")
+			{
+				finalMsg = message.replace(this.ARG_PATERN, function(match, p1){
+					var argVal = (idx < args.length) ? args[idx] : null;
+					
+					if(argVal && (typeof argVal == "object"))
+					{
+						argVal = JSON.stringify(argVal);
+					}
+					
+					idx++;
+					return argVal ? argVal : "null";
+				});
+			}
+			else if(message && (typeof message == "object"))
+			{
+				finalMsg = JSON.stringify(message);
+			}
+			else
+			{
+				finalMsg = message;
+			}
+
+			return finalMsg;
+		},
+		
+		"alert" : function(message, callback) {
+			message = $.isArray(message) ? this.format(message[0], message, 1) : message;
+			alert(message);
+			
+			if(callback)
+			{
+				callback();
+			}
+		},
+		
+		"info" : function(message) {
+			message = $.isArray(message) ? this.format(message[0], message, 1) : message;
+			alert(message);
+		},
+		
+		"confirm" : function(message, callback) {
+			message = $.isArray(message) ? this.format(message[0], message, 1) : message;
+			var result = confirm(message);
+			
+			if(callback)
+			{
+				callback(result);
+			}
+		}
+	};
+
+	return utils;
+}]);
+
+$.application.factory('logger', ["utils", function(utils){
+	var logger = {
+
+		"debugEnabled" : ($.appConfiguration.debugEnabled ? true : false),
+		"errorEnabled" : ($.appConfiguration.errorEnabled ? true : false),
+		"traceEnabled" : ($.appConfiguration.traceEnabled ? true : false),
+
+		"log": function(prefix, message, args) {
+			var finalMsg = utils.format(message, args);
+
+			console.log(prefix + " - " + finalMsg);
+		},
+		
+		"debug" : function(message) {
+			
+			if(!this.debugEnabled)
+			{
+				return;
+			}
+			
+			this.log("DEBUG", message, arguments);
+		},
+
+		"error" : function(message) {
+			
+			if(!this.errorEnabled)
+			{
+				return;
+			}
+			
+			this.log("ERROR", message, arguments);
+		},
+		
+		"trace" : function(message) {
+			
+			if(!this.traceEnabled)
+			{
+				return;
+			}
+			
+			this.log("TRACE", message, arguments);
+		}
+	};
+	
+	return logger;
+}]);
+
 /**
  * This service provides context behaviour for APIs. Maintains the context
  * across the api calls on client side.
  */
-$.application.factory('clientContext', function()
-{
+$.application.factory('clientContext', ['logger', function(logger) {
 	var clientContext = {
 		/**
 		 * Maintains the auth token that needs to be sent to server
@@ -82,11 +191,11 @@ $.application.factory('clientContext', function()
 					  try
 					  {
 						  resData = $.parseJSON(jqXHR.responseText);
+						  logger.error("Got error as - {}", resData);
 					  }catch(ex)
 					  {
-						  console.error("Failed to parsed response text.");
-						  console.error(ex);
-						  console.error("Response text: " + jqXHR.responseText);
+						  logger.error("Failed to parsed error response text.- {}", ex);
+						  logger.error("Error Response text: " + jqXHR.responseText);
 					  }
 					
 					  this.data = resData;
@@ -99,7 +208,7 @@ $.application.factory('clientContext', function()
 			{
 				if(result.newAuthToken && result.newAuthToken != this.authToken)
 				{
-					console.log("New auth token recieved");
+					logger.debug("New auth token recieved");
 					this.authToken = result.newAuthToken;
 					localStorage.setItem("authToken", this.authToken);
 				}
@@ -218,7 +327,7 @@ $.application.factory('clientContext', function()
     				throw "Authentication failed!\nPlease check your user name and password";
     			}
     			
-    			console.error(ex);
+    			logger.error(ex);
     			throw "Authentication failed!\nAn error occurred while communicating with server!";
     		}
     		
@@ -246,8 +355,8 @@ $.application.factory('clientContext', function()
     			actionsResponse = this.invokeGetApi($.appConfiguration.apiBaseUrl + ACTIONS_URI);
     		}catch(ex)
     		{
-    			console.error("An error occurred while fetching actions- " + ex);
-    			console.error(ex);
+    			logger.error("An error occurred while fetching actions- " + ex);
+    			logger.error(ex);
     			return;
     		}
     		
@@ -287,22 +396,23 @@ $.application.factory('clientContext', function()
 			}
 			else
 			{
-				console.log("Ignoring redirectToLogin() as currently login page itself is active..");
+				logger.debug("Ignoring redirectToLogin() as currently login page itself is active..");
 			}
 		},
 		
 		"discardSession" : function(reason) {
-			console.log("Discarding session. Reason - " + reason);
+			logger.debug("Discarding session. Reason - " + reason);
 			this.authToken = null;
 			localStorage.removeItem("authToken");
 		},
-		
+
+		/*
 		"addScript" : function(path) {
 			
 			//check if specified script is already added
 			if(this.scriptsAdded.indexOf(path) >= 0)
 			{
-				console.log("Specified script is already part of context. Ignoring add script request - " + path);
+				logger.log("Specified script is already part of context. Ignoring add script request - " + path);
 				return;
 			}
 			
@@ -321,6 +431,7 @@ $.application.factory('clientContext', function()
 				  async: false
 			});
 		}
+		*/
 	};
 	
 	var tokenFromStorage = localStorage.authToken;
@@ -335,7 +446,7 @@ $.application.factory('clientContext', function()
 	}
 		
 	return clientContext;
-});
+}]);
 
 $.application.factory('actionHelper', ['clientContext', function(clientContext){
 	var actionHelper = {
@@ -370,25 +481,14 @@ $.application.factory('actionHelper', ['clientContext', function(clientContext){
 					//if any url param is not specified, throw error
 					if(!params[urlparamLst[i]])
 					{
-						throw "Required url-parameter '" + urlparamLst[i] + "' is not specified for invocation of action - " + action;
+						throw "Required url-parameter '" + urlparamLst[i] + "' is not specified for invocation of action - " + actionName;
 					}
 					
 					actionUrl = actionUrl.replace(new RegExp("\\{" + urlparamLst[i] + "\\}", "g"), params[urlparamLst[i]]);
+					
+					delete params[urlparamLst[i]];
 				}
 				
-			}
-			
-			var requestParams = null;
-			
-			//if request parameters are required by action method, filter request params from params
-			if(action.requestParameters)
-			{
-				requestParams = {};
-				
-				for(var reqParam in action.requestParameters)
-				{
-					requestParams[reqParam] = params[reqParam];
-				}
 			}
 			
 			var result = null;
@@ -396,11 +496,11 @@ $.application.factory('actionHelper', ['clientContext', function(clientContext){
 			//invoke the target api url based on action method
 			if(action.method == 'GET')
 			{
-				result = this.clientContext.invokeGetApi(actionUrl, requestParams);
+				result = this.clientContext.invokeGetApi(actionUrl, params);
 			}
 			else if(action.method == 'DELETE')
 			{
-				result = this.clientContext.invokeDeleteApi(actionUrl, requestParams);
+				result = this.clientContext.invokeDeleteApi(actionUrl, params);
 			}
 			else
 			{
@@ -415,16 +515,4 @@ $.application.factory('actionHelper', ['clientContext', function(clientContext){
 }]);
 
 
-/*
- * function addCssFile(path) { var head =
- * document.getElementsByTagName('head')[0]; var link =
- * document.createElement('link'); link.rel = 'stylesheet'; link.type =
- * 'text/css'; link.href = path; link.media = 'all'; head.appendChild(link); }
- * 
- * function addJsFile(path) { var head =
- * document.getElementsByTagName('head')[0]; var script =
- * document.createElement('script'); script.type = 'text/javascript'; script.src =
- * path; script.media = 'all'; head.appendChild(script); }
- * 
- * addScript("../webutils/js/jquery-2.1.4.min.js");
- */
+

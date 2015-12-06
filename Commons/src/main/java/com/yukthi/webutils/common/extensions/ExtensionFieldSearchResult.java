@@ -84,7 +84,7 @@ public class ExtensionFieldSearchResult
 	 * Updated by user
 	 */
 	@Field("updatedBy.displayName")
-	private Date updatedBy;
+	private String updatedBy;
 	
 	/**
 	 * Update on date
@@ -237,7 +237,7 @@ public class ExtensionFieldSearchResult
 	 *
 	 * @return the updated by user
 	 */
-	public Date getUpdatedBy()
+	public String getUpdatedBy()
 	{
 		return updatedBy;
 	}
@@ -247,7 +247,7 @@ public class ExtensionFieldSearchResult
 	 *
 	 * @param updatedBy the new updated by user
 	 */
-	public void setUpdatedBy(Date updatedBy)
+	public void setUpdatedBy(String updatedBy)
 	{
 		this.updatedBy = updatedBy;
 	}

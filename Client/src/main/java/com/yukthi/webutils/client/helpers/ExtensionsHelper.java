@@ -87,17 +87,14 @@ public class ExtensionsHelper
 	/**
 	 * Adds specified extension field for specified extension.
 	 * @param context Client context
-	 * @param extensionName Extension name to which field needs to be added
 	 * @param extensionField Field to be added
 	 * @return Id of the newly added field.
 	 */
-	public long addExtensionField(ClientContext context, String extensionName, ExtensionFieldModel extensionField)
+	public long addExtensionField(ClientContext context, ExtensionFieldModel extensionField)
 	{
-		logger.trace("For extension {} trying to add field - {}", extensionName, extensionField);
+		logger.trace("Trying to add extension field - {}", extensionField);
 		
-		RestRequest<?> request = ActionRequestBuilder.buildRequest(context, ACTION_PREFIX_EXTENSIONS + "." + ACTION_TYPE_SAVE , extensionField, CommonUtils.toMap(
-				PARAM_NAME, extensionName
-		));
+		RestRequest<?> request = ActionRequestBuilder.buildRequest(context, ACTION_PREFIX_EXTENSIONS + "." + ACTION_TYPE_SAVE , extensionField, null);
 		
 		RestClient client = context.getRestClient();
 		
@@ -110,23 +107,20 @@ public class ExtensionsHelper
 			throw new RestException("An error occurred while saving extension field", extResult.getStatusCode(), response);
 		}
 	
-		logger.debug("Successfully added field to extension - {}. Id - {}", extensionName, response.getId());
+		logger.debug("Successfully added extension field. Id - {}", response.getId());
 		return response.getId();
 	}
 	
 	/**
 	 * Updates specified extension field under specified extension
 	 * @param context Client context
-	 * @param extensionName Extension name to which field needs to be added
 	 * @param extensionField Field to be updated
 	 */
-	public void updateExtensionField(ClientContext context, String extensionName, ExtensionFieldModel extensionField)
+	public void updateExtensionField(ClientContext context, ExtensionFieldModel extensionField)
 	{
-		logger.trace("For extension {} trying to update field - {}", extensionName, extensionField);
+		logger.trace("Trying to update extension field - {}", extensionField);
 		
-		RestRequest<?> request = ActionRequestBuilder.buildRequest(context, ACTION_PREFIX_EXTENSIONS + "." + ACTION_TYPE_UPDATE , extensionField, CommonUtils.toMap(
-				PARAM_NAME, extensionName
-		));
+		RestRequest<?> request = ActionRequestBuilder.buildRequest(context, ACTION_PREFIX_EXTENSIONS + "." + ACTION_TYPE_UPDATE , extensionField, null);
 		
 		RestClient client = context.getRestClient();
 		
@@ -139,7 +133,7 @@ public class ExtensionsHelper
 			throw new RestException("An error occurred while updating extension field", extResult.getStatusCode(), response);
 		}
 	
-		logger.debug("Successfully update field in extension - {}.", extensionName);
+		logger.debug("Successfully updated extension field.");
 	}
 	
 	/**

@@ -43,7 +43,7 @@ public class ExtensionFieldSearchQuery
 	@Label("Extension")
 	@Required
 	@LOV(name = "extensionLov")
-	@Condition(value = "extension.targetEntity", op = Operator.EQ)
+	@Condition(value = "extension.targetPointName", op = Operator.EQ)
 	private String extensionType;
 
 	/**
@@ -55,13 +55,13 @@ public class ExtensionFieldSearchQuery
 	/**
 	 * Only mandatory search fields will be searched
 	 */
-	@Condition(value = "required", op = Operator.LIKE)
-	private boolean required;
+	@Condition(value = "required")
+	private Boolean required;
 	
 	/**
 	 * Type of the extension fields to be searched
 	 */
-	@Condition(value = "type", op = Operator.LIKE)
+	@Condition(value = "type")
 	private ExtensionFieldType type;
 
 	/**
@@ -109,7 +109,7 @@ public class ExtensionFieldSearchQuery
 	 *
 	 * @return the only mandatory search fields will be searched
 	 */
-	public boolean isRequired()
+	public Boolean isRequired()
 	{
 		return required;
 	}
@@ -119,7 +119,7 @@ public class ExtensionFieldSearchQuery
 	 *
 	 * @param required the new only mandatory search fields will be searched
 	 */
-	public void setRequired(boolean required)
+	public void setRequired(Boolean required)
 	{
 		this.required = required;
 	}

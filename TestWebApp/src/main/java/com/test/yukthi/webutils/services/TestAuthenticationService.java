@@ -26,6 +26,7 @@ package com.test.yukthi.webutils.services;
 import java.lang.reflect.Method;
 import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.test.yukthi.webutils.Authorization;
@@ -34,7 +35,7 @@ import com.test.yukthi.webutils.TestUserDetails;
 import com.yukthi.utils.CommonUtils;
 import com.yukthi.webutils.extensions.ExtensionPointDetails;
 import com.yukthi.webutils.security.ISecurityService;
-import com.yukthi.webutils.security.UserDetails;
+import com.yukthi.webutils.services.CurrentUserService;
 
 /**
  * @author akiran
@@ -43,7 +44,12 @@ import com.yukthi.webutils.security.UserDetails;
 @Service
 public class TestAuthenticationService implements ISecurityService
 {
-
+	@Autowired
+	private TestUserService userService;
+	
+	@Autowired
+	private CurrentUserService currentUserService;
+	
 	/* (non-Javadoc)
 	 * @see com.yukthi.webutils.security.IAuthenticationService#authenticate(java.lang.String, java.lang.String)
 	 */
@@ -55,14 +61,14 @@ public class TestAuthenticationService implements ISecurityService
 			return null;
 		}
 		
-		return new TestUserDetails(1234L, CommonUtils.toSet(SecurityRole.ADMIN, SecurityRole.CLIENT_ADMIN), 4321L);
+		return new TestUserDetails(userService.getUserId(), CommonUtils.toSet(SecurityRole.ADMIN, SecurityRole.CLIENT_ADMIN), 4321L);
 	}
 
 	/* (non-Javadoc)
 	 * @see com.yukthi.webutils.security.ISecurityService#isAuthorized(com.yukthi.webutils.security.UserDetails, java.lang.reflect.Method)
 	 */
 	@Override
-	public boolean isAuthorized(UserDetails userDetails, Method method)
+	public boolean isAuthorized(Method method)
 	{
 		Authorization authorization = method.getAnnotation(Authorization.class);
 		
@@ -73,7 +79,7 @@ public class TestAuthenticationService implements ISecurityService
 		}
 		
 		//check if current user has at least one role from required roles, if found return true 
-		Set<SecurityRole> userRoles = ((TestUserDetails)userDetails).getRoles();
+		Set<SecurityRole> userRoles = ((TestUserDetails)currentUserService.getCurrentUserDetails()).getRoles();
 		
 		for(SecurityRole role : authorization.value())
 		{
@@ -91,7 +97,7 @@ public class TestAuthenticationService implements ISecurityService
 	 * @see com.yukthi.webutils.security.ISecurityService#isExtensionAuthorized(com.yukthi.webutils.security.UserDetails, com.yukthi.webutils.extensions.ExtensionPointDetails)
 	 */
 	@Override
-	public boolean isExtensionAuthorized(UserDetails userDetails, ExtensionPointDetails extensionPoint)
+	public boolean isExtensionAuthorized(ExtensionPointDetails extensionPoint)
 	{
 		return true;
 	}

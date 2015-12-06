@@ -23,8 +23,6 @@
 
 package com.test.yukthi.webutils.models;
 
-import java.util.Date;
-
 import com.yukthi.webutils.common.AbstractExtendableModel;
 import com.yukthi.webutils.common.annotations.ExtendableModel;
 
@@ -55,14 +53,6 @@ public class EmployeeModel extends AbstractExtendableModel
 	 * Salary of the employee
 	 */
 	private long salary;
-
-	private Date createdOn;
-	
-	private Long createdBy;
-	
-	private Date updatedOn;
-	
-	private Long updatedBy;
 
 	public EmployeeModel()
 	{}
@@ -101,46 +91,6 @@ public class EmployeeModel extends AbstractExtendableModel
 	public void setSalary(long salary)
 	{
 		this.salary = salary;
-	}
-
-	public Date getCreatedOn()
-	{
-		return createdOn;
-	}
-
-	public void setCreatedOn(Date createdOn)
-	{
-		this.createdOn = createdOn;
-	}
-
-	public Long getCreatedBy()
-	{
-		return createdBy;
-	}
-
-	public void setCreatedBy(Long createdBy)
-	{
-		this.createdBy = createdBy;
-	}
-
-	public Date getUpdatedOn()
-	{
-		return updatedOn;
-	}
-
-	public void setUpdatedOn(Date updatedOn)
-	{
-		this.updatedOn = updatedOn;
-	}
-
-	public Long getUpdatedBy()
-	{
-		return updatedBy;
-	}
-
-	public void setUpdatedBy(Long updatedBy)
-	{
-		this.updatedBy = updatedBy;
 	}
 
 	public Integer getVersion()

@@ -68,6 +68,11 @@ public interface IWebUtilsActionConstants
 	 * Action to be used to fetch query result def
 	 */
 	public String ACTION_TYPE_FETCH_RESULT_DEF = "fetch.resultDef";
+	
+	/**
+	 * Action to fetch extension field
+	 */
+	public String ACTION_TYPE_FETCH_FIELD = "fetch.field";
 
 	////////////////////////////////////////////////////////////////////////////
 	/**

@@ -21,24 +21,52 @@
  * SOFTWARE.
  */
 
-package com.yukthi.webutils.repository;
-
-import com.yukthi.persistence.ICrudRepository;
-import com.yukthi.persistence.repository.annotations.Condition;
+package com.yukthi.webutils.common.models;
 
 /**
- * Repository for entity extensions
+ * Response for read extension field response
  * @author akiran
  */
-public interface IExtensionRepository extends ICrudRepository<ExtensionEntity>
+public class ExtensionFieldReadResponse extends BaseResponse
 {
 	/**
-	 * Finder query to find extension based on specified entity and owner details
-	 * @param targetPointName Target point for which extension is being fetched
-	 * @param ownerPointName Owner point which owns the extension
-	 * @param ownerId Owner id which owns the extension
-	 * @return Matching entity extension
+	 * Field model read from server
 	 */
-	public ExtensionEntity findEntity(@Condition("targetPointName") String targetPointName, 
-			@Condition("ownerPointName") String ownerPointName, @Condition("ownerId") long ownerId);
-}
+	private ExtensionFieldModel model;
+	
+	/**
+	 * Instantiates a new extension field read response.
+	 */
+	public ExtensionFieldReadResponse()
+	{}
+
+	/**
+	 * Instantiates a new extension field read response.
+	 *
+	 * @param model the model
+	 */
+	public ExtensionFieldReadResponse(ExtensionFieldModel model)
+	{
+		this.model = model;
+	}
+
+	/**
+	 * Gets the field model read from server.
+	 *
+	 * @return the field model read from server
+	 */
+	public ExtensionFieldModel getModel()
+	{
+		return model;
+	}
+
+	/**
+	 * Sets the field model read from server.
+	 *
+	 * @param model the new field model read from server
+	 */
+	public void setModel(ExtensionFieldModel model)
+	{
+		this.model = model;
+	}
+}	

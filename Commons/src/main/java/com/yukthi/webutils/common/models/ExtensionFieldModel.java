@@ -33,9 +33,12 @@ import com.yukthi.validation.annotations.MinLen;
 import com.yukthi.validation.annotations.NotEmpty;
 import com.yukthi.validation.annotations.Required;
 import com.yukthi.webutils.common.annotations.IgnoreField;
+import com.yukthi.webutils.common.annotations.LOV;
+import com.yukthi.webutils.common.annotations.Label;
 import com.yukthi.webutils.common.annotations.Model;
 import com.yukthi.webutils.common.annotations.MultilineText;
 import com.yukthi.webutils.common.annotations.NonDisplayable;
+import com.yukthi.webutils.common.annotations.ReadOnly;
 import com.yukthi.webutils.common.extensions.ExtensionFieldType;
 import com.yukthi.webutils.common.extensions.LovOption;
 
@@ -58,6 +61,15 @@ public class ExtensionFieldModel
 	 */
 	@NonDisplayable
 	private Integer version;
+
+	/**
+	 * Extension to which this field is being defined
+	 */
+	@Label("Extension")
+	@ReadOnly
+	@Required
+	@LOV(name = "extensionLov")
+	private String extensionName;
 
 	/**
 	 * Name of the field
@@ -107,13 +119,15 @@ public class ExtensionFieldModel
 	/**
 	 * Instantiates a new extension field model. Can be used for simple fields.
 	 *
+	 * @param extensionName 
 	 * @param name the name
 	 * @param description the description
 	 * @param type the type
 	 * @param required the required
 	 */
-	public ExtensionFieldModel(String name, String description, ExtensionFieldType type, boolean required)
+	public ExtensionFieldModel(String extensionName, String name, String description, ExtensionFieldType type, boolean required)
 	{
+		this.extensionName = extensionName;
 		this.name = name;
 		this.description = description;
 		this.type = type;
@@ -122,14 +136,15 @@ public class ExtensionFieldModel
 
 	/**
 	 * Instantiates a new extension field model. Can be used for LOV fields.
-	 *
+	 * @param extensionName 
 	 * @param name the name
 	 * @param description the description
 	 * @param required the required
 	 * @param lovOptions the lov options
 	 */
-	public ExtensionFieldModel(String name, String description, boolean required, List<LovOption> lovOptions)
+	public ExtensionFieldModel(String extensionName, String name, String description, boolean required, List<LovOption> lovOptions)
 	{
+		this.extensionName = extensionName;
 		this.name = name;
 		this.description = description;
 		this.type = ExtensionFieldType.LIST_OF_VALUES;
@@ -140,14 +155,16 @@ public class ExtensionFieldModel
 	/**
 	 * Instantiates a new extension field model.
 	 *
+	 * @param extensionName
 	 * @param name the name
 	 * @param description the description
 	 * @param type the type
 	 * @param required the required
 	 * @param maxLength Max length
 	 */
-	public ExtensionFieldModel(String name, String description, ExtensionFieldType type,  boolean required, int maxLength)
+	public ExtensionFieldModel(String extensionName, String name, String description, ExtensionFieldType type,  boolean required, int maxLength)
 	{
+		this.extensionName = extensionName;
 		this.name = name;
 		this.description = description;
 		this.type = type;
@@ -185,6 +202,26 @@ public class ExtensionFieldModel
 	public String getName()
 	{
 		return name;
+	}
+	
+	/**
+	 * Gets the extension to which this field is being defined.
+	 *
+	 * @return the extension to which this field is being defined
+	 */
+	public String getExtensionName()
+	{
+		return extensionName;
+	}
+
+	/**
+	 * Sets the extension to which this field is being defined.
+	 *
+	 * @param extensionType the new extension to which this field is being defined
+	 */
+	public void setExtensionName(String extensionType)
+	{
+		this.extensionName = extensionType;
 	}
 
 	/**

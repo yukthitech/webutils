@@ -35,6 +35,7 @@ import javax.persistence.Version;
 
 import com.yukthi.persistence.annotations.DataType;
 import com.yukthi.persistence.annotations.DataTypeMapping;
+import com.yukthi.persistence.annotations.NotUpdateable;
 import com.yukthi.persistence.annotations.UniqueConstraint;
 import com.yukthi.persistence.annotations.UniqueConstraints;
 import com.yukthi.persistence.conversion.impl.JsonConverter;
@@ -45,7 +46,7 @@ import com.yukthi.persistence.conversion.impl.JsonConverter;
  */
 @Table(name = "ENTITY_EXTENSIONS")
 @UniqueConstraints({
-	@UniqueConstraint(name = "OWNR_TYPE_OWNR_ID", fields = {"targetEntity", "ownerEntityType", "ownerId"})
+	@UniqueConstraint(name = "OWNR_TYPE_OWNR_ID", fields = {"targetPointName", "ownerPointName", "ownerId"})
 })
 public class ExtensionEntity implements ITrackedEntity
 {
@@ -65,16 +66,16 @@ public class ExtensionEntity implements ITrackedEntity
 	private Integer version;
 	
 	/**
-	 * Name of the target entity for which this extended field is defined
+	 * Name of the target entity point for which this extended field is defined
 	 */
-	@Column(name = "TARGET_ENTITY_NAME", nullable = false, length = 500)
-	private String targetEntity;
+	@Column(name = "TARGET_POINT_NAME", nullable = false, length = 500)
+	private String targetPointName;
 	
 	/**
-	 * Owner entity type for which extension is being defined
+	 * Owner entity point name under which extension is being defined
 	 */
-	@Column(name = "OWNER_ENTITY_TYPE", nullable = false, length = 500)
-	private String ownerEntityType;
+	@Column(name = "OWNER_POINT_NAME", nullable = false, length = 500)
+	private String ownerPointName;
 	
 	/**
 	 * Owner entity id for which entity is being defined. 
@@ -98,6 +99,7 @@ public class ExtensionEntity implements ITrackedEntity
 	/**
 	 * Created by user
 	 */
+	@NotUpdateable
 	@ManyToOne
 	@Column(name = "CREATED_BY_ID")
 	private UserEntity createdBy;
@@ -105,6 +107,7 @@ public class ExtensionEntity implements ITrackedEntity
 	/**
 	 * Created on time
 	 */
+	@NotUpdateable
 	@Column(name = "CREATED_ON")
 	@DataTypeMapping(type = DataType.DATE_TIME)
 	private Date createdOn;
@@ -142,21 +145,19 @@ public class ExtensionEntity implements ITrackedEntity
 	/**
 	 * Instantiates a new extension entity.
 	 *
-	 * @param targetEntity the target entity
-	 * @param ownerEntityType the owner entity type
+	 * @param targetPointName the target point name
+	 * @param ownerPointName the owner point name
 	 * @param ownerId the owner id
 	 */
-	public ExtensionEntity(String targetEntity, String ownerEntityType, long ownerId)
+	public ExtensionEntity(String targetPointName, String ownerPointName, long ownerId)
 	{
-		this.targetEntity = targetEntity;
-		this.ownerEntityType = ownerEntityType;
+		this.targetPointName = targetPointName;
+		this.ownerPointName = ownerPointName;
 		this.ownerId = ownerId;
 	}
 
-	/**
-	 * Gets the primary key of the entity.
-	 *
-	 * @return the primary key of the entity
+	/* (non-Javadoc)
+	 * @see com.yukthi.webutils.IEntity#getId()
 	 */
 	public Long getId()
 	{
@@ -173,44 +174,60 @@ public class ExtensionEntity implements ITrackedEntity
 		this.id = id;
 	}
 
-	/**
-	 * Gets the name of the target entity for which this extended field is defined.
-	 *
-	 * @return the name of the target entity for which this extended field is defined
+	/* (non-Javadoc)
+	 * @see com.yukthi.webutils.IEntity#getVersion()
 	 */
-	public String getTargetEntity()
+	public Integer getVersion()
 	{
-		return targetEntity;
+		return version;
+	}
+
+	/* (non-Javadoc)
+	 * @see com.yukthi.webutils.IEntity#setVersion(java.lang.Integer)
+	 */
+	public void setVersion(Integer version)
+	{
+		this.version = version;
 	}
 
 	/**
-	 * Sets the name of the target entity for which this extended field is defined.
+	 * Gets the name of the target entity point for which this extended field is defined.
 	 *
-	 * @param targetEntity the new name of the target entity for which this extended field is defined
+	 * @return the name of the target entity point for which this extended field is defined
 	 */
-	public void setTargetEntity(String targetEntity)
+	public String getTargetPointName()
 	{
-		this.targetEntity = targetEntity;
+		return targetPointName;
 	}
 
 	/**
-	 * Gets the owner entity type for which extension is being defined.
+	 * Sets the name of the target entity point for which this extended field is defined.
 	 *
-	 * @return the owner entity type for which extension is being defined
+	 * @param targetPointName the new name of the target entity point for which this extended field is defined
 	 */
-	public String getOwnerEntityType()
+	public void setTargetPointName(String targetPointName)
 	{
-		return ownerEntityType;
+		this.targetPointName = targetPointName;
 	}
 
 	/**
-	 * Sets the owner entity type for which extension is being defined.
+	 * Gets the owner entity point name under which extension is being defined.
 	 *
-	 * @param ownerEntityType the new owner entity type for which extension is being defined
+	 * @return the owner entity point name under which extension is being defined
 	 */
-	public void setOwnerEntityType(String ownerEntityType)
+	public String getOwnerPointName()
 	{
-		this.ownerEntityType = ownerEntityType;
+		return ownerPointName;
+	}
+
+	/**
+	 * Sets the owner entity point name under which extension is being defined.
+	 *
+	 * @param ownerPointName the new owner entity point name under which extension is being defined
+	 */
+	public void setOwnerPointName(String ownerPointName)
+	{
+		this.ownerPointName = ownerPointName;
 	}
 
 	/**
@@ -271,22 +288,6 @@ public class ExtensionEntity implements ITrackedEntity
 	public void setAttributes(Object attributes)
 	{
 		this.attributes = attributes;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.IEntity#getVersion()
-	 */
-	public Integer getVersion()
-	{
-		return version;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.IEntity#setVersion(java.lang.Integer)
-	 */
-	public void setVersion(Integer version)
-	{
-		this.version = version;
 	}
 
 	/* (non-Javadoc)

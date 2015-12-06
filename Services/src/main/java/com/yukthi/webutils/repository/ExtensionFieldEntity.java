@@ -40,6 +40,7 @@ import javax.persistence.Version;
 import com.yukthi.persistence.annotations.DataType;
 import com.yukthi.persistence.annotations.DataTypeMapping;
 import com.yukthi.persistence.annotations.DeleteWithParent;
+import com.yukthi.persistence.annotations.NotUpdateable;
 import com.yukthi.persistence.annotations.UniqueConstraint;
 import com.yukthi.persistence.annotations.UniqueConstraints;
 import com.yukthi.persistence.conversion.impl.JsonConverter;
@@ -75,6 +76,7 @@ public class ExtensionFieldEntity implements ITrackedEntity
 	/**
 	 * Extension for which this field is being defined
 	 */
+	@NotUpdateable
 	@ManyToOne
 	@Column(name = "EXTENSION_ID", nullable = false)
 	@DeleteWithParent
@@ -126,6 +128,7 @@ public class ExtensionFieldEntity implements ITrackedEntity
 	/**
 	 * Created by user
 	 */
+	@NotUpdateable
 	@ManyToOne
 	@Column(name = "CREATED_BY_ID")
 	private UserEntity createdBy;
@@ -133,6 +136,7 @@ public class ExtensionFieldEntity implements ITrackedEntity
 	/**
 	 * Created on time
 	 */
+	@NotUpdateable
 	@Column(name = "CREATED_ON")
 	@DataTypeMapping(type = DataType.DATE_TIME)
 	private Date createdOn;

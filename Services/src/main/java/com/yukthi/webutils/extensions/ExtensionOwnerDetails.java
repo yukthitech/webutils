@@ -21,71 +21,81 @@
  * SOFTWARE.
  */
 
-package com.test.yukthi.webutils.entity;
-
-import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-
-import com.yukthi.persistence.annotations.UniqueConstraint;
-import com.yukthi.persistence.annotations.UniqueConstraints;
-import com.yukthi.webutils.annotations.ExtendableEntity;
-import com.yukthi.webutils.annotations.ExtensionOwner;
+package com.yukthi.webutils.extensions;
 
 /**
- * Test entity
- * 
+ * Extension owner details
  * @author akiran
  */
-@Table(name = "CUSTOMER")
-@UniqueConstraints({
-	@UniqueConstraint(fields = {"name"}, name = "UQ_CUST_NAME")
-})
-@ExtensionOwner(name = "Customer")
-@ExtendableEntity(name = "Customer")
-public class CustomerEntity
+public class ExtensionOwnerDetails
 {
 	/**
-	 * Employee id
+	 * Name of the extension owner
 	 */
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "ID")
-	private long id;
-
-	/**
-	 * Name of the employee
-	 */
-	@Column(name = "NAME")
 	private String name;
-
-	public CustomerEntity()
+	
+	/**
+	 * Entity type which is defined as extension owner
+	 */
+	private Class<?> entityType;
+	
+	/**
+	 * Instantiates a new extension owner details.
+	 */
+	public ExtensionOwnerDetails()
 	{}
-
-	public CustomerEntity(String name)
+	
+	/**
+	 * Instantiates a new extension owner details.
+	 *
+	 * @param name the name
+	 * @param entityType the entity type
+	 */
+	public ExtensionOwnerDetails(String name, Class<?> entityType)
 	{
 		this.name = name;
+		this.entityType = entityType;
 	}
 
-	public long getId()
-	{
-		return id;
-	}
-
-	public void setId(long id)
-	{
-		this.id = id;
-	}
-
+	/**
+	 * Gets the name of the extension owner.
+	 *
+	 * @return the name of the extension owner
+	 */
 	public String getName()
 	{
 		return name;
 	}
 
+	/**
+	 * Sets the name of the extension owner.
+	 *
+	 * @param name the new name of the extension owner
+	 */
 	public void setName(String name)
 	{
 		this.name = name;
 	}
+
+	/**
+	 * Gets the entity type which is defined as extension owner.
+	 *
+	 * @return the entity type which is defined as extension owner
+	 */
+	public Class<?> getEntityType()
+	{
+		return entityType;
+	}
+
+	/**
+	 * Sets the entity type which is defined as extension owner.
+	 *
+	 * @param entityType the new entity type which is defined as extension owner
+	 */
+	public void setEntityType(Class<?> entityType)
+	{
+		this.entityType = entityType;
+	}
+
+	
 }

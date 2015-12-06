@@ -27,6 +27,7 @@ import static com.yukthi.webutils.common.IWebUtilsActionConstants.ACTION_PREFIX_
 import static com.yukthi.webutils.common.IWebUtilsActionConstants.ACTION_TYPE_DELETE;
 import static com.yukthi.webutils.common.IWebUtilsActionConstants.ACTION_TYPE_DELETE_ALL;
 import static com.yukthi.webutils.common.IWebUtilsActionConstants.ACTION_TYPE_FETCH;
+import static com.yukthi.webutils.common.IWebUtilsActionConstants.ACTION_TYPE_FETCH_FIELD;
 import static com.yukthi.webutils.common.IWebUtilsActionConstants.ACTION_TYPE_SAVE;
 import static com.yukthi.webutils.common.IWebUtilsActionConstants.ACTION_TYPE_UPDATE;
 import static com.yukthi.webutils.common.IWebUtilsActionConstants.PARAM_ID;
@@ -52,6 +53,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.yukthi.persistence.annotations.DataType;
 import com.yukthi.persistence.conversion.impl.JsonConverter;
 import com.yukthi.utils.ObjectWrapper;
+import com.yukthi.utils.exceptions.InvalidArgumentException;
 import com.yukthi.utils.exceptions.InvalidStateException;
 import com.yukthi.webutils.InvalidRequestParameterException;
 import com.yukthi.webutils.annotations.ActionName;
@@ -59,11 +61,15 @@ import com.yukthi.webutils.common.extensions.ExtensionFieldType;
 import com.yukthi.webutils.common.models.BaseResponse;
 import com.yukthi.webutils.common.models.BasicSaveResponse;
 import com.yukthi.webutils.common.models.ExtensionFieldModel;
+import com.yukthi.webutils.common.models.ExtensionFieldReadResponse;
 import com.yukthi.webutils.common.models.ExtensionFieldsResponse;
 import com.yukthi.webutils.extensions.Extension;
+import com.yukthi.webutils.extensions.ExtensionOwnerDetails;
 import com.yukthi.webutils.extensions.ExtensionPointDetails;
 import com.yukthi.webutils.repository.ExtensionEntity;
 import com.yukthi.webutils.repository.ExtensionFieldEntity;
+import com.yukthi.webutils.security.ISecurityService;
+import com.yukthi.webutils.security.UnauthorizedException;
 import com.yukthi.webutils.services.ExtensionService;
 import com.yukthi.webutils.utils.WebUtils;
 
@@ -84,6 +90,9 @@ public class ExtensionController extends BaseController
 	@Autowired
 	private ExtensionUtil extensionUtil;
 	
+	@Autowired
+	private ISecurityService securityService;
+	
 	private JsonConverter jsonConverter = new JsonConverter();
 	
 	/**
@@ -98,6 +107,11 @@ public class ExtensionController extends BaseController
 	public ExtensionFieldsResponse fetchExtensionFields(@PathVariable(PARAM_NAME) String extensionName, HttpServletRequest request)
 	{
 		logger.trace("Fetching extension fields for - {}", extensionName);
+		
+		if(!securityService.isExtensionAuthorized(extensionService.getExtensionPoint(extensionName)))
+		{
+			throw new UnauthorizedException("Current user is not authorized to access extesion - {}", extensionName);
+		}
 		
 		ExtensionEntity extensionEntity = extensionUtil.getExtensionEntity(extensionName, null);
 		
@@ -120,7 +134,7 @@ public class ExtensionController extends BaseController
 	 * Validates specified extension field model. Throws exception if validation fails
 	 * @param extensionField
 	 */
-	private void validateExtensionField(ExtensionFieldModel extensionField)
+	private void validateExtensionFieldForSave(ExtensionFieldModel extensionField)
 	{
 		if(extensionField.getType() == ExtensionFieldType.LIST_OF_VALUES)
 		{
@@ -152,33 +166,57 @@ public class ExtensionController extends BaseController
 	
 	/**
 	 * Saves the extension field with specified name. If no extension exists, a new extension gets created
-	 * @param extensionName Name of the extension
 	 * @param extensionField Extension field model
 	 * @param request Http Request
 	 * @return Save response with id
 	 */
 	@ActionName(ACTION_TYPE_SAVE)
 	@ResponseBody
-	@RequestMapping(value = "/save/{" + PARAM_NAME + "}", method = RequestMethod.POST)
-	public BasicSaveResponse saveExtensionField(@PathVariable(PARAM_NAME) String extensionName, @RequestBody @Valid ExtensionFieldModel extensionField, HttpServletRequest request)
+	@RequestMapping(value = "/save", method = RequestMethod.POST)
+	public BasicSaveResponse saveExtensionField(@RequestBody @Valid ExtensionFieldModel extensionField, HttpServletRequest request)
 	{
-		logger.trace("Save invoked with params [Extension: {}, Field: {}]", extensionName, extensionField);
+		logger.trace("Save invoked with params [Field: {}]", extensionField);
+
+		String extensionName = extensionField.getExtensionName();
+		ExtensionPointDetails extensionPointDetails = extensionService.getExtensionPoint(extensionName);
+		
+		if(extensionPointDetails == null)
+		{
+			throw new InvalidArgumentException("Invalid extension name specified - {}", extensionName);
+		}
+		
+		if(!securityService.isExtensionAuthorized(extensionPointDetails))
+		{
+			throw new UnauthorizedException("Current user is not authorized to access extesion - {}", extensionName);
+		}
 		
 		//fetch validate extension point name
 		ObjectWrapper<Extension> extensionWrapper = new ObjectWrapper<>();
 		ExtensionEntity extensionEntity = extensionUtil.getExtensionEntity(extensionName, extensionWrapper);
-		ExtensionPointDetails extensionPointDetails = extensionService.getExtensionPoint(extensionName);
 		
 		//validate specified model
-		validateExtensionField(extensionField);
+		validateExtensionFieldForSave(extensionField);
 		
 		//if required extension does not exist, created one
 		if(extensionEntity == null)
 		{
 			logger.debug("No extension-entity found for extension '{}' with details - {}. Trying to create new one", extensionName, extensionWrapper.getValue());
 			Extension extension = extensionWrapper.getValue();
+			String extensionOwner = null;
 			
-			extensionEntity = new ExtensionEntity(extensionPointDetails.getEntityType().getName(), extension.getOwnerTypeName(), extension.getOwnerId());
+			if(extension.getOwnerType() != null)
+			{
+				ExtensionOwnerDetails extensionOwnerDetails = extensionService.getExtensionOwner(extension.getOwnerType());
+				
+				if(extensionOwnerDetails == null)
+				{
+					throw new InvalidStateException("Invalid extension owner type provided extension context provider - {}", extension.getOwnerType().getName());
+				}
+				
+				extensionOwner = extensionOwnerDetails.getName();
+			}
+			
+			extensionEntity = new ExtensionEntity(extensionName, extensionOwner, extension.getOwnerId());
 			extensionEntity.setName(extension.getName());
 			extensionEntity.setAttributes(extension.getAttributes());
 			
@@ -191,102 +229,124 @@ public class ExtensionController extends BaseController
 		
 		return new BasicSaveResponse(extFieldEntity.getId());
 	}
+	
+	/**
+	 * Ensures the specified field id belongs to the extension specified. And current user is authorized to access
+	 * the specified extension.
+	 * @param extensionName Extension under which field is being changed
+	 * @param fieldId Field being changes
+	 * @return Extension id of the specified extension name
+	 */
+	private long validateFieldForChange(String extensionName, long fieldId)
+	{
+		//fetch validate extension point name
+		ObjectWrapper<Extension> extensionWrapper = new ObjectWrapper<>();
+		ExtensionEntity extensionEntity = extensionUtil.getExtensionEntity(extensionName, extensionWrapper);
+		
+		//if required extension does not exist, throw error
+		if(extensionEntity == null)
+		{
+			logger.error("No extension-entity found for extension '{}' with details - {}", extensionName, extensionWrapper.getValue());
+			throw new InvalidStateException("No existing extension found with name - {}", extensionName);
+		}
+
+		//fetch extension id
+		long extensionId = extensionService.getExtensionIdForField(fieldId);
+		
+		//if extension name and field id are not matching
+		if(extensionId != extensionEntity.getId())
+		{
+			logger.error("No extension field exists with id {} under extension '{}'", fieldId, extensionName);
+			throw new InvalidRequestParameterException("No extension field exists with id {} under extension '{}'", fieldId, extensionName);
+		}
+		
+		//check for authorization
+		if(!securityService.isExtensionAuthorized(extensionService.getExtensionPoint(extensionName)))
+		{
+			throw new UnauthorizedException("Current user is not authorized to access extesion - {}", extensionName);
+		}
+
+		return extensionId;
+	}
 
 	/**
 	 * Updates specified extension field under specified extension name
-	 * @param extensionName Extension name
 	 * @param extensionField Field to be updated
 	 * @param request Http request
 	 * @return Success/failure message
 	 */
 	@ActionName(ACTION_TYPE_UPDATE)
 	@ResponseBody
-	@RequestMapping(value = "/update/{" + PARAM_NAME + "}", method = RequestMethod.POST)
-	public BaseResponse updateExtensionField(@PathVariable(PARAM_NAME) String extensionName, @RequestBody @Valid ExtensionFieldModel extensionField, HttpServletRequest request)
+	@RequestMapping(value = "/update", method = RequestMethod.POST)
+	public BaseResponse updateExtensionField(@RequestBody @Valid ExtensionFieldModel extensionField, HttpServletRequest request)
 	{
-		logger.trace("Update invoked with params [Extension: {}, Field: {}]", extensionName, extensionField);
+		logger.trace("Update invoked with params [Field: {}]", extensionField);
 		
 		if(extensionField.getId() <= 0)
 		{
 			throw new InvalidRequestParameterException("Invalid/no extension field id specified.");
 		}
-		
-		//fetch validate extension point name
-		ObjectWrapper<Extension> extensionWrapper = new ObjectWrapper<>();
-		ExtensionEntity extensionEntity = extensionUtil.getExtensionEntity(extensionName, extensionWrapper);
-		
-		//if required extension does not exist, throw error
-		if(extensionEntity == null)
-		{
-			logger.error("No extension-entity found for extension '{}' with details - {}", extensionName, extensionWrapper.getValue());
-			throw new InvalidStateException("No existing extension found with name - {}", extensionName);
-		}
+
+		long extensionId = validateFieldForChange(extensionField.getExtensionName(), extensionField.getId());
 
 		//validate specified model
-		validateExtensionField(extensionField);
-
-		//fetch extension id
-		long extensionId = extensionService.getExtensionIdForField(extensionField.getId());
-		
-		if(extensionId != extensionEntity.getId())
-		{
-			logger.error("Extension name '{}' and specified field id '{}' are not matching", extensionName, extensionField.getId());
-			throw new InvalidRequestParameterException("Invalid extension field id specified - " + extensionField.getId());
-		}
+		validateExtensionFieldForSave(extensionField);
 
 		logger.debug("Updating extension field");
 		ExtensionFieldEntity extFieldEntity = WebUtils.convertBean(extensionField, ExtensionFieldEntity.class);
-		extensionService.updateExtensionField(extensionEntity.getId(), extFieldEntity);
+		extFieldEntity.setExtension(new ExtensionEntity(extensionId));
+		
+		extensionService.updateExtensionField(extFieldEntity);
 		
 		return new BaseResponse("Success");
 	}
 
 	/**
 	 * Deletes extension field with specified id
-	 * @param id Extension field id to be deleted
+	 * @param fieldId Extension field id to be deleted
 	 * @return Success/failure response
 	 */
 	@ActionName(ACTION_TYPE_DELETE)
 	@ResponseBody
 	@RequestMapping(value = "/delete/{" + PARAM_NAME + "}/{" + PARAM_ID + "}", method = RequestMethod.GET)
-	public BaseResponse deleteExtensionField(@PathVariable(PARAM_NAME) String extensionName, @PathVariable(PARAM_ID) long id, HttpServletRequest request)
+	public BaseResponse deleteExtensionField(@PathVariable(PARAM_NAME) String extensionName, @PathVariable(PARAM_ID) long fieldId, HttpServletRequest request)
 	{
-		logger.trace("Delete invoked with params [Extension: {}, Id: {}]", extensionName, id);
+		logger.trace("Delete invoked with params [Extension: {}, Id: {}]", extensionName, fieldId);
 
-		//fetch validate extension point name
-		ObjectWrapper<Extension> extensionWrapper = new ObjectWrapper<>();
-		ExtensionEntity extensionEntity = extensionUtil.getExtensionEntity(extensionName, extensionWrapper);
-		
-		//if required extension does not exist, throw error
-		if(extensionEntity == null)
-		{
-			logger.error("No extension-entity found for extension '{}' with details - {}", extensionName, extensionWrapper.getValue());
-			throw new InvalidStateException("No existing extension found with name - {}", extensionName);
-		}
-
-		//fetch extension id
-		long extensionId = extensionService.getExtensionIdForField(id);
-		
-		//if invalid id is found, throw error
-		if(extensionId <= 0)
-		{
-			logger.error("Invalid extension id encountered for extension field id - " + id);
-			throw new InvalidRequestParameterException("Invalid extension field id specified - " + id);
-		}
-		
-		//if extension name and field id are not matching
-		if(extensionId != extensionEntity.getId())
-		{
-			logger.error("Extension name '{}' and specified field id '{}' are not matching", extensionName, id);
-			throw new InvalidRequestParameterException("Invalid extension field id specified - " + id);
-		}
+		validateFieldForChange(extensionName, fieldId);
 		
 		//invoke delete operation
-		extensionService.deleteExtensionField(extensionId, id);
+		extensionService.deleteExtensionField(fieldId);
 		
 		return new BaseResponse("Success");
 	}
 
+	/**
+	 * API to read extension field for specified extension with specified id
+	 * @param extensionName Extension name under which field needs to be fetched
+	 * @param fieldId Id of the extension field to be fetched
+	 * @return response with extension field model
+	 */
+	@ActionName(ACTION_TYPE_FETCH_FIELD)
+	@ResponseBody
+	@RequestMapping(value = "/read/{" + PARAM_NAME + "}/{" + PARAM_ID + "}", method = RequestMethod.GET)
+	public ExtensionFieldReadResponse readExtensionField(@PathVariable(PARAM_NAME) String extensionName, @PathVariable(PARAM_ID) long fieldId)
+	{
+		logger.trace("Read field invoked with params [Extension: {}, Id: {}]", extensionName, fieldId);
+
+		if(!securityService.isExtensionAuthorized(extensionService.getExtensionPoint(extensionName)))
+		{
+			throw new UnauthorizedException("Current user is not authorized to access extesion - {}", extensionName);
+		}
+		
+		ExtensionFieldEntity fieldEntity = extensionService.fetchExtensionField(extensionName, fieldId);
+		
+		ExtensionFieldModel model = WebUtils.convertBean(fieldEntity, ExtensionFieldModel.class);
+		model.setExtensionName(extensionName);
+		
+		return new ExtensionFieldReadResponse(model);
+	}
+	
 	/**
 	 * Deletes all extension fields of all extensions. Expected to be used for cleanup by test cases/ 
 	 * @param request
