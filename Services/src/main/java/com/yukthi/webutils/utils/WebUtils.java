@@ -33,7 +33,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.collections.CollectionUtils;
 
 import com.yukthi.utils.exceptions.InvalidStateException;
@@ -66,7 +65,8 @@ public class WebUtils
 		{
 			T targetBean = targetType.newInstance();
 			
-			PropertyUtils.copyProperties(targetBean, source);
+			//PropertyUtils.copyProperties(targetBean, source);
+			PropertyMapper.copyProperties(targetBean, source);
 			
 			return targetBean;
 		}catch(Exception ex)
