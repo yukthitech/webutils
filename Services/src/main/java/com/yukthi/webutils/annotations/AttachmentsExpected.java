@@ -21,32 +21,20 @@
  * SOFTWARE.
  */
 
-package com.yukthi.webutils;
+package com.yukthi.webutils.annotations;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * Pluggable service for file storage
+ * Used to indicate that target service method is expecting attachments. When marked, current request
+ * will be scanned for attachments, if found will be mapped to corresponding model fields of type File 
  * @author akiran
  */
-public interface IFileService
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface AttachmentsExpected
 {
-	/**
-	 * Adds specified file to underlying storage
-	 * @param fileDetails Details about the file
-	 * @return Id for the stored file
-	 */
-	public String addFile(FileDetails fileDetails);
-
-	/**
-	 * Fetches the file with specified id
-	 * @param id Id of the file
-	 * @return Matching file details and content
-	 */
-	public FileDetails getFile(String id);
-	
-	/**
-	 * Remove file with specified id
-	 * @param id Id of file to be removed
-	 * @return Delete operation result
-	 */
-	public boolean delete(String id);
 }

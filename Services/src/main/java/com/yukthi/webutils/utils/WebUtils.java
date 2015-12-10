@@ -35,6 +35,7 @@ import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
 
+import com.yukthi.utils.beans.PropertyMapper;
 import com.yukthi.utils.exceptions.InvalidStateException;
 import com.yukthi.webutils.IEntity;
 import com.yukthi.webutils.InvalidRequestParameterException;

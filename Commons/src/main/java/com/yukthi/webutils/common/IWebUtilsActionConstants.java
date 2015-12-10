@@ -73,6 +73,11 @@ public interface IWebUtilsActionConstants
 	 * Action to fetch extension field
 	 */
 	public String ACTION_TYPE_FETCH_FIELD = "fetch.field";
+	
+	/**
+	 * Action to fetch file as attachment
+	 */
+	public String ACTION_TYPE_FETCH_ATTACHMENT = "fetch.attachment";
 
 	////////////////////////////////////////////////////////////////////////////
 	/**
@@ -94,6 +99,11 @@ public interface IWebUtilsActionConstants
 	 * Actions prefix used for extensions controller
 	 */
 	public String ACTION_PREFIX_EXTENSIONS = "extensions";
+	
+	/**
+	 * Actions prefix used for files controller
+	 */
+	public String ACTION_PREFIX_FILES = "files";
 
 	////////////////////////////////////////////////////////////////////////////
 	/**

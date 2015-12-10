@@ -26,6 +26,7 @@ package com.yukthi.webutils.utils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +42,7 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.IOUtils;
 import org.apache.tika.Tika;
 
-import com.yukthi.webutils.FileDetails;
+import com.yukthi.webutils.common.FileInfo;
 
 /**
  * Utils related to web attachments upload and download
@@ -67,41 +68,43 @@ public class WebAttachmentUtils
 	private static final Tika tika = new Tika();
 
 	/**
-	* Sends specified content as attachment on response
-	*
-	* @param response
-	* @param mimeType
-	* @param fileName
-	* @param content
-	*/
-	public static void sendAttachment(HttpServletResponse response, String mimeType, String fileName, File content)
+	 * Sends file to the client on specified response
+	 * @param response Response on which file needs to be sent
+	 * @param fileInfo File information
+	 * @param asAttachment If true, file will be sent as attachment. Otherwise as body content
+	 */
+	public static void sendFile(HttpServletResponse response, FileInfo fileInfo, boolean asAttachment)
 	{
+		String mimeType = fileInfo.getContentType();
+		
 		if(mimeType == null)
 		{
 			try
 			{
 				// set to binary type if MIME mapping not found
-				mimeType = tika.detect(content);
+				mimeType = tika.detect(fileInfo.getFile());
 			}catch(Exception ex)
 			{
-				throw new IllegalStateException("An error occurred while fetching file's mime type - " + content.getPath(), ex);
+				throw new IllegalStateException("An error occurred while fetching file's mime type - " + fileInfo.getFile().getPath(), ex);
 			}
 		}
 
 		// modifies response
 		response.setContentType(mimeType);
-		response.setContentLength((int)content.length());
+		response.setContentLength((int)fileInfo.getFile().length());
 
-		// indicator for download
-		String headerKey = "Content-Disposition";
-		String headerValue = String.format("attachment; filename=\"%s\"", fileName);
-		response.setHeader(headerKey, headerValue);
+		if(asAttachment)
+		{
+			// indicator for download
+			String headerValue = String.format("attachment; filename=\"%s\"", fileInfo.getFileName());
+			response.setHeader("Content-Disposition", headerValue);
+		}
 		
 		//write content to response
 		try
 		{
 			OutputStream os = response.getOutputStream();
-			FileInputStream fis = new FileInputStream(content);
+			FileInputStream fis = new FileInputStream(fileInfo.getFile());
 			IOUtils.copy(fis, os);
 			
 			os.close();
@@ -117,7 +120,7 @@ public class WebAttachmentUtils
 	 * @param request Request from which file attachments needs to be fetched
 	 * @return Map of file details, using input file filed name as key
 	 */
-	public static Map<String, FileDetails> recieveImports(HttpServletRequest request)
+	public static Map<String, List<FileInfo>> recieveImports(HttpServletRequest request)
 	{
 		String tempDir = System.getProperty("java.io.tmpdir");
 		DiskFileItemFactory factory = new DiskFileItemFactory(0, new File(tempDir));
@@ -141,16 +144,25 @@ public class WebAttachmentUtils
 			return null;
 		}
 		
-		Map<String, FileDetails> uploadedFiles = new HashMap<>();
-		FileDetails fileDetails = null;
+		Map<String, List<FileInfo>> uploadedFiles = new HashMap<>();
+		FileInfo fileDetails = null;
 		File file = null;
+		List<FileInfo> fileLst = null;
 		
 		for(FileItem item: items)
 		{
 			file = new File( ((DiskFileItem)item).getStoreLocation().getAbsolutePath() );
-			fileDetails = new FileDetails(item.getName(), file, item.getContentType(), null, 0L);
+			fileDetails = new FileInfo(item.getName(), file, item.getContentType());
 			
-			uploadedFiles.put(item.getFieldName(), fileDetails);
+			fileLst = uploadedFiles.get(item.getFieldName());
+			
+			if(fileLst == null)
+			{
+				fileLst = new ArrayList<>();
+				uploadedFiles.put(item.getFieldName(), fileLst);
+			}
+			
+			fileLst.add(fileDetails);
 		}
 		
 		return uploadedFiles;

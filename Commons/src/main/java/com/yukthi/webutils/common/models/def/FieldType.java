@@ -26,6 +26,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.yukthi.webutils.common.FileInfo;
+
 /**
  * Enumerates list of supported model field types
  * @author akiran
@@ -52,7 +54,7 @@ public enum FieldType
 	
 	LIST_OF_VALUES("lov"),
 	
-	FILE("file")
+	FILE("file", FileInfo.class)
 	;
 	
 	/**

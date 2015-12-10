@@ -75,6 +75,8 @@ public class ModelDetailsService
 	 */
 	private Map<String, ModelDef> nameToModel = new HashMap<>();
 	
+	private Map<Class<?>, ModelDef> typeToModel = new HashMap<>();
+	
 	@PostConstruct
 	private void init()
 	{
@@ -94,6 +96,7 @@ public class ModelDetailsService
 			}
 			
 			nameToModel.put(modelDef.getName(), modelDef); 
+			typeToModel.put(type, modelDef);
 		}
 	}
 	
@@ -106,4 +109,15 @@ public class ModelDetailsService
 	{
 		return nameToModel.get(name);
 	}
+	
+	/**
+	 * Fetches model definition based on the type
+	 * @param type Type of model
+	 * @return Matching model definition
+	 */
+	public ModelDef getModelDef(Class<?> type)
+	{
+		return typeToModel.get(type);
+	}
+	
 }

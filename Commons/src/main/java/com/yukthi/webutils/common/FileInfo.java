@@ -21,46 +21,49 @@
  * SOFTWARE.
  */
 
-package com.yukthi.webutils;
+package com.yukthi.webutils.common;
 
 import java.io.File;
+
+import com.yukthi.persistence.repository.annotations.Field;
 
 /**
  * File details used to store files
  * 
  * @author akiran
  */
-public class FileDetails
+public class FileInfo
 {
+	@Field("id")
+	private Long id;
+	
+	@Field("version")
+	private Integer version;
+	
 	/**
 	 * Name of the file
 	 */
+	@Field("fileName")
 	private String fileName;
 	
 	/**
 	 * File content
 	 */
 	private File file;
+
+	@Field("sizeInMb")
+	private long sizeInMb;
 	
 	/**
 	 * Http content type of the file
 	 */
+	@Field("contentType")
 	private String contentType;
-
-	/**
-	 * Type of entity using this file
-	 */
-	private String usedByEntityType;
-
-	/**
-	 * Id of entity using this file
-	 */
-	private long usedByEntityId;
 
 	/**
 	 * Instantiates a new file entity.
 	 */
-	public FileDetails()
+	public FileInfo()
 	{}
 	
 	/**
@@ -69,16 +72,12 @@ public class FileDetails
 	 * @param fileName the file name
 	 * @param file the file
 	 * @param contentType the content type
-	 * @param usedByEntityType the used by entity type
-	 * @param usedByEntityId the used by entity id
 	 */
-	public FileDetails(String fileName, File file, String contentType, String usedByEntityType, long usedByEntityId)
+	public FileInfo(String fileName, File file, String contentType)
 	{
 		this.fileName = fileName;
 		this.file = file;
 		this.contentType = contentType;
-		this.usedByEntityType = usedByEntityType;
-		this.usedByEntityId = usedByEntityId;
 	}
 
 	/**
@@ -121,46 +120,6 @@ public class FileDetails
 		this.file = file;
 	}
 
-	/**
-	 * Gets the type of entity using this file.
-	 *
-	 * @return the type of entity using this file
-	 */
-	public String getUsedByEntityType()
-	{
-		return usedByEntityType;
-	}
-
-	/**
-	 * Sets the type of entity using this file.
-	 *
-	 * @param usedByEntityType the new type of entity using this file
-	 */
-	public void setUsedByEntityType(String usedByEntityType)
-	{
-		this.usedByEntityType = usedByEntityType;
-	}
-
-	/**
-	 * Gets the id of entity using this file.
-	 *
-	 * @return the id of entity using this file
-	 */
-	public long getUsedByEntityId()
-	{
-		return usedByEntityId;
-	}
-
-	/**
-	 * Sets the id of entity using this file.
-	 *
-	 * @param usedByEntityId the new id of entity using this file
-	 */
-	public void setUsedByEntityId(long usedByEntityId)
-	{
-		this.usedByEntityId = usedByEntityId;
-	}
-	
 	/**
 	 * Gets the http content type of the file.
 	 *

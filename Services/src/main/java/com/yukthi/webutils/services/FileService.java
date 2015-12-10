@@ -23,27 +23,30 @@
 
 package com.yukthi.webutils.services;
 
+import java.io.File;
+import java.util.List;
+
 import javax.annotation.PostConstruct;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.yukthi.persistence.repository.RepositoryFactory;
 import com.yukthi.utils.exceptions.InvalidStateException;
-import com.yukthi.webutils.FileDetails;
-import com.yukthi.webutils.IFileService;
+import com.yukthi.webutils.common.FileInfo;
 import com.yukthi.webutils.repository.file.FileEntity;
 import com.yukthi.webutils.repository.file.IFileRepository;
-import com.yukthi.webutils.utils.WebUtils;
 
 /**
  * Repository based file service
  * @author akiran
  */
-public class RepositoryBasedFileService implements IFileService
+@Service
+public class FileService
 {
-	private static Logger logger = LogManager.getLogger(RepositoryBasedFileService.class);
+	private static Logger logger = LogManager.getLogger(FileService.class);
 	
 	/**
 	 * Autowired repository factory, used to fetch repository
@@ -65,51 +68,76 @@ public class RepositoryBasedFileService implements IFileService
 		this.repository = repositoryFactory.getRepository(IFileRepository.class);
 	}
 	
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.IFileService#addFile(com.yukthi.webutils.FileModel)
+	/**
+	 * Saves the specified file entity and returns the id
+	 * @param fileEntity
+	 * @return
 	 */
-	@Override
-	public String addFile(FileDetails fileDetails)
+	public Long save(FileEntity fileEntity)
 	{
-		logger.trace("Adding file - {}", fileDetails);
+		logger.trace("Saving file - {}", fileEntity);
 		
-		FileEntity fileEntity = WebUtils.convertBean(fileDetails, FileEntity.class);
 		userService.populateTrackingFieldForCreate(fileEntity);
-		fileEntity.setSizeInMb(fileDetails.getFile().length());
+		fileEntity.setSizeInMb(fileEntity.getFile().length());
 		
 		boolean res = repository.save(fileEntity);
 		
 		if(!res)
 		{
-			logger.error("Failed to save file - {}", fileDetails);
-			throw new InvalidStateException("Failed to save file - {}", fileDetails);
+			logger.error("Failed to save file - {}", fileEntity);
+			throw new InvalidStateException("Failed to save file - {}", fileEntity);
 		}
 		
-		logger.trace("File got saved with id {}. File - {}", fileEntity.getId(), fileDetails);
-		return "" + fileEntity.getId();
+		logger.trace("File got saved with id {}", fileEntity.getId());
+		return fileEntity.getId();
 	}
 
-	@Override
-	public FileDetails getFile(String id)
+	/**
+	 * Fetches the file information for specified id
+	 * @param id Id of the file
+	 * @return File information
+	 */
+	public FileInfo getFileInfo(Long id)
 	{
-		logger.trace("Fetching file with id - {}", id);
-		
-		Long idAsLong = Long.parseLong(id);
-		FileEntity entity = repository.findById(idAsLong);
-		
-		return WebUtils.convertBean(entity, FileDetails.class);
+		logger.trace("Fetching file-info with id - {}", id);
+
+		return repository.fetchFileInfo(id);
+	}
+	
+	/**
+	 * Fetches file informations based on custom attributes specified
+	 * @param customAttr1
+	 * @param customAttr2
+	 * @param customAttr3
+	 * @return List of matching file informations
+	 */
+	public List<FileInfo> fetchFileInformations(String customAttr1, String customAttr2, String customAttr3)
+	{
+		return repository.fetchWithCustomAttributes(customAttr1, customAttr2, customAttr3);
 	}
 
-	@Override
-	public boolean delete(String id)
+	/**
+	 * Deletes file with specified id
+	 * @param id Id of the file to be deleted
+	 * @return true if deletion is successful
+	 */
+	public boolean delete(Long id)
 	{
 		logger.trace("Deleting file with id - {}", id);
 		
-		Long idAsLong = Long.parseLong(id);
-		boolean res = repository.deleteById(idAsLong);
+		boolean res = repository.deleteById(id);
 		
 		return res;
 	}
 
-	
+	/**
+	 * Fetches file content for specified id
+	 * @param id
+	 * @return Matching file content
+	 */
+	public File getFileContent(Long id)
+	{
+		logger.trace("Fetching file content for id - {}", id);
+		return repository.fetchFileContent(id);
+	}
 }

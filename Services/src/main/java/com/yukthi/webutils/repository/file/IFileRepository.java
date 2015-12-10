@@ -23,7 +23,14 @@
 
 package com.yukthi.webutils.repository.file;
 
+import java.io.File;
+import java.util.List;
+
 import com.yukthi.persistence.ICrudRepository;
+import com.yukthi.persistence.repository.annotations.Condition;
+import com.yukthi.persistence.repository.annotations.Field;
+import com.yukthi.persistence.repository.annotations.SearchResult;
+import com.yukthi.webutils.common.FileInfo;
 
 /**
  * Repository for storing file
@@ -31,4 +38,31 @@ import com.yukthi.persistence.ICrudRepository;
  */
 public interface IFileRepository extends ICrudRepository<FileEntity>
 {
+	/**
+	 * Fetches file info for specified id
+	 * @param id Id for which file info needs to be fetched
+	 * @return Matching file information
+	 */
+	@SearchResult
+	public FileInfo fetchFileInfo(@Condition("id") long id);
+
+	/**
+	 * Fetches file informations based on custom attribute
+	 * @param customAttribute1 Custom attribute 1
+	 * @param customAttribute2 Custom attribute 2
+	 * @param customAttribute3 Custom attribute 3
+	 * @return List of matching file informations
+	 */
+	@SearchResult
+	public List<FileInfo> fetchWithCustomAttributes(@Condition("customAttribute1") String customAttribute1, 
+			@Condition("customAttribute2") String customAttribute2,
+			@Condition("customAttribute3") String customAttribute3);
+
+	/**
+	 * Fetches file content for specified id
+	 * @param id Id for which file content needs to be fetched
+	 * @return File content
+	 */
+	@Field("file")
+	public File fetchFileContent(@Condition("id") long id);
 }

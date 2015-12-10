@@ -29,6 +29,24 @@
 			<artifactId>spring-webmvc</artifactId>
 			<version>4.1.6.RELEASE</version>
 		</dependency>
+		
+		<!-- AOP related dependencies -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-aop</artifactId>
+			<version>4.1.6.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjrt</artifactId>
+			<version>1.8.7</version>
+		</dependency>
+		<dependency>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjweaver</artifactId>
+			<version>1.8.0</version>
+		</dependency>
+		<!-- End of AOP related dependencies -->
 
 		<!-- Required for JSON conversion of REST -->
 		<dependency>

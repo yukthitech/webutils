@@ -307,7 +307,7 @@
 						</div>
 						
 						<!-- Content -->
-						<div class="modal-body" yk-model="${attr('name')}">
+						<div class="modal-body">
 							${_content}
 						</div>
 						
@@ -380,25 +380,33 @@
 				{
 					context["$scope"].model = {};
 				}
-			</exe-script>
-
-			<div class="row">
-				<for-each data="${modelDef.fields}" loop-var="field" index-var="idx">
-					<if test="!context.field.displayable">
-						<continue/>
-					</if>
 				
-					<if test="context.idx != 0 &amp;&amp; (context.idx % context.columnCount) == 0"><![CDATA[
-						</div>
-						<div class="row">
-					]]></if>
+				context["colIndex"] = 0;
+			</exe-script>
+			
+			<div class="container-fluid" yk-model="${attr('name')}">
+				<div class="row">
+					<for-each data="${modelDef.fields}" loop-var="field" index-var="idx">
+						<if test="!context.field.displayable">
+							<continue/>
+						</if>
 					
-					<div class="${columnCountClass} col-xs-12" style="padding-bottom: 0.2em;">
-						<model-field name="${field.name}" modelobj="model"></model-field>
-					</div>
-				</for-each>
-			</div>							
-
+						<if test="context.colIndex != 0 &amp;&amp; (context.colIndex % context.columnCount) == 0"><![CDATA[
+							</div>
+							<div class="row">
+						]]></if>
+						
+						<div class="${columnCountClass} col-xs-12" style="padding-bottom: 0.2em;">
+							<model-field name="${field.name}" modelobj="model"></model-field>
+						</div>
+						
+						<exe-script var="_tmp">
+							context["colIndex"]++;
+						</exe-script>
+						
+					</for-each>
+				</div>							
+			</div>
 		</content>
 	</directive>
 
@@ -505,7 +513,7 @@
 									type="${fieldDef.lovDetails.lovType}" model="${modelField}"></yk-lov-field> 
 					</else-if>
 					<else-if test="context.fieldDef.fieldType == 'FILE'">
-						<input type="text" name="${fieldDef.name}" placeholder="${fieldDef.label}" ng-model="${modelField}" yk-read-only="${fieldDef.readOnly}"></input>
+						<input type="file" name="${fieldDef.name}" ng-model="${modelField}" yk-read-only="${fieldDef.readOnly}"></input>
 					</else-if>
 					<else>
 						<exe-script var="_tmp1">

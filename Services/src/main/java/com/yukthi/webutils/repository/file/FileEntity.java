@@ -36,6 +36,7 @@ import javax.persistence.Version;
 
 import com.yukthi.persistence.annotations.DataType;
 import com.yukthi.persistence.annotations.DataTypeMapping;
+import com.yukthi.persistence.annotations.Indexed;
 import com.yukthi.persistence.annotations.NotUpdateable;
 import com.yukthi.webutils.repository.ITrackedEntity;
 import com.yukthi.webutils.repository.UserEntity;
@@ -86,21 +87,47 @@ public class FileEntity implements ITrackedEntity
 	/**
 	 * Content type of the file
 	 */
-	@Column(name = "CONTENT_TYPE")
+	@Column(name = "CONTENT_TYPE", length = 200)
 	private String contentType;
 	
 	/**
-	 * Type of entity using this file
+	 * Custom attribute that can be used by applications to set application
+	 * specific custom data
 	 */
-	@Column(name = "USED_BY_ENTITY_TYPE", nullable = false, length = 500)
-	private String usedByEntityType;
-
+	@Indexed
+	@Column(name = "CUSTOM_ATT1", length = 100)
+	private String customAttribute1;
+	
 	/**
-	 * Id of entity using this file
+	 * Custom attribute that can be used by applications to set application
+	 * specific custom data
 	 */
-	@Column(name = "USED_BY_ENTITY_ID", nullable = false)
-	private long usedByEntityId;
-
+	@Indexed
+	@Column(name = "CUSTOM_ATT2", length = 100)
+	private String customAttribute2;
+	
+	/**
+	 * Custom attribute that can be used by applications to set application
+	 * specific custom data
+	 */
+	@Indexed
+	@Column(name = "CUSTOM_ATT3", length = 100)
+	private String customAttribute3;
+	
+	/**
+	 * Custom attribute that can be used by applications to set application
+	 * specific custom data
+	 */
+	@Column(name = "CUSTOM_ATT4", length = 100)
+	private String customAttribute4;
+	
+	/**
+	 * Custom attribute that can be used by applications to set application
+	 * specific custom data
+	 */
+	@Column(name = "CUSTOM_ATT5", length = 100)
+	private String customAttribute5;
+	
 	/**
 	 * Created by user
 	 */
@@ -130,6 +157,22 @@ public class FileEntity implements ITrackedEntity
 	@Column(name = "UPDATED_ON")
 	@DataTypeMapping(type = DataType.DATE_TIME)
 	private Date updatedOn;
+	
+	/**
+	 * Instantiates a new file entity.
+	 */
+	public FileEntity()
+	{}
+	
+	/**
+	 * Instantiates a new file entity.
+	 *
+	 * @param id the id
+	 */
+	public FileEntity(long id)
+	{
+		this.id = id;
+	}
 
 	/**
 	 * Gets the primary key of the entity.
@@ -212,46 +255,6 @@ public class FileEntity implements ITrackedEntity
 	}
 
 	/**
-	 * Gets the type of entity using this file.
-	 *
-	 * @return the type of entity using this file
-	 */
-	public String getUsedByEntityType()
-	{
-		return usedByEntityType;
-	}
-
-	/**
-	 * Sets the type of entity using this file.
-	 *
-	 * @param usedByEntityType the new type of entity using this file
-	 */
-	public void setUsedByEntityType(String usedByEntityType)
-	{
-		this.usedByEntityType = usedByEntityType;
-	}
-
-	/**
-	 * Gets the id of entity using this file.
-	 *
-	 * @return the id of entity using this file
-	 */
-	public long getUsedByEntityId()
-	{
-		return usedByEntityId;
-	}
-
-	/**
-	 * Sets the id of entity using this file.
-	 *
-	 * @param usedByEntityId the new id of entity using this file
-	 */
-	public void setUsedByEntityId(long usedByEntityId)
-	{
-		this.usedByEntityId = usedByEntityId;
-	}
-
-	/**
 	 * Gets the content type of the file.
 	 *
 	 * @return the content type of the file
@@ -271,6 +274,11 @@ public class FileEntity implements ITrackedEntity
 		this.contentType = contentType;
 	}
 
+	/**
+	 * Gets the version of the entity.
+	 *
+	 * @return the version of the entity
+	 */
 	/* (non-Javadoc)
 	 * @see com.yukthi.webutils.IEntity#getVersion()
 	 */
@@ -279,6 +287,11 @@ public class FileEntity implements ITrackedEntity
 		return version;
 	}
 
+	/**
+	 * Sets the version of the entity.
+	 *
+	 * @param version the new version of the entity
+	 */
 	/* (non-Javadoc)
 	 * @see com.yukthi.webutils.IEntity#setVersion(java.lang.Integer)
 	 */
@@ -287,6 +300,11 @@ public class FileEntity implements ITrackedEntity
 		this.version = version;
 	}
 
+	/**
+	 * Gets the created by user.
+	 *
+	 * @return the created by user
+	 */
 	/* (non-Javadoc)
 	 * @see com.yukthi.webutils.repository.ITrackedEntity#getCreatedBy()
 	 */
@@ -295,6 +313,11 @@ public class FileEntity implements ITrackedEntity
 		return createdBy;
 	}
 
+	/**
+	 * Sets the created by user.
+	 *
+	 * @param createdBy the new created by user
+	 */
 	/* (non-Javadoc)
 	 * @see com.yukthi.webutils.repository.ITrackedEntity#setCreatedBy(com.yukthi.webutils.repository.UserEntity)
 	 */
@@ -303,6 +326,11 @@ public class FileEntity implements ITrackedEntity
 		this.createdBy = createdBy;
 	}
 
+	/**
+	 * Gets the created on time.
+	 *
+	 * @return the created on time
+	 */
 	/* (non-Javadoc)
 	 * @see com.yukthi.webutils.repository.ITrackedEntity#getCreatedOn()
 	 */
@@ -311,6 +339,11 @@ public class FileEntity implements ITrackedEntity
 		return createdOn;
 	}
 
+	/**
+	 * Sets the created on time.
+	 *
+	 * @param createdOn the new created on time
+	 */
 	/* (non-Javadoc)
 	 * @see com.yukthi.webutils.repository.ITrackedEntity#setCreatedOn(java.util.Date)
 	 */
@@ -319,6 +352,11 @@ public class FileEntity implements ITrackedEntity
 		this.createdOn = createdOn;
 	}
 
+	/**
+	 * Gets the updating user.
+	 *
+	 * @return the updating user
+	 */
 	/* (non-Javadoc)
 	 * @see com.yukthi.webutils.repository.ITrackedEntity#getUpdatedBy()
 	 */
@@ -327,6 +365,11 @@ public class FileEntity implements ITrackedEntity
 		return updatedBy;
 	}
 
+	/**
+	 * Sets the updating user.
+	 *
+	 * @param updatedBy the new updating user
+	 */
 	/* (non-Javadoc)
 	 * @see com.yukthi.webutils.repository.ITrackedEntity#setUpdatedBy(com.yukthi.webutils.repository.UserEntity)
 	 */
@@ -335,6 +378,11 @@ public class FileEntity implements ITrackedEntity
 		this.updatedBy = updatedBy;
 	}
 
+	/**
+	 * Gets the updated on.
+	 *
+	 * @return the updated on
+	 */
 	/* (non-Javadoc)
 	 * @see com.yukthi.webutils.repository.ITrackedEntity#getUpdatedOn()
 	 */
@@ -343,12 +391,117 @@ public class FileEntity implements ITrackedEntity
 		return updatedOn;
 	}
 
+	/**
+	 * Sets the updated on.
+	 *
+	 * @param updatedOn the new updated on
+	 */
 	/* (non-Javadoc)
 	 * @see com.yukthi.webutils.repository.ITrackedEntity#setUpdatedOn(java.util.Date)
 	 */
 	public void setUpdatedOn(Date updatedOn)
 	{
 		this.updatedOn = updatedOn;
+	}
+
+	/**
+	 * Gets the custom attribute that can be used by applications to set application specific custom data.
+	 *
+	 * @return the custom attribute that can be used by applications to set application specific custom data
+	 */
+	public String getCustomAttribute1()
+	{
+		return customAttribute1;
+	}
+
+	/**
+	 * Sets the custom attribute that can be used by applications to set application specific custom data.
+	 *
+	 * @param customAttribute1 the new custom attribute that can be used by applications to set application specific custom data
+	 */
+	public void setCustomAttribute1(String customAttribute1)
+	{
+		this.customAttribute1 = customAttribute1;
+	}
+
+	/**
+	 * Gets the custom attribute that can be used by applications to set application specific custom data.
+	 *
+	 * @return the custom attribute that can be used by applications to set application specific custom data
+	 */
+	public String getCustomAttribute2()
+	{
+		return customAttribute2;
+	}
+
+	/**
+	 * Sets the custom attribute that can be used by applications to set application specific custom data.
+	 *
+	 * @param customAttribute2 the new custom attribute that can be used by applications to set application specific custom data
+	 */
+	public void setCustomAttribute2(String customAttribute2)
+	{
+		this.customAttribute2 = customAttribute2;
+	}
+
+	/**
+	 * Gets the custom attribute that can be used by applications to set application specific custom data.
+	 *
+	 * @return the custom attribute that can be used by applications to set application specific custom data
+	 */
+	public String getCustomAttribute3()
+	{
+		return customAttribute3;
+	}
+
+	/**
+	 * Sets the custom attribute that can be used by applications to set application specific custom data.
+	 *
+	 * @param customAttribute3 the new custom attribute that can be used by applications to set application specific custom data
+	 */
+	public void setCustomAttribute3(String customAttribute3)
+	{
+		this.customAttribute3 = customAttribute3;
+	}
+
+	/**
+	 * Gets the custom attribute that can be used by applications to set application specific custom data.
+	 *
+	 * @return the custom attribute that can be used by applications to set application specific custom data
+	 */
+	public String getCustomAttribute4()
+	{
+		return customAttribute4;
+	}
+
+	/**
+	 * Sets the custom attribute that can be used by applications to set application specific custom data.
+	 *
+	 * @param customAttribute4 the new custom attribute that can be used by applications to set application specific custom data
+	 */
+	public void setCustomAttribute4(String customAttribute4)
+	{
+		this.customAttribute4 = customAttribute4;
+	}
+
+	/**
+	 * Gets the custom attribute that can be used by applications to set application specific custom data.
+	 *
+	 * @return the custom attribute that can be used by applications to set application specific custom data
+	 */
+	public String getCustomAttribute5()
+	{
+		return customAttribute5;
+	}
+
+	/**
+	 * Sets the custom attribute that can be used by applications to set application specific custom data.
+	 *
+	 * @param customAttribute5 the new custom attribute that can be used by applications to set application specific custom data
+	 */
+	public void setCustomAttribute5(String customAttribute5)
+	{
+		this.customAttribute5 = customAttribute5;
 	}
 
 	
