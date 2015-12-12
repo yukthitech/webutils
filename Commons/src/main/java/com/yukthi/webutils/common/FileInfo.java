@@ -26,6 +26,7 @@ package com.yukthi.webutils.common;
 import java.io.File;
 
 import com.yukthi.persistence.repository.annotations.Field;
+import com.yukthi.utils.annotations.IgnorePropertyDestination;
 
 /**
  * File details used to store files
@@ -34,9 +35,15 @@ import com.yukthi.persistence.repository.annotations.Field;
  */
 public class FileInfo
 {
+	/**
+	 * Id of the corresponding file entity
+	 */
 	@Field("id")
 	private Long id;
 	
+	/**
+	 * Version of the corresponding file entity
+	 */
 	@Field("version")
 	private Integer version;
 	
@@ -49,8 +56,12 @@ public class FileInfo
 	/**
 	 * File content
 	 */
+	@IgnorePropertyDestination
 	private File file;
 
+	/**
+	 * Size of the file in mb
+	 */
 	@Field("sizeInMb")
 	private long sizeInMb;
 	
@@ -78,6 +89,66 @@ public class FileInfo
 		this.fileName = fileName;
 		this.file = file;
 		this.contentType = contentType;
+	}
+	
+	/**
+	 * Gets the id of the corresponding file entity.
+	 *
+	 * @return the id of the corresponding file entity
+	 */
+	public Long getId()
+	{
+		return id;
+	}
+
+	/**
+	 * Sets the id of the corresponding file entity.
+	 *
+	 * @param id the new id of the corresponding file entity
+	 */
+	public void setId(Long id)
+	{
+		this.id = id;
+	}
+
+	/**
+	 * Gets the version of the corresponding file entity.
+	 *
+	 * @return the version of the corresponding file entity
+	 */
+	public Integer getVersion()
+	{
+		return version;
+	}
+
+	/**
+	 * Sets the version of the corresponding file entity.
+	 *
+	 * @param version the new version of the corresponding file entity
+	 */
+	public void setVersion(Integer version)
+	{
+		this.version = version;
+	}
+
+	/**
+	 * Gets the size of the file in mb.
+	 *
+	 * @return the size of the file in mb
+	 */
+	public long getSizeInMb()
+	{
+		return sizeInMb;
+	}
+
+	/**
+	 * Sets the size of the file in mb.
+	 *
+	 * @param sizeInMb the new size of the file in mb
+	 */
+	public void setSizeInMb(long sizeInMb)
+	{
+		this.sizeInMb = sizeInMb;
 	}
 
 	/**

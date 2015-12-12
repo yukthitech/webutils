@@ -45,12 +45,20 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.yukthi.utils.exceptions.InvalidConfigurationException;
 import com.yukthi.webutils.annotations.ActionName;
+import com.yukthi.webutils.annotations.AttachmentsExpected;
 import com.yukthi.webutils.annotations.RequestParam;
 import com.yukthi.webutils.common.HttpMethod;
+import com.yukthi.webutils.common.IWebUtilsCommonConstants;
+import com.yukthi.webutils.common.annotations.Model;
 import com.yukthi.webutils.common.models.ActionModel;
+import com.yukthi.webutils.common.models.def.FieldDef;
+import com.yukthi.webutils.common.models.def.FieldType;
+import com.yukthi.webutils.common.models.def.ModelDef;
 
 /**
  * Service to maintain actions that can be invoked from client
@@ -75,8 +83,40 @@ public class ActionsService
 	 */
 	@Autowired
 	private ClassScannerService classScanService;
+	
+	@Autowired
+	private ModelDetailsService modelDetailsService;
 
 	private List<ActionModel> actionModels;
+	
+	/**
+	 * Fetches fields name from specified model type whose type is File.
+	 * @param modelType Model type from which file fields needs to be fetched
+	 * @return List of file fields
+	 */
+	private Set<String> getFileFields(Class<?> modelType)
+	{
+		ModelDef modelDef = modelDetailsService.getModelDef(modelType);
+		HashSet<String> fileFields = new HashSet<>();
+		
+		//loop through fields
+		for(FieldDef field : modelDef.getFields())
+		{
+			//if file field is found and to res set
+			if(field.getFieldType() == FieldType.FILE)
+			{
+				fileFields.add(field.getName());
+			}
+		}
+		
+		//if no file fields are found
+		if(fileFields.isEmpty())
+		{
+			return null;
+		}
+		
+		return fileFields;
+	}
 
 	/**
 	 * Loads client executable action details from the specified class "cls"
@@ -105,6 +145,12 @@ public class ActionsService
 
 		RequestParam requestParam = null;
 		String url = null;
+		boolean attachmentsExpected = false;
+		HttpMethod httpMethod = null;
+		
+		Class<?> paramTypes[] = null;
+		int paramIndex = 0;
+		Set<String> fileFields = null;
 		
 		//get controller methods
 		for(Method method : cls.getMethods())
@@ -153,12 +199,18 @@ public class ActionsService
 			//get the service method parameter annotations
 			fullParamAnnotations = method.getParameterAnnotations();
 			bodyExpected = false;
-
+			
+			attachmentsExpected = (method.getAnnotation(AttachmentsExpected.class) != null);
+			paramTypes = method.getParameterTypes();
+			paramIndex = -1;
+			
 			//based on param annotation check if request is expected as HTTP body
 			if(fullParamAnnotations != null)
 			{
 				for(Annotation paramAnnotations[] : fullParamAnnotations)
 				{
+					paramIndex++;
+					
 					if(paramAnnotations == null || paramAnnotations.length == 0)
 					{
 						continue;
@@ -168,7 +220,75 @@ public class ActionsService
 					{
 						if(RequestBody.class.equals(annotation.annotationType()))
 						{
+							if(attachmentsExpected)
+							{
+								throw new InvalidConfigurationException("@RequestBody is used in service method where attachments are expected. "
+										+ "Use @RequestPart(\"{}\") instead. Method - {}.{}()", IWebUtilsCommonConstants.MULTIPART_DEFAULT_PART, 
+											method.getDeclaringClass().getName(), method.getName());
+							}
+
+							//if multiple parameters are marked for body throw error
+							if(bodyExpected)
+							{
+								throw new InvalidConfigurationException("Multiple parameters are marked as body attributes. Method - {}.{}()",  
+											method.getDeclaringClass().getName(), method.getName());
+							}
+							
 							bodyExpected = true;
+						}
+						
+						if(RequestPart.class.equals(annotation.annotationType()))
+						{
+							if(!attachmentsExpected)
+							{
+								throw new InvalidConfigurationException("@RequestPart is used in service method where attachments are not expected. "
+										+ "Use @RequestBody instead. Method - {}.{}()", method.getDeclaringClass().getName(), method.getName());
+							}
+							
+							String partName = ((RequestPart)annotation).value();
+							
+							if(!IWebUtilsCommonConstants.MULTIPART_DEFAULT_PART.equals(partName))
+							{
+								throw new InvalidConfigurationException("Invalid request part name used '{}'. "
+										+ "Only '{}' is supported as part name for action methods. Method - {}.{}()", 
+										partName, IWebUtilsCommonConstants.MULTIPART_DEFAULT_PART, 
+										method.getDeclaringClass().getName(), method.getName());
+							}
+							
+							//if multiple parameters are marked for body throw error
+							if(bodyExpected)
+							{
+								throw new InvalidConfigurationException("Multiple parameters are marked as body attributes. Method - {}.{}()",  
+											method.getDeclaringClass().getName(), method.getName());
+							}
+
+							bodyExpected = true;
+						}
+
+						//if body is expected
+						if(bodyExpected)
+						{
+							//if non model is declared as body throw error
+							if(paramTypes[paramIndex].getAnnotation(Model.class) == null)
+							{
+								throw new InvalidConfigurationException("Non-model parameter type '{}' is defined as body attribute. Method - {}.{}()", 
+										paramTypes[paramIndex].getName(), 
+										method.getDeclaringClass().getName(), method.getName());
+							}
+							
+							//if attachments are expected
+							if(attachmentsExpected)
+							{
+								fileFields = getFileFields(paramTypes[paramIndex]);
+
+								//if no file fields are found
+								if(fileFields == null)
+								{
+									throw new InvalidConfigurationException("No file fields are found in model though service method is marked as attachments expected. Method - {}.{}()", 
+											paramTypes[paramIndex].getName(), 
+											method.getDeclaringClass().getName(), method.getName());
+								}
+							}
 						}
 						
 						//if the parameter is defined to fetch from request, collect the param names
@@ -190,9 +310,16 @@ public class ActionsService
 
 			//build action model object and cache it
 			url = clsRequestMapping + requestMapping.value()[0];
+			httpMethod = toHttpMethod(requestMethods[0]);
+			
+			if(httpMethod != HttpMethod.POST && attachmentsExpected)
+			{
+				throw new InvalidConfigurationException("Non-POST method is configured with @{}. Method - {}.{}()", 
+						AttachmentsExpected.class.getName(), method.getDeclaringClass().getName(), method.getName());
+			}
 			
 			nameToModel.put( actionName, new ActionModel(actionName, url, 
-					toHttpMethod(requestMethods[0]), bodyExpected, expectedRequestParams.toArray(new String[0]), getUrlParameters(url)) );
+					httpMethod, bodyExpected, expectedRequestParams.toArray(new String[0]), getUrlParameters(url), attachmentsExpected, fileFields) );
 		}
 	}
 	

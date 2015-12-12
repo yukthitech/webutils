@@ -22,6 +22,8 @@
  */
 package com.yukthi.webutils.common.models;
 
+import java.util.Set;
+
 import com.yukthi.webutils.common.HttpMethod;
 
 /**
@@ -61,6 +63,16 @@ public class ActionModel
 	private String urlParameters[];
 	
 	/**
+	 * attachments expected by the current action
+	 */
+	private boolean attachmentsExpected;
+	
+	/**
+	 * List of file fields expected in this action
+	 */
+	private Set<String> fileFields;
+	
+	/**
 	 * Instantiates a new action model.
 	 */
 	public ActionModel()
@@ -75,8 +87,9 @@ public class ActionModel
 	 * @param bodyExpected is request expected as body
 	 * @param requestParameters List of expected request parameters
 	 * @param urlParameters List of expected url parameters
+	 * @param attachmentsExpected Attachments are expected with this action
 	 */
-	public ActionModel(String name, String url, HttpMethod method, boolean bodyExpected, String requestParameters[], String urlParameters[])
+	public ActionModel(String name, String url, HttpMethod method, boolean bodyExpected, String requestParameters[], String urlParameters[], boolean attachmentsExpected, Set<String> fileFields)
 	{
 		this.name = name;
 		this.url = url;
@@ -84,6 +97,8 @@ public class ActionModel
 		this.bodyExpected = bodyExpected;
 		this.requestParameters = requestParameters;
 		this.urlParameters = urlParameters;
+		this.attachmentsExpected = attachmentsExpected;
+		this.fileFields = fileFields;
 	}
 	
 	/**
@@ -204,6 +219,46 @@ public class ActionModel
 	public void setUrlParameters(String[] urlParameters)
 	{
 		this.urlParameters = urlParameters;
+	}
+
+	/**
+	 * Checks if is attachments expected by the current action.
+	 *
+	 * @return the attachments expected by the current action
+	 */
+	public boolean isAttachmentsExpected()
+	{
+		return attachmentsExpected;
+	}
+
+	/**
+	 * Sets the attachments expected by the current action.
+	 *
+	 * @param attachmentsExpected the new attachments expected by the current action
+	 */
+	public void setAttachmentsExpected(boolean attachmentsExpected)
+	{
+		this.attachmentsExpected = attachmentsExpected;
+	}
+
+	/**
+	 * Gets the list of file fields expected in this action.
+	 *
+	 * @return the list of file fields expected in this action
+	 */
+	public Set<String> getFileFields()
+	{
+		return fileFields;
+	}
+
+	/**
+	 * Sets the list of file fields expected in this action.
+	 *
+	 * @param fileFields the new list of file fields expected in this action
+	 */
+	public void setFileFields(Set<String> fileFields)
+	{
+		this.fileFields = fileFields;
 	}
 	
 	

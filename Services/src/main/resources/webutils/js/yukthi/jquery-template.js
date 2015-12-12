@@ -511,6 +511,11 @@ function TemplateEngine()
 				templateContext["$res"] += parseExpressions(element.nodeValue, templateContext);
 			}
 			
+			if(element.nodeType == COMMENT_NODE)
+			{
+				templateContext["$res"] += "<!--" + element.nodeValue + "-->";
+			}
+			
 			return;
 		};
 		

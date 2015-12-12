@@ -145,7 +145,15 @@ $.application.factory('clientContext', ['logger', function(logger) {
 		"invokeApi" : function(url, data, config) {
 			var methodType = (config && config.methodType)? config.methodType: "POST";
 			var contentType = (config && config.contentType)? config.contentType : 'application/x-www-form-urlencoded; charset=UTF-8';
-
+			var processData = undefined;
+			
+			//set headers as required for attachments
+			if(config.multipart)
+			{
+				contentType = false;
+				processData = false;
+			}
+			
 			var headers = {};
 			
 			if(this.authToken)
@@ -169,7 +177,7 @@ $.application.factory('clientContext', ['logger', function(logger) {
 				  async: false,
 				  cache: false,
 				  "contentType": contentType,
-				  "processData": undefined,
+				  "processData": processData,
 				  "headers": headers,
 				  
 				  success: $.proxy(function(resData, textStatus, jqXHR){
@@ -491,23 +499,100 @@ $.application.factory('actionHelper', ['clientContext', function(clientContext){
 				
 			}
 			
-			var result = null;
-			
 			//invoke the target api url based on action method
 			if(action.method == 'GET')
 			{
-				result = this.clientContext.invokeGetApi(actionUrl, params);
+				return this.clientContext.invokeGetApi(actionUrl, params);
 			}
 			else if(action.method == 'DELETE')
 			{
-				result = this.clientContext.invokeDeleteApi(actionUrl, params);
+				return this.clientContext.invokeDeleteApi(actionUrl, params);
 			}
 			else
 			{
-				result = this.clientContext.invokePostApi(actionUrl, requestEntity);
+				if(!action.attachmentsExpected)
+				{
+					return this.clientContext.invokePostApi(actionUrl, requestEntity);
+				}
+				
+				var files = [];
+				var data = null, newData = null;
+				
+				for(var i = 0; i < action.fileFields.length; i++)
+				{
+					data = requestEntity[action.fileFields[i]];
+					
+					//if data is not present
+					if(!data)
+					{
+						continue;
+					}
+					
+					//if single file data is present
+					if(!$.isArray(data))
+					{
+						//if the data represents file info from server
+						if(!data.lastModifiedDate)
+						{
+							continue;
+						}
+						
+						//if file is found add to request as multi part and remove from entity
+						files[files.length] = {"name" : action.fileFields[i], "file" : data};
+						delete requestEntity[action.fileFields[i]];
+						continue;
+					}
+					
+					newData = [];
+					
+					//if field is an file array
+					for(var j = 0; j < data.length; j++)
+					{
+						//retain non file data
+						if(data[j].lastModifiedDate)
+						{
+							newData[newData.length] = data[j];
+							continue;
+						}
+						
+						files[files.length] = {"name" : action.fileFields[i], "file" : data[j]};
+					}
+					
+					//if non file data is present, keep it on entity, if not delete property
+					if(newData.length == 0)
+					{
+						delete requestEntity[action.fileFields[i]];
+					}
+					else
+					{
+						requestEntity[action.fileFields[i]] = newData;
+					}
+				}
+				
+				//convert entity into json and add it to request
+				var request = new FormData();
+				requestEntity = JSON.stringify(requestEntity);
+				request.append("default", 
+					new Blob(
+						[requestEntity],
+						{type: "application/json"}
+					)
+				);
+				
+				for(var i = 0; i < files.length; i++)
+				{
+					request.append(files[i].name, files[i].file);
+				}
+				
+				//invoke the api
+				var apiRes = this.clientContext.invokeApi(
+					actionUrl, 
+					request, 
+					{"methodType": "POST", "multipart" : true}
+				);
+				
+				return apiRes;
 			}
-			
-			return result;
 		}
 	};
 	

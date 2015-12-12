@@ -25,9 +25,12 @@ package com.yukthi.webutils.utils;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -41,7 +44,10 @@ import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.IOUtils;
 import org.apache.tika.Tika;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
+import com.yukthi.utils.exceptions.InvalidStateException;
 import com.yukthi.webutils.common.FileInfo;
 
 /**
@@ -166,6 +172,79 @@ public class WebAttachmentUtils
 		}
 		
 		return uploadedFiles;
+	}
+	
+	
+	/**
+	 * Downloads the uploaded files from specified request and returns the file details
+	 * @param request Request from which files need to be downloaded
+	 * @return Field name to file list
+	 */
+	public static Map<String, List<FileInfo>> recieveImports(MultipartHttpServletRequest request)
+	{
+		Iterator<String> fileNames = request.getFileNames();
+		
+		if(fileNames == null || !fileNames.hasNext())
+		{
+			return null;
+		}
+		
+		List<MultipartFile> files = null;
+		Map<String,  List<FileInfo>> result = new HashMap<>();
+		File tempFile = null;
+		String fileName = null;
+		int idx = 0;
+		FileOutputStream fos = null;
+		List<FileInfo> fileInfoLst = null;
+		String fieldName = null;
+		
+		while(fileNames.hasNext())
+		{
+			fieldName = fileNames.next();
+			files = request.getFiles(fieldName);
+			
+			for(MultipartFile file : files)
+			{
+				fileName = file.getOriginalFilename();
+				
+				//in case file name contains path from client machine remove the path part and retain
+				//	only file name
+				if( (idx = fileName.indexOf("/")) >= 0 )
+				{
+					fileName = fileName.substring(idx + 1);
+				}
+				if( (idx = fileName.indexOf("\\")) >= 0 )
+				{
+					fileName = fileName.substring(idx + 1);
+				}
+				
+				//copy the content of attachment to temp file
+				try
+				{
+					tempFile = File.createTempFile(fileName, ".temp");
+					fos = new FileOutputStream(tempFile);
+					IOUtils.copy(file.getInputStream(), fos);
+					fos.close();
+				}catch(IOException ex)
+				{
+					throw new InvalidStateException(ex, "An error occurred while uploading file content to temp file");
+				}
+				
+				
+				//add file details to result
+				fileInfoLst = result.get(fieldName);
+				
+				if(fileInfoLst == null)
+				{
+					fileInfoLst = new ArrayList<>();
+					result.put(fieldName, fileInfoLst);
+				}
+				
+				fileInfoLst.add(new FileInfo(fileName, tempFile, file.getContentType()));
+			}
+		}
+		
+		return result;
 	}
 
 }

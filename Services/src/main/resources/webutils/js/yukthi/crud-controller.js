@@ -49,7 +49,6 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", func
 				$scope.newModelMode = false;
 				
 				$scope.model = readResponse.model;
-				$scope.model.required = ($scope.model.required == true) ? "true" : "false";
 				
 				$("#" + $scope.crudConfig.modelDailogId + " [yk-read-only='true']").prop('disabled', true);
 

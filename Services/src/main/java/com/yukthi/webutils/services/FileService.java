@@ -79,6 +79,7 @@ public class FileService
 		
 		userService.populateTrackingFieldForCreate(fileEntity);
 		fileEntity.setSizeInMb(fileEntity.getFile().length());
+		fileEntity.setVersion(1);
 		
 		boolean res = repository.save(fileEntity);
 		

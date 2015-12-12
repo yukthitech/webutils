@@ -25,6 +25,8 @@ package com.yukthi.webutils.common.models.def;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 /**
  * Provides details about model field, that can be used by clients for dynamic ui
  * rendering and dynamic validations.
@@ -82,6 +84,16 @@ public class FieldDef
 	 * if this is displayable field. For example, password is not displayable.
 	 */
 	private boolean displayable;
+	
+	/**
+	 * Indicates this field holds multiple values
+	 */
+	private boolean multiValued;
+	
+	/**
+	 * Compatible collection type that can be used for field value population
+	 */
+	private Class<?> compatibleCollectionType;
 
 	/**
 	 * Gets the id of the field, in the cases where this field represents extension field.
@@ -283,6 +295,47 @@ public class FieldDef
 		this.displayable = displayable;
 	}
 	
+	/**
+	 * Checks if is indicates this field holds multiple values.
+	 *
+	 * @return the indicates this field holds multiple values
+	 */
+	public boolean isMultiValued()
+	{
+		return multiValued;
+	}
+
+	/**
+	 * Sets the indicates this field holds multiple values.
+	 *
+	 * @param multiValued the new indicates this field holds multiple values
+	 */
+	public void setMultiValued(boolean multiValued)
+	{
+		this.multiValued = multiValued;
+	}
+
+	/**
+	 * Gets the compatible collection type that can be used for field value population.
+	 *
+	 * @return the compatible collection type that can be used for field value population
+	 */
+	@JsonIgnore
+	public Class<?> getCompatibleCollectionType()
+	{
+		return compatibleCollectionType;
+	}
+
+	/**
+	 * Sets the compatible collection type that can be used for field value population.
+	 *
+	 * @param compatibleCollectionType the new compatible collection type that can be used for field value population
+	 */
+	public void setCompatibleCollectionType(Class<?> compatibleCollectionType)
+	{
+		this.compatibleCollectionType = compatibleCollectionType;
+	}
+
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */

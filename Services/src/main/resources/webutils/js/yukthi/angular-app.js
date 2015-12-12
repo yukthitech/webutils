@@ -135,7 +135,17 @@ $.addAttributeDirective = function(directiveObj) {
 				},
 				"bodyAsHtml" : function() {
 					return this.element.html();
-				}
+				},
+				"attr" : function(name, defVal, elem) {
+					if(!elem)
+					{
+						elem = this.element;
+					}
+					
+					var attrVal = elem.attr(name);
+					
+					return (!attrVal || attrVal.length == 0) ? defVal : attrVal;
+				},
 			};
 			
 			//remove directive attribute to avoid repeated execution

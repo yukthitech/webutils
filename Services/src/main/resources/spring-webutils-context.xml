@@ -59,6 +59,8 @@
 			</set>
 		</property>
 	</bean>
+	
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver" />
 
 	<mvc:annotation-driven>
 		<mvc:message-converters register-defaults="true">

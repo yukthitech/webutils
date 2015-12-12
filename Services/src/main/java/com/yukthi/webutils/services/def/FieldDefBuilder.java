@@ -24,14 +24,18 @@
 package com.yukthi.webutils.services.def;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.yukthi.utils.exceptions.InvalidConfigurationException;
 import com.yukthi.utils.exceptions.InvalidStateException;
 import com.yukthi.webutils.common.LovType;
 import com.yukthi.webutils.common.annotations.DefaultValue;
@@ -127,6 +131,44 @@ public class FieldDefBuilder
 		fieldDef.setLovDetails(lovDetails);
 	}
 
+	/**
+	 * If specified type is collection, then compatible concrete collection will be computed and returned. Null will be returned
+	 * if specified type is not collection. Exception will be thrown if compatible collection type can not be found.
+	 * @param type Type to be analyzed. 
+	 * @return Compatible collection type for collection. For non-collection null will be returned.
+	 */
+	private Class<?> getCompatiableCollectionType(Class<?> type, Field field)
+	{
+		//if specified type is not collection return null
+		if(!Collection.class.isAssignableFrom(type))
+		{
+			return null;
+		}
+		
+		//if specified type is List and compatible with ArrayList
+		if(type.isAssignableFrom(ArrayList.class))
+		{
+			return ArrayList.class;
+		}
+		
+		//if specified type is Set and compatible with HashSet
+		if(type.isAssignableFrom(HashSet.class))
+		{
+			return HashSet.class;
+		}
+		
+		try
+		{
+			//return same type if it is concrete and can be instantiated with default constructor
+			type.newInstance();
+			return type;
+		}catch(Exception ex)
+		{
+		}
+		
+		throw new InvalidConfigurationException("Invalid/unsupported collection type used '{}' for field - {}.{}", 
+				type, field.getDeclaringClass().getName(), field.getName());
+	}
 	
 	public FieldDef getFieldDef(Class<?> modelType, Field field)
 	{
@@ -147,6 +189,29 @@ public class FieldDefBuilder
 		}
 		
 		Class<?> fieldType = field.getType();
+		Class<?> compatibleCollectionType = getCompatiableCollectionType(fieldType, field);
+		
+		if(compatibleCollectionType != null)
+		{
+			fieldDef.setMultiValued(true);
+			fieldDef.setCompatibleCollectionType(compatibleCollectionType);
+
+			ParameterizedType type = (ParameterizedType)field.getGenericType();
+			
+			if(type.getActualTypeArguments().length != 1)
+			{
+				throw new InvalidConfigurationException("Failed to determine collection type argument field - {}.{}", modelType.getName(), field.getName());
+			}
+			
+			Type paramType = type.getActualTypeArguments()[0];
+			
+			if(!(paramType instanceof Class))
+			{
+				throw new InvalidConfigurationException("Failed to determine collection type argument field - {}.{}", modelType.getName(), field.getName());
+			}
+			
+			fieldType = (Class<?>)paramType;
+		}
 		
 		//if field type is enum
 		if(fieldType.isEnum())

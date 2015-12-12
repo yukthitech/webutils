@@ -206,13 +206,16 @@
 			<set-var name="_showQuery" expr=" (context.attr('hide-query') == 'true') ? false : true"/>
 			
 			<div id="${attr('id')}" class="container-fluid" style="padding: 0px; margin: 0px" ng-controller="searchQueryController">
+			
+				<span style="display: none;" ng-init="searchQueryId = '${attr('id')}'; searchQueryName = '${attr('name')}';"></span>
+				
 				<if test="context._showQuery">
-					<div class="panel panel-default" style="margin-bottom: 0.4em;" ng-init="searchQueryId = '${attr('id')}'">
+					<div class="panel panel-default" style="margin-bottom: 0.4em;">
 						<div class="panel-heading" style="padding: 0.3em 1em; font-weight: bold;">
 							${attr('title')}
 						</div>
 		
-						<div class="panel-body"  yk-model="${searchModel.name}" ng-init="searchQueryName = '${attr('name')}'">
+						<div class="panel-body"  yk-model="${searchModel.name}">
 							<form>
 								<div class="row">
 									<for-each data="${searchModel.fields}" loop-var="field" index-var="idx">
@@ -513,7 +516,36 @@
 									type="${fieldDef.lovDetails.lovType}" model="${modelField}"></yk-lov-field> 
 					</else-if>
 					<else-if test="context.fieldDef.fieldType == 'FILE'">
-						<input type="file" name="${fieldDef.name}" ng-model="${modelField}" yk-read-only="${fieldDef.readOnly}"></input>
+						<div style="width: ${attr('width')};padding: 0px;border: solid 1px rgb(200, 200, 200); border-radius: 0.4em;" yk-file="true">
+							<table style="width: 100%; table-layout: fixed;">
+								<tr>
+									<td style="padding: 0.2em; overflow: hidden; white-space: nowrap;">
+										<div ng-show="${modelField}">
+											<a role="button" style="text-decoration: none; font-weight: bold; font-size: 1.2em;" class="fileRemoveButton"  
+														data-toggle="tooltip" title="Remove">
+												<span aria-hidden="true" style="color: red;">&amp;times;</span>
+											</a>
+											<!-- Span when file info comes from server -->
+											<span ng-show="${modelField}.fileName">
+												{{${modelField}.fileName}}
+											</span>
+											<!-- Span when user adds a file -->
+											<span ng-show="${modelField}.name" style="cursor: default;" data-toggle="tooltip" title="{{${modelField}.name}}">
+												{{${modelField}.name}}
+											</span>
+										</div>
+										<!-- Span for place holder -->
+										<span ng-hide="${modelField}" style="color: rgb(200, 200, 200); margin-left: 0.5em;">
+											${fieldDef.label}
+										</span>
+									</td>
+									<td style="width: 2px;padding: 0px;">
+										<button type="button" class="btn btn-primary action-button fileProxy" yk-read-only="${fieldDef.readOnly}" style="padding: 0.3em;">...</button>
+										<input type="file" name="${fieldDef.name}" ng-model="${modelField}" style="display: none;"></input>										
+									</td>
+								</tr>
+							</table>
+						</div>
 					</else-if>
 					<else>
 						<exe-script var="_tmp1">
@@ -533,7 +565,7 @@
 				var type = context.attr('type');
 				var model = context.attr('model');
 
-				if(!model || model.length &gt;= 0)
+				if(model &amp;&amp; model.length &gt;= 0)
 				{
 					context["modelField"] = model; 
 				}
@@ -565,6 +597,15 @@
 					<option value="${lov.value}">${lov.label}</option>
 				</for-each>
 			</select>
+		</content>
+	</directive>
+
+	<directive name="ykInvoke" required-attr="method">
+		<content>
+			<exe-script var="_tmp">
+				var methodName = context.attr('method');
+				context.$scope[methodName]();
+			</exe-script>
 		</content>
 	</directive>
 
@@ -616,6 +657,14 @@
 		</script>
 	</attr-directive>
 
+	<!-- Adds ng-if attribute. Useful to skip initial processing within other directive -->
+	<attr-directive name="ykIf">
+		<script>
+			var repeatExpr = context.attributeValue;
+			context.element.attr("ng-if", repeatExpr);
+		</script>
+	</attr-directive>
+
 	<attr-directive name="ykClick">
 		<script>
 			var repeatExpr = context.attributeValue;
@@ -627,6 +676,88 @@
 		<script>
 			var repeatExpr = context.attributeValue;
 			context.element.attr("ng-repeat-end", "");
+		</script>
+	</attr-directive>
+
+	<attr-directive name="ykShow">
+		<script>
+			var showExpr = context.attributeValue;
+			context.element.attr("ng-show", showExpr);
+		</script>
+	</attr-directive>
+
+	<attr-directive name="ykFile">
+		<script>
+			var fileElem = context.element.find("input[type='file']").get(0);
+			fileElem = $(fileElem);
+			
+			//get file proxy button and register event such that when proxy button is clicked
+			//		file button click is triggered
+			var fileElemProxy = context.element.find("button.fileProxy").get(0);
+			$(fileElemProxy).off("click").on("click", $.proxy(function(){
+				this.fileElement.trigger("click");
+			}, {"fileElement" : fileElem}));
+			
+			//get name of file element
+			var name = fileElem.attr('name');
+
+			//get ng-model name
+			var modelName = fileElem.attr("ng-model");
+			modelName = (!modelName || modelName.length == 0) ? name : modelName;
+
+			var isMultiple = (fileElem.attr('multiple') == 'true');
+			
+			var eventContent = {
+				"$scope" : context.$scope,
+				"element": fileElem,
+				"modelName": modelName,
+				"isMultiple": isMultiple
+			};
+			
+			//add functionality for remove button
+			var fileRemoveButton = context.element.find("a.fileRemoveButton").get(0);
+			$(fileRemoveButton).off("click").on("click", $.proxy(function(){
+				eval("this.$scope." + this.modelName + " = null");
+								
+				this.$scope.$digest();
+			}, eventContent));
+			
+			//add event, such that when file selection is done, the files are added to model
+			fileElem.off("change").on('change', $.proxy(function(){
+				var fileElem = this.element.get(0);
+				var files = fileElem.files;
+				
+				//if no files are selected return
+				if(!files || files.length == 0)
+				{
+					return;
+				}
+				
+				//if field is expected to hold multiple files, append the new files to the end existing value list
+				if(this.isMultiple)
+				{
+					var currentModelValue = eval("this.$scope." + this.modelName);
+					
+					if(!currentModelValue)
+					{
+						currentModelValue = [];
+					}
+					
+					for(var i = 0; i &lt; files.length; i++)
+					{
+						currentModelValue[currentModelValue.length] = files[i];
+					}
+					
+					eval("this.$scope." + this.modelName + " = currentModelValue");
+				}
+				//if single file is expected replace current value with new file 
+				else
+				{
+					eval("this.$scope." + this.modelName + " = files[0]");
+				}
+				
+				this.$scope.$digest();
+			}, eventContent));
 		</script>
 	</attr-directive>
 

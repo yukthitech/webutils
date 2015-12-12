@@ -66,7 +66,8 @@ public interface IWebUtilsCommonConstants
 	 * Request/response header that will hold authorization token
 	 */
 	public String HEADER_AUTHORIZATION_TOKEN = "AUTH_TOKEN";
-	
+
+	public String MULTIPART_DEFAULT_PART = "default";
 	
 	public String AUTH_GROUP_URI = "/auth";
 	public String LOGIN_URI_PATH = "/login";

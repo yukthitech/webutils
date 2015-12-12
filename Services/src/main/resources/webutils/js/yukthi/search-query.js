@@ -107,4 +107,7 @@ $.application.controller('searchQueryController', ["$scope", "actionHelper", "lo
 		$scope.performSearch();
 	});
 
+	$scope.$on('invokeSearch', function(event, data){
+		$scope.performSearch();
+	});
 }]);

@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
-import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.logging.log4j.LogManager;
@@ -37,6 +36,9 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
+import org.springframework.web.multipart.MultipartRequest;
 
 import com.yukthi.utils.exceptions.InvalidStateException;
 import com.yukthi.webutils.annotations.AttachmentsExpected;
@@ -52,16 +54,11 @@ import com.yukthi.webutils.utils.WebAttachmentUtils;
  * @author akiran
  */
 @Aspect
+@Component
 public class AttachmentAopService
 {
 	private static Logger logger = LogManager.getLogger(AttachmentAopService.class);
 
-	/**
-	 * Current request which needs to be scanned for file attachments
-	 */
-	@Autowired
-	private HttpServletRequest request;
-	
 	/**
 	 * Service to get model details
 	 */
@@ -128,7 +125,7 @@ public class AttachmentAopService
 				//set the file details on the field
 				try
 				{
-					if(fileDetailsLst == null || fileDetailsLst.isEmpty())
+					if(fileDetailsLst != null && !fileDetailsLst.isEmpty())
 					{
 						PropertyUtils.setProperty(arg, field.getName(), fileDetailsLst.get(0));
 					}
@@ -158,15 +155,50 @@ public class AttachmentAopService
 	public Object handleAttachments(ProceedingJoinPoint joinPoint, AttachmentsExpected attachmentsExpected) throws Throwable
 	{
 		logger.trace("handleAttachments() is called attachment aop service...");
-		//as part of pre process populate file fields from request
+
+		//fetch multi part request from method arguments
+		Object args[] = joinPoint.getArgs();
+		MultipartHttpServletRequest request = null;
+		
+		if(args != null)
+		{
+			for(Object arg : args)
+			{
+				if(arg instanceof MultipartRequest)
+				{
+					request = (MultipartHttpServletRequest)arg;
+				}
+			}
+		}
+		
+		if(request == null)
+		{
+			throw new InvalidStateException("No MultipartRequest argument found on method {}.{}() for attachments processing.", 
+					joinPoint.getSignature().getDeclaringTypeName(), joinPoint.getSignature().getName());
+		}
+		
+		//get the files from request
 		Map<String, List<FileInfo>> fieldAttachments = WebAttachmentUtils.recieveImports(request);
 		
+		logger.debug("Found following attachments in request - {}", fieldAttachments);
+		
+		//set the attachments on the model fields as part of pre processing
 		setAttachments(joinPoint, fieldAttachments, joinPoint.getArgs());
 		
 		//call actual method
 		Object result = joinPoint.proceed();
 
-		//Nothing to do in post process
+		//As part of post process clean temp files that were created
+		if(fieldAttachments != null)
+		{
+			for(List<FileInfo> fileLst : fieldAttachments.values())
+			{
+				for(FileInfo fileInfo : fileLst)
+				{
+					fileInfo.getFile().delete();
+				}
+			}
+		}
 		
 		return result;
 	}
