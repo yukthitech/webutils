@@ -54,6 +54,7 @@ import com.yukthi.webutils.annotations.AttachmentsExpected;
 import com.yukthi.webutils.annotations.RequestParam;
 import com.yukthi.webutils.common.HttpMethod;
 import com.yukthi.webutils.common.IWebUtilsCommonConstants;
+import com.yukthi.webutils.common.annotations.ExtendableModel;
 import com.yukthi.webutils.common.annotations.Model;
 import com.yukthi.webutils.common.models.ActionModel;
 import com.yukthi.webutils.common.models.def.FieldDef;
@@ -269,7 +270,7 @@ public class ActionsService
 						if(bodyExpected)
 						{
 							//if non model is declared as body throw error
-							if(paramTypes[paramIndex].getAnnotation(Model.class) == null)
+							if(paramTypes[paramIndex].getAnnotation(Model.class) == null && paramTypes[paramIndex].getAnnotation(ExtendableModel.class) == null)
 							{
 								throw new InvalidConfigurationException("Non-model parameter type '{}' is defined as body attribute. Method - {}.{}()", 
 										paramTypes[paramIndex].getName(), 

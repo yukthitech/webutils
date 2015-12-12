@@ -39,6 +39,7 @@ import com.yukthi.webutils.InvalidRequestParameterException;
 import com.yukthi.webutils.annotations.ActionName;
 import com.yukthi.webutils.common.models.BaseResponse;
 import com.yukthi.webutils.common.models.BasicCountResponse;
+import com.yukthi.webutils.common.models.BasicReadResponse;
 import com.yukthi.webutils.common.models.BasicSaveResponse;
 import com.yukthi.webutils.controllers.BaseController;
 import com.yukthi.webutils.utils.WebUtils;
@@ -85,10 +86,10 @@ public class EmployeeController extends BaseController
 	@ResponseBody
 	@RequestMapping("/fetch/{id}")
 	@ActionName("fetch")
-	public EmployeeModel fetch(@PathVariable("id") long id)
+	public BasicReadResponse<EmployeeModel> fetch(@PathVariable("id") long id)
 	{
 		EmployeeModel model = service.fetchWithExtensions(id, EmployeeModel.class);
-		return model;
+		return new BasicReadResponse<EmployeeModel>(model);
 	}
 	
 	@ResponseBody

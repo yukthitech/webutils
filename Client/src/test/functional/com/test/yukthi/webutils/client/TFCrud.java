@@ -37,6 +37,7 @@ import com.yukthi.webutils.client.ActionRequestBuilder;
 import com.yukthi.webutils.client.RestException;
 import com.yukthi.webutils.common.IWebUtilsCommonConstants;
 import com.yukthi.webutils.common.models.BaseResponse;
+import com.yukthi.webutils.common.models.BasicReadResponse;
 import com.yukthi.webutils.common.models.BasicSaveResponse;
 
 /**
@@ -45,6 +46,7 @@ import com.yukthi.webutils.common.models.BasicSaveResponse;
  */
 public class TFCrud extends TFBase
 {
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private EmployeeModel getEmployee(long empId)
 	{
 		RestRequest<?> request = ActionRequestBuilder.buildRequest(
@@ -55,8 +57,8 @@ public class TFCrud extends TFBase
 		
 		RestClient client = clientContext.getRestClient();
 		
-		RestResult<EmployeeModel> result = client.invokeJsonRequest(request, EmployeeModel.class);
-		return result.getValue();
+		RestResult<BasicReadResponse<EmployeeModel>> result = (RestResult)client.invokeJsonRequest(request, BasicReadResponse.class, EmployeeModel.class);
+		return result.getValue().getModel();
 	}
 	
 	@Test

@@ -21,53 +21,70 @@
  * SOFTWARE.
  */
 
-package com.test.yukthi.webutils.models;
-
-import com.yukthi.webutils.common.annotations.Model;
+package com.yukthi.webutils.common.models;
 
 /**
- * Test entity
+ * Generic read response
  * 
  * @author akiran
  */
-@Model
-public class CustomerModel
+public class BasicReadResponse<M> extends BaseResponse
 {
 	/**
-	 * Employee id
+	 * Model read from server
 	 */
-	private long id;
-
+	private M model;
+	
 	/**
-	 * Name of the employee
+	 * Instantiates a new basic read response.
 	 */
-	private String name;
-
-	public CustomerModel()
+	public BasicReadResponse()
 	{}
 
-	public CustomerModel(String name)
+	/**
+	 * Instantiates a new basic read response.
+	 *
+	 * @param model the model
+	 */
+	public BasicReadResponse(M model)
 	{
-		this.name = name;
+		this.model = model;
 	}
 
-	public long getId()
+	/**
+	 * Gets the model read from server.
+	 *
+	 * @return the model read from server
+	 */
+	public M getModel()
 	{
-		return id;
+		return model;
 	}
 
-	public void setId(long id)
+	/**
+	 * Sets the model read from server.
+	 *
+	 * @param model the new model read from server
+	 */
+	public void setModel(M model)
 	{
-		this.id = id;
+		this.model = model;
+	}
+	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString()
+	{
+		StringBuilder builder = new StringBuilder(super.toString());
+		builder.append("[");
+
+		builder.append("Model: ").append(model);
+		builder.append(",").append("Code: ").append(super.getCode());
+
+		builder.append("]");
+		return builder.toString();
 	}
 
-	public String getName()
-	{
-		return name;
-	}
-
-	public void setName(String name)
-	{
-		this.name = name;
-	}
 }

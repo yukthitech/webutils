@@ -48,6 +48,7 @@ import com.yukthi.webutils.common.extensions.ExtensionFieldType;
 import com.yukthi.webutils.common.extensions.LovOption;
 import com.yukthi.webutils.common.models.BaseResponse;
 import com.yukthi.webutils.common.models.BasicCountResponse;
+import com.yukthi.webutils.common.models.BasicReadResponse;
 import com.yukthi.webutils.common.models.BasicSaveResponse;
 import com.yukthi.webutils.common.models.ExtensionFieldModel;
 
@@ -181,6 +182,7 @@ public class TFExtensionValues extends TFBase
 		return response.getCount();
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private EmployeeModel getEmployee(long customerId, long empId)
 	{
 		RestRequest<?> request = ActionRequestBuilder.buildRequest(
@@ -191,8 +193,8 @@ public class TFExtensionValues extends TFBase
 		
 		RestClient client = clientContext.getRestClient();
 		
-		RestResult<EmployeeModel> result = client.invokeJsonRequest(request, EmployeeModel.class);
-		return result.getValue();
+		RestResult<BasicReadResponse<EmployeeModel>> result = (RestResult)client.invokeJsonRequest(request, BasicReadResponse.class, EmployeeModel.class);
+		return result.getValue().getModel();
 	}
 
 	private long addExtensionField(long customerId, ExtensionFieldModel field, Map<String, Long> fieldMap)
