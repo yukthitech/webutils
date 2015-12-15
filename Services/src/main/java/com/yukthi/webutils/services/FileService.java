@@ -24,10 +24,9 @@
 package com.yukthi.webutils.services;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.annotation.PostConstruct;
 
@@ -128,12 +127,12 @@ public class FileService
 	private void saveFilesForOwner(Collection<FileInfo> fileInfoLst, Class<?> ownerEntityType, String ownerField, long ownerId)
 	{
 		//collection to keep track of file ids to delete, by default this will all existing files
-		Set<Long> idsToRemove = repository.fetchIdsByOwner(ownerEntityType.getName(), ownerField, ownerId);
+		List<Long> idsToRemove = repository.fetchIdsByOwner(ownerEntityType.getName(), ownerField, ownerId);
 		
 		//if no files are currently present, use empty collection
 		if(idsToRemove == null)
 		{
-			idsToRemove = new HashSet<>();
+			idsToRemove = new ArrayList<>();
 		}
 		
 		//loop through the file list to retain or add

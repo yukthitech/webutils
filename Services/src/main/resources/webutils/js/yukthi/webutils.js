@@ -476,6 +476,125 @@ $.application.factory('actionHelper', ['clientContext', function(clientContext){
 				throw "Invalid action name specified - " + actionName;
 			}
 			
+			//checks if the specified value is an object or not
+			var isObject = function(value) {
+				//ignore null
+				if(!value)
+				{
+					return false;
+				}
+				
+				//non objects ignore
+				if((typeof value) != 'object')
+				{
+					return false;
+				}
+				
+				//if object ensure at least one property is present
+				var count = 0;
+				
+				//if at least one property is found return true
+				for(var name in value)
+				{
+					if(count > 0)
+					{
+						return true;
+					}
+					
+					//sometimes undefined comes on all object, ignore such cases
+					if(name)
+					{
+						count++;
+					}
+				}
+				
+				return false;
+			}
+			
+			//function which filter array elements
+			var filterArray = function(arr) {
+				var arrClone = [];
+				var val = null;
+				
+				for(var i = 0; i < arr.length; i++)
+				{
+					//filter the array element
+					val = filterEntity(arr[i]);
+					
+					//ignore filtered null values
+					if(val == null)
+					{
+						continue;
+					}
+					
+					arrClone[arrClone.length] = val;
+				}
+				
+				//if array is empty return null
+				if(arrClone.length == 0)
+				{
+					return null;
+				}
+				
+				return arrClone;
+			};
+			
+			//function which recursively removes null, empty objects. And also remove properties having $ (which angular js injects)
+			var filterEntity = function(obj) {
+				//if value is null, return null
+				if(!obj)
+				{
+					return null;
+				}
+				
+				//if value is not object
+				if(!isObject(obj))
+				{
+					//check if it is an array
+					if($.isArray(obj))
+					{
+						return filterArray(obj);
+					}
+					
+					//not objects simply return
+					return obj;
+				}
+				
+				//holds final result object
+				var propValue = null;
+				
+				//loop through prop names
+				for(var name in obj)
+				{
+					//exclude properties which has $ in them
+					if(name.indexOf("$") >= 0)
+					{
+						delete obj[name];
+						continue;
+					}
+
+					//recursively filter objects
+					propValue = filterEntity(obj[name]);
+					
+					//ignore null, which can be the case after filtering
+					if(!propValue)
+					{
+						delete obj[name];
+						continue;
+					}
+				}
+				
+				//if result is empty return null
+				if($.isEmptyObject(obj))
+				{
+					return null;
+				}
+				
+				return obj;
+			};
+			
+			requestEntity = filterEntity(requestEntity);
+			
 			var actionUrl = $.appConfiguration.apiBaseUrl + action.url;
 			var expression = new RegExp("");
 			
@@ -549,7 +668,7 @@ $.application.factory('actionHelper', ['clientContext', function(clientContext){
 					for(var j = 0; j < data.length; j++)
 					{
 						//retain non file data
-						if(data[j].lastModifiedDate)
+						if(!data[j].lastModifiedDate)
 						{
 							newData[newData.length] = data[j];
 							continue;

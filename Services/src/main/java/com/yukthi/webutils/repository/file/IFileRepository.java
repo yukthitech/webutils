@@ -24,7 +24,6 @@
 package com.yukthi.webutils.repository.file;
 
 import java.util.List;
-import java.util.Set;
 
 import com.yukthi.persistence.ICrudRepository;
 import com.yukthi.persistence.repository.annotations.Condition;
@@ -65,7 +64,7 @@ public interface IFileRepository extends ICrudRepository<FileEntity>
 	 * @return List of matching file ids
 	 */
 	@Field("id")
-	public Set<Long> fetchIdsByOwner(@Condition("ownerEntityType") String ownerEntityType, 
+	public List<Long> fetchIdsByOwner(@Condition("ownerEntityType") String ownerEntityType, 
 			@Condition("ownerEntityField") String ownerEntityField, @Condition("ownerEntityId") Long ownerEntityId);
 
 	/**
