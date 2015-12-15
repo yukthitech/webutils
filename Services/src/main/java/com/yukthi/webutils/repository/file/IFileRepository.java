@@ -23,8 +23,8 @@
 
 package com.yukthi.webutils.repository.file;
 
-import java.io.File;
 import java.util.List;
+import java.util.Set;
 
 import com.yukthi.persistence.ICrudRepository;
 import com.yukthi.persistence.repository.annotations.Condition;
@@ -47,6 +47,28 @@ public interface IFileRepository extends ICrudRepository<FileEntity>
 	public FileInfo fetchFileInfo(@Condition("id") long id);
 
 	/**
+	 * Fetches file information list based on specified owner details
+	 * @param ownerEntityType Owner entity type
+	 * @param ownerEntityField Owner entity field
+	 * @param ownerEntityId Owner entity id
+	 * @return List of matching file information
+	 */
+	@SearchResult
+	public List<FileInfo> fetchByOwner(@Condition("ownerEntityType") String ownerEntityType, 
+			@Condition("ownerEntityField") String ownerEntityField, @Condition("ownerEntityId") Long ownerEntityId);
+
+	/**
+	 * Fetches file ids of specified owner
+	 * @param ownerEntityType Owner entity type
+	 * @param ownerEntityField Owner field
+	 * @param ownerEntityId Owner entity id
+	 * @return List of matching file ids
+	 */
+	@Field("id")
+	public Set<Long> fetchIdsByOwner(@Condition("ownerEntityType") String ownerEntityType, 
+			@Condition("ownerEntityField") String ownerEntityField, @Condition("ownerEntityId") Long ownerEntityId);
+
+	/**
 	 * Fetches file informations based on custom attribute
 	 * @param customAttribute1 Custom attribute 1
 	 * @param customAttribute2 Custom attribute 2
@@ -59,10 +81,12 @@ public interface IFileRepository extends ICrudRepository<FileEntity>
 			@Condition("customAttribute3") String customAttribute3);
 
 	/**
-	 * Fetches file content for specified id
-	 * @param id Id for which file content needs to be fetched
-	 * @return File content
+	 * Deletes the files for specified owner details
+	 * @param ownerEntityType Owner entity type
+	 * @param ownerEntityField Owner entity field
+	 * @param ownerEntityId Owner entity id
+	 * @return Number of files deleted
 	 */
-	@Field("file")
-	public File fetchFileContent(@Condition("id") long id);
+	public int deleteByOwner(@Condition("ownerEntityType") String ownerEntityType, 
+			@Condition("ownerEntityField") String ownerEntityField, @Condition("ownerEntityId") Long ownerEntityId);
 }

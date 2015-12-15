@@ -65,9 +65,20 @@ public abstract class BaseCrudService<E extends IEntity, R extends ICrudReposito
 	private CurrentUserService userService;
 	
 	/**
+	 * Service to store files specified as part of model
+	 */
+	@Autowired
+	private FileService fileService;
+	
+	/**
 	 * Repository type
 	 */
 	private Class<R> repositoryType;
+	
+	/**
+	 * Entity type
+	 */
+	private Class<E> entityType;
 	
 	/**
 	 * CRUD repository obtained from factory in init()
@@ -79,8 +90,9 @@ public abstract class BaseCrudService<E extends IEntity, R extends ICrudReposito
 	 *
 	 * @param repositoryType the repository type
 	 */
-	public BaseCrudService(Class<R> repositoryType)
+	public BaseCrudService(Class<E> entityType, Class<R> repositoryType)
 	{
+		this.entityType = entityType;
 		this.repositoryType = repositoryType;
 	}
 	
@@ -94,11 +106,27 @@ public abstract class BaseCrudService<E extends IEntity, R extends ICrudReposito
 	}
 	
 	/**
+	 * Converts the specified model into entity and saves the converted entity.
+	 * @param model Model to be converted and saved
+	 * @return Converted and saved entity
+	 */
+	public E save(Object model)
+	{
+		//convert to entity
+		E entity = WebUtils.convertBean(model, entityType);
+		
+		//save entity
+		save(entity, model);
+		
+		return entity;
+	}
+	
+	/**
 	 * Saves specified entity "entity" and saves extension fields from "extendedFieldsModel"
 	 * @param entity Entity field to save
-	 * @param extendedFieldsModel Extension fields to save. Optional, can be null
+	 * @param model Model with extension fields and file informations to save. Optional, can be null
 	 */
-	public void save(E entity, IExtendableModel extendedFieldsModel)
+	public void save(E entity, Object model)
 	{
 		try(ITransaction transaction = repository.newOrExistingTransaction())
 		{
@@ -115,10 +143,16 @@ public abstract class BaseCrudService<E extends IEntity, R extends ICrudReposito
 
 			repository.save(entity);
 			
-			if(extendedFieldsModel != null)
+			if(model != null && (model instanceof IExtendableModel))
 			{
 				logger.trace("Trying to save extended fields of entity - {}", entity);
-				extensionService.saveExtendedFields(entity.getId(), extendedFieldsModel);
+				extensionService.saveExtendedFields(entity.getId(), (IExtendableModel)model);
+			}
+			
+			//save files specified on model
+			if(model != null)
+			{
+				fileService.saveFilesFromModel(model, entityType, entity.getId());
 			}
 			
 			transaction.commit();
@@ -130,11 +164,27 @@ public abstract class BaseCrudService<E extends IEntity, R extends ICrudReposito
 	}
 	
 	/**
+	 * Converts the specified model into entity and updates the converted entity
+	 * @param model Model to be converted and updated
+	 * @return Converted entity
+	 */
+	public E update(Object model)
+	{
+		//convert to entity
+		E entity = WebUtils.convertBean(model, entityType);
+		
+		//update entity
+		update(entity, model);
+		
+		return entity;
+	}
+	
+	/**
 	 * Updates specified entity "entity" and saves extension fields from "extendedFieldsModel"
 	 * @param entity Entity field to update
-	 * @param extendedFieldsModel Extension fields to save. Optional, can be null
+	 * @param model Model with extension field values and files to save. Optional, can be null
 	 */
-	public void update(E entity, IExtendableModel extendedFieldsModel)
+	public void update(E entity, Object model)
 	{
 		WebUtils.validateEntityForUpdate(entity);
 		
@@ -149,12 +199,18 @@ public abstract class BaseCrudService<E extends IEntity, R extends ICrudReposito
 
 			repository.update(entity);
 			
-			if(extendedFieldsModel != null)
+			if(model != null && (model instanceof IExtendableModel))
 			{
 				logger.trace("Trying to update extended fields of entity - {}", entity);
-				extensionService.saveExtendedFields(entity.getId(), extendedFieldsModel);
+				extensionService.saveExtendedFields(entity.getId(), (IExtendableModel)model);
 			}
 			
+			//save files specified on model
+			if(model != null)
+			{
+				fileService.saveFilesFromModel(model, entityType, entity.getId());
+			}
+
 			transaction.commit();
 		}catch(Exception ex)
 		{
@@ -177,19 +233,32 @@ public abstract class BaseCrudService<E extends IEntity, R extends ICrudReposito
 	}
 	
 	/**
-	 * To be used when fetching needs to be done with extensions
+	 * To be used for fetching model with full information like - extensions, files, etc
 	 * @param id Entity id to be fetched
-	 * @param extendableModelType Corresponding entity's model type which can hold extension fields
+	 * @param modelType Corresponding entity's model type which can hold extension fields
 	 * @return Converted model with extension fields
 	 */
-	public <M extends IExtendableModel> M fetchWithExtensions(long id, Class<M> extendableModelType)
+	public <M> M fetchFullModel(long id, Class<M> modelType)
 	{
 		E entity = repository.findById(id);
 		
-		M model = WebUtils.convertBean(entity, extendableModelType);
-		extensionService.fetchExtendedValues(model);
+		if(entity == null)
+		{
+			logger.trace("No entity found with id - {}", id);
+			return null;
+		}
 		
-		logger.trace("Entity fetch-with-extensions for id '{}' resulted in  - {}", id, entity);
+		M model = WebUtils.convertBean(entity, modelType);
+		
+		if(model instanceof IExtendableModel)
+		{
+			extensionService.fetchExtendedValues((IExtendableModel)model);
+		}
+
+		//fetch file information
+		fileService.readFilesForModel(model, entityType, id);
+		
+		logger.trace("Entity fetch full mode for id '{}' resulted in  - {}", id, entity);
 		return model;
 	}
  
@@ -222,6 +291,9 @@ public abstract class BaseCrudService<E extends IEntity, R extends ICrudReposito
 			boolean res = repository.deleteById(id);
 			
 			logger.trace("Deletion of entity with id '{}' resulted in - {}", id, res);
+			
+			//Delete files
+			fileService.delete(entityType, null, id);
 			
 			transaction.commit();
 			

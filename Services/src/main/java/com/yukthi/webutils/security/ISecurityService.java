@@ -26,6 +26,7 @@ package com.yukthi.webutils.security;
 import java.lang.reflect.Method;
 
 import com.yukthi.webutils.extensions.ExtensionPointDetails;
+import com.yukthi.webutils.repository.file.FileEntity;
 
 /**
  * Authentication service to be provided by the web-application to authenticate and authorize
@@ -57,4 +58,18 @@ public interface ISecurityService
 	 * @return true if specified user is authorized to access specified extension
 	 */
 	public boolean isExtensionAuthorized(ExtensionPointDetails extensionPoint);
+	
+	/**
+	 * This method will be called before file entity is getting saved. This method can populated file entity's custom 
+	 * fields with required information. This information can be used in checking for authorization during file access by user. 
+	 * @param fileEntity File entity to which security customization can be done
+	 */
+	public void addSecurityCustomization(FileEntity fileEntity);
+	
+	/**
+	 * This method should return true only if current user is authorized to access specified file content.
+	 * @param fileEntity File which needs to be checked for authorization
+	 * @return True if current user is authorized to access specified file
+	 */
+	public boolean isAuthorized(FileEntity fileEntity);
 }

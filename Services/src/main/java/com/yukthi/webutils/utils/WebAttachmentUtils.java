@@ -78,8 +78,9 @@ public class WebAttachmentUtils
 	 * @param response Response on which file needs to be sent
 	 * @param fileInfo File information
 	 * @param asAttachment If true, file will be sent as attachment. Otherwise as body content
+	 * @param deleteFile If true, deletes the file once content is sent over the response
 	 */
-	public static void sendFile(HttpServletResponse response, FileInfo fileInfo, boolean asAttachment)
+	public static void sendFile(HttpServletResponse response, FileInfo fileInfo, boolean asAttachment, boolean deleteFile)
 	{
 		String mimeType = fileInfo.getContentType();
 		
@@ -115,6 +116,11 @@ public class WebAttachmentUtils
 			
 			os.close();
 			fis.close();
+			
+			if(deleteFile)
+			{
+				fileInfo.getFile().delete();
+			}
 		}catch(Exception ex)
 		{
 			throw new IllegalStateException("An error occurred while writing content to response", ex);

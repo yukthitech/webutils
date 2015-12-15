@@ -88,7 +88,7 @@ public class EmployeeController extends BaseController
 	@ActionName("fetch")
 	public BasicReadResponse<EmployeeModel> fetch(@PathVariable("id") long id)
 	{
-		EmployeeModel model = service.fetchWithExtensions(id, EmployeeModel.class);
+		EmployeeModel model = service.fetchFullModel(id, EmployeeModel.class);
 		return new BasicReadResponse<EmployeeModel>(model);
 	}
 	

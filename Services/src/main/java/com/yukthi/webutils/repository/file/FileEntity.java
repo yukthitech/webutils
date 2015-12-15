@@ -36,7 +36,9 @@ import javax.persistence.Version;
 
 import com.yukthi.persistence.annotations.DataType;
 import com.yukthi.persistence.annotations.DataTypeMapping;
+import com.yukthi.persistence.annotations.Index;
 import com.yukthi.persistence.annotations.Indexed;
+import com.yukthi.persistence.annotations.Indexes;
 import com.yukthi.persistence.annotations.NotUpdateable;
 import com.yukthi.webutils.repository.ITrackedEntity;
 import com.yukthi.webutils.repository.UserEntity;
@@ -46,6 +48,9 @@ import com.yukthi.webutils.repository.UserEntity;
  * 
  * @author akiran
  */
+@Indexes({
+	@Index(name = "FILE_OWNER_IDX", fields = {"ownerEntityField", "ownerEntityId"})
+})
 @Table(name = "FILE_ENTITY")
 public class FileEntity implements ITrackedEntity
 {
@@ -90,6 +95,24 @@ public class FileEntity implements ITrackedEntity
 	@Column(name = "CONTENT_TYPE", length = 200)
 	private String contentType;
 	
+	/**
+	 * Owner entity type
+	 */
+	@Column(name = "OWNER_ENTITY_TYPE", length = 300, nullable = false)
+	private String ownerEntityType;
+
+	/**
+	 * Owner entity field name
+	 */
+	@Column(name = "OWNER_ENTITY_FIELD", length = 300, nullable = false)
+	private String ownerEntityField;
+	
+	/**
+	 * Owner entity id
+	 */
+	@Column(name = "OWNER_ENTITY_ID", nullable = false)
+	private Long ownerEntityId;
+
 	/**
 	 * Custom attribute that can be used by applications to set application
 	 * specific custom data
@@ -272,6 +295,66 @@ public class FileEntity implements ITrackedEntity
 	public void setContentType(String contentType)
 	{
 		this.contentType = contentType;
+	}
+	
+	/**
+	 * Gets the owner entity type.
+	 *
+	 * @return the owner entity type
+	 */
+	public String getOwnerEntityType()
+	{
+		return ownerEntityType;
+	}
+
+	/**
+	 * Sets the owner entity type.
+	 *
+	 * @param ownerEntityType the new owner entity type
+	 */
+	public void setOwnerEntityType(String ownerEntityType)
+	{
+		this.ownerEntityType = ownerEntityType;
+	}
+
+	/**
+	 * Gets the owner entity type with field name.
+	 *
+	 * @return the owner entity type with field name
+	 */
+	public String getOwnerEntityField()
+	{
+		return ownerEntityField;
+	}
+
+	/**
+	 * Sets the owner entity type with field name.
+	 *
+	 * @param ownerEntityField the new owner entity type with field name
+	 */
+	public void setOwnerEntityField(String ownerEntityField)
+	{
+		this.ownerEntityField = ownerEntityField;
+	}
+
+	/**
+	 * Gets the owner entity id.
+	 *
+	 * @return the owner entity id
+	 */
+	public Long getOwnerEntityId()
+	{
+		return ownerEntityId;
+	}
+
+	/**
+	 * Sets the owner entity id.
+	 *
+	 * @param ownerEntityId the new owner entity id
+	 */
+	public void setOwnerEntityId(Long ownerEntityId)
+	{
+		this.ownerEntityId = ownerEntityId;
 	}
 
 	/**
@@ -503,6 +586,4 @@ public class FileEntity implements ITrackedEntity
 	{
 		this.customAttribute5 = customAttribute5;
 	}
-
-	
 }

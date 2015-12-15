@@ -593,11 +593,81 @@ $.application.factory('actionHelper', ['clientContext', function(clientContext){
 				
 				return apiRes;
 			}
+		},
+		
+		/**
+		 * Fetches action url for specified action with specified params, so that the resultant url can 
+		 * be used in hyperlinks.
+		 */
+		"actionUrl" : function(actionName, params) {
+			var action = this.clientContext.getAction(actionName);
+			
+			//if invalid action name specified
+			if(!action)
+			{
+				throw "Invalid action name specified - " + actionName;
+			}
+			
+			//if specified action is not GET based action
+			if(action.method != 'GET')
+			{
+				return "Non GET action url requested. Requested action name - " + actionName;
+			}
+
+			var actionUrl = $.appConfiguration.apiBaseUrl + action.url;
+			var expression = new RegExp("");
+			
+			//if action requires url parameters, ensure all required url parameters are provided and replace them in result url
+			if(action.urlParameters)
+			{
+				var urlparamLst = action.urlParameters;
+				
+				for(var i = 0; i < urlparamLst.length; i++)
+				{
+					//if any url param is not specified, throw error
+					if(!params || !params[urlparamLst[i]])
+					{
+						throw "Required url-parameter '" + urlparamLst[i] + "' is not specified for invocation of action - " + actionName;
+					}
+					
+					actionUrl = actionUrl.replace(new RegExp("\\{" + urlparamLst[i] + "\\}", "g"), params[urlparamLst[i]]);
+					
+					delete params[urlparamLst[i]];
+				}
+			}
+			
+			var queryStringAdded = false;
+			
+			//if extra params are specified add them to url param list
+			if(params)
+			{
+				actionUrl = actionUrl + "?";
+				queryStringAdded = true;
+				
+				for(var paramName in params)
+				{
+					actionUrl += paramName + "=" +  params[paramName] + "&";
+				}
+			}
+			
+			//add auth token as param
+			if(queryStringAdded)
+			{
+				actionUrl += "&AUTH_TOKEN=" + clientContext.authToken;
+			}
+			else
+			{
+				actionUrl += "?AUTH_TOKEN=" + clientContext.authToken;
+			}
+			
+			return actionUrl;
 		}
+		
 	};
 	
 	return actionHelper;
 }]);
+
 
 
 

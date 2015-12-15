@@ -34,6 +34,7 @@ import com.test.yukthi.webutils.SecurityRole;
 import com.test.yukthi.webutils.TestUserDetails;
 import com.yukthi.utils.CommonUtils;
 import com.yukthi.webutils.extensions.ExtensionPointDetails;
+import com.yukthi.webutils.repository.file.FileEntity;
 import com.yukthi.webutils.security.ISecurityService;
 import com.yukthi.webutils.services.CurrentUserService;
 
@@ -98,6 +99,23 @@ public class TestAuthenticationService implements ISecurityService
 	 */
 	@Override
 	public boolean isExtensionAuthorized(ExtensionPointDetails extensionPoint)
+	{
+		return true;
+	}
+
+	/* (non-Javadoc)
+	 * @see com.yukthi.webutils.security.ISecurityService#addSecurityCustomization(com.yukthi.webutils.repository.file.FileEntity)
+	 */
+	@Override
+	public void addSecurityCustomization(FileEntity fileEntity)
+	{
+	}
+
+	/* (non-Javadoc)
+	 * @see com.yukthi.webutils.security.ISecurityService#isAuthorized(com.yukthi.webutils.repository.file.FileEntity)
+	 */
+	@Override
+	public boolean isAuthorized(FileEntity fileEntity)
 	{
 		return true;
 	}

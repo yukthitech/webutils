@@ -108,12 +108,18 @@ public class SecurityInterceptor extends HandlerInterceptorAdapter
 	{
 		String authorizationToken = request.getHeader(IWebUtilsCommonConstants.HEADER_AUTHORIZATION_TOKEN);
 
-		//if authorization token is not present
+		//if authorization token header is not present
 		if(StringUtils.isBlank(authorizationToken))
 		{
-			logger.debug("No auth token provided in request header");
-			sendError(response, IWebUtilsCommonConstants.RESPONSE_CODE_AUTHENTICATION_ERROR, "Authorization failed. No authorization token provided");
-			return null;
+			//check if auth token is provided as request parameter (needed to support hyper links - download urls)
+			authorizationToken = request.getParameter("AUTH_TOKEN");
+			
+			if(StringUtils.isBlank(authorizationToken))
+			{
+				logger.debug("No auth token provided in request header");
+				sendError(response, IWebUtilsCommonConstants.RESPONSE_CODE_AUTHENTICATION_ERROR, "Authorization failed. No authorization token provided");
+				return null;
+			}
 		}
 
 		

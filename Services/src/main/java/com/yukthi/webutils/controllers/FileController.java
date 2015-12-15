@@ -40,8 +40,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.yukthi.webutils.annotations.ActionName;
 import com.yukthi.webutils.common.FileInfo;
+import com.yukthi.webutils.repository.file.FileEntity;
+import com.yukthi.webutils.security.ISecurityService;
+import com.yukthi.webutils.security.UnauthorizedException;
 import com.yukthi.webutils.services.FileService;
 import com.yukthi.webutils.utils.WebAttachmentUtils;
+import com.yukthi.webutils.utils.WebUtils;
 
 /**
  * Controller for fetching files
@@ -52,9 +56,50 @@ import com.yukthi.webutils.utils.WebAttachmentUtils;
 @RequestMapping("/files")
 public class FileController
 {
+	/**
+	 * File service to fetch file content based on id
+	 */
 	@Autowired
 	private FileService fileService;
 	
+	/**
+	 * Service to check authorization for file
+	 */
+	@Autowired
+	private ISecurityService securityService;
+	
+	/**
+	 * @param id
+	 * @param response
+	 * @return
+	 * @throws IOException
+	 */
+	private FileInfo getFileInfo(long id, HttpServletResponse response) throws IOException
+	{
+		FileEntity fileEntity = fileService.getFileEntity(id);
+		
+		//if file is not found
+		if(fileEntity == null)
+		{
+			response.sendError(HttpServletResponse.SC_NOT_FOUND);
+			return null;
+		}
+		
+		//check authorization of current user
+		if(!securityService.isAuthorized(fileEntity))
+		{
+			//delete the temp file that was created during db read
+			fileEntity.getFile().delete();
+
+			throw new UnauthorizedException("Current user is not authorized to access file with id - {}", id);
+		}
+		
+		FileInfo fileInfo = WebUtils.convertBean(fileEntity, FileInfo.class);
+		fileInfo.setFile(fileEntity.getFile());
+		
+		return fileInfo;
+	}
+
 	/**
 	 * Fetches file content from db for specified id, as part of request body. Useful to include content as
 	 * image, css etc
@@ -63,18 +108,17 @@ public class FileController
 	 * @throws IOException
 	 */
 	@ActionName(ACTION_TYPE_FETCH)
-	@RequestMapping(value = "/fetch/{" + PARAM_ID + "}", method = RequestMethod.POST)
+	@RequestMapping(value = "/fetch/{" + PARAM_ID + "}", method = RequestMethod.GET)
 	public void fetchFile(@PathVariable(PARAM_ID) long id, HttpServletResponse response) throws IOException
 	{
-		FileInfo fileInfo = fileService.getFileInfo(id);
-		
+		FileInfo fileInfo = getFileInfo(id, response);
+
 		if(fileInfo == null)
 		{
-			response.sendError(HttpServletResponse.SC_NOT_FOUND);
 			return;
 		}
-		
-		WebAttachmentUtils.sendFile(response, fileInfo, false);
+
+		WebAttachmentUtils.sendFile(response, fileInfo, false, true);
 	}
 
 	/**
@@ -84,17 +128,16 @@ public class FileController
 	 * @throws IOException
 	 */
 	@ActionName(ACTION_TYPE_FETCH_ATTACHMENT)
-	@RequestMapping(value = "/download/{" + PARAM_ID + "}", method = RequestMethod.POST)
+	@RequestMapping(value = "/download/{" + PARAM_ID + "}", method = RequestMethod.GET)
 	public void fetchFileAsAttachment(@PathVariable(PARAM_ID) long id, HttpServletResponse response) throws IOException
 	{
-		FileInfo fileInfo = fileService.getFileInfo(id);
-		
+		FileInfo fileInfo = getFileInfo(id, response);
+
 		if(fileInfo == null)
 		{
-			response.sendError(HttpServletResponse.SC_NOT_FOUND);
 			return;
 		}
-		
-		WebAttachmentUtils.sendFile(response, fileInfo, true);
+
+		WebAttachmentUtils.sendFile(response, fileInfo, true, true);
 	}
 }

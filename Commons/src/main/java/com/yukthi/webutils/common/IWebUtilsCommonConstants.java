@@ -67,6 +67,9 @@ public interface IWebUtilsCommonConstants
 	 */
 	public String HEADER_AUTHORIZATION_TOKEN = "AUTH_TOKEN";
 
+	/**
+	 * Used to define multi part name for models, when attachments are expected
+	 */
 	public String MULTIPART_DEFAULT_PART = "default";
 	
 	public String AUTH_GROUP_URI = "/auth";

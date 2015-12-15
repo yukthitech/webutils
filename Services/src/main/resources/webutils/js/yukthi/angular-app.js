@@ -45,6 +45,7 @@ $.addElementDirective = function(directiveObj) {
 						"$scope": $scope,
 						"element": $($element[0]),
 						"clientContext": clientContext,
+						"actionHelper": actionHelper,
 						"invokeAction": function(actionName, requestEntity, params) {
 							return actionHelper.invokeAction(actionName, requestEntity, params);
 						},
@@ -129,6 +130,7 @@ $.addAttributeDirective = function(directiveObj) {
 				"$scope": $scope,
 				"element": element,
 				"clientContext": clientContext,
+				"actionHelper": actionHelper,
 				"attributeValue" : attrValue,
 				"invokeAction": function(actionName, requestEntity, params) {
 					return actionHelper.invokeAction(actionName, requestEntity, params);

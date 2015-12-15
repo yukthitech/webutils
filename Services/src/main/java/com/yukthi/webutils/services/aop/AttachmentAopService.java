@@ -121,25 +121,24 @@ public class AttachmentAopService
 				}
 				
 				fileDetailsLst = fieldAttachments.get(field.getName());
+				fileDetailsLst = (fileDetailsLst == null || fileDetailsLst.isEmpty()) ? null : fileDetailsLst;
 				
 				//set the file details on the field
 				try
 				{
-					if(fileDetailsLst != null && !fileDetailsLst.isEmpty())
+					if(field.isMultiValued())
 					{
-						PropertyUtils.setProperty(arg, field.getName(), fileDetailsLst.get(0));
+						PropertyUtils.setProperty(arg, field.getName(), fileDetailsLst);
 					}
 					else
 					{
-						PropertyUtils.setProperty(arg, field.getName(), null);
+						PropertyUtils.setProperty(arg, field.getName(), (fileDetailsLst != null) ? fileDetailsLst.get(0) : null);
 					}
 				}catch(Exception ex)
 				{
 					throw new InvalidStateException(ex, "An error occurred while setting file attachment on field - {}.{}", 
 							joinPoint.getSignature().getDeclaringTypeName(), joinPoint.getSignature().getName());
 				}
-				
-				//TODO: Need to support list of attachment for single field
 			}
 		}
 		

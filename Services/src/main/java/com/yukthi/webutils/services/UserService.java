@@ -17,7 +17,7 @@ public class UserService extends BaseCrudService<UserEntity, IUserRepository>
 	 */
 	public UserService()
 	{
-		super(IUserRepository.class);
+		super(UserEntity.class, IUserRepository.class);
 	}
 	
 	/**
