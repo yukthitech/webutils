@@ -65,11 +65,6 @@ public class AttachmentAopService
 	@Autowired
 	private ModelDetailsService modelDetailsService;
 	
-	public AttachmentAopService()
-	{
-		logger.debug("Attachment aop service got initialized");
-	}
-	
 	@PostConstruct
 	private void init()
 	{
@@ -82,6 +77,7 @@ public class AttachmentAopService
 	 * @param fieldAttachments Attachments that needs to be set
 	 * @param arguments Method arguments in which one of them is expected to be model
 	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void setAttachments(ProceedingJoinPoint joinPoint, Map<String, List<FileInfo>> fieldAttachments, Object arguments[])
 	{
 		if(arguments == null || arguments.length == 0)
@@ -100,6 +96,7 @@ public class AttachmentAopService
 
 		ModelDef modelDef = null;
 		List<FileInfo> fileDetailsLst = null;
+		List<FileInfo> fieldValue = null;
 		
 		//loop through arguments to find model attribute
 		for(Object arg : arguments)
@@ -123,13 +120,34 @@ public class AttachmentAopService
 				fileDetailsLst = fieldAttachments.get(field.getName());
 				fileDetailsLst = (fileDetailsLst == null || fileDetailsLst.isEmpty()) ? null : fileDetailsLst;
 				
+				//if no new file attachments are present for a field, retain client sent value of the field
+				if(fileDetailsLst == null)
+				{
+					continue;
+				}
+				
 				//set the file details on the field
 				try
 				{
+					//for multi valued file field
 					if(field.isMultiValued())
 					{
-						PropertyUtils.setProperty(arg, field.getName(), fileDetailsLst);
+						fieldValue = (List)PropertyUtils.getProperty(arg, field.getName());
+						
+						//append attachments to client sent values
+						if(fieldValue != null)
+						{
+							fieldValue.addAll(fileDetailsLst);
+						}
+						//when there are no client sent values inject attachment details into model
+						else
+						{
+							fieldValue = fileDetailsLst;
+						}
+						
+						PropertyUtils.setProperty(arg, field.getName(), fieldValue);
 					}
+					//for single file field, replace client sent value with attachment details
 					else
 					{
 						PropertyUtils.setProperty(arg, field.getName(), (fileDetailsLst != null) ? fileDetailsLst.get(0) : null);
@@ -141,7 +159,6 @@ public class AttachmentAopService
 				}
 			}
 		}
-		
 	}
 
 	/**

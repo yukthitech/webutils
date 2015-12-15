@@ -528,7 +528,7 @@
 												</a>
 												<!-- Span when file info comes from server -->
 												<span ng-show="${modelField}.fileName" style="cursor: default;" data-toggle="tooltip" title="{{${modelField}.fileName}}">
-													<a href="#" class="fileLink"> 
+													<a href="#" yk-file-link="{{${modelField}.id}}" style="font-weight: bold;"> 
 														{{${modelField}.fileName}}
 													</a>
 												</span>
@@ -576,7 +576,7 @@
 										</a>
 										<!-- Span when file info comes from server -->
 										<span ng-show="file.fileName" style="cursor: default;" data-toggle="tooltip" title="{{file.fileName}}">
-											<a href="#" class="fileLink"> 
+											<a href="#"  yk-file-link="{{file.id}}"  style="font-weight: bold;"> 
 												{{file.fileName}}
 											</a>
 										</span>
@@ -757,7 +757,22 @@
 					this.$scope.$parent.$digest();
 				}
 				
-			}, {"element": fileRemoveButton, "$scope" : context.$scope, "modelName": modelName, "element": context.element}));
+			}, {"element": fileRemoveButton, "$scope" : context.$scope, "modelName": modelName}));
+		</script>
+	</attr-directive>
+
+	<!-- Used by file widget to display content of the file whose details are obtained from
+		server. 
+	 -->
+	<attr-directive name="ykFileLink">
+		<script>
+			var fileLink = context.element;
+			
+			$(fileLink).off("click").on("click", $.proxy(function(event){
+				var fileId = parseInt(this.element.attr("yk-file-link"));
+				//var fileId = eval("this.$scope." + this.modelName + ".id");
+				this.element.get(0).href = this.actionHelper.actionUrl("files.fetch.attachment", {"id": fileId});
+			}, {"element": fileLink, "$scope" : context.$scope, "actionHelper": context.actionHelper}));
 		</script>
 	</attr-directive>
 
@@ -790,12 +805,14 @@
 			};
 			
 			//add functionality for file link 
+			/*
 			var fileLink = context.element.find("a.fileLink").get(0);
 			
 			$(fileLink).off("click").on("click", $.proxy(function(event){
 				//var fileId = eval("this.$scope." + this.modelName + ".id");
 				//this.element.href = this.actionHelper.actionUrl("files.fetch.attachment", {"id": fileId});
 			}, {"element": fileLink, "$scope" : context.$scope, "actionHelper" : context.actionHelper, "modelName": modelName}));
+			*/
 			
 			//add event, such that when file selection is done, the files are added to model
 			fileElem.off("change").on('change', $.proxy(function(){

@@ -60,29 +60,32 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", func
 			$scope.deleteEntry = function(e) {
 				logger.trace("Delete {} is triggered: {}", $scope.crudConfig.name,  $scope.selectedId);
 				
-				var deleteOp = function(confirmed) {
+				var deleteOp = $.proxy(function(confirmed) {
 					
 					if(!confirmed)
 					{
-						logger.trace("Delete operation is cancelled by user.");
+						this.logger.trace("Delete operation is cancelled by user.");
 						return;
 					}
 					
-					var baseResponse = actionHelper.invokeAction($scope.crudConfig.deleteAction, null, {
-						"id": $scope.selectedId
+					var baseResponse = actionHelper.invokeAction(this.$scope.crudConfig.deleteAction, null, {
+						"id": this.selectedId
 					});
 					
 					if(!baseResponse || baseResponse.code != 0)
 					{
-						logger.error("An error occurred while deleting {} - {}. Server Error - {}", $scope.crudConfig.name, $scope.selectedName, baseResonse.message);
-						utils.alert(["An error occurred while deleting {} - {}. <BR/>Server Error - {}", $scope.crudConfig.name, $scope.selectedName, baseResonse.message]);
+						this.logger.error("An error occurred while deleting {} - {}. Server Error - {}", 
+								this.$scope.crudConfig.name, this.selectedName, baseResonse.message);
+						this.utils.alert(["An error occurred while deleting {} - {}. <BR/>Server Error - {}", 
+						        this.$scope.crudConfig.name, this.selectedName, baseResonse.message]);
+						return;
 					}
 					
-					$scope.$broadcast("rowsModified");
+					this.$scope.$broadcast("rowsModified");
 					
-					logger.trace("Successfully deleted {} '{}'", $scope.crudConfig.name, $scope.selectedName);
-					utils.info(["Successfully deleted {} '{}'", $scope.crudConfig.name, $scope.selectedName]);
-				};
+					this.logger.trace("Successfully deleted {} '{}'", this.$scope.crudConfig.name, this.selectedName);
+					this.utils.info(["Successfully deleted {} '{}'", this.$scope.crudConfig.name, this.selectedName]);
+				}, {"$scope": $scope, "selectedName": $scope.selectedName, "selectedId": $scope.selectedId, "logger": logger, "utils": utils});
 				
 				utils.confirm(["Are you sure you want to delete {} '{}' ?", $scope.crudConfig.name, $scope.selectedName], deleteOp);
 			};
