@@ -27,6 +27,7 @@ import java.util.List;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.Pattern;
 
 import com.yukthi.validation.annotations.MaxLen;
 import com.yukthi.validation.annotations.MinLen;
@@ -72,12 +73,21 @@ public class ExtensionFieldModel
 	private String extensionName;
 
 	/**
-	 * Name of the field
+	 * Name of the field. Used for internal purposes to refer to field value
+	 */
+	@NotEmpty
+	@Pattern(regexp = "\\w+")
+	@MinLen(3)
+	@MaxLen(50)
+	private String name;
+	
+	/**
+	 * Label for the field.  Used to display in the ui.
 	 */
 	@NotEmpty
 	@MinLen(3)
 	@MaxLen(50)
-	private String name;
+	private String label;
 
 	/**
 	 * Description of the field
@@ -115,37 +125,43 @@ public class ExtensionFieldModel
 	 */
 	public ExtensionFieldModel()
 	{}
+
 	
 	/**
-	 * Instantiates a new extension field model. Can be used for simple fields.
+	 * Instantiates a new extension field model.
 	 *
-	 * @param extensionName 
+	 * @param extensionName the extension name
 	 * @param name the name
+	 * @param label the label
 	 * @param description the description
 	 * @param type the type
 	 * @param required the required
 	 */
-	public ExtensionFieldModel(String extensionName, String name, String description, ExtensionFieldType type, boolean required)
+	public ExtensionFieldModel(String extensionName, String name, String label, String description, ExtensionFieldType type, boolean required)
 	{
 		this.extensionName = extensionName;
 		this.name = name;
+		this.label = label;
 		this.description = description;
 		this.type = type;
 		this.required = required;
 	}
 
 	/**
-	 * Instantiates a new extension field model. Can be used for LOV fields.
-	 * @param extensionName 
+	 * Instantiates a new extension field model.
+	 *
+	 * @param extensionName the extension name
 	 * @param name the name
+	 * @param label the label
 	 * @param description the description
 	 * @param required the required
 	 * @param lovOptions the lov options
 	 */
-	public ExtensionFieldModel(String extensionName, String name, String description, boolean required, List<LovOption> lovOptions)
+	public ExtensionFieldModel(String extensionName, String name, String label, String description, boolean required, List<LovOption> lovOptions)
 	{
 		this.extensionName = extensionName;
 		this.name = name;
+		this.label = label;
 		this.description = description;
 		this.type = ExtensionFieldType.LIST_OF_VALUES;
 		this.required = required;
@@ -155,17 +171,19 @@ public class ExtensionFieldModel
 	/**
 	 * Instantiates a new extension field model.
 	 *
-	 * @param extensionName
+	 * @param extensionName the extension name
 	 * @param name the name
+	 * @param label the label
 	 * @param description the description
 	 * @param type the type
 	 * @param required the required
-	 * @param maxLength Max length
+	 * @param maxLength the max length
 	 */
-	public ExtensionFieldModel(String extensionName, String name, String description, ExtensionFieldType type,  boolean required, int maxLength)
+	public ExtensionFieldModel(String extensionName, String name, String label, String description, ExtensionFieldType type,  boolean required, int maxLength)
 	{
 		this.extensionName = extensionName;
 		this.name = name;
+		this.label = label;
 		this.description = description;
 		this.type = type;
 		this.required = required;
@@ -195,16 +213,6 @@ public class ExtensionFieldModel
 	}
 
 	/**
-	 * Gets the name of the field.
-	 *
-	 * @return the name of the field
-	 */
-	public String getName()
-	{
-		return name;
-	}
-	
-	/**
 	 * Gets the extension to which this field is being defined.
 	 *
 	 * @return the extension to which this field is being defined
@@ -225,14 +233,43 @@ public class ExtensionFieldModel
 	}
 
 	/**
-	 * Sets the name of the field.
+	 * Gets the name of the field. Used for internal purposes to refer to field value.
 	 *
-	 * @param name
-	 *            the new name of the field
+	 * @return the name of the field
+	 */
+	public String getName()
+	{
+		return name;
+	}
+
+	/**
+	 * Sets the name of the field. Used for internal purposes to refer to field value.
+	 *
+	 * @param name the new name of the field
 	 */
 	public void setName(String name)
 	{
 		this.name = name;
+	}
+
+	/**
+	 * Gets the label for the field.  Used to display in the ui.
+	 *
+	 * @return the label for the field
+	 */
+	public String getLabel()
+	{
+		return label;
+	}
+
+	/**
+	 * Sets the label for the field.  Used to display in the ui.
+	 *
+	 * @param label the new label for the field
+	 */
+	public void setLabel(String label)
+	{
+		this.label = label;
 	}
 
 	/**

@@ -89,6 +89,12 @@ public class ExtensionFieldEntity implements ITrackedEntity
 	private String name;
 
 	/**
+	 * Label of the field
+	 */
+	@Column(name = "LABEL", nullable = false, length = 50)
+	private String label;
+
+	/**
 	 * Description of the field
 	 */
 	@Column(name = "DESCRIPTION", length = 500)
@@ -232,6 +238,26 @@ public class ExtensionFieldEntity implements ITrackedEntity
 	public void setName(String name)
 	{
 		this.name = name;
+	}
+	
+	/**
+	 * Gets the label of the field.
+	 *
+	 * @return the label of the field
+	 */
+	public String getLabel()
+	{
+		return label;
+	}
+
+	/**
+	 * Sets the label of the field.
+	 *
+	 * @param label the new label of the field
+	 */
+	public void setLabel(String label)
+	{
+		this.label = label;
 	}
 
 	/**

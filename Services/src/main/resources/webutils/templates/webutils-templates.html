@@ -370,7 +370,18 @@
 	
 				var modelDef = modelDefResponse.modelDef;
 				context["modelDef"] = modelDef;
+				context["extensionFields"] = [];
 				
+				//if model is extendable, fetch extension field details
+				if(modelDef.extensionName)
+				{
+					var extensionFldRes = context.invokeAction('extensions.fetch', null, {"name": modelDef.extensionName});
+					
+					if(extensionFldRes &amp;&amp; extensionFldRes.extensionFields &amp;&amp; extensionFldRes.extensionFields.length &gt; 0)
+					{
+						context["extensionFields"] = extensionFldRes.extensionFields;
+					}
+				}
 				
 				var columnCount = parseInt(context.attr('columns'));
 				columnCount = (columnCount &gt; 3) ? 3 : columnCount;
@@ -385,6 +396,7 @@
 				}
 				
 				context["colIndex"] = 0;
+				context["extColIndex"] = 0;
 			</exe-script>
 			
 			<div class="container-fluid" yk-model="${attr('name')}">
@@ -409,6 +421,22 @@
 						
 					</for-each>
 				</div>							
+				<div class="row">
+					<for-each data="${modelDef.extensionFields}" loop-var="field" index-var="idx">
+						<if test="context.extColIndex != 0 &amp;&amp; (context.extColIndex % context.columnCount) == 0"><![CDATA[
+							</div>
+							<div class="row">
+						]]></if>
+						
+						<div class="${columnCountClass} col-xs-12" style="padding-bottom: 0.2em;">
+							<ext-model-field name="${field.name}" modelobj="model.extendedFields"></ext-model-field>
+						</div>
+						
+						<exe-script var="_tmp">
+							context["extColIndex"]++;
+						</exe-script>
+					</for-each>
+				</div>							
 			</div>
 		</content>
 	</directive>
@@ -426,10 +454,26 @@
 			{
 				throw "Invalid model name specified - " + modelName;
 			}
-
+			
 			var modelDef = modelDefResponse.modelDef;
+			var extensionFieldMap = {};
+			
+			//if model is extendable, fetch extension field details
+			if(modelDef.extensionName)
+			{
+				var extensionFldRes = context.invokeAction('extensions.fetch', null, {"name": modelDef.extensionName});
+				
+				if(extensionFldRes &amp;&amp; extensionFldRes.extensionFields &amp;&amp; extensionFldRes.extensionFields.length &gt; 0)
+				{
+					for(var i = 0; i &lt; extensionFldRes.extensionFields.length; i++)
+					{
+						extensionFieldMap[ extensionFldRes.extensionFields[i].name ] = extensionFldRes.extensionFields[i];
+					}
+				}
+			}
 			
 			modelDef.fieldMap = {};
+			modelDef.extensionFieldMap = extensionFieldMap;
 			
 			for(var i = 0; i &lt; modelDef.fields.length; i++)
 			{
@@ -450,6 +494,19 @@
 				
 				element.replaceWith("&lt;yk-model-field name=\"" + name + "\"  modelobj=\"" + modelobj + "\"  &gt; &lt;/yk-model-field&gt;");
 			});
+
+			context.element.find("ext-model-field").each(function(idx){
+				var element = $(this);
+				var name = element.attr("name");
+				var modelobj = element.attr("modelobj");
+				
+				if(!modelobj)
+				{
+					modelobj = "";
+				}
+				
+				element.replaceWith("&lt;yk-model-field name=\"" + name + "\"  modelobj=\"" + modelobj + "\"  extended=\"true\" &gt; &lt;/yk-model-field&gt;");
+			});
 		</script>
 	</attr-directive>
 
@@ -458,13 +515,14 @@
 			<exe-script var="_tmp">
 				var modelDef = context["$scope"].modelDef;
 				var name = context.attr('name');
+				var extended = (context.attr('extended') == "true");
 				
 				if(!modelDef)
 				{
 					throw "No model is defined for yk-model-field with name - " + name;
 				}
 				
-				var fieldDef = modelDef.fieldMap[name];
+				var fieldDef = extended ? modelDef.extensionFieldMap[name] : modelDef.fieldMap[name];
 				
 				if(!fieldDef)
 				{
@@ -480,6 +538,11 @@
 				else
 				{
 					context["modelField"] = name;
+				}
+				
+				if(extended)
+				{
+					context["extended"] = "true";
 				}
 				
 				context["fieldDef"] = fieldDef;
@@ -498,7 +561,7 @@
 					<else-if test="context.fieldDef.fieldType == 'INTEGER'">
 						<input type="number" name="${fieldDef.name}" placeholder="${fieldDef.label}" ng-model="${modelField}"  yk-read-only="${fieldDef.readOnly}"></input>
 					</else-if>
-					<else-if test="context.fieldDef.fieldType == 'FLOAT'">
+					<else-if test="context.fieldDef.fieldType == 'FLOAT' || context.fieldDef.fieldType == 'DOUBLE'">
 						<input type="number" name="${fieldDef.name}" placeholder="${fieldDef.label}" ng-model="${modelField}"  yk-read-only="${fieldDef.readOnly}"></input>
 					</else-if>
 					<else-if test="context.fieldDef.fieldType == 'BOOLEAN'">
@@ -509,11 +572,22 @@
 						</select>
 					</else-if>
 					<else-if test="context.fieldDef.fieldType == 'DATE'">
-						<input type="date" name="${fieldDef.name}" placeholder="${fieldDef.label}" ng-model="${modelField}" yk-read-only="${fieldDef.readOnly}"></input>
+						<input type="text" name="${fieldDef.name}" placeholder="${fieldDef.label}" ng-model="${modelField}" yk-read-only="${fieldDef.readOnly}"></input>
 					</else-if>
 					<else-if test="context.fieldDef.fieldType == 'LIST_OF_VALUES'">
-						<yk-lov-field name="${fieldDef.name}" label="${fieldDef.label}" lov="${fieldDef.lovDetails.lovName}" yk-read-only="${fieldDef.readOnly}"
-									type="${fieldDef.lovDetails.lovType}" model="${modelField}"></yk-lov-field> 
+						<if test="context.extended == 'true'">
+							<select name="${fieldDef.name}" ng-model="${modelField}"  yk-read-only="${fieldDef.readOnly}">
+								<option value="" selected=""> -- Select ${fieldDef.label} -- </option>
+
+								<for-each data="${fieldDef.lovOptions}" loop-var="lovOption" index-var="idx">
+									<option value="${lovOption.value}">${lovOption.label}</option>
+								</for-each>
+							</select>
+						</if>
+						<else>
+							<yk-lov-field name="${fieldDef.name}" label="${fieldDef.label}" lov="${fieldDef.lovDetails.lovName}" yk-read-only="${fieldDef.readOnly}"
+										type="${fieldDef.lovDetails.lovType}" model="${modelField}"></yk-lov-field>
+						</else> 
 					</else-if>
 					<else-if test="context.fieldDef.fieldType == 'FILE'">
 						<if test="context.fieldDef.multiValued == false">

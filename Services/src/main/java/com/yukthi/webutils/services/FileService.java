@@ -176,6 +176,14 @@ public class FileService
 		
 		//fetch model details
 		ModelDef modelDef = modelDetailsService.getModelDef(modelType);
+		
+		//if specified model is not marked as Model, ignore
+		if(modelDef == null)
+		{
+			logger.trace("Specified model {} is not marked as @Model", model.getClass().getName());
+			return;
+		}
+		
 		Object fieldValue = null;
 		Field field = null;
 
@@ -287,6 +295,14 @@ public class FileService
 		
 		//fetch model details
 		ModelDef modelDef = modelDetailsService.getModelDef(modelType);
+		
+		//if specified model is not marked as Model, ignore
+		if(modelDef == null)
+		{
+			logger.trace("Specified model {} is not marked as @Model", model.getClass().getName());
+			return;
+		}
+
 		Field field = null;
 		List<FileInfo> filesFromDb = null;
 

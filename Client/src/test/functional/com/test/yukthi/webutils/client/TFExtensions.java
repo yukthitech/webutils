@@ -86,11 +86,11 @@ public class TFExtensions extends TFBase
 		String id1 = "" + addCustomer("Customer1");
 		String id2 = "" + addCustomer("Customer2");
 		
-		addExtensionField(id1, new ExtensionFieldModel("Employee", "field1", "Desc1", ExtensionFieldType.INTEGER, true) );
+		addExtensionField(id1, new ExtensionFieldModel("Employee", "field1", "field1", "Desc1", ExtensionFieldType.INTEGER, true) );
 
-		addExtensionField(id1, new ExtensionFieldModel("Employee", "field2", "Desc2", ExtensionFieldType.DECIMAL, true) );
+		addExtensionField(id1, new ExtensionFieldModel("Employee", "field2", "field2", "Desc2", ExtensionFieldType.DECIMAL, true) );
 
-		addExtensionField(id2, new ExtensionFieldModel("Employee", "field1", "Desc3", false, 
+		addExtensionField(id2, new ExtensionFieldModel("Employee", "field1", "field1", "Desc3", false, 
 				Arrays.asList(
 						new LovOption("1", "Label1"),
 						new LovOption("2", "Label2")) ) );
@@ -108,6 +108,7 @@ public class TFExtensions extends TFBase
 				clientContext.setRequestCustomizer(new RequestHeadersCustomizer(CommonUtils.toMap("customerId", id2))), "Employee");
 		Assert.assertEquals(fieldList2.size(), 1);
 		Assert.assertEquals(fieldList2.get(0).getName(), "field1");
+		Assert.assertEquals(fieldList2.get(0).getLabel(), "field1");
 		Assert.assertEquals(fieldList2.get(0).getDescription(), "Desc3");
 		Assert.assertEquals(fieldList2.get(0).isRequired(), false);
 		Assert.assertEquals(fieldList2.get(0).getType(), ExtensionFieldType.LIST_OF_VALUES);
@@ -120,7 +121,7 @@ public class TFExtensions extends TFBase
 		{
 			extensionsHelper.addExtensionField(
 					clientContext.setRequestCustomizer(new RequestHeadersCustomizer(CommonUtils.toMap("customerId", id1))), 
-					new ExtensionFieldModel("Employee", "field1", "Desc4", ExtensionFieldType.BOOLEAN, true) );
+					new ExtensionFieldModel("Employee", "field1", "field1", "Desc4", ExtensionFieldType.BOOLEAN, true) );
 			Assert.fail("Able to add multiple fields with same name");
 		}catch(Exception ex)
 		{
@@ -137,8 +138,8 @@ public class TFExtensions extends TFBase
 	{
 		String id1 = "" + addCustomer("CustomerForUpdate");
 		
-		ExtensionFieldModel field1 = new ExtensionFieldModel("Employee", "field1", "Desc1", ExtensionFieldType.INTEGER, true);
-		ExtensionFieldModel field2 = new ExtensionFieldModel("Employee", "field2", "Desc2", ExtensionFieldType.DECIMAL, true);
+		ExtensionFieldModel field1 = new ExtensionFieldModel("Employee", "field1", "field1", "Desc1", ExtensionFieldType.INTEGER, true);
+		ExtensionFieldModel field2 = new ExtensionFieldModel("Employee", "field2", "field2", "Desc2", ExtensionFieldType.DECIMAL, true);
 		
 		long fieldId1 = addExtensionField(id1, field1 );
 		addExtensionField(id1, field2);
@@ -175,9 +176,9 @@ public class TFExtensions extends TFBase
 	{
 		String id1 = "" + addCustomer("CustomerForDelete");
 		
-		ExtensionFieldModel field1 = new ExtensionFieldModel("Employee", "field1", "Desc1", ExtensionFieldType.INTEGER, true);
-		ExtensionFieldModel field2 = new ExtensionFieldModel("Employee", "field2", "Desc2", ExtensionFieldType.DECIMAL, true);
-		ExtensionFieldModel field3 = new ExtensionFieldModel("Employee", "field3", "Desc3", ExtensionFieldType.BOOLEAN, true);
+		ExtensionFieldModel field1 = new ExtensionFieldModel("Employee", "field1", "field1", "Desc1", ExtensionFieldType.INTEGER, true);
+		ExtensionFieldModel field2 = new ExtensionFieldModel("Employee", "field2", "field2", "Desc2", ExtensionFieldType.DECIMAL, true);
+		ExtensionFieldModel field3 = new ExtensionFieldModel("Employee", "field3", "field3", "Desc3", ExtensionFieldType.BOOLEAN, true);
 		
 		long fieldId1 = addExtensionField(id1, field1);
 
@@ -219,10 +220,10 @@ public class TFExtensions extends TFBase
 		extensionsHelper.deleteAllExtensionFields(clientContext);
 		
 		extensionsHelper.addExtensionField(clientContext,  
-				new ExtensionFieldModel("Customer", "fieldAdd1", "Desc1", ExtensionFieldType.INTEGER, true));
+				new ExtensionFieldModel("Customer", "fieldAdd1", "fieldAdd1", "Desc1", ExtensionFieldType.INTEGER, true));
 
 		extensionsHelper.addExtensionField(clientContext, 
-				new ExtensionFieldModel("Customer", "fieldAdd2", "Desc2", ExtensionFieldType.DECIMAL, true));
+				new ExtensionFieldModel("Customer", "fieldAdd2", "fieldAdd2", "Desc2", ExtensionFieldType.DECIMAL, true));
 
 		List<ExtensionFieldModel> fieldList1 = extensionsHelper.fetchExtensionFields(clientContext, "Customer");
 		Assert.assertEquals(fieldList1.size(), 2);
@@ -241,8 +242,8 @@ public class TFExtensions extends TFBase
 	{
 		extensionsHelper.deleteAllExtensionFields(clientContext);
 		
-		ExtensionFieldModel field1 = new ExtensionFieldModel("Customer", "fieldUpd1", "Desc1", ExtensionFieldType.INTEGER, true);
-		ExtensionFieldModel field2 = new ExtensionFieldModel("Customer", "fieldUpd2", "Desc2", ExtensionFieldType.DECIMAL, true);
+		ExtensionFieldModel field1 = new ExtensionFieldModel("Customer", "fieldUpd1", "fieldUpd1", "Desc1", ExtensionFieldType.INTEGER, true);
+		ExtensionFieldModel field2 = new ExtensionFieldModel("Customer", "fieldUpd2", "fieldUpd2", "Desc2", ExtensionFieldType.DECIMAL, true);
 		
 		long fieldId1 = extensionsHelper.addExtensionField(clientContext, field1);
 
@@ -276,9 +277,9 @@ public class TFExtensions extends TFBase
 	{
 		extensionsHelper.deleteAllExtensionFields(clientContext);
 		
-		ExtensionFieldModel field1 = new ExtensionFieldModel("Customer", "fieldDel1", "Desc1", ExtensionFieldType.INTEGER, true);
-		ExtensionFieldModel field2 = new ExtensionFieldModel("Customer", "fieldDel2", "Desc2", ExtensionFieldType.DECIMAL, true);
-		ExtensionFieldModel field3 = new ExtensionFieldModel("Customer", "fieldDel3", "Desc3", ExtensionFieldType.BOOLEAN, true);
+		ExtensionFieldModel field1 = new ExtensionFieldModel("Customer", "fieldDel1", "fieldDel1", "Desc1", ExtensionFieldType.INTEGER, true);
+		ExtensionFieldModel field2 = new ExtensionFieldModel("Customer", "fieldDel2", "fieldDel2", "Desc2", ExtensionFieldType.DECIMAL, true);
+		ExtensionFieldModel field3 = new ExtensionFieldModel("Customer", "fieldDel3", "fieldDel3", "Desc3", ExtensionFieldType.BOOLEAN, true);
 		
 		long fieldId1 = extensionsHelper.addExtensionField(clientContext, field1);
 

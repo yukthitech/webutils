@@ -33,6 +33,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.yukthi.utils.exceptions.InvalidStateException;
+import com.yukthi.webutils.common.IExtendableModel;
+import com.yukthi.webutils.common.annotations.ExtendableModel;
 import com.yukthi.webutils.common.annotations.IgnoreField;
 import com.yukthi.webutils.common.annotations.Model;
 import com.yukthi.webutils.common.models.def.FieldDef;
@@ -89,6 +91,13 @@ public class ModelDefBuilder
 		ModelDef modelDef = new ModelDef();
 		modelDef.setName(modelName);
 		modelDef.setLabel(defUtils.getLabel(modelType, modelType.getSimpleName(), modelType.getName()));
+		
+		ExtendableModel extendableModelAnnot = modelType.getAnnotation(ExtendableModel.class);
+		
+		if(extendableModelAnnot != null && IExtendableModel.class.isAssignableFrom(modelType))
+		{
+			modelDef.setExtensionName(extendableModelAnnot.name());
+		}
 		
 		//fetch field definitions and set it on model type def
 		List<FieldDef> fieldDefLst = new ArrayList<>();

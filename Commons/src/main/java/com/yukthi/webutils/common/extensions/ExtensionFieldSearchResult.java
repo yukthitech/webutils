@@ -45,11 +45,17 @@ public class ExtensionFieldSearchResult
 	private Long id;
 	
 	/**
-	 * Name od the extension field
+	 * Name of the extension field
 	 */
 	@Field("name")
 	private String name;
 	
+	/**
+	 * Label of the extension field
+	 */
+	@Field("label")
+	private String label;
+
 	/**
 	 * Type of the extension field
 	 */
@@ -113,9 +119,9 @@ public class ExtensionFieldSearchResult
 	}
 
 	/**
-	 * Gets the name od the extension field.
+	 * Gets the name of the extension field.
 	 *
-	 * @return the name od the extension field
+	 * @return the name of the extension field
 	 */
 	public String getName()
 	{
@@ -123,13 +129,33 @@ public class ExtensionFieldSearchResult
 	}
 
 	/**
-	 * Sets the name od the extension field.
+	 * Sets the name of the extension field.
 	 *
-	 * @param name the new name od the extension field
+	 * @param name the new name of the extension field
 	 */
 	public void setName(String name)
 	{
 		this.name = name;
+	}
+	
+	/**
+	 * Gets the label of the extension field.
+	 *
+	 * @return the label of the extension field
+	 */
+	public String getLabel()
+	{
+		return label;
+	}
+
+	/**
+	 * Sets the label of the extension field.
+	 *
+	 * @param label the new label of the extension field
+	 */
+	public void setLabel(String label)
+	{
+		this.label = label;
 	}
 
 	/**

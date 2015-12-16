@@ -51,6 +51,12 @@ public class ModelDef
 	 * List of fields of this model
 	 */
 	private List<FieldDef> fields;
+	
+	/**
+	 * Name of the extension. Only extendable models will hold this value and holds extension name
+	 * through which extension fields can be added.
+	 */
+	private String extensionName;
 
 	/**
 	 * Gets the name of the model.
@@ -130,6 +136,26 @@ public class ModelDef
 	public void setFields(List<FieldDef> fields)
 	{
 		this.fields = fields;
+	}
+	
+	/**
+	 * Gets the name of the extension. Only extendable models will hold this value and holds extension name through which extension fields can be added.
+	 *
+	 * @return the name of the extension
+	 */
+	public String getExtensionName()
+	{
+		return extensionName;
+	}
+
+	/**
+	 * Sets the name of the extension. Only extendable models will hold this value and holds extension name through which extension fields can be added.
+	 *
+	 * @param extensionName the new name of the extension
+	 */
+	public void setExtensionName(String extensionName)
+	{
+		this.extensionName = extensionName;
 	}
 
 	/* (non-Javadoc)
