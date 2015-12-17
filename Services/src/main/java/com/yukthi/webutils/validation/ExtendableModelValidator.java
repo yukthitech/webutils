@@ -81,14 +81,14 @@ public class ExtendableModelValidator implements Validator
 		}
 		
 		List<ExtensionFieldEntity> extendedFields = extensionService.getExtensionFields(extensionEntity.getId());
-		Map<Long, String> extendedFieldValues = new HashMap<>( ((IExtendableModel)target).getExtendedFields() );
+		Map<String, String> extendedFieldValues = new HashMap<>( ((IExtendableModel)target).getExtendedFields() );
 		String value = null;
 		FieldConfiguration fieldConfig = null;
 		
 		//loop through the fields and validate the values
 		for(ExtensionFieldEntity field : extendedFields)
 		{
-			value = extendedFieldValues.remove(field.getId());
+			value = extendedFieldValues.remove(field.getName());
 			
 			//ensure values are provided for all mandatory fields
 			if(field.isRequired())

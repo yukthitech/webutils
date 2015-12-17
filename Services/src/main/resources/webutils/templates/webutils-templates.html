@@ -327,6 +327,21 @@
 
 	<directive name="ykModelDialog" required-attr="id, name, columns, title, actionmethod">
 		<content>
+			<exe-script var="_tmp">
+				var extraHtml = context.element.find("extra-content");
+				
+				if(extraHtml &amp;&amp; extraHtml.length &gt; 0)
+				{
+					extraHtml = $(extraHtml.get(0)).html();
+				}
+				else
+				{
+					extraHtml = "";
+				}
+				
+				context["extraHtml"] = extraHtml; 
+			</exe-script>
+		
 			<set-var name="_size" expr="(context.attr('size') == 'small') ? 'modal-sm' : 'modal-lg'"/>
 			
 			<div class="modal fade" id="${attr('id')}" tabindex="-1" role="dialog" data-backdrop="static">
@@ -343,6 +358,7 @@
 						<!-- Content -->
 						<div class="modal-body" yk-model="${attr('name')}">
 							<yk-model-form name="${attr('name')}" columns="${attr('columns')}"></yk-model-form>
+							${extraHtml}
 						</div>
 						
 						<!-- Footer -->
@@ -422,7 +438,7 @@
 					</for-each>
 				</div>							
 				<div class="row">
-					<for-each data="${modelDef.extensionFields}" loop-var="field" index-var="idx">
+					<for-each data="${extensionFields}" loop-var="field" index-var="idx">
 						<if test="context.extColIndex != 0 &amp;&amp; (context.extColIndex % context.columnCount) == 0"><![CDATA[
 							</div>
 							<div class="row">
@@ -467,6 +483,7 @@
 				{
 					for(var i = 0; i &lt; extensionFldRes.extensionFields.length; i++)
 					{
+						extensionFldRes.extensionFields[i].fieldType = extensionFldRes.extensionFields[i].type;
 						extensionFieldMap[ extensionFldRes.extensionFields[i].name ] = extensionFldRes.extensionFields[i];
 					}
 				}
@@ -547,6 +564,7 @@
 				
 				context["fieldDef"] = fieldDef;
 			</exe-script>
+			
 			<div class="row">
 				<div class="col-md-6" yk-hide-from="sm">
 					${fieldDef.label}
@@ -799,6 +817,13 @@
 		<script>
 			var showExpr = context.attributeValue;
 			context.element.attr("ng-show", showExpr);
+		</script>
+	</attr-directive>
+
+	<attr-directive name="ykBind">
+		<script>
+			var bindExpr = context.attributeValue;
+			context.element.attr("ng-bind", bindExpr);
 		</script>
 	</attr-directive>
 

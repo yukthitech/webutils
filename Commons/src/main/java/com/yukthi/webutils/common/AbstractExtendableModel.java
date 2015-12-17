@@ -35,40 +35,40 @@ public abstract class AbstractExtendableModel implements IExtendableModel
 	/**
 	 * Map to hold extended field value
 	 */
-	private Map<Long, String> idToVal = new HashMap<>();
+	private Map<String, String> nameToVal = new HashMap<>();
 	
 	/**
 	 * Method to add extended field value
-	 * @param fieldId Extended field id
+	 * @param fieldName Extended field name
 	 * @param value Value for extended field
 	 */
-	public void setExtendedField(Long fieldId, Object value)
+	public void setExtendedField(String fieldName, Object value)
 	{
 		if(value == null)
 		{
-			idToVal.remove(fieldId);
+			nameToVal.remove(fieldName);
 			return;
 		}
 		
-		idToVal.put(fieldId, value.toString());
+		nameToVal.put(fieldName, value.toString());
 	}
 	
 	/* (non-Javadoc)
 	 * @see com.yukthi.webutils.common.IExtendableModel#getExtendedFields()
 	 */
 	@Override
-	public Map<Long, String> getExtendedFields()
+	public Map<String, String> getExtendedFields()
 	{
-		return idToVal;
+		return nameToVal;
 	}
 
 	/* (non-Javadoc)
 	 * @see com.yukthi.webutils.common.IExtendableModel#setExtendedFields(java.util.Map)
 	 */
 	@Override
-	public void setExtendedFields(Map<Long, String> extendedFieldValues)
+	public void setExtendedFields(Map<String, String> extendedFieldValues)
 	{
-		this.idToVal.clear();
-		this.idToVal.putAll(extendedFieldValues);
+		this.nameToVal.clear();
+		this.nameToVal.putAll(extendedFieldValues);
 	}
 }

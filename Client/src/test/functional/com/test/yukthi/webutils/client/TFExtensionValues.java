@@ -24,8 +24,6 @@
 package com.test.yukthi.webutils.client;
 
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -61,7 +59,6 @@ public class TFExtensionValues extends TFBase
 	private ExtensionsHelper extensionsHelper = new ExtensionsHelper();
 
 	private long customer1, customer2;
-	private Map<String, Long> fieldMap1 = new HashMap<>(), fieldMap2 = new HashMap<>();
 	
 	
 	private long addCustomer(String name)
@@ -78,13 +75,13 @@ public class TFExtensionValues extends TFBase
 		return response.getId();
 	}
 	
-	private long addEmployee(long customerId, Map<String, Long> fieldMap, String name, long salary, String... extendedFields)
+	private long addEmployee(long customerId, String name, long salary, String... extendedFields)
 	{
 		EmployeeModel emp = new EmployeeModel(name, salary);
 		
 		for(int i = 0; i < extendedFields.length; i += 2)
 		{
-			emp.setExtendedField(fieldMap.get(extendedFields[i]), extendedFields[i + 1]);
+			emp.setExtendedField(extendedFields[i], extendedFields[i + 1]);
 		}
 		
 		RestRequest<?> request = ActionRequestBuilder.buildRequest(
@@ -111,7 +108,7 @@ public class TFExtensionValues extends TFBase
 		return response.getId();
 	}
 	
-	private long updateEmployee(long customerId, Map<String, Long> fieldMap, long empId, int version, String name, long salary, String... extendedFields)
+	private long updateEmployee(long customerId, long empId, int version, String name, long salary, String... extendedFields)
 	{
 		EmployeeModel emp = new EmployeeModel(name, salary);
 		emp.setId(empId);
@@ -119,7 +116,7 @@ public class TFExtensionValues extends TFBase
 		
 		for(int i = 0; i < extendedFields.length; i += 2)
 		{
-			emp.setExtendedField(fieldMap.get(extendedFields[i]), extendedFields[i + 1]);
+			emp.setExtendedField(extendedFields[i], extendedFields[i + 1]);
 		}
 		
 		RestRequest<?> request = ActionRequestBuilder.buildRequest(
@@ -197,13 +194,11 @@ public class TFExtensionValues extends TFBase
 		return result.getValue().getModel();
 	}
 
-	private long addExtensionField(long customerId, ExtensionFieldModel field, Map<String, Long> fieldMap)
+	private long addExtensionField(long customerId, ExtensionFieldModel field)
 	{
 		long id = extensionsHelper.addExtensionField(
 				clientContext.setRequestCustomizer(new RequestHeadersCustomizer(CommonUtils.toMap("customerId", "" + customerId))), 
 				field );
-		
-		fieldMap.put(field.getName(), id);
 		
 		return id;
 	}
@@ -219,18 +214,18 @@ public class TFExtensionValues extends TFBase
 		customer2 = addCustomer("Customer4Val2");
 		
 		//add extension fields for Employee under customer 1
-		addExtensionField(customer1, new ExtensionFieldModel("Employee", "field1", "field1", "Desc1", ExtensionFieldType.INTEGER, true), fieldMap1);
-		addExtensionField(customer1, new ExtensionFieldModel("Employee", "field2", "field2", "Desc2", ExtensionFieldType.DECIMAL, false), fieldMap1);
+		addExtensionField(customer1, new ExtensionFieldModel("Employee", "field1", "field1", "Desc1", ExtensionFieldType.INTEGER, true) );
+		addExtensionField(customer1, new ExtensionFieldModel("Employee", "field2", "field2", "Desc2", ExtensionFieldType.DECIMAL, false) );
 		addExtensionField(customer1, new ExtensionFieldModel("Employee", "field3", "field3", "Desc3", false, 
 				Arrays.asList(
 						new LovOption("1", "Label1"),
-						new LovOption("2", "Label2")) ), fieldMap1);
+						new LovOption("2", "Label2")) ) );
 		
 		//add extension fields for Employee under customer 2
-		addExtensionField(customer2, new ExtensionFieldModel("Employee", "field1", "field1", "Desc1", ExtensionFieldType.BOOLEAN, false), fieldMap2);
-		addExtensionField(customer2, new ExtensionFieldModel("Employee", "field2", "field2", "Desc2", ExtensionFieldType.DATE, true), fieldMap2);
-		addExtensionField(customer2, new ExtensionFieldModel("Employee", "field3", "field3", "Desc3", ExtensionFieldType.MULTI_LINE_STRING, false, 10), fieldMap2);
-		addExtensionField(customer2, new ExtensionFieldModel("Employee", "field4", "field4", "Desc4", ExtensionFieldType.STRING, true, 10), fieldMap2);
+		addExtensionField(customer2, new ExtensionFieldModel("Employee", "field1", "field1", "Desc1", ExtensionFieldType.BOOLEAN, false) );
+		addExtensionField(customer2, new ExtensionFieldModel("Employee", "field2", "field2", "Desc2", ExtensionFieldType.DATE, true) );
+		addExtensionField(customer2, new ExtensionFieldModel("Employee", "field3", "field3", "Desc3", ExtensionFieldType.MULTI_LINE_STRING, false, 10) );
+		addExtensionField(customer2, new ExtensionFieldModel("Employee", "field4", "field4", "Desc4", ExtensionFieldType.STRING, true, 10) );
 	}
 	
 	/**
@@ -241,13 +236,13 @@ public class TFExtensionValues extends TFBase
 	{
 		
 		//create employee objects with extended fields
-		long id1 = addEmployee(customer1, fieldMap1, "emp1", 100, 
+		long id1 = addEmployee(customer1, "emp1", 100, 
 				"field1", "123", "field2", "3.45", "field3", "2");
 		
-		long id2 = addEmployee(customer1, fieldMap1, "emp2", 200, 
+		long id2 = addEmployee(customer1, "emp2", 200, 
 				"field1", "1234", "field2", "4");
 
-		long id3 = addEmployee(customer2, fieldMap2, "emp3", 300, 
+		long id3 = addEmployee(customer2, "emp3", 300, 
 				"field1", "true", "field2", "12/11/2015", "field3", "str1", "field4", "dfdf\ndffd");
 
 		
@@ -255,24 +250,24 @@ public class TFExtensionValues extends TFBase
 		EmployeeModel emp1 = getEmployee(customer1, id1);
 		
 		Assert.assertEquals(emp1.getExtendedFields().size(), 3);
-		Assert.assertEquals(emp1.getExtendedFields().get(fieldMap1.get("field1")), "123");
-		Assert.assertEquals(emp1.getExtendedFields().get(fieldMap1.get("field2")), "3.45");
-		Assert.assertEquals(emp1.getExtendedFields().get(fieldMap1.get("field3")), "2");
+		Assert.assertEquals(emp1.getExtendedFields().get("field1"), "123");
+		Assert.assertEquals(emp1.getExtendedFields().get("field2"), "3.45");
+		Assert.assertEquals(emp1.getExtendedFields().get("field3"), "2");
 
 		EmployeeModel emp2 = getEmployee(customer1, id2);
 		
 		Assert.assertEquals(emp2.getExtendedFields().size(), 2);
-		Assert.assertEquals(emp2.getExtendedFields().get(fieldMap1.get("field1")), "1234");
-		Assert.assertEquals(emp2.getExtendedFields().get(fieldMap1.get("field2")), "4");
-		Assert.assertNull(emp2.getExtendedFields().get(fieldMap1.get("field3")));
+		Assert.assertEquals(emp2.getExtendedFields().get("field1"), "1234");
+		Assert.assertEquals(emp2.getExtendedFields().get("field2"), "4");
+		Assert.assertNull(emp2.getExtendedFields().get("field3"));
 
 		EmployeeModel emp3 = getEmployee(customer2, id3);
 		
 		Assert.assertEquals(emp3.getExtendedFields().size(), 4);
-		Assert.assertEquals(emp3.getExtendedFields().get(fieldMap2.get("field1")), "true");
-		Assert.assertEquals(emp3.getExtendedFields().get(fieldMap2.get("field2")), "12/11/2015");
-		Assert.assertEquals(emp3.getExtendedFields().get(fieldMap2.get("field3")), "str1");
-		Assert.assertEquals(emp3.getExtendedFields().get(fieldMap2.get("field4")), "dfdf\ndffd");
+		Assert.assertEquals(emp3.getExtendedFields().get("field1"), "true");
+		Assert.assertEquals(emp3.getExtendedFields().get("field2"), "12/11/2015");
+		Assert.assertEquals(emp3.getExtendedFields().get("field3"), "str1");
+		Assert.assertEquals(emp3.getExtendedFields().get("field4"), "dfdf\ndffd");
 	}
 
 	/**
@@ -287,7 +282,7 @@ public class TFExtensionValues extends TFBase
 		//test by passing invalid int
 		try
 		{
-			addEmployee(customer1, fieldMap1, "emp1", 100, 
+			addEmployee(customer1, "emp1", 100, 
 					"field1", "123x", "field2", "3.45", "field3", "2");
 			Assert.fail("No exception is thrown when invalid int is passed");
 		}catch(RestException ex)
@@ -300,7 +295,7 @@ public class TFExtensionValues extends TFBase
 		//test by passing invalid decimal
 		try
 		{
-			addEmployee(customer1, fieldMap1, "emp1", 100, 
+			addEmployee(customer1, "emp1", 100, 
 					"field1", "123", "field2", "3.x45", "field3", "2");
 			Assert.fail("No exception is thrown when invalid decimal is passed");
 		}catch(RestException ex)
@@ -313,7 +308,7 @@ public class TFExtensionValues extends TFBase
 		//test by passing invalid lov
 		try
 		{
-			addEmployee(customer1, fieldMap1, "emp1", 100, 
+			addEmployee(customer1, "emp1", 100, 
 					"field1", "123", "field2", "3.45", "field3", "4");
 			Assert.fail("No exception is thrown when invalid lov is passed");
 		}catch(RestException ex)
@@ -326,7 +321,7 @@ public class TFExtensionValues extends TFBase
 		//test not passing mandatory value
 		try
 		{
-			addEmployee(customer1, fieldMap1, "emp1", 100, 
+			addEmployee(customer1, "emp1", 100, 
 					"field2", "3.45", "field3", "4");
 			Assert.fail("No exception is thrown when invalid lov is passed");
 		}catch(RestException ex)
@@ -339,7 +334,7 @@ public class TFExtensionValues extends TFBase
 		//test passing invalid boolean value
 		try
 		{
-			addEmployee(customer2, fieldMap2, "emp3", 300, 
+			addEmployee(customer2, "emp3", 300, 
 					"field1", "trueSD", "field2", "12/11/2015", "field3", "str1", "field4", "dfdf\ndffd");
 		}catch(RestException ex)
 		{
@@ -351,7 +346,7 @@ public class TFExtensionValues extends TFBase
 		//test passing invalid date value
 		try
 		{
-			addEmployee(customer2, fieldMap2, "emp3", 300, 
+			addEmployee(customer2, "emp3", 300, 
 					"field1", "false", "field2", "12/qwes/2015", "field3", "str1", "field4", "dfdf\ndffd");
 		}catch(RestException ex)
 		{
@@ -363,7 +358,7 @@ public class TFExtensionValues extends TFBase
 		//test passing long string value specified
 		try
 		{
-			addEmployee(customer2, fieldMap2, "emp3", 300, 
+			addEmployee(customer2, "emp3", 300, 
 					"field1", "false", "field2", "12/10/2015", "field3", "1234567890123", "field4", "dfdf\ndffd");
 		}catch(RestException ex)
 		{
@@ -375,7 +370,7 @@ public class TFExtensionValues extends TFBase
 		//test passing long multi-line string value specified
 		try
 		{
-			addEmployee(customer2, fieldMap2, "emp3", 300, 
+			addEmployee(customer2, "emp3", 300, 
 					"field1", "false", "field2", "12/10/2015", "field3", "12345", "field4", "1234567890123");
 		}catch(RestException ex)
 		{
@@ -392,28 +387,28 @@ public class TFExtensionValues extends TFBase
 	public void testValueUpdate()
 	{
 		//create employee objects with extended fields
-		long id1 = addEmployee(customer1, fieldMap1, "empForUpdate", 100, 
+		long id1 = addEmployee(customer1, "empForUpdate", 100, 
 				"field1", "123", "field2", "3.45", "field3", "2");
 		
 		//fetch and validate after basic save
 		EmployeeModel emp1 = getEmployee(customer1, id1);
 		
 		Assert.assertEquals(emp1.getExtendedFields().size(), 3);
-		Assert.assertEquals(emp1.getExtendedFields().get(fieldMap1.get("field1")), "123");
-		Assert.assertEquals(emp1.getExtendedFields().get(fieldMap1.get("field2")), "3.45");
-		Assert.assertEquals(emp1.getExtendedFields().get(fieldMap1.get("field3")), "2");
+		Assert.assertEquals(emp1.getExtendedFields().get("field1"), "123");
+		Assert.assertEquals(emp1.getExtendedFields().get("field2"), "3.45");
+		Assert.assertEquals(emp1.getExtendedFields().get("field3"), "2");
 
 		//execute update operation
-		updateEmployee(customer1, fieldMap1, id1, emp1.getVersion(), "emp1-1", 200, 
+		updateEmployee(customer1, id1, emp1.getVersion(), "emp1-1", 200, 
 				"field1", "321", "field2", "4.35", "field3", "1");
 
 		//validate updated values
 		emp1 = getEmployee(customer1, id1);
 		
 		Assert.assertEquals(emp1.getExtendedFields().size(), 3);
-		Assert.assertEquals(emp1.getExtendedFields().get(fieldMap1.get("field1")), "321");
-		Assert.assertEquals(emp1.getExtendedFields().get(fieldMap1.get("field2")), "4.35");
-		Assert.assertEquals(emp1.getExtendedFields().get(fieldMap1.get("field3")), "1");
+		Assert.assertEquals(emp1.getExtendedFields().get("field1"), "321");
+		Assert.assertEquals(emp1.getExtendedFields().get("field2"), "4.35");
+		Assert.assertEquals(emp1.getExtendedFields().get("field3"), "1");
 	}
 	
 	/**
@@ -423,12 +418,12 @@ public class TFExtensionValues extends TFBase
 	public void testValidationsDuringUpdate()
 	{
 		
-		long empId1 = addEmployee(customer1, fieldMap1, "emp1", 100, 
+		long empId1 = addEmployee(customer1, "emp1", 100, 
 				"field1", "123", "field2", "3.45", "field3", "2");
 		
 		EmployeeModel emp1 = getEmployee(customer1, empId1);
 
-		long empId2 = addEmployee(customer2, fieldMap2, "emp3", 300, 
+		long empId2 = addEmployee(customer2, "emp3", 300, 
 				"field1", "true", "field2", "12/11/2015", "field3", "str1", "field4", "dfdf\ndffd");
 
 		EmployeeModel emp2 = getEmployee(customer2, empId2);
@@ -436,7 +431,7 @@ public class TFExtensionValues extends TFBase
 		//test by passing invalid int
 		try
 		{
-			updateEmployee(customer1, fieldMap1, empId1, emp1.getVersion(), "emp1Updated", 100, 
+			updateEmployee(customer1, empId1, emp1.getVersion(), "emp1Updated", 100, 
 					"field1", "123x", "field2", "3.45", "field3", "2");
 			Assert.fail("No exception is thrown when invalid int is passed");
 		}catch(RestException ex)
@@ -449,7 +444,7 @@ public class TFExtensionValues extends TFBase
 		//test by passing invalid decimal
 		try
 		{
-			updateEmployee(customer1, fieldMap1, empId1, emp1.getVersion(), "emp1Updated", 100, 
+			updateEmployee(customer1, empId1, emp1.getVersion(), "emp1Updated", 100, 
 					"field1", "123", "field2", "3er.45", "field3", "2");
 			Assert.fail("No exception is thrown when invalid decimal is passed");
 		}catch(RestException ex)
@@ -462,7 +457,7 @@ public class TFExtensionValues extends TFBase
 		//test by passing invalid lov
 		try
 		{
-			updateEmployee(customer1, fieldMap1, empId1, emp1.getVersion(), "emp1Updated", 100, 
+			updateEmployee(customer1, empId1, emp1.getVersion(), "emp1Updated", 100, 
 					"field1", "123", "field2", "3.45", "field3", "4");
 			Assert.fail("No exception is thrown when invalid lov is passed");
 		}catch(RestException ex)
@@ -475,7 +470,7 @@ public class TFExtensionValues extends TFBase
 		//test not passing mandatory value
 		try
 		{
-			updateEmployee(customer1, fieldMap1, empId1, emp1.getVersion(), "emp1Updated", 100, 
+			updateEmployee(customer1, empId1, emp1.getVersion(), "emp1Updated", 100, 
 					"field2", "3.45", "field3", "2");
 			Assert.fail("No exception is thrown when mandatroy field is missed");
 		}catch(RestException ex)
@@ -488,7 +483,7 @@ public class TFExtensionValues extends TFBase
 		//test passing invalid boolean value
 		try
 		{
-			updateEmployee(customer2, fieldMap2, empId2, emp2.getVersion(), "emp3Updated", 300, 
+			updateEmployee(customer2, empId2, emp2.getVersion(), "emp3Updated", 300, 
 					"field1", "trueSD", "field2", "12/11/2015", "field3", "str1", "field4", "dfdf\ndffd");
 		}catch(RestException ex)
 		{
@@ -500,7 +495,7 @@ public class TFExtensionValues extends TFBase
 		//test passing invalid date value
 		try
 		{
-			updateEmployee(customer2, fieldMap2, empId2, emp2.getVersion(), "emp3Updated", 300, 
+			updateEmployee(customer2, empId2, emp2.getVersion(), "emp3Updated", 300, 
 					"field1", "true", "field2", "12/qwes/2015", "field3", "str1", "field4", "dfdf\ndffd");
 		}catch(RestException ex)
 		{
@@ -512,7 +507,7 @@ public class TFExtensionValues extends TFBase
 		//test passing long string value specified
 		try
 		{
-			updateEmployee(customer2, fieldMap2, empId2, emp2.getVersion(), "emp3Updated", 300, 
+			updateEmployee(customer2, empId2, emp2.getVersion(), "emp3Updated", 300, 
 					"field1", "true", "field2", "12/10/2015", "field3", "1234567890123", "field4", "dfdf\ndffd");
 		}catch(RestException ex)
 		{
@@ -524,7 +519,7 @@ public class TFExtensionValues extends TFBase
 		//test passing long multi-line string value specified
 		try
 		{
-			updateEmployee(customer2, fieldMap2, empId2, emp2.getVersion(), "emp3Updated", 300, 
+			updateEmployee(customer2, empId2, emp2.getVersion(), "emp3Updated", 300, 
 					"field1", "true", "field2", "12/10/2015", "field3", "1234", "field4", "1234567890123");
 		}catch(RestException ex)
 		{
@@ -538,7 +533,7 @@ public class TFExtensionValues extends TFBase
 	public void testValueDelete()
 	{
 		//create employee objects with extended fields
-		long id1 = addEmployee(customer1, fieldMap1, "empForUpdate", 100, 
+		long id1 = addEmployee(customer1, "empForUpdate", 100, 
 				"field1", "123", "field2", "3.45", "field3", "2");
 		
 		deleteEmployee(customer1, id1);

@@ -32,16 +32,16 @@ import java.util.Map;
 public interface IExtendableModel
 {
 	/**
-	 * Gets extended field values as map.
+	 * Gets extended field values as map (name as key and value as map value).
 	 * @return Map of extended field values
 	 */
-	public Map<Long, String> getExtendedFields();
+	public Map<String, String> getExtendedFields();
 	
 	/**
 	 * Used to set extended field values on to the model
 	 * @param extendedFieldValues Extended field values as map
 	 */
-	public void setExtendedFields(Map<Long, String> extendedFieldValues);
+	public void setExtendedFields(Map<String, String> extendedFieldValues);
 	
 	/**
 	 * Id of the entity for which extended fields needs to be added 

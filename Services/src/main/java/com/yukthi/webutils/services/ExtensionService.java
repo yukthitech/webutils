@@ -45,6 +45,7 @@ import com.yukthi.persistence.repository.RepositoryFactory;
 import com.yukthi.utils.CommonUtils;
 import com.yukthi.utils.exceptions.InvalidArgumentException;
 import com.yukthi.utils.exceptions.InvalidStateException;
+import com.yukthi.webutils.ExtensionValueDetails;
 import com.yukthi.webutils.ServiceException;
 import com.yukthi.webutils.annotations.ExtendableEntity;
 import com.yukthi.webutils.annotations.ExtensionOwner;
@@ -449,10 +450,10 @@ public class ExtensionService
 	public void saveExtendedFields(long entityId, IExtendableModel extendableModel)
 	{
 		//fetch extended values
-		Map<Long, String> extendedValues = extendableModel.getExtendedFields();
+		Map<String, String> newExtendedValues = extendableModel.getExtendedFields();
 		
 		//if no values are present
-		if(extendedValues == null || extendedValues.isEmpty())
+		if(newExtendedValues == null || newExtendedValues.isEmpty())
 		{
 			return;
 		}
@@ -467,38 +468,50 @@ public class ExtensionService
 		
 		try(ITransaction transaction = extensionFieldRepository.currentTransaction())
 		{
-			List<ExtensionFieldValueEntity> existingFieldValues = getExtensionValues(extensionEntity.getId(), entityId);
+			List<ExtensionFieldEntity> extensionFields = getExtensionFields(extensionEntity.getId());
+			List<ExtensionValueDetails> existingFieldValues = extensionFieldValueRepository.findExtensionValueDetails(extensionEntity.getId(), entityId); 
 			
 			//convert existing values into map
-			Map<Long, ExtensionFieldValueEntity> existingValueMap = CommonUtils.buildMap(existingFieldValues, "extensionField.id", null);
+			Map<String, ExtensionValueDetails> existingValueMap = CommonUtils.buildMap(existingFieldValues, "extensionFieldName", null);
+			Map<String, ExtensionFieldEntity> nameToField = CommonUtils.buildMap(extensionFields, "name", null);
 			
 			if(existingValueMap == null)
 			{
 				existingValueMap = Collections.emptyMap();
 			}
 			
-			ExtensionFieldValueEntity valueEntity = null, persistingEntity = null;
+			ExtensionValueDetails valueDetails = null;
+			ExtensionFieldValueEntity valueEntity = null;
+			ExtensionFieldEntity extensionField = null;
 			
 			//persist the field values
-			for(Long fieldId : extendedValues.keySet())
+			for(String fieldName : newExtendedValues.keySet())
 			{
-				valueEntity = existingValueMap.get(fieldId);
+				valueDetails = existingValueMap.get(fieldName);
 				
-				if(valueEntity != null)
+				if(valueDetails != null)
 				{
-					persistingEntity = new ExtensionFieldValueEntity(valueEntity.getId(), new ExtensionFieldEntity(fieldId), entityId, extendedValues.get(fieldId));
-					persistingEntity.setVersion(valueEntity.getVersion());
+					valueEntity = new ExtensionFieldValueEntity(valueDetails.getId(), new ExtensionFieldEntity(valueDetails.getExtensionFieldId()), 
+								entityId, newExtendedValues.get(fieldName));
+					valueEntity.setVersion(valueDetails.getVersion());
 					
-					userService.populateTrackingFieldForUpdate(persistingEntity);
+					userService.populateTrackingFieldForUpdate(valueEntity);
 					
-					updateExtensionValue(persistingEntity);
+					updateExtensionValue(valueEntity);
 				}
 				else
 				{
-					persistingEntity = new ExtensionFieldValueEntity(0, new ExtensionFieldEntity(fieldId), entityId, extendedValues.get(fieldId));
-					userService.populateTrackingFieldForUpdate(persistingEntity);
+					extensionField = nameToField.get(fieldName);
 					
-					saveExtensionValue(persistingEntity);
+					if(extensionField == null)
+					{
+						throw new InvalidArgumentException("Invalid extension field name specified - {}", fieldName);
+					}
+					
+					valueEntity = new ExtensionFieldValueEntity(0, new ExtensionFieldEntity(extensionField.getId()), entityId, newExtendedValues.get(fieldName));
+					userService.populateTrackingFieldForUpdate(valueEntity);
+					
+					saveExtensionValue(valueEntity);
 				}
 			}
 			
@@ -525,7 +538,7 @@ public class ExtensionService
 		}
 		
 		long id = extendableModel.getId();
-		List<ExtensionFieldValueEntity> existingFieldValues = getExtensionValues(extensionEntity.getId(), id);
+		List<ExtensionValueDetails> existingFieldValues = extensionFieldValueRepository.findExtensionValueDetails(extensionEntity.getId(), id);
 		
 		//return if no values found in db for extended fields
 		if(CollectionUtils.isEmpty(existingFieldValues))
@@ -534,7 +547,7 @@ public class ExtensionService
 		}
 		
 		//convert existing values into map
-		Map<Long, String> existingValueMap = CommonUtils.buildMap(existingFieldValues, "extensionField.id", "value");
+		Map<String, String> existingValueMap = CommonUtils.buildMap(existingFieldValues, "extensionFieldName", "value");
 		extendableModel.setExtendedFields(existingValueMap);
 	}
 }

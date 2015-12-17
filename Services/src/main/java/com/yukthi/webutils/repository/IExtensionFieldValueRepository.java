@@ -27,6 +27,8 @@ import java.util.List;
 
 import com.yukthi.persistence.ICrudRepository;
 import com.yukthi.persistence.repository.annotations.Condition;
+import com.yukthi.persistence.repository.annotations.SearchResult;
+import com.yukthi.webutils.ExtensionValueDetails;
 
 /**
  * Repository for entity extension field values
@@ -41,6 +43,15 @@ public interface IExtensionFieldValueRepository extends ICrudRepository<Extensio
 	 * @return List of matching field values
 	 */
 	public List<ExtensionFieldValueEntity> findExtensionValues(@Condition("extensionField.extension.id") long extensionId, @Condition("entityId") long entityId);
+	
+	/**
+	 * Finder method to fetch extension fields 
+	 * @param extensionId
+	 * @param entityId
+	 * @return extension field values
+	 */
+	@SearchResult
+	public List<ExtensionValueDetails> findExtensionValueDetails(@Condition("extensionField.extension.id") long extensionId, @Condition("entityId") long entityId);
 	
 	/**
 	 * Deletes all extension field values for specified entity
