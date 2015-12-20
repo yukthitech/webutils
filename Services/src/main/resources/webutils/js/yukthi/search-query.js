@@ -1,4 +1,5 @@
 $.application.controller('searchQueryController', ["$scope", "actionHelper", "logger", "utils", function($scope, actionHelper, logger, utils) {
+	$scope.name = "searchQueryControllerScope";
 	$scope.modelDef = null;
 	$scope.searchQueryName = null;
 	

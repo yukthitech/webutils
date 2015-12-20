@@ -1,3 +1,9 @@
+body
+{
+	font-family: "Times New Roman", Times, serif;
+	letter-spacing: 0.5px;
+}
+
 .carousel-inner > .item > img,
   .carousel-inner > .item > a > img 
 {
@@ -101,3 +107,56 @@
 	background-color: #eee;
 }
 
+.model-form select, input, textarea
+{
+	width: 100%;
+	border: solid 1px rgb(44, 119, 243);
+	height: 2em;
+	padding: 0.2em 0.5em;
+	border-radius: 0.5em;
+	outline: 0;
+	min-width: 15em;
+}
+
+.yk-field-label
+{
+	font: bold 14px "Times New Roman", Times, serif;
+}
+
+.yk-info-message
+{
+	margin-left: auto;
+	margin-right: auto;
+	padding: 0.6em;
+	padding-right: 3em;
+	font: bold 12px "Times New Roman", Times, serif;
+	background-color: yellow;
+	color: black;
+	border: solid 1px black;
+	position: absolute;
+	top: 0.1em;
+	z-index: 1000;
+	left: 50%;
+	transform: translate(-50%, 0px);
+	display: none;
+	border-radius: 0.8em;
+	max-width: 40em;
+}
+
+.yk-info-close-button
+{
+	position: absolute; 
+	right: 0.5em; 
+	top: 0.2em;
+	border: none;
+	background: none;
+	font-size: 1.5em;
+	font-weight: bold;
+}
+
+button.yk-info-close-button:hover
+{
+	background-color: red;
+	border-radius: 1em;
+	color: white;
+}

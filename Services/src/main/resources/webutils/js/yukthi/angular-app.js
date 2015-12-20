@@ -39,65 +39,79 @@ $.addElementDirective = function(directiveObj) {
 				}
 			}
 			
+			var elementHtml = $('<div>').append( $($element[0]).clone() ).html();
+			elementHtml = $(elementHtml);
+			$($element[0]).html("");
+			
 			var linkFunc = $.proxy(function($scope, $element, attributes) {
+				var element = this.element;
+				
 				var context = {
-						"attributes": attributes,
-						"$scope": $scope,
-						"element": $($element[0]),
-						"clientContext": clientContext,
-						"actionHelper": actionHelper,
-						"invokeAction": function(actionName, requestEntity, params) {
-							return actionHelper.invokeAction(actionName, requestEntity, params);
-						},
-						"bodyAsHtml" : function() {
-							return this.element.html();
-						},
-						"flexAttr" : function(name) {
-							var attrVal = this.element.attr(name);
-							
-							if(!attrVal || attrVal.length <= 0)
-							{
-								attrVal = this.element.find(name).html();
-							}
-							
-							if(!attrVal)
-							{
-								return "";
-							}
-							
-							return attrVal;
-						},
-						"attr" : function(name, defVal, elem) {
-							if(!elem)
-							{
-								elem = this.element;
-							}
-							
-							var attrVal = elem.attr(name);
-							
-							return (!attrVal || attrVal.length == 0) ? defVal : attrVal;
-						},
-						"log": function(mssg) {
-							console.log(mssg);
+					"attributes": attributes,
+					"$scope": $scope,
+					"element": element,
+					"clientContext": clientContext,
+					"actionHelper": actionHelper,
+					"invokeAction": function(actionName, requestEntity, params) {
+						return actionHelper.invokeAction(actionName, requestEntity, params);
+					},
+					"bodyAsHtml" : function() {
+						return this.element.html();
+					},
+					"flexAttr" : function(name) {
+						var attrVal = this.element.attr(name);
+						
+						if(!attrVal || attrVal.length <= 0)
+						{
+							attrVal = this.element.find(name).html();
 						}
-					};
+						
+						if(!attrVal)
+						{
+							return "";
+						}
+						
+						return attrVal;
+					},
+					"attr" : function(name, defVal, elem) {
+						if(!elem)
+						{
+							elem = this.element;
+						}
+						
+						var attrVal = elem.attr(name);
+						
+						return (!attrVal || attrVal.length == 0) ? defVal : attrVal;
+					},
+					"attrStr": function() {
+						var attrStr = "";
+						$.each(this.element.get(0).attributes, function(i, attr){
+							attrStr += ' ' + attr.name + '="' + attr.value + '"';
+						});
+						
+						return attrStr;
+					},
+					"log": function(mssg) {
+						console.log(mssg);
+					}
+				};
 
 				try
 				{
-					var html = $.application["directiveTemplateEngine"].processTemplate(context, $element[0].localName);
+					var html = $.application["directiveTemplateEngine"].processTemplate(context, this.element.get(0).localName);
 					var e = $compile(html)($scope);
 					$element.replaceWith(e);
 				
-					if(this.postScript)
+					if(this.directiveObj.postScript)
 					{
-						this.postScript(context);
+						this.directiveObj.postScript(context);
 					}
 				}catch(ex)
 				{
 					console.error("An error occurred while processing directive - " + $element[0].localName);
 					console.error(ex);
 				}
-			}, this);
+			}, {"directiveObj": directiveObj, "element": elementHtml});
 			
 			return linkFunc;
 		}, directiveObj);

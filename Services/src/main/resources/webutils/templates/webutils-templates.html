@@ -190,6 +190,20 @@
 
 				context["searchModel"] = response.modelDef;
 				
+				//caluculate the size for label and field in the search query ui
+				var labelSize = 0, fldLblLength = 0;
+				var searchModel = response.modelDef;
+				
+				for(var i = 0; i &lt; searchModel.fields.length; i++)
+				{
+					fldLblLength = $.fontWidth('bold 14px "Times New Roman", Times, serif', searchModel.fields[i].label + "MMM");
+					labelSize = (labelSize &gt; fldLblLength) ? labelSize : fldLblLength;
+				}
+				
+				context["labelSize"] = labelSize;
+				context["fieldWidth"] = 15;
+				////////////////////////
+				
 				//set the actions on context
 				var actions = context.element.children("action");
 				
@@ -215,18 +229,13 @@
 							${attr('title')}
 						</div>
 		
-						<div class="panel-body"  yk-model="${searchModel.name}">
+						<div class="panel-body model-form"  yk-model="${searchModel.name}" style="padding: 0px;">
 							<form>
-								<div class="row">
+								<div style="width: 100%; padding: 0px;">
 									<for-each data="${searchModel.fields}" loop-var="field" index-var="idx">
-										<if test="context.idx != 0 &amp;&amp; (context.idx % 3) == 0"><![CDATA[
-											</div>
-											<div class="row" style="padding-bottom: 0.5em">
-										]]></if>
-										
-										<div class="col-md-4 col-xs-12" style="padding-bottom: 0.2em;">
-											<model-field name="${field.name}" modelobj="searchQuery"></model-field>
-										</div>
+										<model-field name="${field.name}" modelobj="searchQuery" 
+												label-width="${labelSize}px" field-width="${fieldWidth}em" full-width="" 
+												element-style="margin: 1em; margin-bottom: 0px;"></model-field>
 									</for-each>
 								</div>
 								
@@ -236,7 +245,7 @@
 									 -->
 									<input type="submit" value="Search" style="display: none;" yk-click="performSearch($event)"/>
 									
-									<a class="btn btn-primary" role="button" yk-click="performSearch($event)">
+									<a class="btn btn-primary" role="button" yk-click="performSearch($event)" style="margin: 0.5em; margin-right: 0px;">
 										<i class="glyphicon glyphicon-search"></i>
 										Search
 									</a>
@@ -301,13 +310,15 @@
 			<div class="modal fade" id="${attr('id')}" tabindex="-1" role="dialog" data-backdrop="static">
 				<div class="modal-dialog ${_size}" role="document">
 					<div class="modal-content">
-						<!-- Header -->
-						<div class="modal-header">
-							<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-								<span aria-hidden="true">&amp;times;</span>
-							</button>
-							<h4 class="modal-title">${attr('title')}</h4>
-						</div>
+						<if test="context.attr('hide-header') != 'true'">
+							<!-- Header -->
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+									<span aria-hidden="true">&amp;times;</span>
+								</button>
+								<h4 class="modal-title">${attr('title')}</h4>
+							</div>
+						</if>
 						
 						<!-- Content -->
 						<div class="modal-body">
@@ -328,6 +339,7 @@
 	<directive name="ykModelDialog" required-attr="id, name, columns, title, actionmethod">
 		<content>
 			<exe-script var="_tmp">
+				console.log("================> Yk model-dialog is invokeeddd........." + context.attr('id'));
 				var extraHtml = context.element.find("extra-content");
 				
 				if(extraHtml &amp;&amp; extraHtml.length &gt; 0)
@@ -388,6 +400,15 @@
 				context["modelDef"] = modelDef;
 				context["extensionFields"] = [];
 				
+				//caluculate the size for label and field in the search query ui
+				var labelSize = 0, fldLblLength = 0;
+				
+				for(var i = 0; i &lt; modelDef.fields.length; i++)
+				{
+					fldLblLength = $.fontWidth('bold 14px "Times New Roman", Times, serif', modelDef.fields[i].label + "MMM");
+					labelSize = (labelSize &gt; fldLblLength) ? labelSize : fldLblLength;
+				}
+				
 				//if model is extendable, fetch extension field details
 				if(modelDef.extensionName)
 				{
@@ -397,15 +418,24 @@
 					{
 						context["extensionFields"] = extensionFldRes.extensionFields;
 					}
+
+					for(var i = 0; i &lt; extensionFldRes.extensionFields.length; i++)
+					{
+						fldLblLength = $.fontWidth('bold 14px "Times New Roman", Times, serif', extensionFldRes.extensionFields[i].label + "MMM");
+						labelSize = (labelSize &gt; fldLblLength) ? labelSize : fldLblLength;
+					}
 				}
 				
+				context["labelSize"] = labelSize;
+
 				var columnCount = parseInt(context.attr('columns'));
 				columnCount = (columnCount &gt; 3) ? 3 : columnCount;
 				columnCount = (columnCount &lt; 1) ? 1 : columnCount;
 				
+				context["fullWidth"] = (95 / columnCount);
 				context["columnCount"] = columnCount;
-				context["columnCountClass"] = "col-md-" + (12 / columnCount);
-				
+
+				//Define the model object				
 				if(!context["$scope"].model)
 				{
 					context["$scope"].model = {};
@@ -413,10 +443,11 @@
 				
 				context["colIndex"] = 0;
 				context["extColIndex"] = 0;
+				
 			</exe-script>
 			
-			<div class="container-fluid" yk-model="${attr('name')}">
-				<div class="row">
+			<div class="container-fluid model-form" yk-model="${attr('name')}">
+				<div style="width: 100%;">
 					<for-each data="${modelDef.fields}" loop-var="field" index-var="idx">
 						<if test="!context.field.displayable">
 							<continue/>
@@ -424,12 +455,12 @@
 					
 						<if test="context.colIndex != 0 &amp;&amp; (context.colIndex % context.columnCount) == 0"><![CDATA[
 							</div>
-							<div class="row">
+							<div style="${enclosingDivStyle}">
 						]]></if>
 						
-						<div class="${columnCountClass} col-xs-12" style="padding-bottom: 0.2em;">
-							<model-field name="${field.name}" modelobj="model"></model-field>
-						</div>
+						<model-field name="${field.name}" modelobj="model" label-width="${labelSize}px" 
+							field-width="100%" full-width="${fullWidth}%" 
+							element-style="margin: 0px; margin-left: 1em; margin-top: 1em;"></model-field>
 						
 						<exe-script var="_tmp">
 							context["colIndex"]++;
@@ -441,13 +472,13 @@
 					<for-each data="${extensionFields}" loop-var="field" index-var="idx">
 						<if test="context.extColIndex != 0 &amp;&amp; (context.extColIndex % context.columnCount) == 0"><![CDATA[
 							</div>
-							<div class="row">
+							<div style="width: 100%;">
 						]]></if>
 						
-						<div class="${columnCountClass} col-xs-12" style="padding-bottom: 0.2em;">
-							<ext-model-field name="${field.name}" modelobj="model.extendedFields"></ext-model-field>
-						</div>
-						
+						<ext-model-field name="${field.name}" modelobj="model.extendedFields" label-width="${labelSize}px" 
+							field-width="100%" full-width="${fullWidth}%"
+							element-style="margin: 0px; margin-left: 1em; margin-top: 1em;"></ext-model-field>
+
 						<exe-script var="_tmp">
 							context["extColIndex"]++;
 						</exe-script>
@@ -501,7 +532,6 @@
 			
 			context.element.find("model-field").each(function(idx){
 				var element = $(this);
-				var name = element.attr("name");
 				var modelobj = element.attr("modelobj");
 				
 				if(!modelobj)
@@ -509,12 +539,18 @@
 					modelobj = "";
 				}
 				
-				element.replaceWith("&lt;yk-model-field name=\"" + name + "\"  modelobj=\"" + modelobj + "\"  &gt; &lt;/yk-model-field&gt;");
+				element.replaceWith("&lt;yk-model-field " 
+					+ ' name="' + element.attr("name") + '"'
+					+ ' modelobj="' + modelobj + '"' 
+					+ ' field-width="' + element.attr("field-width") + '"' 
+					+ ' label-width="' + element.attr("label-width") + '"' 
+					+ ' full-width="' + element.attr("full-width") + '"'
+					+ ' element-style="' + element.attr("element-style") + '"' 
+					+ "  &gt; &lt;/yk-model-field&gt;");
 			});
 
 			context.element.find("ext-model-field").each(function(idx){
 				var element = $(this);
-				var name = element.attr("name");
 				var modelobj = element.attr("modelobj");
 				
 				if(!modelobj)
@@ -522,7 +558,15 @@
 					modelobj = "";
 				}
 				
-				element.replaceWith("&lt;yk-model-field name=\"" + name + "\"  modelobj=\"" + modelobj + "\"  extended=\"true\" &gt; &lt;/yk-model-field&gt;");
+				element.replaceWith("&lt;yk-model-field "
+					+ ' name="' + element.attr("name") + '"'
+					+ ' extended="true"'
+					+ ' modelobj="' + modelobj + '"' 
+					+ ' field-width="' + element.attr("field-width") + '"' 
+					+ ' label-width="' + element.attr("label-width") + '"' 
+					+ ' full-width="' + element.attr("full-width") + '"' 
+					+ ' element-style="' + element.attr("element-style") + '"' 
+					+ "  &gt; &lt;/yk-model-field&gt;");
 			});
 		</script>
 	</attr-directive>
@@ -565,128 +609,134 @@
 				context["fieldDef"] = fieldDef;
 			</exe-script>
 			
-			<div class="row">
-				<div class="col-md-6" yk-hide-from="sm">
-					${fieldDef.label}
-				</div>
-				<div  class="col-md-6">
-					<if test="context.fieldDef.fieldType == 'STRING'">
-						<input type="text" name="${fieldDef.name}" placeholder="${fieldDef.label}" ng-model="${modelField}" yk-read-only="${fieldDef.readOnly}"></input>
-					</if>
-					<else-if test="context.fieldDef.fieldType == 'MULTI_LINE_STRING'">
-						<textarea name="${fieldDef.name}" placeholder="${fieldDef.label}" ng-model="${modelField}" yk-read-only="${fieldDef.readOnly}"></textarea>
-					</else-if>
-					<else-if test="context.fieldDef.fieldType == 'INTEGER'">
-						<input type="number" name="${fieldDef.name}" placeholder="${fieldDef.label}" ng-model="${modelField}"  yk-read-only="${fieldDef.readOnly}"></input>
-					</else-if>
-					<else-if test="context.fieldDef.fieldType == 'FLOAT' || context.fieldDef.fieldType == 'DOUBLE'">
-						<input type="number" name="${fieldDef.name}" placeholder="${fieldDef.label}" ng-model="${modelField}"  yk-read-only="${fieldDef.readOnly}"></input>
-					</else-if>
-					<else-if test="context.fieldDef.fieldType == 'BOOLEAN'">
-						<select name="${fieldDef.name}" ng-model="${modelField}"  yk-read-only="${fieldDef.readOnly}">
-							<option value="" selected=""> -- Select ${fieldDef.label} -- </option>
-							<option value="true">True</option>
-							<option value="false">False</option>
-						</select>
-					</else-if>
-					<else-if test="context.fieldDef.fieldType == 'DATE'">
-						<input type="text" name="${fieldDef.name}" placeholder="${fieldDef.label}" ng-model="${modelField}" yk-read-only="${fieldDef.readOnly}"></input>
-					</else-if>
-					<else-if test="context.fieldDef.fieldType == 'LIST_OF_VALUES'">
-						<if test="context.extended == 'true'">
-							<select name="${fieldDef.name}" ng-model="${modelField}"  yk-read-only="${fieldDef.readOnly}">
-								<option value="" selected=""> -- Select ${fieldDef.label} -- </option>
-
-								<for-each data="${fieldDef.lovOptions}" loop-var="lovOption" index-var="idx">
-									<option value="${lovOption.value}">${lovOption.label}</option>
-								</for-each>
-							</select>
-						</if>
-						<else>
-							<yk-lov-field name="${fieldDef.name}" label="${fieldDef.label}" lov="${fieldDef.lovDetails.lovName}" yk-read-only="${fieldDef.readOnly}"
-										type="${fieldDef.lovDetails.lovType}" model="${modelField}"></yk-lov-field>
-						</else> 
-					</else-if>
-					<else-if test="context.fieldDef.fieldType == 'FILE'">
-						<if test="context.fieldDef.multiValued == false">
-							<div style="width: ${attr('width')};padding: 0px;border: solid 1px rgb(200, 200, 200); border-radius: 0.4em;" yk-file="true">
-								<table style="width: 100%; table-layout: fixed;">
-									<tr>
-										<td style="padding: 0.2em; overflow: hidden; white-space: nowrap;">
-											<div ng-show="${modelField}">
-												<a role="button" yk-file-delete="-1" model-name="${modelField}"
-															data-toggle="tooltip" title="Remove" class="delButtonLink">
-													<span aria-hidden="true">&amp;times;</span>
-												</a>
-												<!-- Span when file info comes from server -->
-												<span ng-show="${modelField}.fileName" style="cursor: default;" data-toggle="tooltip" title="{{${modelField}.fileName}}">
-													<a href="#" yk-file-link="{{${modelField}.id}}" style="font-weight: bold;"> 
-														{{${modelField}.fileName}}
-													</a>
-												</span>
-												<!-- Span when user adds a file -->
-												<span ng-show="${modelField}.name" style="cursor: default;" data-toggle="tooltip" title="{{${modelField}.name}}">
-													{{${modelField}.name}}
-												</span>
+			<div style="display: inline-block; vertical-align: top; width: ${element.attr('full-width')}; ${element.attr('element-style')}">
+				<table style="width: 100%;border-collapse: collapse;border-spacing: 0px;">
+					<tr>
+						<td style="vertical-align: top; padding: 0px; width: ${element.attr('label-width')}; min-width: ${element.attr('label-width')}; " yk-hide-from="xs" class="yk-field-label">
+							${fieldDef.label}
+						</td>
+						<td style="padding: 0px;">
+							<div style="width: ${element.attr('field-width')}; display: inline-block; padding: 0px;">
+								<if test="context.fieldDef.fieldType == 'STRING'">
+									<input type="text" name="${fieldDef.name}" placeholder="${fieldDef.label}" ng-model="${modelField}" yk-read-only="${fieldDef.readOnly}"></input>
+								</if>
+								<else-if test="context.fieldDef.fieldType == 'MULTI_LINE_STRING'">
+									<textarea name="${fieldDef.name}" placeholder="${fieldDef.label}" ng-model="${modelField}" yk-read-only="${fieldDef.readOnly}" style="height: 4em;"></textarea>
+								</else-if>
+								<else-if test="context.fieldDef.fieldType == 'INTEGER'">
+									<input type="number" name="${fieldDef.name}" placeholder="${fieldDef.label}" ng-model="${modelField}"  yk-read-only="${fieldDef.readOnly}"></input>
+								</else-if>
+								<else-if test="context.fieldDef.fieldType == 'FLOAT' || context.fieldDef.fieldType == 'DOUBLE'">
+									<input type="number" name="${fieldDef.name}" placeholder="${fieldDef.label}" ng-model="${modelField}"  yk-read-only="${fieldDef.readOnly}"></input>
+								</else-if>
+								<else-if test="context.fieldDef.fieldType == 'BOOLEAN'">
+									<select name="${fieldDef.name}" ng-model="${modelField}"  yk-read-only="${fieldDef.readOnly}">
+										<option value="" selected=""> -- Select ${fieldDef.label} -- </option>
+										<option value="true">True</option>
+										<option value="false">False</option>
+									</select>
+								</else-if>
+								<else-if test="context.fieldDef.fieldType == 'DATE'">
+									<input type="text" name="${fieldDef.name}" placeholder="${fieldDef.label}" ng-model="${modelField}" yk-read-only="${fieldDef.readOnly}"></input>
+								</else-if>
+								<else-if test="context.fieldDef.fieldType == 'LIST_OF_VALUES'">
+									<if test="context.extended == 'true'">
+										<select name="${fieldDef.name}" ng-model="${modelField}"  yk-read-only="${fieldDef.readOnly}">
+											<option value="" selected=""> -- Select ${fieldDef.label} -- </option>
+			
+											<for-each data="${fieldDef.lovOptions}" loop-var="lovOption" index-var="idx">
+												<option value="${lovOption.value}">${lovOption.label}</option>
+											</for-each>
+										</select>
+									</if>
+									<else>
+										<yk-lov-field name="${fieldDef.name}" label="${fieldDef.label}" lov="${fieldDef.lovDetails.lovName}" yk-read-only="${fieldDef.readOnly}"
+													type="${fieldDef.lovDetails.lovType}" model="${modelField}"></yk-lov-field>
+									</else> 
+								</else-if>
+								<else-if test="context.fieldDef.fieldType == 'FILE'">
+									<if test="context.fieldDef.multiValued == false">
+										<div style="width: ${attr('width')};padding: 0px;border: solid 1px rgb(200, 200, 200); border-radius: 0.4em;" yk-file="true">
+											<table style="width: 100%; table-layout: fixed;">
+												<tr>
+													<td style="padding: 0.2em; overflow: hidden; white-space: nowrap;">
+														<div ng-show="${modelField}">
+															<a role="button" yk-file-delete="-1" model-name="${modelField}"
+																		data-toggle="tooltip" title="Remove" class="delButtonLink">
+																<span aria-hidden="true">&amp;times;</span>
+															</a>
+															<!-- Span when file info comes from server -->
+															<span ng-show="${modelField}.fileName" style="cursor: default;" data-toggle="tooltip" title="{{${modelField}.fileName}}">
+																<a href="#" yk-file-link="{{${modelField}.id}}" style="font-weight: bold;"> 
+																	{{${modelField}.fileName}}
+																</a>
+															</span>
+															<!-- Span when user adds a file -->
+															<span ng-show="${modelField}.name" style="cursor: default;" data-toggle="tooltip" title="{{${modelField}.name}}">
+																{{${modelField}.name}}
+															</span>
+														</div>
+														<!-- Span for place holder -->
+														<span ng-hide="${modelField}" style="color: rgb(200, 200, 200); margin-left: 0.5em;">
+															${fieldDef.label}
+														</span>
+													</td>
+													<td style="width: 2px;padding: 0px;">
+														<button type="button" class="btn btn-primary action-button fileProxy" yk-read-only="${fieldDef.readOnly}" style="padding: 0.3em;">...</button>
+														<input type="file" name="${fieldDef.name}" ng-model="${modelField}" style="display: none;"></input>										
+													</td>
+												</tr>
+											</table>
+										</div>
+									</if>
+									<else>
+										<div style="width: ${attr('width')}; padding: 0px;border: solid 1px rgb(200, 200, 200); border-radius: 0.4em;" yk-file="true">
+											<!-- Title bar -->
+											<div style="width: 100%;border-bottom: solid 1px rgb(200, 200, 200); padding: 0px; font-size: 0.8em;">
+												<table style="width: 100%">
+													<tr>
+														<td style="text-align: left; color: rgb(200, 200, 200); padding-left: 0.2em;">
+															${fieldDef.label}
+														</td>
+														<td style="text-align: right;">
+															<button type="button" class="btn btn-primary action-button fileProxy" 
+																yk-read-only="${fieldDef.readOnly}" style="padding: 0.3em; font-size: 0.8em;">...</button>
+															<input type="file" name="${fieldDef.name}" ng-model="${modelField}" style="display: none;" multiple="multiple"></input>										
+														</td>
+													</tr>
+												</table>
 											</div>
-											<!-- Span for place holder -->
-											<span ng-hide="${modelField}" style="color: rgb(200, 200, 200); margin-left: 0.5em;">
-												${fieldDef.label}
-											</span>
-										</td>
-										<td style="width: 2px;padding: 0px;">
-											<button type="button" class="btn btn-primary action-button fileProxy" yk-read-only="${fieldDef.readOnly}" style="padding: 0.3em;">...</button>
-											<input type="file" name="${fieldDef.name}" ng-model="${modelField}" style="display: none;"></input>										
-										</td>
-									</tr>
-								</table>
+											<!-- File contents -->
+											<div style="overflow: auto; height: 4em;">
+												<div ng-repeat="file in ${modelField}" style="white-space: nowrap; padding: 0px; margin: 0px; font-size: 0.8em;">
+													<a role="button" class="delButtonLink" yk-file-delete="{{$index}}" model-name="${modelField}"  
+																data-toggle="tooltip" title="Remove" file-index="{{$index}}">
+														<span aria-hidden="true" style="color: red;">&amp;times;</span>
+													</a>
+													<!-- Span when file info comes from server -->
+													<span ng-show="file.fileName" style="cursor: default;" data-toggle="tooltip" title="{{file.fileName}}">
+														<a href="#"  yk-file-link="{{file.id}}"  style="font-weight: bold;"> 
+															{{file.fileName}}
+														</a>
+													</span>
+													<!-- Span when user adds a file -->
+													<span ng-show="file.name" style="cursor: default;" data-toggle="tooltip" title="{{file.name}}">
+														{{file.name}}
+													</span>
+												</div>
+											</div>
+										</div>
+									</else>
+								</else-if>
+								<else>
+									<exe-script var="_tmp1">
+										throw "Unsupported field type encountered - " + context.fieldDef.fieldType;
+									</exe-script>
+								</else>
 							</div>
-						</if>
-						<else>
-							<div style="width: ${attr('width')}; padding: 0px;border: solid 1px rgb(200, 200, 200); border-radius: 0.4em;" yk-file="true">
-								<!-- Title bar -->
-								<div style="width: 100%;border-bottom: solid 1px rgb(200, 200, 200); padding: 0px; font-size: 0.8em;">
-									<table style="width: 100%">
-										<tr>
-											<td style="text-align: left; color: rgb(200, 200, 200); padding-left: 0.2em;">
-												${fieldDef.label}
-											</td>
-											<td style="text-align: right;">
-												<button type="button" class="btn btn-primary action-button fileProxy" 
-													yk-read-only="${fieldDef.readOnly}" style="padding: 0.3em; font-size: 0.8em;">...</button>
-												<input type="file" name="${fieldDef.name}" ng-model="${modelField}" style="display: none;" multiple="multiple"></input>										
-											</td>
-										</tr>
-									</table>
-								</div>
-								<!-- File contents -->
-								<div style="overflow: auto; height: 4em;">
-									<div ng-repeat="file in ${modelField}" style="white-space: nowrap; padding: 0px; margin: 0px; font-size: 0.8em;">
-										<a role="button" class="delButtonLink" yk-file-delete="{{$index}}" model-name="${modelField}"  
-													data-toggle="tooltip" title="Remove" file-index="{{$index}}">
-											<span aria-hidden="true" style="color: red;">&amp;times;</span>
-										</a>
-										<!-- Span when file info comes from server -->
-										<span ng-show="file.fileName" style="cursor: default;" data-toggle="tooltip" title="{{file.fileName}}">
-											<a href="#"  yk-file-link="{{file.id}}"  style="font-weight: bold;"> 
-												{{file.fileName}}
-											</a>
-										</span>
-										<!-- Span when user adds a file -->
-										<span ng-show="file.name" style="cursor: default;" data-toggle="tooltip" title="{{file.name}}">
-											{{file.name}}
-										</span>
-									</div>
-								</div>
-							</div>
-						</else>
-					</else-if>
-					<else>
-						<exe-script var="_tmp1">
-							throw "Unsupported field type encountered - " + context.fieldDef.fieldType;
-						</exe-script>
-					</else>
-				</div>
+						</td>
+					</tr>
+				</table>
 			</div>
 		</content>
 	</directive>
@@ -779,6 +829,7 @@
 	 -->
 	<attr-directive name="ykRepeat">
 		<script>
+			console.log("================> Yk repeat is invokeeddd........." + context.attributeValue);
 			var repeatExpr = context.attributeValue;
 			context.element.attr("ng-repeat", repeatExpr);
 		</script>

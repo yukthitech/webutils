@@ -2,9 +2,60 @@ var LOGIN_URI = "/auth/login";
 var ACTIONS_URI = "/actions/fetch";
 var URL_PARAM_PATTERN = /\{(\w+)\}/g;
 
+var ALERTS_DLG_ID = "webutilsAlertDialog";
+var CONFIRM_DLG_ID = "webutilsConfirmDialog";
+var INFO_BOX_ID = "webutilsInfoBox";
+
+$.fontWidth = function(font, text) {
+	// re-use canvas object for better performance
+    var canvas = $.fontCharWidth_canvas || ($.fontCharWidth_canvas = document.createElement("canvas"));
+    var context = canvas.getContext("2d");
+    context.font = font;
+    var metrics = context.measureText(text);
+    return metrics.width;
+}
+
+$.application.controller('webutilsCommonController', ["$scope", "utils", function($scope, utils) {
+	
+	$scope.closeAlert = function() {
+		$('#' + ALERTS_DLG_ID).modal('hide');
+		
+		if(utils.callback)
+		{
+			utils.callback();
+		}
+	};
+	
+	$scope.closeConfirm = function() {
+		$('#' + CONFIRM_DLG_ID).modal('hide');
+		
+		if(utils.callback)
+		{
+			utils.callback(true);
+		}
+	};
+	
+	$scope.cancelConfirm = function() {
+		$('#' + CONFIRM_DLG_ID).modal('hide');
+
+		if(utils.callback)
+		{
+			utils.callback(false);
+		}
+	};
+	
+	$scope.closeInfo = function() {
+		$('#' + INFO_BOX_ID).css('display', "none");
+	};
+
+}]);
+
+
 $.application.factory('utils', [function(){
 	var utils = {
 		"ARG_PATERN" : /\{\}/g,
+		"callback": null,
+		
 		"format": function(message, args, argIdx) {
 			
 			var idx = (argIdx == null || argIdx == undefined) ? 1 : argIdx;
@@ -38,27 +89,49 @@ $.application.factory('utils', [function(){
 		
 		"alert" : function(message, callback) {
 			message = $.isArray(message) ? this.format(message[0], message, 1) : message;
-			alert(message);
+			this.callback = callback;
 			
-			if(callback)
-			{
-				callback();
-			}
+			$('#' + ALERTS_DLG_ID + ' .modal-body').html(message);
+			$('#' + ALERTS_DLG_ID).modal('show');
 		},
-		
+
+		/*
+		 * As info is closed by default by time and also can be closed by close button, in timer
+		 * function displayTime is used, to ensure new infos are not getting closed because of old timer
+		 */
 		"info" : function(message) {
 			message = $.isArray(message) ? this.format(message[0], message, 1) : message;
-			alert(message);
+			
+			//set content and display			
+			$("#" + INFO_BOX_ID + " .content").html(message);
+			$("#" + INFO_BOX_ID).css("display", "block");
+			
+			//set display time on message
+			var displayTime = "" + (new Date()).getMilliseconds();
+			$("#" + INFO_BOX_ID).data("displayTime", displayTime);
+			
+			//get timeout period
+			var time = $.appConfiguration.infoTimeOut ? $.appConfiguration.infoTimeOut : 3;
+			
+			//auto timer after which info should auto close
+			setTimeout($.proxy(function() {
+				var infoDiv = $("#" + INFO_BOX_ID);
+				
+				if(infoDiv.data("displayTime") != this.displayTime)
+				{
+					return;
+				}
+				
+				$("#" + INFO_BOX_ID).css("display", "none");
+			}, {"displayTime": displayTime}), (time * 1000));
 		},
 		
 		"confirm" : function(message, callback) {
 			message = $.isArray(message) ? this.format(message[0], message, 1) : message;
-			var result = confirm(message);
-			
-			if(callback)
-			{
-				callback(result);
-			}
+			this.callback = callback;
+
+			$('#' + CONFIRM_DLG_ID + ' .modal-body').html(message);
+			$('#' + CONFIRM_DLG_ID).modal('show');
 		}
 	};
 
