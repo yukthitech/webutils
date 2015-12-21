@@ -57,6 +57,9 @@ public class ModelDef
 	 * through which extension fields can be added.
 	 */
 	private String extensionName;
+	
+	/** The date format. */
+	private String dateFormat;
 
 	/**
 	 * Gets the name of the model.
@@ -156,6 +159,26 @@ public class ModelDef
 	public void setExtensionName(String extensionName)
 	{
 		this.extensionName = extensionName;
+	}
+	
+	/**
+	 * Gets the date format.
+	 *
+	 * @return the date format
+	 */
+	public String getDateFormat()
+	{
+		return dateFormat;
+	}
+
+	/**
+	 * Sets the date format.
+	 *
+	 * @param dateFormat the new date format
+	 */
+	public void setDateFormat(String dateFormat)
+	{
+		this.dateFormat = dateFormat;
 	}
 
 	/* (non-Javadoc)

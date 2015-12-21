@@ -56,19 +56,19 @@ public abstract class BaseCrudService<E extends IEntity, R extends ICrudReposito
 	 * Extension service to update/read extension fields
 	 */
 	@Autowired
-	private ExtensionService extensionService;
+	protected ExtensionService extensionService;
 
 	/**
 	 * Used to populate tracked fields
 	 */
 	@Autowired
-	private CurrentUserService userService;
+	protected CurrentUserService userService;
 	
 	/**
 	 * Service to store files specified as part of model
 	 */
 	@Autowired
-	private FileService fileService;
+	protected FileService fileService;
 	
 	/**
 	 * Repository type
@@ -248,6 +248,26 @@ public abstract class BaseCrudService<E extends IEntity, R extends ICrudReposito
 			return null;
 		}
 		
+		M model = toModel(entity, modelType);
+
+		logger.trace("Entity fetch full mode for id '{}' resulted in  - {}", id, entity);
+		return model;
+	}
+	
+	/**
+	 * Converts the specified entity into specified model-type's model and populates
+	 * the extension fields and fiel fields as required.
+	 * @param entity Entity to be converted
+	 * @param modelType Model type
+	 * @return Converted model object
+	 */
+	protected <M> M toModel(E entity, Class<M> modelType)
+	{
+		if(entity == null)
+		{
+			return null;
+		}
+		
 		M model = WebUtils.convertBean(entity, modelType);
 		
 		if(model instanceof IExtendableModel)
@@ -256,12 +276,10 @@ public abstract class BaseCrudService<E extends IEntity, R extends ICrudReposito
 		}
 
 		//fetch file information
-		fileService.readFilesForModel(model, entityType, id);
-		
-		logger.trace("Entity fetch full mode for id '{}' resulted in  - {}", id, entity);
+		fileService.readFilesForModel(model, entityType, entity.getId());
 		return model;
 	}
- 
+
 	/**
 	 * Fetches number of entities in DB
 	 * @return entity count

@@ -339,7 +339,6 @@
 	<directive name="ykModelDialog" required-attr="id, name, columns, title, actionmethod">
 		<content>
 			<exe-script var="_tmp">
-				console.log("================> Yk model-dialog is invokeeddd........." + context.attr('id'));
 				var extraHtml = context.element.find("extra-content");
 				
 				if(extraHtml &amp;&amp; extraHtml.length &gt; 0)
@@ -601,9 +600,16 @@
 					context["modelField"] = name;
 				}
 				
+				context["fieldName"] = name;
+				
 				if(extended)
 				{
 					context["extended"] = "true";
+					context["validateFunc"] = "validateExtendedField('" + name + "', '" + context["modelField"] + "')";
+				}
+				else
+				{
+					context["validateFunc"] = "validateField('" + name + "', '" + context["modelField"] + "')";
 				}
 				
 				context["fieldDef"] = fieldDef;
@@ -618,30 +624,35 @@
 						<td style="padding: 0px;">
 							<div style="width: ${element.attr('field-width')}; display: inline-block; padding: 0px;">
 								<if test="context.fieldDef.fieldType == 'STRING'">
-									<input type="text" name="${fieldDef.name}" placeholder="${fieldDef.label}" ng-model="${modelField}" yk-read-only="${fieldDef.readOnly}"></input>
+									<input type="text" name="${fieldDef.name}" placeholder="${fieldDef.label}" 
+										ng-model="${modelField}" yk-read-only="${fieldDef.readOnly}" ng-change="${validateFunc}"></input>
 								</if>
 								<else-if test="context.fieldDef.fieldType == 'MULTI_LINE_STRING'">
-									<textarea name="${fieldDef.name}" placeholder="${fieldDef.label}" ng-model="${modelField}" yk-read-only="${fieldDef.readOnly}" style="height: 4em;"></textarea>
+									<textarea name="${fieldDef.name}" placeholder="${fieldDef.label}" ng-model="${modelField}" 
+											yk-read-only="${fieldDef.readOnly}" style="height: 4em;" ng-change="${validateFunc}"></textarea>
 								</else-if>
 								<else-if test="context.fieldDef.fieldType == 'INTEGER'">
-									<input type="number" name="${fieldDef.name}" placeholder="${fieldDef.label}" ng-model="${modelField}"  yk-read-only="${fieldDef.readOnly}"></input>
+									<input type="number" name="${fieldDef.name}" placeholder="${fieldDef.label}" ng-model="${modelField}"  
+										yk-read-only="${fieldDef.readOnly}" ng-change="${validateFunc}"></input>
 								</else-if>
 								<else-if test="context.fieldDef.fieldType == 'FLOAT' || context.fieldDef.fieldType == 'DOUBLE'">
-									<input type="number" name="${fieldDef.name}" placeholder="${fieldDef.label}" ng-model="${modelField}"  yk-read-only="${fieldDef.readOnly}"></input>
+									<input type="number" name="${fieldDef.name}" placeholder="${fieldDef.label}" ng-model="${modelField}"  
+										yk-read-only="${fieldDef.readOnly}" ng-change="${validateFunc}"></input>
 								</else-if>
 								<else-if test="context.fieldDef.fieldType == 'BOOLEAN'">
-									<select name="${fieldDef.name}" ng-model="${modelField}"  yk-read-only="${fieldDef.readOnly}">
+									<select name="${fieldDef.name}" ng-model="${modelField}"  yk-read-only="${fieldDef.readOnly}" ng-change="${validateFunc}">
 										<option value="" selected=""> -- Select ${fieldDef.label} -- </option>
 										<option value="true">True</option>
 										<option value="false">False</option>
 									</select>
 								</else-if>
 								<else-if test="context.fieldDef.fieldType == 'DATE'">
-									<input type="text" name="${fieldDef.name}" placeholder="${fieldDef.label}" ng-model="${modelField}" yk-read-only="${fieldDef.readOnly}"></input>
+									<input type="text" name="${fieldDef.name}" placeholder="${fieldDef.label}" 
+										ng-model="${modelField}" yk-read-only="${fieldDef.readOnly}" ng-change="${validateFunc}"></input>
 								</else-if>
 								<else-if test="context.fieldDef.fieldType == 'LIST_OF_VALUES'">
 									<if test="context.extended == 'true'">
-										<select name="${fieldDef.name}" ng-model="${modelField}"  yk-read-only="${fieldDef.readOnly}">
+										<select name="${fieldDef.name}" ng-model="${modelField}"  yk-read-only="${fieldDef.readOnly}" ng-change="${validateFunc}">
 											<option value="" selected=""> -- Select ${fieldDef.label} -- </option>
 			
 											<for-each data="${fieldDef.lovOptions}" loop-var="lovOption" index-var="idx">
@@ -651,7 +662,7 @@
 									</if>
 									<else>
 										<yk-lov-field name="${fieldDef.name}" label="${fieldDef.label}" lov="${fieldDef.lovDetails.lovName}" yk-read-only="${fieldDef.readOnly}"
-													type="${fieldDef.lovDetails.lovType}" model="${modelField}"></yk-lov-field>
+													type="${fieldDef.lovDetails.lovType}" model="${modelField}" on-change="${validateFunc}"></yk-lov-field>
 									</else> 
 								</else-if>
 								<else-if test="context.fieldDef.fieldType == 'FILE'">
@@ -734,6 +745,8 @@
 									</exe-script>
 								</else>
 							</div>
+							<div class="yk-field-error" ng-bind="errors.${fieldName}">
+							</div>
 						</td>
 					</tr>
 				</table>
@@ -774,7 +787,7 @@
 			
 			<set-var name="_readOnly" expr="(context.attr('yk-read-only') == 'true') ? 'true' : 'false'"/>
 			
-			<select name="${attr('name')}"  ng-model="${modelField}" yk-read-only="${_readOnly}">
+			<select name="${attr('name')}"  ng-model="${modelField}" yk-read-only="${_readOnly}" ng-change="${attr('on-change')}">
 				<option value="" selected=""> -- Select ${attr('label')} -- </option>
 				
 				<for-each data="${lovList}" loop-var="lov" index-var="idx">
@@ -829,7 +842,6 @@
 	 -->
 	<attr-directive name="ykRepeat">
 		<script>
-			console.log("================> Yk repeat is invokeeddd........." + context.attributeValue);
 			var repeatExpr = context.attributeValue;
 			context.element.attr("ng-repeat", repeatExpr);
 		</script>

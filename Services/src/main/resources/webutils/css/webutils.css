@@ -160,3 +160,10 @@ button.yk-info-close-button:hover
 	border-radius: 1em;
 	color: white;
 }
+
+.yk-field-error
+{
+	padding: 0px;
+	color: red;
+	font: bold 10px "Times New Roman", Times, serif;
+}

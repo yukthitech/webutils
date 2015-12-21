@@ -33,6 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.yukthi.utils.exceptions.InvalidStateException;
+import com.yukthi.webutils.WebutilsConfiguration;
 import com.yukthi.webutils.common.IExtendableModel;
 import com.yukthi.webutils.common.annotations.ExtendableModel;
 import com.yukthi.webutils.common.annotations.IgnoreField;
@@ -58,6 +59,9 @@ public class ModelDefBuilder
 	 */
 	@Autowired
 	private FieldDefBuilder fieldDefBuilder;
+	
+	@Autowired
+	private WebutilsConfiguration configuration;
 	
 	/**
 	 * Fetches model name of specified type
@@ -121,6 +125,7 @@ public class ModelDefBuilder
 		}
 		
 		modelDef.setFields(fieldDefLst);
+		modelDef.setDateFormat(configuration.getDateFormat().toPattern());
 		
 		return modelDef;
 	}
