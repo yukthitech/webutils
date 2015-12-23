@@ -123,6 +123,11 @@ body
 	font: bold 14px "Times New Roman", Times, serif;
 }
 
+.yk-field-label-mandatory
+{
+	color: red;
+}
+
 .yk-info-message
 {
 	margin-left: auto;
@@ -141,6 +146,7 @@ body
 	display: none;
 	border-radius: 0.8em;
 	max-width: 40em;
+	position: fixed;
 }
 
 .yk-info-close-button

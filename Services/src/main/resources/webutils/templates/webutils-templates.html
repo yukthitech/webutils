@@ -113,7 +113,7 @@
 				</ul>
 			
 				<!-- Tab panes -->
-				<div class="tab-content" style="height: 0.3em;">
+				<div class="tab-content">
 					<for-each data="${_tabs}" loop-var="tab" index-var="tabIdx">
 						<set-var name="_tab" expr="$(context.tab)"/>
 						<set-var name="_tabActive" expr="context.tabIdx == 0 ? 'active' : ''"/>
@@ -192,12 +192,18 @@
 				
 				//caluculate the size for label and field in the search query ui
 				var labelSize = 0, fldLblLength = 0;
-				var searchModel = response.modelDef;
+				var modelDef = response.modelDef;
+
+				modelDef.fieldMap = {};
+				modelDef.extensionFieldMap = {};
+
 				
-				for(var i = 0; i &lt; searchModel.fields.length; i++)
+				for(var i = 0; i &lt; modelDef.fields.length; i++)
 				{
-					fldLblLength = $.fontWidth('bold 14px "Times New Roman", Times, serif', searchModel.fields[i].label + "MMM");
+					fldLblLength = $.fontWidth('bold 14px "Times New Roman", Times, serif', modelDef.fields[i].label + "MMM");
 					labelSize = (labelSize &gt; fldLblLength) ? labelSize : fldLblLength;
+
+					modelDef.fieldMap[ modelDef.fields[i].name ] = modelDef.fields[i];
 				}
 				
 				context["labelSize"] = labelSize;
@@ -215,11 +221,19 @@
 				{
 					context["actions"] = null;
 				}
+
+				//Add model and model-def to scope
+				context["$scope"].modelDef = modelDef;
+				
+				if(!context["$scope"].model)
+				{
+					context["$scope"].model = {};
+				}
 			</exe-script>
 			
 			<set-var name="_showQuery" expr=" (context.attr('hide-query') == 'true') ? false : true"/>
 			
-			<div id="${attr('id')}" class="container-fluid" style="padding: 0px; margin: 0px" ng-controller="searchQueryController">
+			<div id="${attr('id')}" class="container-fluid" style="padding: 0px; margin: 0px" ng-controller="searchQueryController" yk-model-def="${searchModel.name}">
 			
 				<span style="display: none;" ng-init="searchQueryId = '${attr('id')}'; searchQueryName = '${attr('name')}';"></span>
 				
@@ -229,13 +243,13 @@
 							${attr('title')}
 						</div>
 		
-						<div class="panel-body model-form"  yk-model="${searchModel.name}" style="padding: 0px;">
+						<div class="panel-body model-form" style="padding: 0px;">
 							<form>
 								<div style="width: 100%; padding: 0px;">
 									<for-each data="${searchModel.fields}" loop-var="field" index-var="idx">
-										<model-field name="${field.name}" modelobj="searchQuery" 
+										<yk-model-field name="${field.name}" modelobj="searchQuery" 
 												label-width="${labelSize}px" field-width="${fieldWidth}em" full-width="" 
-												element-style="margin: 1em; margin-bottom: 0px;"></model-field>
+												element-style="margin: 1em; margin-bottom: 0px;"></yk-model-field>
 									</for-each>
 								</div>
 								
@@ -243,9 +257,9 @@
 									<!-- Submit button is added to support enter key in search form. This will be hidden.
 										Instead iconic link button will be used for click 
 									 -->
-									<input type="submit" value="Search" style="display: none;" yk-click="performSearch($event)"/>
+									<input type="submit" value="Search" style="display: none;" ng-click="performSearch($event)"/>
 									
-									<a class="btn btn-primary" role="button" yk-click="performSearch($event)" style="margin: 0.5em; margin-right: 0px;">
+									<a class="btn btn-primary" role="button" ng-click="performSearch($event)" style="margin: 0.5em; margin-right: 0px;">
 										<i class="glyphicon glyphicon-search"></i>
 										Search
 									</a>
@@ -299,6 +313,14 @@
 				</div>
 			</div>
 		</content>
+		
+		<pre-compile-script>
+			context.$result.data('model-def', context.$scope.modelDef);
+		</pre-compile-script>
+		
+		<post-script>
+			context.validator.customizeUi(context.$result, context.$scope.modelDef);
+		</post-script>
 	</directive>
 
 	<directive name="ykDialog" required-attr="id, title">
@@ -398,6 +420,9 @@
 				var modelDef = modelDefResponse.modelDef;
 				context["modelDef"] = modelDef;
 				context["extensionFields"] = [];
+	
+				modelDef.fieldMap = {};
+				modelDef.extensionFieldMap = {};
 				
 				//caluculate the size for label and field in the search query ui
 				var labelSize = 0, fldLblLength = 0;
@@ -406,6 +431,8 @@
 				{
 					fldLblLength = $.fontWidth('bold 14px "Times New Roman", Times, serif', modelDef.fields[i].label + "MMM");
 					labelSize = (labelSize &gt; fldLblLength) ? labelSize : fldLblLength;
+					
+					modelDef.fieldMap[ modelDef.fields[i].name ] = modelDef.fields[i];
 				}
 				
 				//if model is extendable, fetch extension field details
@@ -422,6 +449,9 @@
 					{
 						fldLblLength = $.fontWidth('bold 14px "Times New Roman", Times, serif', extensionFldRes.extensionFields[i].label + "MMM");
 						labelSize = (labelSize &gt; fldLblLength) ? labelSize : fldLblLength;
+
+						extensionFldRes.extensionFields[i].fieldType = extensionFldRes.extensionFields[i].type;
+						modelDef.extensionFieldMap[ extensionFldRes.extensionFields[i].name ] = extensionFldRes.extensionFields[i];
 					}
 				}
 				
@@ -434,18 +464,19 @@
 				context["fullWidth"] = (95 / columnCount);
 				context["columnCount"] = columnCount;
 
-				//Define the model object				
+				context["colIndex"] = 0;
+				context["extColIndex"] = 0;
+
+				//Add model and model-def to scope
+				context["$scope"].modelDef = modelDef;
+				
 				if(!context["$scope"].model)
 				{
 					context["$scope"].model = {};
 				}
-				
-				context["colIndex"] = 0;
-				context["extColIndex"] = 0;
-				
 			</exe-script>
 			
-			<div class="container-fluid model-form" yk-model="${attr('name')}">
+			<div class="container-fluid model-form" yk-model-def="${modelDef.name}">
 				<div style="width: 100%;">
 					<for-each data="${modelDef.fields}" loop-var="field" index-var="idx">
 						<if test="!context.field.displayable">
@@ -457,9 +488,9 @@
 							<div style="${enclosingDivStyle}">
 						]]></if>
 						
-						<model-field name="${field.name}" modelobj="model" label-width="${labelSize}px" 
+						<yk-model-field name="${field.name}" modelobj="model" label-width="${labelSize}px" 
 							field-width="100%" full-width="${fullWidth}%" 
-							element-style="margin: 0px; margin-left: 1em; margin-top: 1em;"></model-field>
+							element-style="margin: 0px; margin-left: 1em; margin-top: 1em;"></yk-model-field>
 						
 						<exe-script var="_tmp">
 							context["colIndex"]++;
@@ -474,9 +505,9 @@
 							<div style="width: 100%;">
 						]]></if>
 						
-						<ext-model-field name="${field.name}" modelobj="model.extendedFields" label-width="${labelSize}px" 
+						<yk-model-field name="${field.name}" modelobj="model.extendedFields" label-width="${labelSize}px" 
 							field-width="100%" full-width="${fullWidth}%"
-							element-style="margin: 0px; margin-left: 1em; margin-top: 1em;"></ext-model-field>
+							element-style="margin: 0px; margin-left: 1em; margin-top: 1em;" extended="true"></yk-model-field>
 
 						<exe-script var="_tmp">
 							context["extColIndex"]++;
@@ -485,101 +516,38 @@
 				</div>							
 			</div>
 		</content>
+
+		<pre-compile-script>
+			context.$result.data('model-def', context.$scope.modelDef);
+		</pre-compile-script>
+		
+		<post-script>
+			context.validator.customizeUi(context.$result, context.$scope.modelDef);
+		</post-script>
 	</directive>
 
-	<!-- 
-		Fetches the specified model from the server and its as modelDef attribute to current 
-		$scope. Which in turn can be used by yk-model-field
-	 -->
-	<attr-directive name="ykModel" recompile="true">
+	<attr-directive name="ykModelDef">
 		<script>
-			var modelName = context.attributeValue;
-			var modelDefResponse = context.invokeAction('modelDef.fetch', null, {"name": modelName});
-			
-			if(!modelDefResponse || !modelDefResponse.modelDef)
+			if(!context.$scope.modelDef)
 			{
-				throw "Invalid model name specified - " + modelName;
+				var modelDef = context.element.data('model-def');
+				context.$scope.modelDef = modelDef;
+				context.$scope.model = {};
 			}
-			
-			var modelDef = modelDefResponse.modelDef;
-			var extensionFieldMap = {};
-			
-			//if model is extendable, fetch extension field details
-			if(modelDef.extensionName)
-			{
-				var extensionFldRes = context.invokeAction('extensions.fetch', null, {"name": modelDef.extensionName});
-				
-				if(extensionFldRes &amp;&amp; extensionFldRes.extensionFields &amp;&amp; extensionFldRes.extensionFields.length &gt; 0)
-				{
-					for(var i = 0; i &lt; extensionFldRes.extensionFields.length; i++)
-					{
-						extensionFldRes.extensionFields[i].fieldType = extensionFldRes.extensionFields[i].type;
-						extensionFieldMap[ extensionFldRes.extensionFields[i].name ] = extensionFldRes.extensionFields[i];
-					}
-				}
-			}
-			
-			modelDef.fieldMap = {};
-			modelDef.extensionFieldMap = extensionFieldMap;
-			
-			for(var i = 0; i &lt; modelDef.fields.length; i++)
-			{
-				modelDef.fieldMap[ modelDef.fields[i].name ] = modelDef.fields[i];
-			}
-			
-			context["$scope"].modelDef = modelDef;
-			
-			context.element.find("model-field").each(function(idx){
-				var element = $(this);
-				var modelobj = element.attr("modelobj");
-				
-				if(!modelobj)
-				{
-					modelobj = "";
-				}
-				
-				element.replaceWith("&lt;yk-model-field " 
-					+ ' name="' + element.attr("name") + '"'
-					+ ' modelobj="' + modelobj + '"' 
-					+ ' field-width="' + element.attr("field-width") + '"' 
-					+ ' label-width="' + element.attr("label-width") + '"' 
-					+ ' full-width="' + element.attr("full-width") + '"'
-					+ ' element-style="' + element.attr("element-style") + '"' 
-					+ "  &gt; &lt;/yk-model-field&gt;");
-			});
-
-			context.element.find("ext-model-field").each(function(idx){
-				var element = $(this);
-				var modelobj = element.attr("modelobj");
-				
-				if(!modelobj)
-				{
-					modelobj = "";
-				}
-				
-				element.replaceWith("&lt;yk-model-field "
-					+ ' name="' + element.attr("name") + '"'
-					+ ' extended="true"'
-					+ ' modelobj="' + modelobj + '"' 
-					+ ' field-width="' + element.attr("field-width") + '"' 
-					+ ' label-width="' + element.attr("label-width") + '"' 
-					+ ' full-width="' + element.attr("full-width") + '"' 
-					+ ' element-style="' + element.attr("element-style") + '"' 
-					+ "  &gt; &lt;/yk-model-field&gt;");
-			});
 		</script>
 	</attr-directive>
 
 	<directive name="ykModelField" required-attr="name">
 		<content>
 			<exe-script var="_tmp">
-				var modelDef = context["$scope"].modelDef;
+				var modelDef =  context.actualElement.closest('[yk-model-def]').data('model-def');
 				var name = context.attr('name');
 				var extended = (context.attr('extended') == "true");
 				
 				if(!modelDef)
 				{
-					throw "No model is defined for yk-model-field with name - " + name;
+					debugger;
+					throw "No model-def is defined for yk-model-field with name - " + name;
 				}
 				
 				var fieldDef = extended ? modelDef.extensionFieldMap[name] : modelDef.fieldMap[name];
@@ -605,11 +573,11 @@
 				if(extended)
 				{
 					context["extended"] = "true";
-					context["validateFunc"] = "validateExtendedField('" + name + "', '" + context["modelField"] + "')";
+					context["validateFunc"] = "validateExtendedField('" + name + "', '" + modelPrefix + "')";
 				}
 				else
 				{
-					context["validateFunc"] = "validateField('" + name + "', '" + context["modelField"] + "')";
+					context["validateFunc"] = "validateField('" + name + "', '" + modelPrefix + "')";
 				}
 				
 				context["fieldDef"] = fieldDef;
@@ -618,7 +586,8 @@
 			<div style="display: inline-block; vertical-align: top; width: ${element.attr('full-width')}; ${element.attr('element-style')}">
 				<table style="width: 100%;border-collapse: collapse;border-spacing: 0px;">
 					<tr>
-						<td style="vertical-align: top; padding: 0px; width: ${element.attr('label-width')}; min-width: ${element.attr('label-width')}; " yk-hide-from="xs" class="yk-field-label">
+						<td style="vertical-align: top; padding: 0px; width: ${element.attr('label-width')}; min-width: ${element.attr('label-width')}; " 
+								yk-hide-from="xs" class="yk-field-label" field-label="${fieldDef.name}">
 							${fieldDef.label}
 						</td>
 						<td style="padding: 0px;">
@@ -745,7 +714,7 @@
 									</exe-script>
 								</else>
 							</div>
-							<div class="yk-field-error" ng-bind="errors.${fieldName}">
+							<div class="yk-field-error" ng-bind="errors.${modelField}">
 							</div>
 						</td>
 					</tr>

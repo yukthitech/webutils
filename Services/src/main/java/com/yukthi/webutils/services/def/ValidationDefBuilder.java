@@ -32,12 +32,18 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.annotation.PostConstruct;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
 import com.yukthi.ccg.xml.XMLBeanParser;
+import com.yukthi.utils.CommonUtils;
 import com.yukthi.utils.exceptions.InvalidStateException;
 import com.yukthi.validation.cross.CrossConstraint;
 import com.yukthi.webutils.common.models.def.ValidationDef;
@@ -49,7 +55,13 @@ import com.yukthi.webutils.common.models.def.ValidationDef;
 @Component
 public class ValidationDefBuilder
 {
+	private static final Pattern EXPR_PATTERN = Pattern.compile("\\$?\\{([\\w\\.]+)\\}");
+	
 	private Map<ValidationConfigKey, ValidationConfigDetails> configMap = new HashMap<>();
+	
+	@Autowired
+	@Qualifier("validatorMessageSource")
+	private MessageSource validationMessageSource;
 	
 	/**
 	 * Post construct method used to load validation configuration xml file
@@ -87,6 +99,56 @@ public class ValidationDefBuilder
 			throw new InvalidStateException(ex, "An error occurred while fetching attribute '{}' from annotation", name, annotation.annotationType().getName());
 		}
 	}
+	
+	/**
+	 * Fetches the error message for the specified validation annotation, which should be used
+	 * when validation fails. If the message is matching with pattern - {message}, then the value for the message
+	 * will be pulled from resource bundle. Similarly, {field} like expressions can be used in message (from bundle or within annotation)
+	 * to refer to annotation fields. ${key} like expression will be retained, which can be used by client to place runtime values.
+	 * @param annotation
+	 * @return
+	 */
+	protected String getMessage(Annotation annotation)
+	{
+		String message = (String)getAnnotationAttribute(annotation, "message");
+		Matcher matcher = EXPR_PATTERN.matcher(message);
+
+		//if message itself is expression, get message template from resource bundle
+		if(matcher.matches())
+		{
+			try
+			{
+				message = validationMessageSource.getMessage(matcher.group(1), null, null);
+			}catch(Exception ex)
+			{
+				throw new InvalidStateException("Failed to find message for annotation {} with message key - {}", annotation.annotationType().getName(), matcher.group(1));
+			}
+		}
+		
+		//rebuild the matcher, this time look for patterns with in the message
+		matcher = EXPR_PATTERN.matcher(message);
+	
+		StringBuffer finalMsg = new StringBuffer();
+		String value = null;
+		
+		//replace expressions with annotation attributes
+		while(matcher.find())
+		{
+			if(matcher.group(0).startsWith("$"))
+			{
+				value = "\\" + matcher.group(0);
+			}
+			else
+			{
+				value = "" + getAnnotationAttribute(annotation, matcher.group(1));
+			}
+			
+			matcher.appendReplacement(finalMsg, value);
+		}
+		
+		matcher.appendTail(finalMsg);
+		return finalMsg.toString();
+	}
 
 	/**
 	 * Get validations for specified model type and field
@@ -111,11 +173,23 @@ public class ValidationDefBuilder
 		ValidationDef validationDef = null;
 		Object value = null;
 		Map<String, Object> valueMap = new HashMap<>();
+		Class<?> fieldType = field.getType();
+		
+		//if field type id primitive, convert type to corresponding wrapper type
+		if(fieldType.isPrimitive())
+		{
+			fieldType = CommonUtils.getWrapperType(fieldType);
+			
+			if(fieldType == null)
+			{
+				throw new IllegalStateException("Failed to find wrapper of primitive type - " + field.getType().getName());
+			}
+		}
 		
 		//loop through annotations
 		for(Annotation annotation: annotations)
 		{
-			resolverKey = new ValidationConfigKey(annotation.annotationType(), field.getType(), false);
+			resolverKey = new ValidationConfigKey(annotation.annotationType(), fieldType, false);
 			resolverDetails = configMap.get(resolverKey);
 			
 			//if current annotation is not found to be supported validation annotation, ignore
@@ -145,10 +219,11 @@ public class ValidationDefBuilder
 				validationDef.setValues(new HashMap<>(valueMap));
 			}
 			
+			//set flag to indicate if the validation is cross field validation
 			validationDef.setCrossValidation( annotation.annotationType().getAnnotation(CrossConstraint.class) != null );
 
-			//TODO: Find a way to convert validation annotation default message expression into message
-			validationDef.setErrorMessage((String)getAnnotationAttribute(annotation, "message"));
+			//set the error message to be used by client when validation fails
+			validationDef.setErrorMessage(getMessage(annotation));
 			
 			validationDefLst.add(validationDef);
 		}

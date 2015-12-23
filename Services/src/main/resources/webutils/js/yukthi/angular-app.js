@@ -18,7 +18,7 @@ $.addElementDirective = function(directiveObj) {
 	
 	console.log("Adding custom directive - '" + directiveObj.name + "' with priority - " + directiveObj.priority);
 
-	$.application.directive(directiveObj.name, ['$compile', 'actionHelper', 'clientContext', function($compile, actionHelper, clientContext) {
+	$.application.directive(directiveObj.name, ['$compile', 'actionHelper', 'clientContext', 'validator', function($compile, actionHelper, clientContext, validator) {
 		var directive = {};
 
 		directive.restrict = 'E'; /* restrict this directive to elements */
@@ -50,8 +50,10 @@ $.addElementDirective = function(directiveObj) {
 					"attributes": attributes,
 					"$scope": $scope,
 					"element": element,
+					"actualElement": $($element[0]),
 					"clientContext": clientContext,
 					"actionHelper": actionHelper,
+					"validator": validator,
 					"invokeAction": function(actionName, requestEntity, params) {
 						return actionHelper.invokeAction(actionName, requestEntity, params);
 					},
@@ -99,6 +101,15 @@ $.addElementDirective = function(directiveObj) {
 				try
 				{
 					var html = $.application["directiveTemplateEngine"].processTemplate(context, this.element.get(0).localName);
+					html = $(html);
+					
+					//if pre compile script is specified, execute it after making result available on context
+					if(this.directiveObj.preCompileScript)
+					{
+						context.$result = html;
+						this.directiveObj.preCompileScript(context);
+					}
+					
 					var e = $compile(html)($scope);
 					$element.replaceWith(e);
 				
@@ -110,6 +121,8 @@ $.addElementDirective = function(directiveObj) {
 				{
 					console.error("An error occurred while processing directive - " + $element[0].localName);
 					console.error(ex);
+					
+					throw ex;
 				}
 			}, {"directiveObj": directiveObj, "element": elementHtml});
 			
@@ -193,7 +206,7 @@ $.loadCustomDirectives = function(templateFilePath) {
 	var tagName = null;
 	var CAP_PATTERN = /([A-Z])/g;
 	var child = null, contentChild = null, scriptChild= null;
-	var postScript = null;
+	var postScript = null, precompileScript = null;
 	var priority = null;
 	
 	for(var i = 0; i < children.length; i++)
@@ -222,6 +235,7 @@ $.loadCustomDirectives = function(templateFilePath) {
 			
 			contentChild = child.find("content").first();
 			postScript = child.find("post-script");
+			precompileScript = child.find("pre-compile-script");
 			
 			//if post script is defined
 			if(postScript.length > 0)
@@ -234,10 +248,21 @@ $.loadCustomDirectives = function(templateFilePath) {
 				scriptFunc = null;
 			}
 
+			if(precompileScript.length > 0)
+			{
+				//create dynamic function with name precompileScriptFunc which has code from template
+				eval("function precompileScriptFunc(context){" + precompileScript.text() + "}");
+			}
+			else
+			{
+				precompileScriptFunc = null;
+			}
+
 			$.application["directiveTemplateEngine"].addTemplate(tagName, $(contentChild));
 			$.addElementDirective({
 				name : childName,
 				postScript: scriptFunc,
+				preCompileScript: precompileScriptFunc, 
 				tagName: tagName,
 				requiredAttr: requiredAttr,
 				priority: priority

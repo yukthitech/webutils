@@ -31,6 +31,13 @@
 		</property>
 	</bean>
 
+	<bean id="validatorMessageSource"
+		class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+		<property name="basenames">
+			<value>classpath:ValidationMessages</value>
+		</property>
+	</bean>
+
 	<bean id="objectMapper" class="com.fasterxml.jackson.databind.ObjectMapper">
 		<property name="dateFormat">
 			<bean class="java.text.SimpleDateFormat">

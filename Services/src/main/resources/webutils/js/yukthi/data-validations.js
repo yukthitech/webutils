@@ -61,13 +61,13 @@ $.application.factory('validator', ["logger", function(logger){
 			//String related validations
 			////////////////////////////////////////////////////////////
 			"maxLength" : {
-				"validate" : function(model, validationDef, value) {
+				"validate" : function(model, validationDefValues, value) {
 					if((typeof value) != 'string')
 					{
 						return true;
 					}
 					
-					if(value.length > validationDef.value)
+					if(value.length > validationDefValues.value)
 					{
 						return false;
 					}
@@ -76,13 +76,13 @@ $.application.factory('validator', ["logger", function(logger){
 				}
 			},
 			"minLength" : {
-				"validate" : function(model, validationDef, value) {
+				"validate" : function(model, validationDefValues, value) {
 					if((typeof value) != 'string')
 					{
 						return true;
 					}
 					
-					if(value.length < validationDef.value)
+					if(value.length < validationDefValues.value)
 					{
 						return false;
 					}
@@ -91,13 +91,13 @@ $.application.factory('validator', ["logger", function(logger){
 				}
 			},
 			"pattern" :{
-				"validate" : function(model, validationDef, value) {
+				"validate" : function(model, validationDefValues, value) {
 					if((typeof value) != 'string')
 					{
 						return true;
 					}
 					
-					var pattern = new RegExp(validationDef.regexp);
+					var pattern = new RegExp(validationDefValues.regexp);
 					
 					if(!pattern.test(value))
 					{
@@ -108,13 +108,13 @@ $.application.factory('validator', ["logger", function(logger){
 				}
 			},
 			"mispattern" :{
-				"validate" : function(model, validationDef, value) {
+				"validate" : function(model, validationDefValues, value) {
 					if((typeof value) != 'string')
 					{
 						return true;
 					}
 					
-					var pattern = new RegExp(validationDef.regexp);
+					var pattern = new RegExp(validationDefValues.regexp);
 					
 					if(pattern.test(value))
 					{
@@ -130,7 +130,7 @@ $.application.factory('validator', ["logger", function(logger){
 			//Generic validations
 			////////////////////////////////////////////////////////////
 			"required" :{
-				"validate" : function(model, validationDef, value) {
+				"validate" : function(model, validationDefValues, value) {
 					if(!value)
 					{
 						return false;
@@ -145,16 +145,20 @@ $.application.factory('validator', ["logger", function(logger){
 					}
 					
 					return true;
+				},
+			
+				"customizeUi": function(labelField) {
+					labelField.addClass("yk-field-label-mandatory");
 				}
 			},
 			"mandatoryOption" :{
-				"validate" : function(model, validationDef, value) {
+				"validate" : function(model, validationDefValues, value) {
 					if(value)
 					{
 						return true;
 					}
 					
-					var otherFieldNames = validationDef.fields;
+					var otherFieldNames = validationDefValues.fields;
 					
 					for(var i = 0; i < otherFieldNames.length; i++)
 					{
@@ -168,8 +172,8 @@ $.application.factory('validator', ["logger", function(logger){
 				}
 			},
 			"matchWith" :{
-				"validate" : function(model, validationDef, value) {
-					var otherValue = model[validatorDef.field];
+				"validate" : function(model, validationDefValues, value) {
+					var otherValue = model[validationDefValues.field];
 					
 					if(value == otherValue)
 					{
@@ -184,32 +188,32 @@ $.application.factory('validator', ["logger", function(logger){
 			//Date related validations
 			////////////////////////////////////////////////////////////
 			"futureOrToday" :{
-				"validate" : function(model, validationDef, value) {
+				"validate" : function(model, validationDefValues, value) {
 					return true;
 				}
 			},
 			"greaterThanDateField" :{
-				"validate" : function(model, validationDef, value) {
+				"validate" : function(model, validationDefValues, value) {
 					return true;
 				}
 			},
 			"greaterThanEqualsDateField" :{
-				"validate" : function(model, validationDef, value) {
+				"validate" : function(model, validationDefValues, value) {
 					return true;
 				}
 			},
 			"lessThanDateField" :{
-				"validate" : function(model, validationDef, value) {
+				"validate" : function(model, validationDefValues, value) {
 					return true;
 				}
 			},
 			"lessThanEqualsDateField" :{
-				"validate" : function(model, validationDef, value) {
+				"validate" : function(model, validationDefValues, value) {
 					return true;
 				}
 			},
 			"pastOrToday" :{
-				"validate" : function(model, validationDef, value) {
+				"validate" : function(model, validationDefValues, value) {
 					return true;
 				}
 			},
@@ -218,8 +222,8 @@ $.application.factory('validator', ["logger", function(logger){
 			//Number related validations
 			////////////////////////////////////////////////////////////
 			"greaterThan" :{
-				"validate" : function(model, validationDef, value) {
-					var otherValue = model[validatorDef.field];
+				"validate" : function(model, validationDefValues, value) {
+					var otherValue = model[validationDefValues.field];
 					
 					if(value <= otherValue)
 					{
@@ -230,8 +234,8 @@ $.application.factory('validator', ["logger", function(logger){
 				}
 			},
 			"greaterThanEquals" :{
-				"validate" : function(model, validationDef, value) {
-					var otherValue = model[validatorDef.field];
+				"validate" : function(model, validationDefValues, value) {
+					var otherValue = model[validationDefValues.field];
 					
 					if(value < otherValue)
 					{
@@ -242,8 +246,8 @@ $.application.factory('validator', ["logger", function(logger){
 				}
 			},
 			"lessThan" :{
-				"validate" : function(model, validationDef, value) {
-					var otherValue = model[validatorDef.field];
+				"validate" : function(model, validationDefValues, value) {
+					var otherValue = model[validationDefValues.field];
 					
 					if(value >= otherValue)
 					{
@@ -254,8 +258,8 @@ $.application.factory('validator', ["logger", function(logger){
 				}
 			},
 			"lessThanEquals" :{
-				"validate" : function(model, validationDef, value) {
-					var otherValue = model[validatorDef.field];
+				"validate" : function(model, validationDefValues, value) {
+					var otherValue = model[validationDefValues.field];
 					
 					if(value > otherValue)
 					{
@@ -266,8 +270,8 @@ $.application.factory('validator', ["logger", function(logger){
 				}
 			},
 			"minValue" :{
-				"validate" : function(model, validationDef, value) {
-					if(value < validatorDef.value)
+				"validate" : function(model, validationDefValues, value) {
+					if(value < validationDefValues.value)
 					{
 						return false;
 					}
@@ -276,8 +280,8 @@ $.application.factory('validator', ["logger", function(logger){
 				}
 			},
 			"maxValue" :{
-				"validate" : function(model, validationDef, value) {
-					if(value > validatorDef.value)
+				"validate" : function(model, validationDefValues, value) {
+					if(value > validationDefValues.value)
 					{
 						return false;
 					}
@@ -291,14 +295,15 @@ $.application.factory('validator', ["logger", function(logger){
 		 * Executes validations on all fields of the model. In case validation fails 
 		 * appropriate error will be thrown
 		 */
-		"validateModel" : function(model, modelDef) {
+		"validateModel" : function(model, modelDef, errors) {
 			var fields = modelDef.fields;
 			var value = null;
 			var validations = null;
+			var noErrorsFound = true;
 			
-			for(var i = 0 ; i < fields; i++)
+			for(var i = 0 ; i < fields.length; i++)
 			{
-				value = model[fields[i]];
+				value = model[fields[i].name];
 				
 				if((typeof value) == 'string')
 				{
@@ -316,6 +321,7 @@ $.application.factory('validator', ["logger", function(logger){
 					continue;
 				}
 				
+				//loop through field validations and perform it on field value
 				for(var j = 0; j < validations.length; j++)
 				{
 					//check if the validator corresponding to server validation is available
@@ -324,14 +330,19 @@ $.application.factory('validator', ["logger", function(logger){
 						continue;
 					}
 					
-					//perform validation
+					//perform validation. If error found, move on to next field
 					if( !this.validators[validations[j].name].validate(model, validations[j], value) )
 					{
-						throw validations[j].errorMessage.replace("${value}", value);
+						errors[fields[i].name] = validations[j].errorMessage.replace("${value}", value);
+						noErrorsFound = false;
+						break;
 					}
 				}
 			}
 			//TODO: Add validations for extension fields
+				//errors.extendedFields
+			
+			return noErrorsFound;
 		},
 		
 		"validateField" : function(model, modelDef, fieldName) {
@@ -345,6 +356,7 @@ $.application.factory('validator', ["logger", function(logger){
 			}
 			
 			var validations = fieldDef.validations;
+			var value = model[fieldName];
 			
 			//if no validations are found on field
 			if(!validations)
@@ -361,7 +373,7 @@ $.application.factory('validator', ["logger", function(logger){
 				}
 				
 				//perform validation
-				if( !this.validators[validations[j].name].validate(model, validations[j], value) )
+				if( !this.validators[validations[j].name].validate(model, validations[j].values, value) )
 				{
 					throw validations[j].errorMessage.replace("${value}", value);
 				}
@@ -370,6 +382,53 @@ $.application.factory('validator', ["logger", function(logger){
 		
 		"validateExtendedField" : function(model, modelDef, fieldName) {
 			
+		},
+		
+		/**
+		 * Customized the fields ui according to the validators presents on them
+		 */
+		"customizeUi" : function(containerElement, modelDef) {
+			var fields = modelDef.fields;
+			containerElement = $(containerElement);
+
+			var validations = null;
+			var labelField = null;
+			
+			//loop through the fields
+			for(var i = 0 ; i < fields.length; i++)
+			{
+				validations = fields[i].validations;
+				
+				//if no validations are present ignore the field
+				if(!validations)
+				{
+					continue;
+				}
+				
+				labelField = null;
+				
+				//loop through validators
+				for(var j = 0; j < validations.length; j++)
+				{
+					//if validator does not have customization ignore current validator
+					if( !this.validators[validations[j].name].customizeUi)
+					{
+						continue;
+					}
+					
+					//on demand find the ui field
+					if(!labelField)
+					{
+						labelField = containerElement.find("[field-label='" + fields[i].name + "']");
+					}
+					
+					//customize as per validator
+					this.validators[validations[j].name].customizeUi(labelField);
+				}
+			}
+			
+			//TODO: Add customizations for extension fields
+				//errors.extendedFields
 		}
 	};
 

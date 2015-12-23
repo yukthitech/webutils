@@ -29,7 +29,7 @@
 			<artifactId>spring-webmvc</artifactId>
 			<version>4.1.6.RELEASE</version>
 		</dependency>
-		
+
 		<!-- AOP related dependencies -->
 		<dependency>
 			<groupId>org.springframework</groupId>
@@ -124,6 +124,17 @@
 			<version>1.0</version>
 		</dependency>
 	</dependencies>
+
+	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<excludes>
+					<exclude>webutils/**/*</exclude>
+				</excludes>
+			</resource>
+		</resources>
+	</build>
 
 	<parent>
 		<groupId>com.yukthi.webutils</groupId>

@@ -6,6 +6,13 @@ var ALERTS_DLG_ID = "webutilsAlertDialog";
 var CONFIRM_DLG_ID = "webutilsConfirmDialog";
 var INFO_BOX_ID = "webutilsInfoBox";
 
+$.currentScopeId = 0;
+
+$.nextScopeId = function() {
+	$.currentScopeId++;
+	return $.currentScopeId;
+};
+
 $.fontWidth = function(font, text) {
 	// re-use canvas object for better performance
     var canvas = $.fontCharWidth_canvas || ($.fontCharWidth_canvas = document.createElement("canvas"));
@@ -18,30 +25,38 @@ $.fontWidth = function(font, text) {
 $.application.controller('webutilsCommonController', ["$scope", "utils", function($scope, utils) {
 	
 	$scope.closeAlert = function() {
+		//ensure call back is called after proper closing of dialog. This is needed for
+			//	nested dialogs
+		$('#' + ALERTS_DLG_ID).off('hidden.bs.modal').on('hidden.bs.modal', function (e) {
+			if(utils.callback)
+			{
+				utils.callback();
+			}
+		});
+
 		$('#' + ALERTS_DLG_ID).modal('hide');
-		
-		if(utils.callback)
-		{
-			utils.callback();
-		}
 	};
 	
 	$scope.closeConfirm = function() {
+		$('#' + CONFIRM_DLG_ID).off('hidden.bs.modal').on('hidden.bs.modal', function (e) {
+			if(utils.callback)
+			{
+				utils.callback(true);
+			}
+		});
+
 		$('#' + CONFIRM_DLG_ID).modal('hide');
-		
-		if(utils.callback)
-		{
-			utils.callback(true);
-		}
 	};
 	
 	$scope.cancelConfirm = function() {
-		$('#' + CONFIRM_DLG_ID).modal('hide');
+		$('#' + CONFIRM_DLG_ID).off('hidden.bs.modal').on('hidden.bs.modal', function (e) {
+			if(utils.callback)
+			{
+				utils.callback(false);
+			}
+		});
 
-		if(utils.callback)
-		{
-			utils.callback(false);
-		}
+		$('#' + CONFIRM_DLG_ID).modal('hide');
 	};
 	
 	$scope.closeInfo = function() {
@@ -55,6 +70,8 @@ $.application.factory('utils', [function(){
 	var utils = {
 		"ARG_PATERN" : /\{\}/g,
 		"callback": null,
+		"firstAlert": true,
+		"firstConfirm": true,
 		
 		"format": function(message, args, argIdx) {
 			
@@ -93,6 +110,14 @@ $.application.factory('utils', [function(){
 			
 			$('#' + ALERTS_DLG_ID + ' .modal-body').html(message);
 			$('#' + ALERTS_DLG_ID).modal('show');
+			
+			if(this.firstAlert)
+			{
+				$('#' + ALERTS_DLG_ID).off('shown.bs.modal').on('shown.bs.modal', function (e) {
+					$('#' + ALERTS_DLG_ID + " .btn-primary").focus();
+				});
+				this.firstAlert = false;
+			}
 		},
 
 		/*
@@ -132,6 +157,15 @@ $.application.factory('utils', [function(){
 
 			$('#' + CONFIRM_DLG_ID + ' .modal-body').html(message);
 			$('#' + CONFIRM_DLG_ID).modal('show');
+
+			if(this.firstConfirm)
+			{
+				$('#' + CONFIRM_DLG_ID).off('shown.bs.modal').on('shown.bs.modal', function (e) {
+					$('#' + CONFIRM_DLG_ID + " .btn-primary").focus();
+				});
+				
+				this.firstConfirm = false;
+			}
 		}
 	};
 
@@ -146,8 +180,15 @@ $.application.factory('logger', ["utils", function(utils){
 		"traceEnabled" : ($.appConfiguration.traceEnabled ? true : false),
 
 		"log": function(prefix, message, args) {
+			//if message is not an object (like error etc), print the object directly
+			if((typeof message) != 'string')
+			{
+				console.log(prefix);
+				console.log(message);
+				return;
+			}
+			
 			var finalMsg = utils.format(message, args);
-
 			console.log(prefix + " - " + finalMsg);
 		},
 		
@@ -168,6 +209,14 @@ $.application.factory('logger', ["utils", function(utils){
 				return;
 			}
 			
+			//if message is not an object (like error etc), print the object directly
+			if((typeof message) != 'string')
+			{
+				console.log("ERROR");
+				console.error(message);
+				return;
+			}
+
 			this.log("ERROR", message, arguments);
 		},
 		

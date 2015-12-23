@@ -1,5 +1,5 @@
-$.application.controller('searchQueryController', ["$scope", "actionHelper", "logger", "utils", function($scope, actionHelper, logger, utils) {
-	$scope.name = "searchQueryControllerScope";
+$.application.controller('searchQueryController', ["$scope", "actionHelper", "logger", "utils", "validator", function($scope, actionHelper, logger, utils, validator) {
+	$scope.name = "searchQueryControllerScope-" + $.nextScopeId();
 	$scope.modelDef = null;
 	$scope.searchQueryName = null;
 	
@@ -12,9 +12,38 @@ $.application.controller('searchQueryController', ["$scope", "actionHelper", "lo
 	
 	$scope.searchExecuted = false;
 	
+	/**
+	 * Initializes the errors object on scope if required
+	 */
+	$scope.initErrors = function(modelPrefix) {
+		if(!$scope.errors)
+		{
+			$scope.errors = {};
+		}
+
+		if(!$scope.errors[modelPrefix])
+		{
+			$scope.errors[modelPrefix] = {};
+		}
+
+		if(!$scope.errors[modelPrefix].extendedFields)
+		{
+			$scope.errors[modelPrefix].extendedFields = {};
+		}
+	};
+
 	$scope.performSearch = function(e) {
 		logger.trace("Search is triggered for query - " + $scope.searchQueryName);
 		
+		//TODO: Move init errors to post rendering
+		$scope.initErrors("searchQuery");
+		
+		if(!validator.validateModel($scope.searchQuery, $scope.modelDef, $scope.errors.searchQuery))
+		{
+			utils.alert("Please correct the errors and then try!");
+			return;
+		}
+
 		//if result definition is not present in controller fetch it from server
 		if(!$scope.searchResultDef)
 		{
@@ -111,4 +140,42 @@ $.application.controller('searchQueryController', ["$scope", "actionHelper", "lo
 	$scope.$on('invokeSearch', function(event, data){
 		$scope.performSearch();
 	});
+
+	$scope.validateField = function(name, modelPrefix) {
+		$scope.initErrors(modelPrefix);
+
+		try
+		{
+			var model = $scope[modelPrefix];
+			validator.validateField(model, $scope.modelDef, name);
+			$scope.errors[modelPrefix][name] = "";
+		}catch(ex)
+		{
+			if((typeof ex) != 'string')
+			{
+				logger.error(ex);
+			}
+			
+			$scope.errors[modelPrefix][name] = ex;
+		}
+	};
+
+	$scope.validateExtendedField = function(name, modelPrefix) {
+		$scope.initErrors(modelPrefix);
+
+		try
+		{
+			var model = $scope[modelPrefix];
+			validator.validateExtendedField(model, $scope.modelDef, name);
+			$scope.errors.searchQuery.extendedFields[name] = "";
+		}catch(ex)
+		{
+			if((typeof ex) != 'string')
+			{
+				logger.error(ex);
+			}
+
+			$scope.errors[modelPrefix].extendedFields[name] = ex;
+		}
+	};
 }]);
