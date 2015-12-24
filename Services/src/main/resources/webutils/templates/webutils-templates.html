@@ -373,6 +373,8 @@
 				}
 				
 				context["extraHtml"] = extraHtml; 
+				
+				context["modelObj"] = context.attr("modelObj") ? context.attr("modelObj") : "model"; 
 			</exe-script>
 		
 			<set-var name="_size" expr="(context.attr('size') == 'small') ? 'modal-sm' : 'modal-lg'"/>
@@ -390,7 +392,7 @@
 						
 						<!-- Content -->
 						<div class="modal-body" yk-model="${attr('name')}">
-							<yk-model-form name="${attr('name')}" columns="${attr('columns')}"></yk-model-form>
+							<yk-model-form name="${attr('name')}" columns="${attr('columns')}" modelObj="${modelObj}"></yk-model-form>
 							${extraHtml}
 						</div>
 						
@@ -474,6 +476,8 @@
 				{
 					context["$scope"].model = {};
 				}
+				
+				context["modelObj"] = context.attr("modelObj") ? context.attr("modelObj") : "model"; 
 			</exe-script>
 			
 			<div class="container-fluid model-form" yk-model-def="${modelDef.name}">
@@ -488,7 +492,7 @@
 							<div style="${enclosingDivStyle}">
 						]]></if>
 						
-						<yk-model-field name="${field.name}" modelobj="model" label-width="${labelSize}px" 
+						<yk-model-field name="${field.name}" modelobj="${modelObj}" label-width="${labelSize}px" 
 							field-width="100%" full-width="${fullWidth}%" 
 							element-style="margin: 0px; margin-left: 1em; margin-top: 1em;"></yk-model-field>
 						
@@ -505,7 +509,7 @@
 							<div style="width: 100%;">
 						]]></if>
 						
-						<yk-model-field name="${field.name}" modelobj="model.extendedFields" label-width="${labelSize}px" 
+						<yk-model-field name="${field.name}" modelobj="${modelObj}.extendedFields" label-width="${labelSize}px" 
 							field-width="100%" full-width="${fullWidth}%"
 							element-style="margin: 0px; margin-left: 1em; margin-top: 1em;" extended="true"></yk-model-field>
 
