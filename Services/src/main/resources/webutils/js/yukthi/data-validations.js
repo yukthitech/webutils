@@ -199,49 +199,95 @@ $.application.factory('validator', ["logger", function(logger){
 						return true;
 					}
 					
-					var momentDate = moment("2014-09-15 09:00:00");
+					var momentDate = moment(value, modelDef.jsDateFormat);
+					var today = new Date();
 					
-					return true;
+					if(momentDate.isSame(today, 'day') || momentDate.isAfter(today, 'day'))
+					{
+						return true;
+					}
+					
+					return false;
 				}
 			},
 			"greaterThanDateField" :{
 				"validate" : function(model, validationDefValues, value, modelDef) {
-					if(!value)
+					var otherValue = model[validationDefValues.field];
+					
+					if(!value || !otherValue)
 					{
 						return true;
 					}
 					
-					return true;
+					var momentDate = moment(value, modelDef.jsDateFormat);
+					var otherDate = moment(otherValue, modelDef.jsDateFormat);
+					
+					if(momentDate.isAfter(otherDate, 'day'))
+					{
+						return true;
+					}
+					
+					return false;
 				}
 			},
 			"greaterThanEqualsDateField" :{
 				"validate" : function(model, validationDefValues, value, modelDef) {
-					if(!value)
+					var otherValue = model[validationDefValues.field];
+					
+					if(!value || !otherValue)
 					{
 						return true;
 					}
 					
-					return true;
+					var momentDate = moment(value, modelDef.jsDateFormat);
+					var otherDate = moment(otherValue, modelDef.jsDateFormat);
+					
+					if(momentDate.isSame(otherDate, 'day') || momentDate.isAfter(otherDate, 'day'))
+					{
+						return true;
+					}
+					
+					return false;
 				}
 			},
 			"lessThanDateField" :{
 				"validate" : function(model, validationDefValues, value, modelDef) {
-					if(!value)
+					var otherValue = model[validationDefValues.field];
+					
+					if(!value || !otherValue)
 					{
 						return true;
 					}
 					
-					return true;
+					var momentDate = moment(value, modelDef.jsDateFormat);
+					var otherDate = moment(otherValue, modelDef.jsDateFormat);
+					
+					if(momentDate.isBefore(otherDate, 'day'))
+					{
+						return true;
+					}
+					
+					return false;
 				}
 			},
 			"lessThanEqualsDateField" :{
 				"validate" : function(model, validationDefValues, value, modelDef) {
-					if(!value)
+					var otherValue = model[validationDefValues.field];
+					
+					if(!value || !otherValue)
 					{
 						return true;
 					}
 					
-					return true;
+					var momentDate = moment(value, modelDef.jsDateFormat);
+					var otherDate = moment(otherValue, modelDef.jsDateFormat);
+					
+					if(momentDate.isSame(otherDate, 'day') || momentDate.isBefore(otherDate, 'day'))
+					{
+						return true;
+					}
+					
+					return false;
 				}
 			},
 			"pastOrToday" :{
@@ -251,7 +297,15 @@ $.application.factory('validator', ["logger", function(logger){
 						return true;
 					}
 					
-					return true;
+					var momentDate = moment(value, modelDef.jsDateFormat);
+					var today = new Date();
+					
+					if(momentDate.isSame(today, 'day') || momentDate.isBefore(today, 'day'))
+					{
+						return true;
+					}
+					
+					return false;
 				}
 			},
 			

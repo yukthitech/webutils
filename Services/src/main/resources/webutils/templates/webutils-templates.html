@@ -627,7 +627,7 @@
 									</select>
 								</else-if>
 								<else-if test="context.fieldDef.fieldType == 'DATE'">
-									<div class="form-group">
+									<div class="form-group" style="margin-bottom: 0px;">
 										<div class="model-form-date input-group date" yk-date-format="${modelDef.jsDateFormat}">
 											<input type="text" class="form-control"   name="${fieldDef.name}" placeholder="${fieldDef.label}" 
 												ng-model="${modelField}" yk-read-only="${fieldDef.readOnly}" ng-change="${validateFunc}"></input>
@@ -887,6 +887,10 @@
 			context.element.datetimepicker({
 				"format" : dateFormat
 			});
+			
+			context.element.off("dp.change").on("dp.change", $.proxy(function(event){
+				this.element.find("input").trigger("change");
+			}, {"element": context.element, "$scope" : context.$scope}));
 		</script>
 	</attr-directive>
 

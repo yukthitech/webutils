@@ -177,7 +177,6 @@ button.yk-info-close-button:hover
 .model-form-date
 {
 	border: solid 1px rgb(44, 119, 243);
-	height: 2em;
 	border-radius: 0.5em;
 	outline: 0;
 	min-width: 15em;
@@ -188,6 +187,8 @@ button.yk-info-close-button:hover
 {
 	border: none;
 	border-radius: 0.5em;
+	min-width: 10em;
+	height: 2em;
 }
 
 .model-form-date span.input-group-addon
