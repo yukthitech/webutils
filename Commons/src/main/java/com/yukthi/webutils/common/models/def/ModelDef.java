@@ -58,8 +58,15 @@ public class ModelDef
 	 */
 	private String extensionName;
 	
-	/** The date format. */
+	/** 
+	 * The date format to be used by java clients. 
+	 */
 	private String dateFormat;
+	
+	/**
+	 * Date format for Java script based clients
+	 */
+	private String jsDateFormat;
 
 	/**
 	 * Gets the name of the model.
@@ -160,11 +167,11 @@ public class ModelDef
 	{
 		this.extensionName = extensionName;
 	}
-	
+
 	/**
-	 * Gets the date format.
+	 * Gets the  The date format to be used by java clients.
 	 *
-	 * @return the date format
+	 * @return the  The date format to be used by java clients
 	 */
 	public String getDateFormat()
 	{
@@ -172,13 +179,33 @@ public class ModelDef
 	}
 
 	/**
-	 * Sets the date format.
+	 * Sets the  The date format to be used by java clients.
 	 *
-	 * @param dateFormat the new date format
+	 * @param dateFormat the new  The date format to be used by java clients
 	 */
 	public void setDateFormat(String dateFormat)
 	{
 		this.dateFormat = dateFormat;
+	}
+
+	/**
+	 * Gets the date format for Java script based clients.
+	 *
+	 * @return the date format for Java script based clients
+	 */
+	public String getJsDateFormat()
+	{
+		return jsDateFormat;
+	}
+
+	/**
+	 * Sets the date format for Java script based clients.
+	 *
+	 * @param jsDateFormat the new date format for Java script based clients
+	 */
+	public void setJsDateFormat(String jsDateFormat)
+	{
+		this.jsDateFormat = jsDateFormat;
 	}
 
 	/* (non-Javadoc)

@@ -44,6 +44,11 @@ public enum FieldType
 	 */
 	MULTI_LINE_STRING("multiLine"),
 	
+	/**
+	 * Type to be used for password fields
+	 */
+	PASSWORD("password"),
+	
 	INTEGER("int", Integer.class, int.class, Long.class, long.class, Short.class, short.class),
 	
 	FLOAT("float", Float.class, float.class, Double.class, double.class),

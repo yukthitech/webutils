@@ -1,6 +1,6 @@
 $.application.factory('crudController', ["logger", "actionHelper", "utils", "validator", function(logger, actionHelper, utils, validator){
 	var crudController = {
-		"extend" : function($scope, config, name){
+		"extend" : function($scope, config){
 			$scope.name = "" + config.name + $.nextScopeId();
 			
 			$scope.selectedId = null;

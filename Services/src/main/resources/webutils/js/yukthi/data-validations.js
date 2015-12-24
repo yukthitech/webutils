@@ -97,11 +97,11 @@ $.application.factory('validator', ["logger", function(logger){
 						return true;
 					}
 					
-					var pattern = new RegExp(validationDefValues.regexp);
+					var pattern = new RegExp("^" + validationDefValues.regexp + "$");
 					
 					if(!pattern.test(value))
 					{
-						return fals;
+						return false;
 					}
 					
 					return true;
@@ -175,6 +175,11 @@ $.application.factory('validator', ["logger", function(logger){
 				"validate" : function(model, validationDefValues, value) {
 					var otherValue = model[validationDefValues.field];
 					
+					if(!value || !otherValue)
+					{
+						return true;
+					}
+					
 					if(value == otherValue)
 					{
 						return true;
@@ -188,32 +193,64 @@ $.application.factory('validator', ["logger", function(logger){
 			//Date related validations
 			////////////////////////////////////////////////////////////
 			"futureOrToday" :{
-				"validate" : function(model, validationDefValues, value) {
+				"validate" : function(model, validationDefValues, value, modelDef) {
+					if(!value)
+					{
+						return true;
+					}
+					
+					var momentDate = moment("2014-09-15 09:00:00");
+					
 					return true;
 				}
 			},
 			"greaterThanDateField" :{
-				"validate" : function(model, validationDefValues, value) {
+				"validate" : function(model, validationDefValues, value, modelDef) {
+					if(!value)
+					{
+						return true;
+					}
+					
 					return true;
 				}
 			},
 			"greaterThanEqualsDateField" :{
-				"validate" : function(model, validationDefValues, value) {
+				"validate" : function(model, validationDefValues, value, modelDef) {
+					if(!value)
+					{
+						return true;
+					}
+					
 					return true;
 				}
 			},
 			"lessThanDateField" :{
-				"validate" : function(model, validationDefValues, value) {
+				"validate" : function(model, validationDefValues, value, modelDef) {
+					if(!value)
+					{
+						return true;
+					}
+					
 					return true;
 				}
 			},
 			"lessThanEqualsDateField" :{
-				"validate" : function(model, validationDefValues, value) {
+				"validate" : function(model, validationDefValues, value, modelDef) {
+					if(!value)
+					{
+						return true;
+					}
+					
 					return true;
 				}
 			},
 			"pastOrToday" :{
-				"validate" : function(model, validationDefValues, value) {
+				"validate" : function(model, validationDefValues, value, modelDef) {
+					if(!value)
+					{
+						return true;
+					}
+					
 					return true;
 				}
 			},
@@ -224,6 +261,11 @@ $.application.factory('validator', ["logger", function(logger){
 			"greaterThan" :{
 				"validate" : function(model, validationDefValues, value) {
 					var otherValue = model[validationDefValues.field];
+					
+					if(!value || !otherValue)
+					{
+						return true;
+					}
 					
 					if(value <= otherValue)
 					{
@@ -237,6 +279,11 @@ $.application.factory('validator', ["logger", function(logger){
 				"validate" : function(model, validationDefValues, value) {
 					var otherValue = model[validationDefValues.field];
 					
+					if(!value || !otherValue)
+					{
+						return true;
+					}
+					
 					if(value < otherValue)
 					{
 						return false;
@@ -248,6 +295,11 @@ $.application.factory('validator', ["logger", function(logger){
 			"lessThan" :{
 				"validate" : function(model, validationDefValues, value) {
 					var otherValue = model[validationDefValues.field];
+					
+					if(!value || !otherValue)
+					{
+						return true;
+					}
 					
 					if(value >= otherValue)
 					{
@@ -261,6 +313,11 @@ $.application.factory('validator', ["logger", function(logger){
 				"validate" : function(model, validationDefValues, value) {
 					var otherValue = model[validationDefValues.field];
 					
+					if(!value || !otherValue)
+					{
+						return true;
+					}
+					
 					if(value > otherValue)
 					{
 						return false;
@@ -271,6 +328,11 @@ $.application.factory('validator', ["logger", function(logger){
 			},
 			"minValue" :{
 				"validate" : function(model, validationDefValues, value) {
+					if(!value)
+					{
+						return true;
+					}
+					
 					if(value < validationDefValues.value)
 					{
 						return false;
@@ -281,6 +343,11 @@ $.application.factory('validator', ["logger", function(logger){
 			},
 			"maxValue" :{
 				"validate" : function(model, validationDefValues, value) {
+					if(!value)
+					{
+						return true;
+					}
+					
 					if(value > validationDefValues.value)
 					{
 						return false;
@@ -331,7 +398,7 @@ $.application.factory('validator', ["logger", function(logger){
 					}
 					
 					//perform validation. If error found, move on to next field
-					if( !this.validators[validations[j].name].validate(model, validations[j], value) )
+					if( !this.validators[validations[j].name].validate(model, validations[j].values, value, modelDef) )
 					{
 						errors[fields[i].name] = validations[j].errorMessage.replace("${value}", value);
 						noErrorsFound = false;
@@ -339,8 +406,32 @@ $.application.factory('validator', ["logger", function(logger){
 					}
 				}
 			}
-			//TODO: Add validations for extension fields
-				//errors.extendedFields
+			//Add validations for extension fields
+			var fieldDef = null;
+			
+			if(!errors.extendedFields)
+			{
+				errors.extendedFields = {};
+			}
+			
+			for(var extFldName in modelDef.extensionFieldMap)
+			{
+				fieldDef = modelDef.extensionFieldMap[extFldName];
+				value = model.extendedFields[extFldName];
+
+				if(fieldDef.required && !value)
+				{
+					errors.extendedFields[extFldName] = "Value can not be null or empty";
+				}
+				
+				if(fieldDef.type == 'STRING' || fieldDef.type == 'MULTI_LINE_STRING')
+				{
+					if(value.length > fieldDef.maxLength)
+					{
+						errors.extendedFields[extFldName] = "Value length should be less than " + fieldDef.maxLength;
+					}
+				}
+			}
 			
 			return noErrorsFound;
 		},
@@ -373,7 +464,7 @@ $.application.factory('validator', ["logger", function(logger){
 				}
 				
 				//perform validation
-				if( !this.validators[validations[j].name].validate(model, validations[j].values, value) )
+				if( !this.validators[validations[j].name].validate(model, validations[j].values, value, modelDef) )
 				{
 					throw validations[j].errorMessage.replace("${value}", value);
 				}
@@ -381,7 +472,34 @@ $.application.factory('validator', ["logger", function(logger){
 		},
 		
 		"validateExtendedField" : function(model, modelDef, fieldName) {
+			var fieldDef = modelDef.extensionFieldMap[fieldName];
+
+			//if field def is not found
+			if(!fieldDef)
+			{
+				logger.error("No extended field def found with name - {}", fieldName);
+				return;
+			}
 			
+			var value = model.extendedFields[fieldName];
+			
+			if((typeof value) == 'string' && value.length <= 0)
+			{
+				value = null;
+			}
+			
+			if(fieldDef.required && !value)
+			{
+				throw "Value can not be null or empty";
+			}
+			
+			if(fieldDef.type == 'STRING' || fieldDef.type == 'MULTI_LINE_STRING')
+			{
+				if(value.length > fieldDef.maxLength)
+				{
+					throw "Value length should be less than " + fieldDef.maxLength;
+				}
+			}
 		},
 		
 		/**
@@ -427,8 +545,16 @@ $.application.factory('validator', ["logger", function(logger){
 				}
 			}
 			
-			//TODO: Add customizations for extension fields
-				//errors.extendedFields
+			//Add customizations for extension fields
+			for(var extFldName in modelDef.extensionFieldMap)
+			{
+				if(modelDef.extensionFieldMap[extFldName].required)
+				{
+					//% is used to differentiate normal fields from extended fields
+					labelField = containerElement.find("[field-label='%" + fields[i].name + "']");
+					this.validators["required"].customizeUi(labelField);
+				}
+			}
 		}
 	};
 

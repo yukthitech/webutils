@@ -32,6 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.yukthi.persistence.ICrudRepository;
 import com.yukthi.persistence.ITransaction;
 import com.yukthi.persistence.repository.RepositoryFactory;
+import com.yukthi.utils.exceptions.InvalidStateException;
 import com.yukthi.webutils.IEntity;
 import com.yukthi.webutils.common.IExtendableModel;
 import com.yukthi.webutils.repository.ITrackedEntity;
@@ -141,7 +142,13 @@ public abstract class BaseCrudService<E extends IEntity, R extends ICrudReposito
 			//set the default version
 			entity.setVersion(1);
 
-			repository.save(entity);
+			boolean res = repository.save(entity);
+			
+			if(!res)
+			{
+				logger.error("Failed to save entity - {}", entity);
+				throw new InvalidStateException("Failed to save entity");
+			}
 			
 			if(model != null && (model instanceof IExtendableModel))
 			{
@@ -197,7 +204,13 @@ public abstract class BaseCrudService<E extends IEntity, R extends ICrudReposito
 				userService.populateTrackingFieldForUpdate((ITrackedEntity)entity);
 			}
 
-			repository.update(entity);
+			boolean res = repository.update(entity);
+			
+			if(!res)
+			{
+				logger.error("Failed to update entity - {}", entity);
+				throw new InvalidStateException("Failed to update entity");
+			}
 			
 			if(model != null && (model instanceof IExtendableModel))
 			{

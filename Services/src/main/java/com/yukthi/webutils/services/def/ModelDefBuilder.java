@@ -126,6 +126,7 @@ public class ModelDefBuilder
 		
 		modelDef.setFields(fieldDefLst);
 		modelDef.setDateFormat(configuration.getDateFormat().toPattern());
+		modelDef.setJsDateFormat(configuration.getJsDateFormat());
 		
 		return modelDef;
 	}

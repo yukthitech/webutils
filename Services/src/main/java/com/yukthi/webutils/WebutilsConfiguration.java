@@ -31,7 +31,6 @@ import javax.annotation.PostConstruct;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import com.yukthi.webutils.common.IWebUtilsCommonConstants;
 import com.yukthi.webutils.security.UserDetails;
 
 /**
@@ -84,7 +83,12 @@ public class WebutilsConfiguration
 	/**
 	 * Date format to be used for internal data exchange between client and server
 	 */
-	private SimpleDateFormat dateFormat = IWebUtilsCommonConstants.DEFAULT_DATE_FORMAT;
+	private SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+	
+	/**
+	 * Javascript based date format
+	 */
+	private String jsDateFormat = "DD/MM/YYYY";
 	
 	/**
 	 * Validte.
@@ -286,6 +290,26 @@ public class WebutilsConfiguration
 	public void setSessionExpiryInMin(int sessionExpiryInMin)
 	{
 		this.sessionExpiryInMin = sessionExpiryInMin;
+	}
+
+	/**
+	 * Gets the javascript based date format.
+	 *
+	 * @return the javascript based date format
+	 */
+	public String getJsDateFormat()
+	{
+		return jsDateFormat;
+	}
+
+	/**
+	 * Sets the javascript based date format.
+	 *
+	 * @param jsDateFormat the new javascript based date format
+	 */
+	public void setJsDateFormat(String jsDateFormat)
+	{
+		this.jsDateFormat = jsDateFormat;
 	}
 	
 	

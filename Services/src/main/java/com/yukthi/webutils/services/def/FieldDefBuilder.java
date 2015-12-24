@@ -42,6 +42,7 @@ import com.yukthi.webutils.common.annotations.DefaultValue;
 import com.yukthi.webutils.common.annotations.LOV;
 import com.yukthi.webutils.common.annotations.MultilineText;
 import com.yukthi.webutils.common.annotations.NonDisplayable;
+import com.yukthi.webutils.common.annotations.Password;
 import com.yukthi.webutils.common.annotations.ReadOnly;
 import com.yukthi.webutils.common.models.def.FieldDef;
 import com.yukthi.webutils.common.models.def.FieldType;
@@ -239,6 +240,10 @@ public class FieldDefBuilder
 				if(field.getAnnotation(MultilineText.class) != null)
 				{
 					fieldDef.setFieldType(FieldType.MULTI_LINE_STRING);
+				}
+				else if(field.getAnnotation(Password.class) != null)
+				{
+					fieldDef.setFieldType(FieldType.PASSWORD);
 				}
 				else
 				{

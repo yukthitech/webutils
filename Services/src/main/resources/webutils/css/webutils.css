@@ -173,3 +173,27 @@ button.yk-info-close-button:hover
 	color: red;
 	font: bold 10px "Times New Roman", Times, serif;
 }
+
+.model-form-date
+{
+	border: solid 1px rgb(44, 119, 243);
+	height: 2em;
+	border-radius: 0.5em;
+	outline: 0;
+	min-width: 15em;
+	border-right: none;
+}
+
+.model-form-date input
+{
+	border: none;
+	border-radius: 0.5em;
+}
+
+.model-form-date span.input-group-addon
+{
+	border: solid 1px rgb(44, 119, 243);
+	border-radius: 0.5em;
+}
+
+

@@ -76,7 +76,7 @@ public class ExtensionFieldModel
 	 * Name of the field. Used for internal purposes to refer to field value
 	 */
 	@NotEmpty
-	@Pattern(regexp = "\\w+")
+	@Pattern(regexp = "\\w+", message = "Should be only apha numeric")
 	@MinLen(3)
 	@MaxLen(50)
 	private String name;
@@ -394,7 +394,7 @@ public class ExtensionFieldModel
 	{
 		this.version = version;
 	}
-
+	
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */

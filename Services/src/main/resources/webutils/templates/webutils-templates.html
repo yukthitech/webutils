@@ -574,20 +574,23 @@
 				{
 					context["extended"] = "true";
 					context["validateFunc"] = "validateExtendedField('" + name + "', '" + modelPrefix + "')";
+					context["fieldLabel"] = "%" + fieldDef.name;
 				}
 				else
 				{
 					context["validateFunc"] = "validateField('" + name + "', '" + modelPrefix + "')";
+					context["fieldLabel"] = fieldDef.name;
 				}
 				
 				context["fieldDef"] = fieldDef;
+				context["modelDef"] = modelDef;
 			</exe-script>
 			
 			<div style="display: inline-block; vertical-align: top; width: ${element.attr('full-width')}; ${element.attr('element-style')}">
 				<table style="width: 100%;border-collapse: collapse;border-spacing: 0px;">
 					<tr>
 						<td style="vertical-align: top; padding: 0px; width: ${element.attr('label-width')}; min-width: ${element.attr('label-width')}; " 
-								yk-hide-from="xs" class="yk-field-label" field-label="${fieldDef.name}">
+								yk-hide-from="xs" class="yk-field-label" field-label="${fieldLabel}">
 							${fieldDef.label}
 						</td>
 						<td style="padding: 0px;">
@@ -599,6 +602,10 @@
 								<else-if test="context.fieldDef.fieldType == 'MULTI_LINE_STRING'">
 									<textarea name="${fieldDef.name}" placeholder="${fieldDef.label}" ng-model="${modelField}" 
 											yk-read-only="${fieldDef.readOnly}" style="height: 4em;" ng-change="${validateFunc}"></textarea>
+								</else-if>
+								<else-if test="context.fieldDef.fieldType == 'PASSWORD'">
+									<input type="password" name="${fieldDef.name}" placeholder="${fieldDef.label}" ng-model="${modelField}"  
+										yk-read-only="${fieldDef.readOnly}" ng-change="${validateFunc}"></input>
 								</else-if>
 								<else-if test="context.fieldDef.fieldType == 'INTEGER'">
 									<input type="number" name="${fieldDef.name}" placeholder="${fieldDef.label}" ng-model="${modelField}"  
@@ -616,8 +623,15 @@
 									</select>
 								</else-if>
 								<else-if test="context.fieldDef.fieldType == 'DATE'">
-									<input type="text" name="${fieldDef.name}" placeholder="${fieldDef.label}" 
-										ng-model="${modelField}" yk-read-only="${fieldDef.readOnly}" ng-change="${validateFunc}"></input>
+									<div class="form-group">
+										<div class="model-form-date input-group date" yk-date-format="${modelDef.jsDateFormat}">
+											<input type="text" class="form-control"   name="${fieldDef.name}" placeholder="${fieldDef.label}" 
+												ng-model="${modelField}" yk-read-only="${fieldDef.readOnly}" ng-change="${validateFunc}"></input>
+											<span class="input-group-addon">
+												<span class="glyphicon glyphicon-calendar"></span>
+											</span>
+										</div>
+									</div>								
 								</else-if>
 								<else-if test="context.fieldDef.fieldType == 'LIST_OF_VALUES'">
 									<if test="context.extended == 'true'">
@@ -856,6 +870,19 @@
 		<script>
 			var bindExpr = context.attributeValue;
 			context.element.attr("ng-bind", bindExpr);
+		</script>
+	</attr-directive>
+
+	<!--
+		Invokes the date-time-picker data function on target element
+		with specified date format value 
+	 -->	
+	<attr-directive name="ykDateFormat">
+		<script>
+			var dateFormat = context.attributeValue;
+			context.element.datetimepicker({
+				"format" : dateFormat
+			});
 		</script>
 	</attr-directive>
 
