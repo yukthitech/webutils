@@ -26,6 +26,7 @@ package com.yukthi.webutils.services;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -104,6 +105,15 @@ public class FileService
 	 */
 	private void saveFileForOwner(FileInfo fileInfo, Class<?> ownerEntityType, String ownerField, long ownerId)
 	{
+		//if field value is null, assume existing file needs to be deleted
+		if(fileInfo == null)
+		{
+			logger.trace("As field value is null, deleting associated filed for field - [Owner Type: {}, Field: {}, Owner Id: {}]", 
+					ownerEntityType.getName(), ownerField, ownerId);
+			this.delete(ownerEntityType, ownerField, ownerId);
+			return;
+		}
+		
 		//if no new file is specified, retain existing file (though id is changed it will be ignored
 			//	 as id change is not expected from client)
 		if(fileInfo.getFile() == null)
@@ -209,16 +219,18 @@ public class FileService
 					throw new InvalidStateException(ex, "An error occurred while fetching file information from field - {}.{}", model.getClass().getName(), fieldDef.getName());
 				}
 				
-				if(fieldValue == null)
-				{
-					continue;
-				}
-				
 				logger.debug("Saving file(s) specified on model field - {}.{}", model.getClass().getName(), field.getName()); 
 				
 				//save file informations
-				if(fieldValue instanceof Collection)
+				if(fieldDef.isMultiValued())
 				{
+					//if null is specified on the field, assume all existing files has to be deleted
+						// and empty collection needs to be retained
+					if(fieldValue == null)
+					{
+						fieldValue = Collections.emptyList();
+					}
+					
 					saveFilesForOwner( (Collection<FileInfo>)fieldValue, entityType, fieldDef.getName(), ownerId);
 				}
 				else

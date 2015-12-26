@@ -13,6 +13,13 @@
 	</properties>
 
 	<dependencies>
+		<!-- Tika is used to fetch mime types of files -->
+		<dependency>
+			<groupId>org.apache.tika</groupId>
+			<artifactId>tika-core</artifactId>
+			<version>1.11</version>
+		</dependency>
+
 		<dependency>
 			<groupId>com.yukthi</groupId>
 			<artifactId>yukthi-utils</artifactId>

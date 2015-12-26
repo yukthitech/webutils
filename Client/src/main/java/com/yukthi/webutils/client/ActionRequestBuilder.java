@@ -23,13 +23,26 @@
 
 package com.yukthi.webutils.client;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.tika.Tika;
+
+import com.yukthi.utils.exceptions.InvalidStateException;
 import com.yukthi.utils.rest.DeleteRestRequest;
 import com.yukthi.utils.rest.GetRestRequest;
 import com.yukthi.utils.rest.PostRestRequest;
 import com.yukthi.utils.rest.RestRequest;
+import com.yukthi.webutils.common.FileInfo;
 import com.yukthi.webutils.common.HttpMethod;
+import com.yukthi.webutils.common.IWebUtilsCommonConstants;
 import com.yukthi.webutils.common.models.ActionModel;
 
 /**
@@ -38,6 +51,70 @@ import com.yukthi.webutils.common.models.ActionModel;
  */
 public class ActionRequestBuilder
 {
+	private static Logger logger = LogManager.getLogger(ActionRequestBuilder.class);
+	
+	private static final Tika tika = new Tika();
+	
+	/**
+	 * Process each file field. Removes files from fields and add them as attachments (multi parts) to request
+	 * @param requestEntity
+	 * @param field
+	 * @param fileMap
+	 * @throws Exception
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private static void processFileField(Object requestEntity, String field, IdentityHashMap<String, File> fileMap) throws Exception
+	{
+		Object fileFieldValue = PropertyUtils.getProperty(requestEntity, field);
+		
+		//if field value is null, ignore
+		if(fileFieldValue == null)
+		{
+			return;
+		}
+		
+		//if file is single valued
+		if(fileFieldValue instanceof FileInfo)
+		{
+			FileInfo fileInfo = (FileInfo)fileFieldValue;
+			
+			//if file info is meta info only (no file), ignore
+			if(fileInfo.getFile() == null)
+			{
+				return;
+			}
+			
+			//remove file from field and add it as attachment to request
+			fileMap.put(new String(field), fileInfo.getFile());
+			PropertyUtils.setProperty(requestEntity, field, null);
+		}
+		//if field is multi file valued
+		else
+		{
+			List<FileInfo> fileInfoLst = (List)fileFieldValue;
+			List<FileInfo> newFileInfoLst = new ArrayList<>();
+			
+			for(FileInfo fileInfoObj : fileInfoLst)
+			{
+				//if file info is meta info only (no file), ignore
+				if(fileInfoObj.getFile() == null)
+				{
+					newFileInfoLst.add(fileInfoObj);
+					continue;
+				}
+			
+				fileMap.put(new String(field), fileInfoObj.getFile());
+			}
+			
+			if(newFileInfoLst.isEmpty())
+			{
+				newFileInfoLst = null;
+			}
+			
+			PropertyUtils.setProperty(requestEntity, field, newFileInfoLst);
+		}
+	}
+	
 	/**
 	 * Builds REST request for specified action and add request parameters and entity as required.
 	 * @param context Context used to fetch action details
@@ -48,6 +125,8 @@ public class ActionRequestBuilder
 	 */
 	public static RestRequest<?> buildRequest(ClientContext context, String action, Object requestEntity, Map<String, ? extends Object> parameters)
 	{
+		logger.trace("Building request object for action - {}", action);
+		
 		ActionModel actionModel = context.getAction(action);
 		
 		if(actionModel == null)
@@ -71,7 +150,50 @@ public class ActionRequestBuilder
 		{
 			//build POST request
 			PostRestRequest postRequest = new PostRestRequest(actionModel.getUrl());
-			postRequest.setJsonBody(requestEntity);
+			
+			//if attachments are expected
+			if(actionModel.isAttachmentsExpected())
+			{
+				logger.trace("Found files on action request entity. Building multi part request. Action - {}", action);
+				
+				//build multi part request
+				postRequest.setMultipartRequest(true);
+				Set<String> fileFields = actionModel.getFileFields();
+				IdentityHashMap<String, File> attachments = new IdentityHashMap<>();
+				File file = null;
+				
+				//process each file field 
+				for(String field : fileFields)
+				{
+					try
+					{
+						processFileField(requestEntity, field, attachments);
+					}catch(Exception ex)
+					{
+						throw new InvalidStateException(ex, "An error occurred while processing file field - {}", field);
+					}
+				}
+				
+				postRequest.addJsonPart(IWebUtilsCommonConstants.MULTIPART_DEFAULT_PART, requestEntity);
+				
+				for(String field : attachments.keySet())
+				{
+					file = attachments.get(field);
+					
+					try
+					{
+						postRequest.addAttachment(field, file, tika.detect(file));
+					}catch(Exception ex)
+					{
+						logger.info("An error occurred while fetching content type of file - {}", file.getPath());
+						postRequest.addAttachment(field, file, "application/octet-stream");
+					}
+				}
+			}
+			else
+			{
+				postRequest.setJsonBody(requestEntity);
+			}
 			
 			request = postRequest;
 		}
