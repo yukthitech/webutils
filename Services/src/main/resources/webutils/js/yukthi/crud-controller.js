@@ -39,35 +39,39 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 				
 				var readResponse = null;
 				
+				//callback method, to be called after model is read from server
+				var editCallback = $.proxy(function(readResponse, respConfig) {
+					if(!readResponse || readResponse.code != 0 || !readResponse.model)
+					{
+						this.logger.error("Failed to read {} with id - {}", this.$scope.crudConfig.name, this.$scope.selectedId);
+						this.utils.alert(["Failed to read {} with id - {}", this.$scope.crudConfig.name, this.$scope.selectedId]);
+						return;
+					}
+					
+					this.$scope.newModelMode = false;
+					
+					this.$scope.model = readResponse.model;
+					this.$scope.$digest();
+					
+					$("#" + this.$scope.crudConfig.modelDailogId + " [yk-read-only='true']").prop('disabled', true);
+
+					$('#' + this.$scope.crudConfig.modelDailogId).modal({
+						  show: true
+					});
+				}, {"$scope": $scope, "logger": logger, "utils": utils});
+				
 				//if read operator is specified, use the same
 				if($scope.crudConfig.readOp)
 				{
-					readResponse = $scope.crudConfig.readOp($scope, actionHelper);
+					$scope.crudConfig.readOp($scope, actionHelper, editCallback);
 				}
 				//if read op is not specified, invoke read action
 				else
 				{
 					readResponse = actionHelper.invokeAction($scope.crudConfig.readAction, null, {
 						"id": $scope.selectedId
-					});
+					}, editCallback);
 				}
-				
-				if(!readResponse || readResponse.code != 0 || !readResponse.model)
-				{
-					logger.error("Failed to read {} with id - {}", $scope.crudConfig.name, $scope.selectedId);
-					utils.alert(["Failed to read {} with id - {}", $scope.crudConfig.name, $scope.selectedId]);
-					return;
-				}
-				
-				$scope.newModelMode = false;
-				
-				$scope.model = readResponse.model;
-				
-				$("#" + $scope.crudConfig.modelDailogId + " [yk-read-only='true']").prop('disabled', true);
-
-				$('#' + $scope.crudConfig.modelDailogId).modal({
-					  show: true
-				});
 			};
 
 			$scope.deleteEntry = function(e) {
@@ -81,34 +85,36 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 						return;
 					}
 					
-					var baseResponse = null;
+					var deleteCallback = $.proxy(function(baseResponse, respConfig) {
+						if(!baseResponse || baseResponse.code != 0)
+						{
+							this.logger.error("An error occurred while deleting {} - {}. Server Error - {}", 
+									this.$scope.crudConfig.name, this.selectedName, baseResonse.message);
+							this.utils.alert(["An error occurred while deleting {} - {}. <BR/>Server Error - {}", 
+							        this.$scope.crudConfig.name, this.selectedName, baseResonse.message]);
+							return;
+						}
+
+						this.$scope.$broadcast("rowsModified");
+						
+						this.logger.trace("Successfully deleted {} '{}'", this.$scope.crudConfig.name, this.selectedName);
+						this.utils.info(["Successfully deleted {} '{}'", this.$scope.crudConfig.name, this.selectedName]);
+					}, {"$scope": this.$scope, "selectedName": this.$scope.selectedName, 
+						"selectedId": this.$scope.selectedId, "logger": this.logger, "utils": this.utils});
 					
 					//if explicit delete operator is specified, use the same
 					if(this.$scope.crudConfig.deleteOp)
 					{
-						baseResponse = this.$scope.crudConfig.deleteOp(this.$scope, actionHelper);
+						 this.$scope.crudConfig.deleteOp(this.$scope, actionHelper, deleteCallback);
 					}
 					//if delete op is not specified, invoke delete action
 					else
 					{
-						baseResponse = actionHelper.invokeAction(this.$scope.crudConfig.deleteAction, null, {
+						actionHelper.invokeAction(this.$scope.crudConfig.deleteAction, null, {
 							"id": this.selectedId
-						});
+						}, deleteCallback);
 					}
 					
-					if(!baseResponse || baseResponse.code != 0)
-					{
-						this.logger.error("An error occurred while deleting {} - {}. Server Error - {}", 
-								this.$scope.crudConfig.name, this.selectedName, baseResonse.message);
-						this.utils.alert(["An error occurred while deleting {} - {}. <BR/>Server Error - {}", 
-						        this.$scope.crudConfig.name, this.selectedName, baseResonse.message]);
-						return;
-					}
-					
-					this.$scope.$broadcast("rowsModified");
-					
-					this.logger.trace("Successfully deleted {} '{}'", this.$scope.crudConfig.name, this.selectedName);
-					this.utils.info(["Successfully deleted {} '{}'", this.$scope.crudConfig.name, this.selectedName]);
 				}, {"$scope": $scope, "selectedName": $scope.selectedName, "selectedId": $scope.selectedId, "logger": logger, "utils": utils});
 				
 				utils.confirm(["Are you sure you want to delete {} '{}' ?", $scope.crudConfig.name, $scope.selectedName], deleteOp);
@@ -137,85 +143,76 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 			$scope.saveChanges = function(e) {
 				logger.trace("{} save is called", $scope.crudConfig.name);
 				
-				try
+				$scope.initErrors();
+				
+				if(!validator.validateModel($scope.model, $scope.modelDef, $scope.errors.model))
 				{
-					$scope.initErrors();
+					utils.alert("Please correct the errors and then try!", function(){
+						$('body').addClass('modal-open');
+					});
 					
-					if(!validator.validateModel($scope.model, $scope.modelDef, $scope.errors.model))
+					return;
+				}
+				
+				//if validate operator is configured
+				if($scope.crudConfig.validateOp)
+				{
+					//invoke model specific validations
+					var errors = $scope.crudConfig.validateOp($scope.model, $scope);
+					
+					//if errors are found, update error model and return
+					if(errors && errors.length > 0)
 					{
+						for(var i = 0; i < errors.length; i++)
+						{
+							$scope.errors.model[errors[i].field] = errors[i].message; 
+						}
+						
 						utils.alert("Please correct the errors and then try!", function(){
 							$('body').addClass('modal-open');
 						});
 						
 						return;
 					}
-					
-					//if validate operator is configured
-					if($scope.crudConfig.validateOp)
-					{
-						//invoke model specific validations
-						var errors = $scope.crudConfig.validateOp($scope.model, $scope);
-						
-						//if errors are found, update error model and return
-						if(errors && errors.length > 0)
-						{
-							for(var i = 0; i < errors.length; i++)
-							{
-								$scope.errors.model[errors[i].field] = errors[i].message; 
-							}
-							
-							utils.alert("Please correct the errors and then try!", function(){
-								$('body').addClass('modal-open');
-							});
-							
-							return;
-						}
-					}
-					
-					var response = null;
-					
-					if($scope.newModelMode)
-					{
-						response = actionHelper.invokeAction($scope.crudConfig.saveAction, $scope.model);
-					}
-					else
-					{
-						response = actionHelper.invokeAction($scope.crudConfig.updateAction, $scope.model);
-					}
-					
-					$('#' + $scope.crudConfig.modelDailogId).modal('hide');
+				}
+				
+				var saveCallback = $.proxy(function(response, respConfig) {
+					$('#' + this.$scope.crudConfig.modelDailogId).modal('hide');
 
 					if(response.code == 0)
 					{
-						$scope.$broadcast("rowsModified");
+						this.$scope.$broadcast("rowsModified");
 					
-						if($scope.newModelMode)
+						if(this.$scope.newModelMode)
 						{
-							logger.trace("{} is saved successfully!!", $scope.crudConfig.name);
-							utils.info(["{} is saved successfully!!", $scope.crudConfig.name]);
+							this.logger.trace("{} is saved successfully!!", this.$scope.crudConfig.name);
+							this.utils.info(["{} is saved successfully!!", this.$scope.crudConfig.name]);
 						}
 						else
 						{
-							logger.trace("{} is updated successfully!!", $scope.crudConfig.name);
-							utils.info(["{} is updated successfully!!", $scope.crudConfig.name]);
+							this.logger.trace("{} is updated successfully!!", this.$scope.crudConfig.name);
+							this.utils.info(["{} is updated successfully!!", this.$scope.crudConfig.name]);
 						}
 					}
 					else
 					{
-						logger.error("Failed to save changes.<BR/>ServerError: {}", response.message);
-						utils.alert(["Failed to save changes.<BR/>ServerError: {}", response.message]);
-					}
-				}catch(ex)
-				{
-					if(ex.message)
-					{
-						logger.error("An error occurred while saving extension field.<BR/>Server Error: {}", ex.message);
-						utils.alert(["An error occurred while saving extension field.<BR/>Server Error: {}", ex.message]);
-						return;
+						var op = this.$scope.newModelMode ? "Save" : "Update";
+						
+						this.logger.error("Failed to {} changes.<BR/>ServerError: {}", op, response.message);
+						this.utils.alert(["Failed to {} changes.<BR/>ServerError: {}", op, response.message], $.proxy(function(){
+							$('#' + this.$scope.crudConfig.modelDailogId).modal('show');
+						}, this));
 					}
 					
-					logger.error("An error occurred while saving extension field.<BR/>Server Error: {}", ex);
-					utils.alert(["An error occurred while saving extension field.<BR/>Server Error: {}", ex]);
+				}, {"$scope": $scope, "logger": logger, "utils": utils});
+				
+				if($scope.newModelMode)
+				{
+					actionHelper.invokeAction($scope.crudConfig.saveAction, $scope.model, null, saveCallback);
+				}
+				else
+				{
+					actionHelper.invokeAction($scope.crudConfig.updateAction, $scope.model, null, saveCallback);
 				}
 			};
 			

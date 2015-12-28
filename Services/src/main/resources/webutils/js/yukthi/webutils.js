@@ -5,6 +5,7 @@ var URL_PARAM_PATTERN = /\{(\w+)\}/g;
 var ALERTS_DLG_ID = "webutilsAlertDialog";
 var CONFIRM_DLG_ID = "webutilsConfirmDialog";
 var INFO_BOX_ID = "webutilsInfoBox";
+var IN_PRGORESS_DLG_ID = "webutilsInProgressDialog";
 
 $.currentScopeId = 0;
 
@@ -72,7 +73,7 @@ $.application.factory('utils', [function(){
 		"callback": null,
 		"firstAlert": true,
 		"firstConfirm": true,
-		
+
 		"format": function(message, args, argIdx) {
 			
 			var idx = (argIdx == null || argIdx == undefined) ? 1 : argIdx;
@@ -166,7 +167,75 @@ $.application.factory('utils', [function(){
 				
 				this.firstConfirm = false;
 			}
-		}
+		},
+		
+		"displayInProgress" : function() {
+			$('#' + IN_PRGORESS_DLG_ID).modal('show');
+		},
+
+		"hideInProgress" : function() {
+			$('#' + IN_PRGORESS_DLG_ID).modal('hide');
+		},
+
+		/**
+		 * Executes list of function specified by "functionLst" in a sequential order. During every function call
+		 * a callback method is passed, which needs to be invoked by the executing function at end, to execute the next
+		 * step function in the flow. If callback method is invoked with arguments, those arguments are passed to next method
+		 * from second argument.
+		 * 
+		 * This helps greatly in executing ajax based functions in sequential order.
+		 * 
+		 * As a first argument a context is accepted. All the functions are executed as part of the same context. So that data
+		 * can be shared between the functions using simple "this."
+		 */
+		"executeAsyncSteps" : function(context, functionLst) {
+			
+			//if context is not defined, use empty object
+			if(!context)
+			{
+				context = {};
+			}
+			
+			var invokeContext = {
+				"context": context, 
+				"functionLst": functionLst, 
+				"index": -1, 
+			};
+			
+			var invokeNextFunction = $.proxy(function() {
+				this.index++;
+				
+				if(this.index >= functionLst.length)
+				{
+					return;
+				}
+				
+				//wrap the target function using proxy, under specified context
+				var func = $.proxy(this.functionLst[this.index], this.context);
+				
+				//build function invocation script which flattens current method arguments
+					// into secondary arguments
+				var funcInvokeStr = 'func(this.invokeNextFunction';
+				
+				if(arguments && arguments.length > 0)
+				{
+					for(var i = 0; i < arguments.length; i++)
+					{
+						funcInvokeStr += ", arguments[" + i + "]";
+					}
+				}
+				
+				funcInvokeStr += ")";
+				
+				//execute function invocation string
+				eval(funcInvokeStr);
+			}, invokeContext);
+			
+			invokeContext.invokeNextFunction = invokeNextFunction;
+			
+			//invoke first function
+			invokeNextFunction();
+		},
 	};
 
 	return utils;
@@ -238,7 +307,7 @@ $.application.factory('logger', ["utils", function(utils){
  * This service provides context behaviour for APIs. Maintains the context
  * across the api calls on client side.
  */
-$.application.factory('clientContext', ['logger', function(logger) {
+$.application.factory('clientContext', ['logger', 'utils', function(logger, utils) {
 	var clientContext = {
 		/**
 		 * Maintains the auth token that needs to be sent to server
@@ -264,10 +333,11 @@ $.application.factory('clientContext', ['logger', function(logger) {
 			return (this.authToken != null);
 		},
 		
-		"invokeApi" : function(url, data, config) {
+		"invokeApi" : function(url, data, config, callback) {
 			var methodType = (config && config.methodType)? config.methodType: "POST";
 			var contentType = (config && config.contentType)? config.contentType : 'application/x-www-form-urlencoded; charset=UTF-8';
 			var processData = undefined;
+			var asynchronous = (config && (config.async == false))? false : true;
 			
 			//set headers as required for attachments
 			if(config.multipart)
@@ -283,12 +353,18 @@ $.application.factory('clientContext', ['logger', function(logger) {
 				headers["AUTH_TOKEN"] = this.authToken;
 			}
 			
+			var currentContext = this;
+			
 			var result = {
 				"data" : null,
 				status : null,
 				error: null,
 				backgroundApi : (config && config.backgroundApi),
-				newAuthToken : null
+				newAuthToken : null,
+				clientContext : currentContext,
+				"callback": callback,
+				
+				"utils": utils,
 			};
 			
 			$.ajax({
@@ -296,81 +372,83 @@ $.application.factory('clientContext', ['logger', function(logger) {
 				  dataType: 'json',
 				  url: url,
 				  data: data,
-				  async: false,
+				  async: asynchronous,
 				  cache: false,
 				  "contentType": contentType,
 				  "processData": processData,
 				  "headers": headers,
 				  
 				  success: $.proxy(function(resData, textStatus, jqXHR){
-					  this.data = resData;
-					  this.status = jqXHR.statusCode().status;
-					  
-					  //if this is a normal api (not part of background api), then only
-					  	//save updated auth header
-					  if(!this.backgroundApi)
-					  {
-						  this.newAuthToken = jqXHR.getResponseHeader("AUTH_TOKEN");
-					  }
+						//if this is a normal api (not part of background api), then only
+					  		//save updated auth header
+						if(!this.backgroundApi)
+						{
+							var newAuthToken = jqXHR.getResponseHeader("AUTH_TOKEN");
+							
+							if(newAuthToken && newAuthToken != this.clientContext.authToken)
+							{
+								logger.debug("New auth token recieved");
+								this.clientContext.authToken = newAuthToken;
+								localStorage.setItem("authToken", newAuthToken);
+							}
+						}
+						
+						this.callback(resData, {
+							"statusCode": jqXHR.statusCode().status,
+							"success" : true,
+							"error": false,
+							"responseCode": resData.code
+						});
 					  
 				  }, result),
 				  
 				  error: $.proxy(function(jqXHR, textStatus, errorThrown){
-					  var resData = null;
+					var resData = null;
 					  
-					  try
-					  {
-						  resData = $.parseJSON(jqXHR.responseText);
-						  logger.error("Got error as - {}", resData);
-					  }catch(ex)
-					  {
-						  logger.error("Failed to parsed error response text.- {}", ex);
-						  logger.error("Error Response text: " + jqXHR.responseText);
-					  }
-					
-					  this.data = resData;
-					  this.status = jqXHR.statusCode().status;
-					  this.error = errorThrown;
-				  }, result)
-			});
-			
-			if(result.status)
-			{
-				if(result.newAuthToken && result.newAuthToken != this.authToken)
-				{
-					logger.debug("New auth token recieved");
-					this.authToken = result.newAuthToken;
-					localStorage.setItem("authToken", this.authToken);
-				}
-				
-				if(result.status >= 200 && result.status <= 300)
-				{
-					return result.data;
-				}
-				else
-				{
-					//when session is timed out or expired, redirect to login page
-					if(result.data && result.data.code == 4403)
+					try
 					{
-						this.discardSession("Session timed out");
-						this.redirectToLogin();
+						resData = $.parseJSON(jqXHR.responseText);
+						logger.error("Got error as - {}", resData);
+					}catch(ex)
+					{
+						logger.error("Failed to parsed error response text as json. Error - {}", ex);
+						logger.error("Error Response text: " + jqXHR.responseText);
+						
+						this.callback(null, {
+							"statusCode": jqXHR.statusCode().status,
+							"success" : false,
+							"error": true,
+							"responseCode": -1
+						});
+						
+						return;
+					}
+					
+					try
+					{
+						this.callback(resData, {
+							"statusCode": jqXHR.statusCode().status,
+							"success" : false,
+							"error": true,
+							"responseCode": resData.code
+						});
+					}catch(ex) 
+					{
+						logger.error("An error occurred while calling AJAX callback method - {}", ex);
+						logger.error(ex);
+					}
+					
+					var status = jqXHR.statusCode().status;
+						
+					//when session is timed out or expired, redirect to login page
+					if(resData && resData.code == 4403)
+					{
+						this.clientContext.discardSession("Session timed out");
+						this.clientContext.redirectToLogin();
 						return null;
 					}
-					
-					//if server has responded with some error throw the same
-					if(result.data)
-					{
-						throw result.data;
-					}
-					
-					throw result;
-				}
-			}
-			else
-			{
-				//for async call result will not be set
-				throw {code: 0, message: "Failed to communicate with server"};
-			}
+				}, result)
+			});
 		},
 		
 		/**
@@ -379,11 +457,15 @@ $.application.factory('clientContext', ['logger', function(logger) {
 		 * @param url Url to be invoked
 		 * @param paramsObj params for invocation
 		 */
-		"invokeGetApi" : function(url, paramsObj) {
+		"invokeGetApi" : function(url, paramsObj, callback, config) {
 			var apiRes = this.invokeApi(
 				url, 
 				paramsObj, 
-				{"methodType": "GET"}
+				{
+					"methodType": "GET", 
+					"async": (config && (config.async == false)) ? false : true
+				},
+				callback
 			);
 					
 			return apiRes;
@@ -395,11 +477,15 @@ $.application.factory('clientContext', ['logger', function(logger) {
 		 * @param url Url to be invoked
 		 * @param paramsObj params for invocation
 		 */
-		"invokeDeleteApi" : function(url, paramsObj) {
+		"invokeDeleteApi" : function(url, paramsObj, callback, config) {
 			var apiRes = this.invokeApi(
 				url, 
 				paramsObj, 
-				{"methodType": "DELETE"}
+				{
+					"methodType": "DELETE", 
+					"async": (config && (config.async == false)) ? false : true
+				},
+				callback
 			);
 					
 			return apiRes;
@@ -411,13 +497,18 @@ $.application.factory('clientContext', ['logger', function(logger) {
 		 * @param url url to be invoked
 		 * @param requestObj Request to be sent
 		 */
-		"invokePostApi" : function(url, requestObj) {
+		"invokePostApi" : function(url, requestObj, callback, config) {
 			var requestBody = requestObj ? JSON.stringify(requestObj) : null;
 			
 			var apiRes = this.invokeApi(
 				url, 
 				requestBody, 
-				{"methodType": "POST", "contentType" : "application/json"}
+				{
+					"methodType": "POST", 
+					"contentType" : "application/json", 
+					"async": (config && (config.async == false)) ? false : true
+				},
+				callback
 			);
 					
 			return apiRes;
@@ -442,35 +533,41 @@ $.application.factory('clientContext', ['logger', function(logger) {
     			throw "Please provide valid password and then try!";
     		}
     		
-    		//invoke auth api
-    		var authResponse = null;
+    		var clientContext = this;
+    		var error = null;
     		
-    		try
+    		this.invokePostApi(
+				$.appConfiguration.apiBaseUrl + LOGIN_URI,
+				{"userName":  userName, "password": password},
+				
+				function(resData, config) {
+					
+					//if authentication error occurs
+	    			if(config.responseCode == 4401)
+	    			{
+	    				error = "Authentication failed!\nPlease check your user name and password";
+	    				return;
+	    			}
+	    			
+	    			if(config.responseCode != 0)
+	    			{
+	    				error = "Authentication failed!\nError: " + resData.message;
+	    				return;
+	    			}
+	    			
+	    			//store the auth token in local storage, so that token is available
+					// across page refreshes
+					localStorage.setItem("authToken", resData.authToken);
+					clientContext.authToken = authResponse.authToken;
+				},
+				
+				{"async": false}
+    		);
+    		
+    		if(error)
     		{
-	    		authResponse = this.invokePostApi($.appConfiguration.apiBaseUrl + LOGIN_URI,
-	    				{"userName":  userName, "password": password}
-	    		);
-    		}catch(ex)
-    		{
-    			if(ex.code == 4401)
-    			{
-    				throw "Authentication failed!\nPlease check your user name and password";
-    			}
-    			
-    			logger.error(ex);
-    			throw "Authentication failed!\nAn error occurred while communicating with server!";
+    			throw error;
     		}
-    		
-    		//if api invocation resulted in error
-			if(authResponse.code != 0)
-			{
-    			throw "Authentication failed!\nError: " + authResponse.value.message;
-			}
-			
-			//store the auth token in local storage, so that token is available
-				// across page refreshes
-			localStorage.setItem("authToken", authResponse.authToken);
-			this.authToken = authResponse.authToken;
 		},
 		
 		/**
@@ -480,24 +577,27 @@ $.application.factory('clientContext', ['logger', function(logger) {
 		"fetchActions" : function() {
     		var actionsResponse = null;
     		
-    		try
-    		{
-    			actionsResponse = this.invokeGetApi($.appConfiguration.apiBaseUrl + ACTIONS_URI);
-    		}catch(ex)
-    		{
-    			logger.error("An error occurred while fetching actions- " + ex);
-    			logger.error(ex);
-    			return;
-    		}
-    		
-    		//if api invocation resulted in error
-			if(actionsResponse.code != 0)
-			{
-    			throw "Failed to fetch actions!\nError: " + actionsResponse.value.message;
-			}
+    		this.invokeGetApi(
+    			$.appConfiguration.apiBaseUrl + ACTIONS_URI,
+    			null,
+    			
+    			function(resData, config) {
+    	    		//if api invocation resulted in error
+    				if(config.responseCode != 0)
+    				{
+    	    			throw "Failed to fetch actions!\nError: " + resData.message;
+    				}
+    				
+    				actionsResponse = resData;
+    			},
+    			
+    			{"async" : false}
+    		);
 			
 			//load the actions from response on to actions map
 			this.actionsMap = {};
+			
+			logger.debug("Got actions of length - {}", actionsResponse.actions.length);
 			
 			for(var i = 0; i < actionsResponse.actions.length; i++)
 			{
@@ -535,33 +635,6 @@ $.application.factory('clientContext', ['logger', function(logger) {
 			this.authToken = null;
 			localStorage.removeItem("authToken");
 		},
-
-		/*
-		"addScript" : function(path) {
-			
-			//check if specified script is already added
-			if(this.scriptsAdded.indexOf(path) >= 0)
-			{
-				logger.log("Specified script is already part of context. Ignoring add script request - " + path);
-				return;
-			}
-			
-			var sucessFunc = $.proxy(function(){
-				//add script entry to context
-				this.scriptsAdded[this.scriptsAdded.length] = path;
-				console.log("Added dynamic script - " + path);
-			}, this);
-			
-			console.log("Loading script: " + path);
-			//load the script
-			$.ajax({
-				  url: path,
-				  dataType: 'script',
-				  success: sucessFunc,
-				  async: false
-			});
-		}
-		*/
 	};
 	
 	var tokenFromStorage = localStorage.authToken;
@@ -590,7 +663,7 @@ $.application.factory('actionHelper', ['clientContext', function(clientContext){
 		 * Invokes specified action with specified entity and params. For actions based on
 		 * GET requestEntity will not be considered
 		 */
-		"invokeAction" : function(actionName, requestEntity, params) {
+		"invokeAction" : function(actionName, requestEntity, params, callback) {
 			var action = this.clientContext.getAction(actionName);
 			
 			if(!action)
@@ -743,17 +816,17 @@ $.application.factory('actionHelper', ['clientContext', function(clientContext){
 			//invoke the target api url based on action method
 			if(action.method == 'GET')
 			{
-				return this.clientContext.invokeGetApi(actionUrl, params);
+				return this.clientContext.invokeGetApi(actionUrl, params, callback);
 			}
 			else if(action.method == 'DELETE')
 			{
-				return this.clientContext.invokeDeleteApi(actionUrl, params);
+				return this.clientContext.invokeDeleteApi(actionUrl, params, callback);
 			}
 			else
 			{
 				if(!action.attachmentsExpected)
 				{
-					return this.clientContext.invokePostApi(actionUrl, requestEntity);
+					return this.clientContext.invokePostApi(actionUrl, requestEntity, callback);
 				}
 				
 				var files = [];
@@ -829,7 +902,8 @@ $.application.factory('actionHelper', ['clientContext', function(clientContext){
 				var apiRes = this.clientContext.invokeApi(
 					actionUrl, 
 					request, 
-					{"methodType": "POST", "multipart" : true}
+					{"methodType": "POST", "multipart" : true},
+					callback
 				);
 				
 				return apiRes;

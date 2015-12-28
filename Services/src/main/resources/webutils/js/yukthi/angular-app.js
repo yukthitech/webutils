@@ -18,7 +18,8 @@ $.addElementDirective = function(directiveObj) {
 	
 	console.log("Adding custom directive - '" + directiveObj.name + "' with priority - " + directiveObj.priority);
 
-	$.application.directive(directiveObj.name, ['$compile', 'actionHelper', 'clientContext', 'validator', function($compile, actionHelper, clientContext, validator) {
+	$.application.directive(directiveObj.name, ['$compile', 'actionHelper', 'clientContext', 'validator', 'utils', 'logger', 
+	                       function($compile, actionHelper, clientContext, validator, utils, logger) {
 		var directive = {};
 
 		directive.restrict = 'E'; /* restrict this directive to elements */
@@ -54,9 +55,17 @@ $.addElementDirective = function(directiveObj) {
 					"clientContext": clientContext,
 					"actionHelper": actionHelper,
 					"validator": validator,
-					"invokeAction": function(actionName, requestEntity, params) {
-						return actionHelper.invokeAction(actionName, requestEntity, params);
+					"utils": utils,
+					"logger": logger,
+					
+					"invokeAction": function(actionName, requestEntity, params, callback) {
+						return actionHelper.invokeAction(actionName, requestEntity, params, callback);
 					},
+					
+					"executeAsyncSteps": function(asyncContext, functionLst) {
+						this.utils.executeAsyncSteps(asyncContext, functionLst);
+					},
+					
 					"bodyAsHtml" : function() {
 						return this.element.html();
 					},
@@ -93,29 +102,48 @@ $.addElementDirective = function(directiveObj) {
 						
 						return attrStr;
 					},
-					"log": function(mssg) {
-						console.log(mssg);
-					}
 				};
 
 				try
 				{
-					var html = $.application["directiveTemplateEngine"].processTemplate(context, this.element.get(0).localName);
-					html = $(html);
+					var processTemplate = $.proxy(function() {
+						var context = this.context;
+						var $compile = this.$compile;
+						var $scope = this.$scope;
+						var $element = this.$element;
+						
+						var html = $.application["directiveTemplateEngine"].processTemplate(context, this.element.get(0).localName);
+						html = $(html);
+						
+						//if pre compile script is specified, execute it after making result available on context
+						if(this.directiveObj.preCompileScript)
+						{
+							context.$result = html;
+							this.directiveObj.preCompileScript(context);
+						}
+						
+						var e = $compile(html)($scope);
+						$element.replaceWith(e);
 					
-					//if pre compile script is specified, execute it after making result available on context
-					if(this.directiveObj.preCompileScript)
+						if(this.directiveObj.postScript)
+						{
+							this.directiveObj.postScript(context);
+						}
+					}, {"directiveObj": this.directiveObj, "element": this.elementHtml, 
+						"context": context, "$compile" : $compile,
+						"$scope": $scope, "$element": $element,
+						"element": this.element});
+					
+					//if pre process is defined, execute preprocess which is in turn
+						//expected to execute processTemplate
+					if(this.directiveObj.preProcess)
 					{
-						context.$result = html;
-						this.directiveObj.preCompileScript(context);
+						this.directiveObj.preProcess(context, processTemplate);
 					}
-					
-					var e = $compile(html)($scope);
-					$element.replaceWith(e);
-				
-					if(this.directiveObj.postScript)
+					//if pre process is not specified, execute processTemplate directly
+					else
 					{
-						this.directiveObj.postScript(context);
+						processTemplate();
 					}
 				}catch(ex)
 				{
@@ -159,8 +187,8 @@ $.addAttributeDirective = function(directiveObj) {
 				"clientContext": clientContext,
 				"actionHelper": actionHelper,
 				"attributeValue" : attrValue,
-				"invokeAction": function(actionName, requestEntity, params) {
-					return actionHelper.invokeAction(actionName, requestEntity, params);
+				"invokeAction": function(actionName, requestEntity, params, callback) {
+					return actionHelper.invokeAction(actionName, requestEntity, params, callback);
 				},
 				"bodyAsHtml" : function() {
 					return this.element.html();
@@ -206,7 +234,7 @@ $.loadCustomDirectives = function(templateFilePath) {
 	var tagName = null;
 	var CAP_PATTERN = /([A-Z])/g;
 	var child = null, contentChild = null, scriptChild= null;
-	var postScript = null, precompileScript = null;
+	var postScript = null, precompileScript = null, preprocess = null;
 	var priority = null;
 	
 	for(var i = 0; i < children.length; i++)
@@ -219,7 +247,6 @@ $.loadCustomDirectives = function(templateFilePath) {
 			
 			priority = child.attr("priority");
 			priority = priority ? parseInt(priority) : 1005;
-			
 			
 			if(requiredAttr && requiredAttr.length > 0)
 			{
@@ -234,8 +261,20 @@ $.loadCustomDirectives = function(templateFilePath) {
 			tagName = tagName.toLowerCase();
 			
 			contentChild = child.find("content").first();
+			
+			preprocess = child.find("pre-process");
 			postScript = child.find("post-script");
 			precompileScript = child.find("pre-compile-script");
+			
+			//if pre process function is defined
+			if(preprocess.length > 0)
+			{
+				eval("function preProcessFunc(context, processTemplate){" + preprocess.text() + "}");
+			}
+			else
+			{
+				preProcessFunc = null;
+			}
 			
 			//if post script is defined
 			if(postScript.length > 0)
@@ -261,6 +300,7 @@ $.loadCustomDirectives = function(templateFilePath) {
 			$.application["directiveTemplateEngine"].addTemplate(tagName, $(contentChild));
 			$.addElementDirective({
 				name : childName,
+				preProcess: preProcessFunc,
 				postScript: scriptFunc,
 				preCompileScript: precompileScriptFunc, 
 				tagName: tagName,

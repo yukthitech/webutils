@@ -104,7 +104,8 @@
 						<li role="presentation" class="${_tabActive}">
 							<a id="${_tabId}_tab" ui-sref="${_tab.attr('state')}" href="#${_tabId}" onfocus="blur()" data-target="#${_tabId}" data-toggle="tab">
 								<if test="context.attr('icon', null, context._tab)">
-									<i class="glyphicon appIcon ${_tab.attr('icon')}" style="color: ${attr('icon-color', '', context._tab)};font-weight: bold;" aria-hidden="true"></i>
+									<i class="glyphicon ${_tab.attr('icon')}" 
+										style="color: ${attr('icon-color', '', context._tab)};font-weight: bold;" aria-hidden="true"></i>
 								</if>
 								${_tab.attr('label')}
 							</a>
@@ -137,6 +138,8 @@
 					"parent" : context.element
 				}, "processTreeItems");
 			</exe-script>
+			 	
+			<div class="navbar-text pull-right"></div>
 		</content>
 	</directive>
 	
@@ -153,6 +156,12 @@
 				
 				<li role="presentation">
 					<a id="${_item.attr('id')}" ui-sref="${_item.attr('state')}">
+						<if test="context._item.attr('icon')">
+							<i class="glyphicon appIcon ${_item.attr('icon')}" 
+								style="color: ${_item.attr('icon-color')};font-weight: bold; font-size: 1.1em; margin-right: 0.1em;" 
+								aria-hidden="true"></i>
+						</if>
+						
 						${_item.attr('label')}
 					</a>
 		
@@ -167,32 +176,43 @@
 	</template>
 
 	<directive name="ykSearchQuery" required-attr="id, name, title">
+		<pre-process>
+			context.executeAsyncSteps({"context": context, "processTemplate": processTemplate}, [
+			
+				//invokes action to fetch search query definition			
+				function(callback) {
+					var name = this.context.attr("name");
+					
+					//send the callback to invoke action, so that next method is called when
+						// data is recieved from server
+					context.invokeAction("search.fetch.queryDef", null, {"name" : name}, callback);
+				},
+			
+				//validates and sets the query def on context and proceeds with template processing	
+				function(callback, searchQueryRes, responseConfig) {
+					var name = this.context.attr("name");
+					
+					if(!responseConfig.success || !searchQueryRes.modelDef)
+					{
+						console.error("Invalid search query name specified - '" + name + "' got error response as - ");
+						console.error(searchQueryRes);
+						
+						throw "Invalid search query name specified - " + name;
+					}
+			
+					this.context["searchModel"] = searchQueryRes.modelDef;
+							
+					//proceed with template processing				
+					this.processTemplate();
+				}
+			]);
+		</pre-process>
 		<content>
 			<exe-script var="_tmp">
-				var response = null;
-				var name = context.attr("name");
-				try
-				{
-					response = context.invokeAction("search.fetch.queryDef", null, {"name" : name});
-				}catch(ex)
-				{
-					console.error("Invalid search query name specified - " + name);
-					console.error(ex);
-					
-					throw "Invalid search query name specified - " + name;
-				}
-				
-				if(!response.modelDef)
-				{
-					console.error("Failed to fetch search query def from server - " + name);
-					throw "Invalid search query name specified - " + name;
-				}
-
-				context["searchModel"] = response.modelDef;
 				
 				//caluculate the size for label and field in the search query ui
 				var labelSize = 0, fldLblLength = 0;
-				var modelDef = response.modelDef;
+				var modelDef = context["searchModel"];
 
 				modelDef.fieldMap = {};
 				modelDef.extensionFieldMap = {};
@@ -247,7 +267,7 @@
 							<form>
 								<div style="width: 100%; padding: 0px;">
 									<for-each data="${searchModel.fields}" loop-var="field" index-var="idx">
-										<yk-model-field name="${field.name}" modelobj="searchQuery" 
+										<yk-model-field id="searchQuery.${field.name}" name="${field.name}" modelobj="searchQuery" 
 												label-width="${labelSize}px" field-width="${fieldWidth}em" full-width="" 
 												element-style="margin: 1em; margin-bottom: 0px;"></yk-model-field>
 									</for-each>
@@ -275,17 +295,40 @@
 							<for-each data="${actions}" loop-var="action" index-var="actionIdx">
 								<set-var name="_action" expr="$(context.action)"/>
 								<set-var name="_label" expr="context._action.attr('label') ? context._action.attr('label') : ''"/>
+
+								<set-var name="_showExpr" 
+									expr="(context._action.attr('row-action') == 'true') ? 'selectedIndex != null &amp;&amp; selectedIndex &gt;= 0' : 'true'"/>
 								
 								<a role="button" ng-click="${_action.attr('method')}" style="text-decoration: none; color: ${_action.attr('color')};" class="yk-icon-link" 
-											data-toggle="tooltip" title="${_action.attr('label')}">
+											data-toggle="tooltip" title="${_action.attr('label')}" ng-show="${_showExpr}">
 									<i class="glyphicon ${_action.attr('icon')}"></i>
 								</a>
 							</for-each>
+							
+							<div id="${attr('id')}_context_menu">
+								<ul class="dropdown-menu" role="menu">
+									<for-each data="${actions}" loop-var="action" index-var="actionIdx">
+										<set-var name="_action" expr="$(context.action)"/>
+										<set-var name="_label" expr="context._action.attr('label') ? context._action.attr('label') : ''"/>
+										<set-var name="_showExpr" 
+											expr="(context._action.attr('row-action') == 'true') ? 'selectedIndex != null &amp;&amp; selectedIndex &gt;= 0' : 'true'"/>
+										
+										<li>
+											<a tabindex="-1" ng-click="${_action.attr('method')}" 
+													style="text-decoration: none; color: black; cursor: default; padding: 0.5em;" ng-show="${_showExpr}">
+												<i class="glyphicon ${_action.attr('icon')}" style="color: ${_action.attr('color')}; margin-right: 0.5em;"></i>
+												${_action.attr('label')}
+											</a>
+										</li>
+									</for-each>
+								</ul>
+							</div>
+							
 						</div>
 					</if>
 				</div>
 	
-				<div class="panel panel-default">
+				<div class="panel panel-default" data-toggle="context" data-target="#${attr('id')}_context_menu">
 					<div class="panel-heading" style="padding: 0.3em 1em; font-weight: bold;">
 						${attr('title')} - Results
 					</div>
@@ -300,7 +343,7 @@
 								</th>
 							</tr>
 							
-							<tr ng-repeat="result in searchResults" ng-click="rowSelected($index)" search-row-id="{{$index}}" style="cursor: pointer;">
+							<tr ng-repeat="result in searchResults" ng-click="rowSelected($index)" yk-right-click="rowSelected({{$index}})" search-row-id="{{$index}}" style="cursor: pointer;">
 								<td>{{$index + 1}}</td>
 								<td ng-repeat="field in searchResultDef.fields" ng-if="field.displayable">
 									{{result[field.name]}}
@@ -308,7 +351,8 @@
 							</tr>
 						</table>
 						
-						<div ng-if="searchResults.length &lt;= 0" style="margin: 0.5em;">No records found for specified criteria.</div>
+						<div ng-if="searchExecuted &amp;&amp; searchResults.length &lt;= 0" style="margin: 0.5em;">No records found for specified criteria.</div>
+						<div ng-if="!searchExecuted" style="margin: 0.5em; color: rgb(220, 220, 220);">Search query not executed yet!</div>
 					</div>
 				</div>
 			</div>
@@ -334,10 +378,13 @@
 					<div class="modal-content">
 						<if test="context.attr('hide-header') != 'true'">
 							<!-- Header -->
-							<div class="modal-header">
-								<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-									<span aria-hidden="true">&amp;times;</span>
-								</button>
+							<div class="modal-header app-dlg-header">
+								<a title="Close" data-toggle="tooltip" class="yk-icon-link" 
+										style="text-decoration: none; color: black; font-size: 0.9em; float: right; cursor: pointer;" 
+										data-dismiss="modal" aria-label="Close">
+									<i class="glyphicon glyphicon-remove"></i>
+								</a>
+
 								<h4 class="modal-title">${attr('title')}</h4>
 							</div>
 						</if>
@@ -348,7 +395,7 @@
 						</div>
 						
 						<!-- Footer -->
-						<div class="modal-footer">
+						<div class="modal-footer" style="padding: 0.5em 1em;">
 							${_footer}
 						</div>
 					</div>
@@ -383,10 +430,12 @@
 				<div class="modal-dialog ${_size}" role="document">
 					<div class="modal-content">
 						<!-- Header -->
-						<div class="modal-header">
-							<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-								<span aria-hidden="true">&amp;times;</span>
-							</button>
+						<div class="modal-header app-dlg-header">
+							<a title="Close" data-toggle="tooltip" class="yk-icon-link" 
+									style="text-decoration: none; color: black; font-size: 0.9em; float: right; cursor: pointer;" 
+									data-dismiss="modal" aria-label="Close">
+								<i class="glyphicon glyphicon-remove"></i>
+							</a>
 							<h4 class="modal-title">${attr('title')}</h4>
 						</div>
 						
@@ -397,7 +446,7 @@
 						</div>
 						
 						<!-- Footer -->
-						<div class="modal-footer">
+						<div class="modal-footer" style="padding: 0.5em 1em;">
 							<button type="button" class="btn btn-primary action-button" ng-click="${attr('actionMethod')}">{{newModelMode ? 'Save' : 'Update'}}</button>
 							<button type="button" class="btn btn-danger cancel-button" data-dismiss="modal">Cancel</button>
 						</div>
@@ -409,23 +458,79 @@
 	</directive>
 
 	<directive name="ykModelForm" required-attr="name, columns">
+		<pre-process>
+			context.executeAsyncSteps({"context": context, "processTemplate": processTemplate}, [
+			
+				//invokes action to fetch model form def			
+				function(callback) {
+					//invoke the action and fetch model definition
+					var modelName = context.attr('name');
+					this.context.invokeAction('modelDef.fetch', null, {"name": modelName}, callback);
+				},
+			
+				//validates and sets the model def on context. And invokes action to fetch extension
+					// fields if required	
+				function(callback, modelDefResponse, responseConfig) {
+					var modelName = context.attr('name');
+					
+					if(!modelDefResponse || !modelDefResponse.modelDef)
+					{
+						throw "Invalid model name specified - " + modelName;
+					}
+		
+					var modelDef = modelDefResponse.modelDef;
+					this.context["modelDef"] = modelDef;
+							
+					//invoke the action to fetch model extensions
+					if(modelDef.extensionName)
+					{
+						this.context.invokeAction('extensions.fetch', null, {"name": modelDef.extensionName}, callback);
+					}
+					else
+					{
+						callback();
+					}
+				},
+				
+				//validates and sets the extesnsions fields on context. And proceeds with template processing
+				function(callback, extensionFldRes, responseConfig) {
+					var modelDef = this.context.modelDef;
+					
+					//if extension name is specified, expect extension field details
+					if(modelDef.extensionName)
+					{
+						if(!responseConfig.success)
+						{
+							throw "An error occurred while fetching extesnsion fields for model - " + modelDef.name;
+						}
+
+						if(extensionFldRes.extensionFields &amp;&amp; extensionFldRes.extensionFields.length &gt;= 0)
+						{
+							this.context["extensionFields"] = extensionFldRes.extensionFields;
+						}
+						else
+						{
+							this.context["extensionFields"] = [];
+						}						
+					}
+					else
+					{
+						this.context["extensionFields"] = [];
+					}
+					
+					//proceed with template processing				
+					this.processTemplate();
+				},	
+				
+			]);
+		</pre-process>
+
 		<content>
 			<exe-script var="_tmp">
-				var modelName = context.attr('name');
-				var modelDefResponse = context.invokeAction('modelDef.fetch', null, {"name": modelName});
-				
-				if(!modelDefResponse || !modelDefResponse.modelDef)
-				{
-					throw "Invalid model name specified - " + modelName;
-				}
-	
-				var modelDef = modelDefResponse.modelDef;
-				context["modelDef"] = modelDef;
-				context["extensionFields"] = [];
-	
+				var modelDef = context["modelDef"];
 				modelDef.fieldMap = {};
 				modelDef.extensionFieldMap = {};
-				
+	
 				//caluculate the size for label and field in the search query ui
 				var labelSize = 0, fldLblLength = 0;
 				
@@ -437,24 +542,16 @@
 					modelDef.fieldMap[ modelDef.fields[i].name ] = modelDef.fields[i];
 				}
 				
+				var extendedFields = context["extensionFields"];
+				
 				//if model is extendable, fetch extension field details
-				if(modelDef.extensionName)
+				for(var i = 0; i &lt; extendedFields.length; i++)
 				{
-					var extensionFldRes = context.invokeAction('extensions.fetch', null, {"name": modelDef.extensionName});
-					
-					if(extensionFldRes &amp;&amp; extensionFldRes.extensionFields &amp;&amp; extensionFldRes.extensionFields.length &gt; 0)
-					{
-						context["extensionFields"] = extensionFldRes.extensionFields;
-					}
+					fldLblLength = $.fontWidth('bold 14px "Times New Roman", Times, serif', extendedFields[i].label + "MMM");
+					labelSize = (labelSize &gt; fldLblLength) ? labelSize : fldLblLength;
 
-					for(var i = 0; i &lt; extensionFldRes.extensionFields.length; i++)
-					{
-						fldLblLength = $.fontWidth('bold 14px "Times New Roman", Times, serif', extensionFldRes.extensionFields[i].label + "MMM");
-						labelSize = (labelSize &gt; fldLblLength) ? labelSize : fldLblLength;
-
-						extensionFldRes.extensionFields[i].fieldType = extensionFldRes.extensionFields[i].type;
-						modelDef.extensionFieldMap[ extensionFldRes.extensionFields[i].name ] = extensionFldRes.extensionFields[i];
-					}
+					extendedFields[i].fieldType = extendedFields[i].type;
+					modelDef.extensionFieldMap[ extendedFields[i].name ] = extendedFields[i];
 				}
 				
 				context["labelSize"] = labelSize;
@@ -477,10 +574,12 @@
 					context["$scope"].model = {};
 				}
 				
-				context["modelObj"] = context.attr("modelObj") ? context.attr("modelObj") : "model"; 
+				context["modelObj"] = context.attr("modelObj") ? context.attr("modelObj") : "model";
+				
+				context["containerStyle"] = context.attr("style") ? context.attr("style") : ""; 
 			</exe-script>
 			
-			<div class="container-fluid model-form" yk-model-def="${modelDef.name}">
+			<div class="container-fluid model-form" yk-model-def="${modelDef.name}" style="${containerStyle}">
 				<div style="width: 100%;">
 					<for-each data="${modelDef.fields}" loop-var="field" index-var="idx">
 						<if test="!context.field.displayable">
@@ -742,36 +841,53 @@
 	</directive>
 	
 	<directive name="ykLovField" required-attr="name, label, lov, type">
-		<content>
-			<exe-script var="_tmp">
-				var modelDef = context["$scope"].modelDef;
-				var lovName = context.attr('lov');
-				var type = context.attr('type');
-				var model = context.attr('model');
-
-				if(model &amp;&amp; model.length &gt;= 0)
-				{
-					context["modelField"] = model; 
-				}
-				else
-				{
-					context["modelField"] = context.attr('name');
-				}
-				
-				type = (type == "static" || type == "STATIC_TYPE")? "STATIC_TYPE" : "DYNAMIC_TYPE";
-				
-				var lovResponse = context.invokeAction('lov.fetch', null, {"name": lovName, "type": type});
-				
-				if(!lovResponse || !lovResponse.lovList)
-				{
-					throw "Invalid lov name specified - " + lovName;
-				}
-	
-				var lovList = lovResponse.lovList;
-				
-				context["lovList"] = lovList;
-			</exe-script>
+		<pre-process>
+			context.executeAsyncSteps({"context": context, "processTemplate": processTemplate}, [
 			
+				//invokes action to fetch search query definition			
+				function(callback) {
+					var modelDef = this.context["$scope"].modelDef;
+					var lovName = this.context.attr('lov');
+					var type = this.context.attr('type');
+					var model = this.context.attr('model');
+		
+					if(model &amp;&amp; model.length &gt;= 0)
+					{
+						this.context["modelField"] = model; 
+					}
+					else
+					{
+						this.context["modelField"] = context.attr('name');
+					}
+					
+					type = (type == "static" || type == "STATIC_TYPE")? "STATIC_TYPE" : "DYNAMIC_TYPE";
+					
+					context.invokeAction('lov.fetch', null, {"name": lovName, "type": type}, callback);
+				},
+			
+				//validates and sets the query def on context and proceeds with template processing	
+				function(callback, lovRes, responseConfig) {
+					var lovName = this.context.attr('lov');
+					
+					if(!responseConfig.success || !lovRes.lovList)
+					{
+						this.context.logger.error("Invalid lov name specified - " + lovName);
+						this.context.logger.error(lovRes);
+						
+						throw "Invalid lov name specified - " + lovName;
+					}
+			
+					var lovList = lovRes.lovList;
+					context["lovList"] = lovList;
+			
+					//proceed with template processing				
+					this.processTemplate();
+				}
+			]);
+
+			
+		</pre-process>
+		<content>
 			<set-var name="_readOnly" expr="(context.attr('yk-read-only') == 'true') ? 'true' : 'false'"/>
 			
 			<select name="${attr('name')}"  ng-model="${modelField}" yk-read-only="${_readOnly}" ng-change="${attr('on-change')}">
@@ -1079,5 +1195,21 @@
 		</script>
 	</attr-directive>
 
+	<attr-directive name="ykRightClick">
+		<script>
+			var targetElem = context.element;
+			
+			$(targetElem).off("mousedown").on("mousedown", $.proxy(function(e){
+
+				if( e.button != 2 ) 
+				{
+					return;
+				}
+				
+				var expr = this.element.attr("yk-right-click");
+				eval("this.$scope." + expr);
+			}, {"element": targetElem, "$scope" : context.$scope, "actionHelper" : context.actionHelper}));
+		</script>
+	</attr-directive>
 
 </directives>

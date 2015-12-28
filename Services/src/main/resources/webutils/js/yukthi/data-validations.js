@@ -455,6 +455,8 @@ $.application.factory('validator', ["logger", function(logger){
 					if( !this.validators[validations[j].name].validate(model, validations[j].values, value, modelDef) )
 					{
 						errors[fields[i].name] = validations[j].errorMessage.replace("${value}", value);
+						logger.error("Field '{}' resulted in error - {}", fields[i].name, errors[fields[i].name]);
+						
 						noErrorsFound = false;
 						break;
 					}
@@ -476,6 +478,7 @@ $.application.factory('validator', ["logger", function(logger){
 				if(fieldDef.required && !value)
 				{
 					errors.extendedFields[extFldName] = "Value can not be null or empty";
+					logger.error("Ext-Field '{}' resulted in error - {}", extFldName, errors.extendedFields[extFldName]);
 				}
 				
 				if(fieldDef.type == 'STRING' || fieldDef.type == 'MULTI_LINE_STRING')
@@ -483,6 +486,7 @@ $.application.factory('validator', ["logger", function(logger){
 					if(value.length > fieldDef.maxLength)
 					{
 						errors.extendedFields[extFldName] = "Value length should be less than " + fieldDef.maxLength;
+						logger.error("Ext-Field '{}' resulted in error - {}", extFldName, errors.extendedFields[extFldName]);
 					}
 				}
 			}
