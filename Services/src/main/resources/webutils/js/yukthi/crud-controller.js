@@ -240,7 +240,7 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 					{
 						this.$scope.$broadcast("rowsModified");
 					
-						if(this.$scope.newModelMode)
+						if(this.$scope[this.$scope.dlgModeField])
 						{
 							this.logger.trace("{} is saved successfully!!", this.$scope.crudConfig.name);
 							this.utils.info(["{} is saved successfully!!", this.$scope.crudConfig.name]);
@@ -253,7 +253,7 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 					}
 					else
 					{
-						var op = this.$scope.newModelMode ? "Save" : "Update";
+						var op = this.$scope[this.$scope.dlgModeField] ? "Save" : "Update";
 						
 						this.logger.error("Failed to {} changes.<BR/>ServerError: {}", op, response.message);
 						this.utils.alert(["Failed to {} changes.<BR/>ServerError: {}", op, response.message], $.proxy(function(){
@@ -263,7 +263,7 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 					
 				}, {"$scope": $scope, "logger": logger, "utils": utils});
 				
-				if($scope.newModelMode)
+				if($scope[$scope.dlgModeField])
 				{
 					actionHelper.invokeAction($scope.crudConfig.saveAction, $scope.model, null, saveCallback);
 				}

@@ -7,6 +7,12 @@ var CONFIRM_DLG_ID = "webutilsConfirmDialog";
 var INFO_BOX_ID = "webutilsInfoBox";
 var IN_PRGORESS_DLG_ID = "webutilsInProgressDialog";
 
+var IN_PRGORESS_STATE_HIDDEN = 0;
+var IN_PRGORESS_STATE_SHOWING = 1;
+var IN_PRGORESS_STATE_SHOWN = 2;
+var IN_PRGORESS_STATE_HIDING = 3;
+
+
 $.currentScopeId = 0;
 
 $.nextScopeId = function() {
@@ -73,6 +79,11 @@ $.application.factory('utils', [function(){
 		"callback": null,
 		"firstAlert": true,
 		"firstConfirm": true,
+		
+		"inProgressDisplayed": false,
+		"inProgressState": IN_PRGORESS_STATE_HIDDEN,
+		"inProgressFirstTime": true,
+		"inProgressCheckId": null,
 
 		"format": function(message, args, argIdx) {
 			
@@ -169,12 +180,80 @@ $.application.factory('utils', [function(){
 			}
 		},
 		
+		/**
+		 * A dialog can be opened only when it is properly closed and similarly a dialog can be closed only when it is properly
+		 * opened. Since it can not be done synchronously following logic is employed
+		 * 		1) displayInProgress & hideInProgress => will toggle the flag  "inProgressDisplayed"
+		 * 		2) For first time when display is requested open and close listeners are added to dialog.
+		 * 		3) Whenever dialog is opened a background thread is created to monitor "inProgressDisplayed" flag. When it becomes
+		 * 				false, dialog will be closed. "inProgressState" is used to ensure open and close is not called multiple times.
+		 * 		4) During close event, the thread started during open is stopped. A one time check thread is created which would check
+		 * 				after full close, if the "inProgressDisplayed" is true, then dialog will be reopened.
+		 */
 		"displayInProgress" : function() {
-			$('#' + IN_PRGORESS_DLG_ID).modal('show');
+			this.inProgressDisplayed = true;
+			
+			//if the progress is hidden and progress dialog is available in dom
+			if(this.inProgressState == IN_PRGORESS_STATE_HIDDEN && $('#' + IN_PRGORESS_DLG_ID).length > 0)
+			{
+				//change the status
+				this.inProgressState = IN_PRGORESS_STATE_SHOWING;
+
+				//for first time add listeners
+				if(this.inProgressFirstTime)
+				{
+					this.inProgressFirstTime = false;
+
+					/*
+					 * after dialog is shown, at specific intervals check for flag and close the dialog 
+					 */
+					$('#' + IN_PRGORESS_DLG_ID).off('shown.bs.modal').on('shown.bs.modal', $.proxy(function (e) {
+						//change the state
+						this.inProgressState = IN_PRGORESS_STATE_SHOWN;
+						
+						//background thread which will check for flag at regular intervals
+						this.inProgressCheckId = setInterval($.proxy(function(){
+							if(!this.inProgressDisplayed && this.inProgressState == IN_PRGORESS_STATE_SHOWN)
+							{
+								this.inProgressState = IN_PRGORESS_STATE_HIDING;
+								$('#' + IN_PRGORESS_DLG_ID).modal('hide');
+							}
+						}, this),  100);
+						
+					}, this));
+					
+					
+					/*
+					 * After dialog is closed, add listener to check if the in progress dialog is requested to display,
+					 * if so display it
+					 */
+					$('#' + IN_PRGORESS_DLG_ID).off('hidden.bs.modal').on('hidden.bs.modal', $.proxy(function (e) {
+						//kill thread which was started when dialog was shown
+						clearInterval(this.inProgressCheckId);
+						
+						//change the state
+						this.inProgressState = IN_PRGORESS_STATE_HIDDEN;
+						this.inProgressCheckId = null;
+						
+						//add one time check thread, which would check for flag and display dialog if needed
+						setTimeout($.proxy(function(){
+							if(this.inProgressDisplayed && this.inProgressState == IN_PRGORESS_STATE_HIDDEN)
+							{
+								this.inProgressState = IN_PRGORESS_STATE_SHOWING;
+								$('#' + IN_PRGORESS_DLG_ID).modal('show');
+							}
+						}, this), 100);
+					}, this));
+					
+				}
+				
+				//show the dialog
+				$('#' + IN_PRGORESS_DLG_ID).modal('show');
+			}
 		},
 
 		"hideInProgress" : function() {
-			$('#' + IN_PRGORESS_DLG_ID).modal('hide');
+			this.inProgressDisplayed = false;
 		},
 
 		/**
@@ -334,6 +413,7 @@ $.application.factory('clientContext', ['logger', 'utils', function(logger, util
 		},
 		
 		"invokeApi" : function(url, data, config, callback) {
+
 			var methodType = (config && config.methodType)? config.methodType: "POST";
 			var contentType = (config && config.contentType)? config.contentType : 'application/x-www-form-urlencoded; charset=UTF-8';
 			var processData = undefined;
@@ -367,6 +447,8 @@ $.application.factory('clientContext', ['logger', 'utils', function(logger, util
 				"utils": utils,
 			};
 			
+			utils.displayInProgress();
+			
 			$.ajax({
 				  type: methodType,
 				  dataType: 'json',
@@ -379,6 +461,8 @@ $.application.factory('clientContext', ['logger', 'utils', function(logger, util
 				  "headers": headers,
 				  
 				  success: $.proxy(function(resData, textStatus, jqXHR){
+					  	utils.hideInProgress();
+					  
 						//if this is a normal api (not part of background api), then only
 					  		//save updated auth header
 						if(!this.backgroundApi)
@@ -403,6 +487,7 @@ $.application.factory('clientContext', ['logger', 'utils', function(logger, util
 				  }, result),
 				  
 				  error: $.proxy(function(jqXHR, textStatus, errorThrown){
+					utils.hideInProgress();
 					var resData = null;
 					  
 					try

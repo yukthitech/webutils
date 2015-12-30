@@ -222,7 +222,7 @@
 				
 				for(var i = 0; i &lt; modelDef.fields.length; i++)
 				{
-					fldLblLength = $.fontWidth('bold 14px "Times New Roman", Times, serif', modelDef.fields[i].label + "MMM");
+					fldLblLength = $.fontWidth('bold 14px "Times New Roman", Times, serif', modelDef.fields[i].label + "M");
 					labelSize = (labelSize &gt; fldLblLength) ? labelSize : fldLblLength;
 
 					modelDef.fieldMap[ modelDef.fields[i].name ] = modelDef.fields[i];
@@ -703,10 +703,16 @@
 										yk-read-only="${fieldDef.readOnly}" ng-change="${validateFunc}"></input>
 								</else-if>
 								<else-if test="context.fieldDef.fieldType == 'BOOLEAN'">
-									<select name="${fieldDef.name}" ng-model="${modelField}"  yk-read-only="${fieldDef.readOnly}" ng-change="${validateFunc}">
+									<exe-script var="_tmp">
+										if(!context.$scope.dropDownBoolean)
+										{
+											context.$scope.dropDownBoolean = [{"value": true, "label": "True"}, {"value": false, "label": "False"}];
+										}
+									</exe-script>
+			
+									<select name="${fieldDef.name}" ng-model="${modelField}"  yk-read-only="${fieldDef.readOnly}" ng-change="${validateFunc}"
+											ng-options="item.value as item.label for item in dropDownBoolean">
 										<option value="" selected=""> -- Select ${fieldDef.label} -- </option>
-										<option value="true">True</option>
-										<option value="false">False</option>
 									</select>
 								</else-if>
 								<else-if test="context.fieldDef.fieldType == 'DATE'">
