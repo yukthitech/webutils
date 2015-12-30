@@ -877,26 +877,25 @@
 					context.$scope.dropDown = {};
 				}
 				
-				context.$scope.dropDown[context.attr('name')] = context.lovList;
+				var lovList = context.lovList;
 				
+				if(context.attr('actual-type') == 'INTEGER')
+				{
+					for(var i = 0; i &lt; lovList.length; i++)
+					{
+						lovList[i].value = parseInt(lovList[i].value);
+					}
+				}
+				
+				context.$scope.dropDown[context.attr('name')] = lovList;
 			</exe-script>
-		
+			
 			<set-var name="_readOnly" expr="(context.attr('yk-read-only') == 'true') ? 'true' : 'false'"/>
 			<set-var name="_actualType" expr="context.attr('actual-type')"/>
 
 			<select name="${attr('name')}"  ng-model="${modelField}" yk-read-only="${_readOnly}" ng-change="${attr('on-change')}" 
-					ng-options="item.value as item.label for item in dropDown.${attr('name')} track by item.value">
-				<option value="" selected=""> -- Select ${attr('label')} -- </option>
-				<!--  
-				<for-each data="${lovList}" loop-var="lov" index-var="idx">
-					<if test="context._actualType == 'INTEGER'">
-						<option value="? number:${lov.value} ?">${lov.label}</option>
-					</if>
-					<else>
-						<option value="${lov.value}">${lov.label}</option>
-					</else>
-				</for-each>
-				-->
+					ng-options="item.value as item.label for item in dropDown.${attr('name')}">
+				<option value="" selected=""> -- Select ${attr('label')} --  </option>
 			</select>
 		</content>
 	</directive>

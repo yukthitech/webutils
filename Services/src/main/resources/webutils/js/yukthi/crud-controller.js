@@ -40,6 +40,9 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 
 			$scope.editEntry = function(e) {
 				logger.trace("Edit is triggered..");
+			
+				//initalize errors along with model-def
+				$scope.initErrors();
 				
 				var readResponse = null;
 				
@@ -54,7 +57,41 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 					
 					$scope[$scope.dlgModeField] = false;
 					
-					this.$scope.model = readResponse.model;
+					var model = readResponse.model;
+					var modelDef = this.$scope.modelDef;
+					
+					/*
+					 * All extended field values are by default String. For int/decimal fields convert string into int/decimal
+					 * so that they are visible in ui during binding.
+					 */
+					if(modelDef.extensionFieldMap && model.extendedFields)
+					{
+						var extendedField = null;
+						
+						for(var name in modelDef.extensionFieldMap)
+						{
+							extendedField = modelDef.extensionFieldMap[name];
+							
+							if(extendedField.type == 'INTEGER')
+							{
+								try
+								{
+									model.extendedFields[name] = parseInt( model.extendedFields[name] );
+								}catch(ex)
+								{}
+							}
+							else if(extendedField.type == 'DECIMAL')
+							{
+								try
+								{
+									model.extendedFields[name] = parseFloat( model.extendedFields[name] );
+								}catch(ex)
+								{}
+							}
+						}
+					}
+					
+					this.$scope.model = model;
 					this.$scope.$digest();
 					
 					$("#" + this.$scope.crudConfig.modelDailogId + " [yk-read-only='true']").prop('disabled', true);
