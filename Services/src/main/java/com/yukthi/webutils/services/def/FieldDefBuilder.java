@@ -128,6 +128,8 @@ public class FieldDefBuilder
 			
 			lovDetails.setParentField(lovAnnotation.parentField());
 		}
+		
+		lovDetails.setActualType(FieldType.getFieldType(field.getType()));
 
 		fieldDef.setLovDetails(lovDetails);
 	}

@@ -18,8 +18,8 @@ $.addElementDirective = function(directiveObj) {
 	
 	console.log("Adding custom directive - '" + directiveObj.name + "' with priority - " + directiveObj.priority);
 
-	$.application.directive(directiveObj.name, ['$compile', 'actionHelper', 'clientContext', 'validator', 'utils', 'logger', 
-	                       function($compile, actionHelper, clientContext, validator, utils, logger) {
+	$.application.directive(directiveObj.name, ['$compile', 'actionHelper', 'clientContext', 'validator', 'utils', 'logger', "modelDefService",
+	                       function($compile, actionHelper, clientContext, validator, utils, logger, modelDefService) {
 		var directive = {};
 
 		directive.restrict = 'E'; /* restrict this directive to elements */
@@ -57,6 +57,7 @@ $.addElementDirective = function(directiveObj) {
 					"validator": validator,
 					"utils": utils,
 					"logger": logger,
+					"modelDefService": modelDefService,
 					
 					"invokeAction": function(actionName, requestEntity, params, callback) {
 						return actionHelper.invokeAction(actionName, requestEntity, params, callback);

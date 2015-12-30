@@ -46,6 +46,11 @@ public class LovDetails
 	 * Like State list based on country.
 	 */
 	private String parentField;
+	
+	/**
+	 * Actual java underlying type of lov
+	 */
+	private FieldType actualType;
 
 	/**
 	 * Gets the type of lov.
@@ -107,6 +112,26 @@ public class LovDetails
 		this.parentField = parentField;
 	}
 	
+	/**
+	 * Gets the actual java underlying type of lov.
+	 *
+	 * @return the actual java underlying type of lov
+	 */
+	public FieldType getActualType()
+	{
+		return actualType;
+	}
+
+	/**
+	 * Sets the actual java underlying type of lov.
+	 *
+	 * @param actualType the new actual java underlying type of lov
+	 */
+	public void setActualType(FieldType actualType)
+	{
+		this.actualType = actualType;
+	}
+
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */

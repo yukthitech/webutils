@@ -102,4 +102,15 @@ public interface IWebUtilsCommonConstants
 	 * Default date format to be used
 	 */
 	public SimpleDateFormat DEFAULT_DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy");
+	
+	/**
+	 * Phone pattern string
+	 */
+	public String PATTERN_PHONE = "[\\d\\ \\(\\)]+";
+	
+	/**
+	 * Email pattern string
+	 */
+	public String PATTERN_EMAIL = "[\\w\\.\\-]+\\@[\\w\\.\\-]+";
+	
 }

@@ -473,12 +473,19 @@ $.application.factory('validator', ["logger", function(logger){
 			for(var extFldName in modelDef.extensionFieldMap)
 			{
 				fieldDef = modelDef.extensionFieldMap[extFldName];
-				value = model.extendedFields[extFldName];
+				value = model.extendedFields ? model.extendedFields[extFldName] : null;
 
+				//ensure for mandatory fields value is provided
 				if(fieldDef.required && !value)
 				{
-					errors.extendedFields[extFldName] = "Value can not be null or empty";
+					errors.extendedFields[extFldName] = "Value can not be empty";
 					logger.error("Ext-Field '{}' resulted in error - {}", extFldName, errors.extendedFields[extFldName]);
+				}
+				
+				//ignore fields with empty value
+				if(!value)
+				{
+					continue;
 				}
 				
 				if(fieldDef.type == 'STRING' || fieldDef.type == 'MULTI_LINE_STRING')
@@ -548,7 +555,7 @@ $.application.factory('validator', ["logger", function(logger){
 			
 			if(fieldDef.required && !value)
 			{
-				throw "Value can not be null or empty";
+				throw "Value is required";
 			}
 			
 			if(fieldDef.type == 'STRING' || fieldDef.type == 'MULTI_LINE_STRING')
@@ -603,13 +610,17 @@ $.application.factory('validator', ["logger", function(logger){
 				}
 			}
 			
+			var extField = null;
+			
 			//Add customizations for extension fields
 			for(var extFldName in modelDef.extensionFieldMap)
 			{
-				if(modelDef.extensionFieldMap[extFldName].required)
+				extField = modelDef.extensionFieldMap[extFldName];
+
+				if(extField.required)
 				{
 					//% is used to differentiate normal fields from extended fields
-					labelField = containerElement.find("[field-label='%" + fields[i].name + "']");
+					labelField = containerElement.find("[field-label='%" + extField.name + "']");
 					this.validators["required"].customizeUi(labelField);
 				}
 			}

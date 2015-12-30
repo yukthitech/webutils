@@ -1,7 +1,11 @@
-$.application.factory('crudController', ["logger", "actionHelper", "utils", "validator", function(logger, actionHelper, utils, validator){
+$.application.factory('crudController', ["logger", "actionHelper", "utils", "validator", "modelDefService", 
+                function(logger, actionHelper, utils, validator, modelDefService){
+	
 	var crudController = {
 		"extend" : function($scope, config){
 			$scope.name = "" + config.name + $.nextScopeId();
+			
+			$scope.modelName = null;
 			
 			$scope.selectedId = null;
 			$scope.selectedName = null;
@@ -9,7 +13,7 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 			$scope.searchQuery = null;
 			$scope.selectedRow = null;
 			
-			$scope.newModelMode = false;
+			$scope.dlgModeField = "newModelMode";
 			$scope.crudConfig = config;
 			
 			$scope.$on('searchResultSelectionChanged', function(event, data){
@@ -25,7 +29,7 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 			$scope.addEntry = function(e) {
 				logger.trace("Add {} is triggered..", $scope.crudConfig.name);
 				
-				$scope.newModelMode = true;
+				$scope[$scope.dlgModeField] = true;
 				$("#" + $scope.crudConfig.modelDailogId +" [yk-read-only='true']").prop('disabled', false);
 				$scope.model = {};
 				
@@ -48,7 +52,7 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 						return;
 					}
 					
-					this.$scope.newModelMode = false;
+					$scope[$scope.dlgModeField] = false;
 					
 					this.$scope.model = readResponse.model;
 					this.$scope.$digest();
@@ -68,7 +72,7 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 				//if read op is not specified, invoke read action
 				else
 				{
-					readResponse = actionHelper.invokeAction($scope.crudConfig.readAction, null, {
+					actionHelper.invokeAction($scope.crudConfig.readAction, null, {
 						"id": $scope.selectedId
 					}, editCallback);
 				}
@@ -123,27 +127,43 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 			/**
 			 * Initializes the errors object on scope if required
 			 */
-			$scope.initErrors = function() {
+			$scope.initErrors = function(modelPrefix) {
 				if(!$scope.errors)
 				{
 					$scope.errors = {};
 				}
 
-				if(!$scope.errors.model)
+				if(!$scope.errors[modelPrefix])
 				{
-					$scope.errors.model = {};
+					$scope.errors[modelPrefix] = {};
 				}
 
-				if(!$scope.errors.model.extendedFields)
+				if(!$scope.errors[modelPrefix].extendedFields)
 				{
-					$scope.errors.model.extendedFields = {};
+					$scope.errors[modelPrefix].extendedFields = {};
+				}
+				
+				if(!$scope.modelDef)
+				{
+					//if initModelDef is defined, use to init model def
+					if($scope.initModelDef)
+					{
+						$scope.initModelDef();
+					}
+					//if initModelDef  is not defined, get it from 
+					else
+					{
+						modelDefService.getModelDef($scope.modelName, $.proxy(function(modelDefResp){
+							this.$scope.modelDef = modelDefResp.modelDef;
+						}, {"$scope": $scope}));
+					}
 				}
 			};
 			
 			$scope.saveChanges = function(e) {
 				logger.trace("{} save is called", $scope.crudConfig.name);
 				
-				$scope.initErrors();
+				$scope.initErrors("model");
 				
 				if(!validator.validateModel($scope.model, $scope.modelDef, $scope.errors.model))
 				{
@@ -217,13 +237,20 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 			};
 			
 			$scope.validateField = function(name, modelPrefix) {
-				$scope.initErrors();
+				$scope.initErrors(modelPrefix);
 
 				try
 				{
 					var model = $scope[modelPrefix];
-					validator.validateField(model, $scope.modelDef, name);
-					$scope.errors.model[name] = "";
+					var modelDef = $scope.modelDef;
+					
+					if($scope.getModelDef)
+					{
+						modelDef = $scope.getModelDef(modelPrefix);
+					}
+					
+					validator.validateField(model, modelDef, name);
+					$scope.errors[modelPrefix][name] = "";
 				}catch(ex)
 				{
 					if((typeof ex) != 'string')
@@ -231,17 +258,16 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 						logger.error(ex);
 					}
 					
-					$scope.errors.model[name] = ex;
+					$scope.errors[modelPrefix][name] = ex;
 				}
 			};
 
 			$scope.validateExtendedField = function(name, modelPrefix) {
-				$scope.initErrors();
+				$scope.initErrors("model");
 
 				try
 				{
-					var model = $scope[modelPrefix];
-					validator.validateExtendedField(model, $scope.modelDef, name);
+					validator.validateExtendedField($scope.model, $scope.modelDef, name);
 					$scope.errors.model.extendedFields[name] = "";
 				}catch(ex)
 				{

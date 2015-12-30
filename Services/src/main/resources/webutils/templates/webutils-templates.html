@@ -100,8 +100,9 @@
 						<set-var name="_tab" expr="$(context.tab)"/>
 						<set-var name="_tabId" expr="context._tab.attr('id')"/>
 						<set-var name="_tabActive" expr="context.tabIdx == 0 ? 'active' : ''"/>
+						<set-var name="_tabShowExpr" expr="context.attr('ng-show', null, context._tab) ? context.attr('ng-show', null, context._tab) : 'true'"/>
 						
-						<li role="presentation" class="${_tabActive}">
+						<li role="presentation" class="${_tabActive}" ng-show="${_tabShowExpr}">
 							<a id="${_tabId}_tab" ui-sref="${_tab.attr('state')}" href="#${_tabId}" onfocus="blur()" data-target="#${_tabId}" data-toggle="tab">
 								<if test="context.attr('icon', null, context._tab)">
 									<i class="glyphicon ${_tab.attr('icon')}" 
@@ -119,8 +120,9 @@
 						<set-var name="_tab" expr="$(context.tab)"/>
 						<set-var name="_tabActive" expr="context.tabIdx == 0 ? 'active' : ''"/>
 						<set-var name="_tabContent" expr="context._tab.html()"/>
+						<set-var name="_tabShowExpr" expr="context.attr('ng-show', null, context._tab) ? context.attr('ng-show', null, context._tab) : 'true'"/>
 						
-						<div role="tabpanel" class="tab-pane ${_tabActive}" id="${_tab.attr('id')}" ui-view="${_tab.attr('view')}" style="padding: 0.5em;">
+						<div role="tabpanel" class="tab-pane ${_tabActive}" id="${_tab.attr('id')}" ui-view="${_tab.attr('view')}" style="padding: 0.5em;" ng-show="${_tabShowExpr}">
 							${_tabContent}
 						</div>
 
@@ -185,7 +187,7 @@
 					
 					//send the callback to invoke action, so that next method is called when
 						// data is recieved from server
-					context.invokeAction("search.fetch.queryDef", null, {"name" : name}, callback);
+					context.modelDefService.getSearchQueryDef(name, callback);
 				},
 			
 				//validates and sets the query def on context and proceeds with template processing	
@@ -240,14 +242,6 @@
 				else
 				{
 					context["actions"] = null;
-				}
-
-				//Add model and model-def to scope
-				context["$scope"].modelDef = modelDef;
-				
-				if(!context["$scope"].model)
-				{
-					context["$scope"].model = {};
 				}
 			</exe-script>
 			
@@ -359,11 +353,11 @@
 		</content>
 		
 		<pre-compile-script>
-			context.$result.data('model-def', context.$scope.modelDef);
+			context.$result.data('model-def', context["searchModel"]);
 		</pre-compile-script>
 		
 		<post-script>
-			context.validator.customizeUi(context.$result, context.$scope.modelDef);
+			context.validator.customizeUi(context.$result, context["searchModel"]);
 		</post-script>
 	</directive>
 
@@ -465,7 +459,7 @@
 				function(callback) {
 					//invoke the action and fetch model definition
 					var modelName = context.attr('name');
-					this.context.invokeAction('modelDef.fetch', null, {"name": modelName}, callback);
+					context.modelDefService.getModelDef(modelName, callback);
 				},
 			
 				//validates and sets the model def on context. And invokes action to fetch extension
@@ -565,21 +559,17 @@
 
 				context["colIndex"] = 0;
 				context["extColIndex"] = 0;
+				
+				//get the model object name
+				var modelObj = context.attr("modelObj") ? context.attr("modelObj") : "model";
+				context["modelObj"] = modelObj;
 
-				//Add model and model-def to scope
-				context["$scope"].modelDef = modelDef;
-				
-				if(!context["$scope"].model)
-				{
-					context["$scope"].model = {};
-				}
-				
-				context["modelObj"] = context.attr("modelObj") ? context.attr("modelObj") : "model";
-				
 				context["containerStyle"] = context.attr("style") ? context.attr("style") : ""; 
 			</exe-script>
 			
-			<div class="container-fluid model-form" yk-model-def="${modelDef.name}" style="${containerStyle}">
+			<div class="container-fluid model-form" yk-model-def="${modelObj}" style="${containerStyle}">
+				<span style="display: none;" ng-init="modelName = '${attr('name')}';"></span>
+				
 				<div style="width: 100%;">
 					<for-each data="${modelDef.fields}" loop-var="field" index-var="idx">
 						<if test="!context.field.displayable">
@@ -601,7 +591,7 @@
 						
 					</for-each>
 				</div>							
-				<div class="row">
+				<div style="width: 100%;">
 					<for-each data="${extensionFields}" loop-var="field" index-var="idx">
 						<if test="context.extColIndex != 0 &amp;&amp; (context.extColIndex % context.columnCount) == 0"><![CDATA[
 							</div>
@@ -621,22 +611,16 @@
 		</content>
 
 		<pre-compile-script>
-			context.$result.data('model-def', context.$scope.modelDef);
+			context.$result.data('model-def', context["modelDef"]);
 		</pre-compile-script>
 		
 		<post-script>
-			context.validator.customizeUi(context.$result, context.$scope.modelDef);
+			context.validator.customizeUi(context.$result, context["modelDef"]);
 		</post-script>
 	</directive>
 
 	<attr-directive name="ykModelDef">
 		<script>
-			if(!context.$scope.modelDef)
-			{
-				var modelDef = context.element.data('model-def');
-				context.$scope.modelDef = modelDef;
-				context.$scope.model = {};
-			}
 		</script>
 	</attr-directive>
 
@@ -748,7 +732,8 @@
 									</if>
 									<else>
 										<yk-lov-field name="${fieldDef.name}" label="${fieldDef.label}" lov="${fieldDef.lovDetails.lovName}" yk-read-only="${fieldDef.readOnly}"
-													type="${fieldDef.lovDetails.lovType}" model="${modelField}" on-change="${validateFunc}"></yk-lov-field>
+													type="${fieldDef.lovDetails.lovType}" model="${modelField}" on-change="${validateFunc}"
+													actual-type="${fieldDef.lovDetails.actualType}"></yk-lov-field>
 									</else> 
 								</else-if>
 								<else-if test="context.fieldDef.fieldType == 'FILE'">
@@ -884,18 +869,34 @@
 					this.processTemplate();
 				}
 			]);
-
-			
 		</pre-process>
 		<content>
-			<set-var name="_readOnly" expr="(context.attr('yk-read-only') == 'true') ? 'true' : 'false'"/>
-			
-			<select name="${attr('name')}"  ng-model="${modelField}" yk-read-only="${_readOnly}" ng-change="${attr('on-change')}">
-				<option value="" selected=""> -- Select ${attr('label')} -- </option>
+			<exe-script var="_tmp">
+				if(!context.$scope.dropDown)
+				{
+					context.$scope.dropDown = {};
+				}
 				
+				context.$scope.dropDown[context.attr('name')] = context.lovList;
+				
+			</exe-script>
+		
+			<set-var name="_readOnly" expr="(context.attr('yk-read-only') == 'true') ? 'true' : 'false'"/>
+			<set-var name="_actualType" expr="context.attr('actual-type')"/>
+
+			<select name="${attr('name')}"  ng-model="${modelField}" yk-read-only="${_readOnly}" ng-change="${attr('on-change')}" 
+					ng-options="item.value as item.label for item in dropDown.${attr('name')} track by item.value">
+				<option value="" selected=""> -- Select ${attr('label')} -- </option>
+				<!--  
 				<for-each data="${lovList}" loop-var="lov" index-var="idx">
-					<option value="${lov.value}">${lov.label}</option>
+					<if test="context._actualType == 'INTEGER'">
+						<option value="? number:${lov.value} ?">${lov.label}</option>
+					</if>
+					<else>
+						<option value="${lov.value}">${lov.label}</option>
+					</else>
 				</for-each>
+				-->
 			</select>
 		</content>
 	</directive>

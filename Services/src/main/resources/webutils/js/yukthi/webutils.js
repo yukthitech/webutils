@@ -984,5 +984,51 @@ $.application.factory('actionHelper', ['clientContext', function(clientContext){
 }]);
 
 
+$.application.factory('modelDefService', ["actionHelper", function(actionHelper){
+	var modelDefService = {
+
+		"modelDefMap" : {},
+		"searchQueryDefMap" : {},
+
+		"getModelDef": function(name, callback) {
+			if(this.modelDefMap[name])
+			{
+				callback({"modelDef": this.modelDefMap[name]}, {"success": true, "error": false});
+				return;
+			}
+			
+			actionHelper.invokeAction('modelDef.fetch', null, {"name": name}, $.proxy(function(modelDefResp, respConfig){
+				if(!modelDefResp.modelDef)
+				{
+					throw "Failed to fetch model def with name - " + this.modelName;
+				}
+				
+				this.modelDefService.modelDefMap[this.modelName] = modelDefResp.modelDef;
+				this.callback(modelDefResp, respConfig);
+			}, {"modelDefService": this, "callback": callback, "modelName": name} ));
+		},
+
+		"getSearchQueryDef": function(name, callback) {
+			if(this.searchQueryDefMap[name])
+			{
+				callback({"modelDef": this.searchQueryDefMap[name]}, {"success": true, "error": false});
+				return;
+			}
+			
+			actionHelper.invokeAction('search.fetch.queryDef', null, {"name": name}, $.proxy(function(modelDefResp, respConfig){
+				if(!modelDefResp.modelDef)
+				{
+					throw "Failed to fetch searh query model def with name - " + this.modelName;
+				}
+				
+				this.modelDefService.searchQueryDefMap[this.modelName] = modelDefResp.modelDef;
+				this.callback(modelDefResp, respConfig);
+			}, {"modelDefService": this, "callback": callback, "modelName": name} ));
+		}
+		
+	};
+	
+	return modelDefService;
+}]);
 
 

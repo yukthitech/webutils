@@ -1,4 +1,5 @@
-$.application.controller('searchQueryController', ["$scope", "actionHelper", "logger", "utils", "validator", function($scope, actionHelper, logger, utils, validator) {
+$.application.controller('searchQueryController', ["$scope", "actionHelper", "logger", "utils", "validator", "modelDefService", 
+                          function($scope, actionHelper, logger, utils, validator, modelDefService) {
 	$scope.name = "searchQueryControllerScope-" + $.nextScopeId();
 	$scope.modelDef = null;
 	$scope.searchQueryName = null;
@@ -29,6 +30,13 @@ $.application.controller('searchQueryController', ["$scope", "actionHelper", "lo
 		if(!$scope.errors[modelPrefix].extendedFields)
 		{
 			$scope.errors[modelPrefix].extendedFields = {};
+		}
+		
+		if(!$scope.modelDef)
+		{
+			modelDefService.getSearchQueryDef($scope.searchQueryName, $.proxy(function(modelDefResp){
+				this.$scope.modelDef = modelDefResp.modelDef;
+			}, {"$scope": $scope}));
 		}
 	};
 
