@@ -28,22 +28,37 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 			
 			$scope.addEntry = function(e) {
 				logger.trace("Add {} is triggered..", $scope.crudConfig.name);
+				$scope.initErrors("model", true);
+				
+				if($scope.crudConfig.onBeforeShow)
+				{
+					$scope.crudConfig.onBeforeShow(true, $scope);
+				}
 				
 				$scope[$scope.dlgModeField] = true;
 				$("#" + $scope.crudConfig.modelDailogId +" [yk-read-only='true']").prop('disabled', false);
 				$scope.model = {};
 				
-				$("#" + $scope.crudConfig.modelDailogId).modal({
-					  show: true
+				utils.openModal($scope.crudConfig.modelDailogId, {
+					context: {"$scope": $scope},
+					
+					"onShow": function(){
+						$("#" + this.$scope.crudConfig.modelDailogId +" input").first().focus();
+					}
 				});
 			};
 
 			$scope.editEntry = function(e) {
 				logger.trace("Edit is triggered..");
 			
-				//initalize errors along with model-def
-				$scope.initErrors();
+				//initialize errors along with model-def
+				$scope.initErrors("model", true);
 				
+				if($scope.crudConfig.onBeforeShow)
+				{
+					$scope.crudConfig.onBeforeShow(false, $scope);
+				}
+
 				var readResponse = null;
 				
 				//callback method, to be called after model is read from server
@@ -78,7 +93,9 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 								{
 									model.extendedFields[name] = parseInt( model.extendedFields[name] );
 								}catch(ex)
-								{}
+								{
+									model.extendedFields[name] = null;
+								}
 							}
 							else if(extendedField.type == 'DECIMAL')
 							{
@@ -86,7 +103,24 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 								{
 									model.extendedFields[name] = parseFloat( model.extendedFields[name] );
 								}catch(ex)
-								{}
+								{
+									model.extendedFields[name] = null;
+								}
+							}
+							else if(extendedField.type == 'BOOLEAN')
+							{
+								try
+								{
+									var val = model.extendedFields[name];
+									
+									if(val)
+									{
+										model.extendedFields[name] = ( ("" + val).toLowerCase() == "true" ) ? true : false;
+									}
+								}catch(ex)
+								{
+									model.extendedFields[name] = null;
+								}
 							}
 						}
 					}
@@ -96,8 +130,12 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 					
 					$("#" + this.$scope.crudConfig.modelDailogId + " [yk-read-only='true']").prop('disabled', true);
 
-					$('#' + this.$scope.crudConfig.modelDailogId).modal({
-						  show: true
+					utils.openModal(this.$scope.crudConfig.modelDailogId, {
+						context: {"$scope": $scope},
+						
+						"onShow": function(){
+							$("#" + this.$scope.crudConfig.modelDailogId +" input").first().focus();
+						}
 					});
 				}, {"$scope": $scope, "logger": logger, "utils": utils});
 				
@@ -164,8 +202,9 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 			/**
 			 * Initializes the errors object on scope if required
 			 */
-			$scope.initErrors = function(modelPrefix) {
-				if(!$scope.errors)
+			$scope.initErrors = function(modelPrefix, clean) {
+				
+				if(!$scope.errors || clean)
 				{
 					$scope.errors = {};
 				}
@@ -194,6 +233,16 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 							this.$scope.modelDef = modelDefResp.modelDef;
 						}, {"$scope": $scope}));
 					}
+				}
+				
+				//if clean is requested, force changes to ui
+				if(clean)
+				{
+					try
+					{
+						$scope.$digest();
+					}catch(ex)
+					{}
 				}
 			};
 			

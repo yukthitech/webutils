@@ -169,7 +169,6 @@ $.application.controller('searchQueryController', ["$scope", "actionHelper", "lo
 	};
 
 	$scope.$on('rowsModified', function(event, data){
-		
 		if(!$scope.searchExecuted)
 		{
 			return;

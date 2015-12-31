@@ -74,13 +74,13 @@ public class UserRoleEntity implements ITrackedEntity
 	 * Role being assigned
 	 */
 	@DataTypeMapping(type = DataType.STRING, converterType = JsonConverter.class)
-	@Column(name = "ROLE", nullable = false, length = 500)
+	@Column(name = "ROLE", nullable = false, length = 200)
 	private Object role;
 	
 	/**
-	 * Owner type under which this this role is being assigned. For global roles assign Object.class.getName()
+	 * Owner type under which this role is being assigned. For global roles assign Object.class.getName()
 	 */
-	@Column(name = "OWNER_TYPE", nullable = false)
+	@Column(name = "OWNER_TYPE", nullable = false, length = 250)
 	private String ownerType;
 	
 	/**

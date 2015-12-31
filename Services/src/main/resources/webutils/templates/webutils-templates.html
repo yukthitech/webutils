@@ -251,6 +251,10 @@
 			
 				<span style="display: none;" ng-init="searchQueryId = '${attr('id')}'; searchQueryName = '${attr('name')}';"></span>
 				
+				<if test="context.attr('execute-at-start') == 'true'">
+					<span style="display: none;" ng-init="performSearch();"></span>
+				</if>
+				
 				<if test="context._showQuery">
 					<div class="panel panel-default" style="margin-bottom: 0.4em;">
 						<div class="panel-heading" style="padding: 0.3em 1em; font-weight: bold;">
@@ -698,9 +702,9 @@
 									<input type="number" name="${fieldDef.name}" placeholder="${fieldDef.label}" ng-model="${modelField}"  
 										yk-read-only="${fieldDef.readOnly}" ng-change="${validateFunc}"></input>
 								</else-if>
-								<else-if test="context.fieldDef.fieldType == 'FLOAT' || context.fieldDef.fieldType == 'DOUBLE'">
+								<else-if test="context.fieldDef.fieldType == 'FLOAT' || context.fieldDef.fieldType == 'DECIMAL'">
 									<input type="number" name="${fieldDef.name}" placeholder="${fieldDef.label}" ng-model="${modelField}"  
-										yk-read-only="${fieldDef.readOnly}" ng-change="${validateFunc}"></input>
+										yk-read-only="${fieldDef.readOnly}" ng-change="${validateFunc}" step="any"></input>
 								</else-if>
 								<else-if test="context.fieldDef.fieldType == 'BOOLEAN'">
 									<exe-script var="_tmp">
@@ -907,12 +911,10 @@
 	</directive>
 
 	<directive name="ykInvoke" required-attr="method">
-		<content>
-			<exe-script var="_tmp">
-				var methodName = context.attr('method');
-				context.$scope[methodName]();
-			</exe-script>
-		</content>
+		<post-script>
+			var methodName = context.attr('method');
+			context.$scope[methodName]();
+		</post-script>
 	</directive>
 
 	<attr-directive name="ykHideFrom">
@@ -1058,7 +1060,12 @@
 			
 			$(fileLink).off("click").on("click", $.proxy(function(event){
 				var fileId = parseInt(this.element.attr("yk-file-link"));
-				//var fileId = eval("this.$scope." + this.modelName + ".id");
+				
+				if(fileId &lt; 0)
+				{
+					return;
+				}
+				
 				this.element.get(0).href = this.actionHelper.actionUrl("files.fetch.attachment", {"id": fileId});
 			}, {"element": fileLink, "$scope" : context.$scope, "actionHelper": context.actionHelper}));
 		</script>

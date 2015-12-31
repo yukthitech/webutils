@@ -49,7 +49,7 @@ import com.yukthi.webutils.repository.UserEntity;
  * @author akiran
  */
 @Indexes({
-	@Index(name = "FILE_OWNER_IDX", fields = {"ownerEntityField", "ownerEntityId"})
+	@Index(name = "FILE_OWNER_IDX", fields = {"ownerEntityType", "ownerEntityId"})
 })
 @Table(name = "FILE_ENTITY")
 public class FileEntity implements ITrackedEntity
@@ -98,13 +98,13 @@ public class FileEntity implements ITrackedEntity
 	/**
 	 * Owner entity type
 	 */
-	@Column(name = "OWNER_ENTITY_TYPE", length = 300, nullable = false)
+	@Column(name = "OWNER_ENTITY_TYPE", length = 250, nullable = false)
 	private String ownerEntityType;
 
 	/**
 	 * Owner entity field name
 	 */
-	@Column(name = "OWNER_ENTITY_FIELD", length = 300, nullable = false)
+	@Column(name = "OWNER_ENTITY_FIELD", length = 200, nullable = false)
 	private String ownerEntityField;
 	
 	/**

@@ -68,13 +68,13 @@ public class ExtensionEntity implements ITrackedEntity
 	/**
 	 * Name of the target entity point for which this extended field is defined
 	 */
-	@Column(name = "TARGET_POINT_NAME", nullable = false, length = 500)
+	@Column(name = "TARGET_POINT_NAME", nullable = false, length = 250)
 	private String targetPointName;
 	
 	/**
 	 * Owner entity point name under which extension is being defined
 	 */
-	@Column(name = "OWNER_POINT_NAME", nullable = false, length = 500)
+	@Column(name = "OWNER_POINT_NAME", nullable = false, length = 100)
 	private String ownerPointName;
 	
 	/**

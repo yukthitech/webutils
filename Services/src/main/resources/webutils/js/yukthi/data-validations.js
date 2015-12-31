@@ -131,12 +131,12 @@ $.application.factory('validator', ["logger", function(logger){
 			////////////////////////////////////////////////////////////
 			"required" :{
 				"validate" : function(model, validationDefValues, value) {
-					if(!value)
+					if(value == null || value == undefined)
 					{
 						return false;
 					}
 					
-					if((typeof value) != 'string')
+					if((typeof value) == 'string')
 					{
 						if(value.trim().length <= 0)
 						{
@@ -476,10 +476,11 @@ $.application.factory('validator', ["logger", function(logger){
 				value = model.extendedFields ? model.extendedFields[extFldName] : null;
 
 				//ensure for mandatory fields value is provided
-				if(fieldDef.required && !value)
+				if(fieldDef.required && (value == null || value == undefined))
 				{
 					errors.extendedFields[extFldName] = "Value can not be empty";
 					logger.error("Ext-Field '{}' resulted in error - {}", extFldName, errors.extendedFields[extFldName]);
+					noErrorsFound = false;
 				}
 				
 				//ignore fields with empty value
@@ -494,6 +495,7 @@ $.application.factory('validator', ["logger", function(logger){
 					{
 						errors.extendedFields[extFldName] = "Value length should be less than " + fieldDef.maxLength;
 						logger.error("Ext-Field '{}' resulted in error - {}", extFldName, errors.extendedFields[extFldName]);
+						noErrorsFound = false;
 					}
 				}
 			}
@@ -553,7 +555,7 @@ $.application.factory('validator', ["logger", function(logger){
 				value = null;
 			}
 			
-			if(fieldDef.required && !value)
+			if(fieldDef.required && (value == null || value == undefined))
 			{
 				throw "Value is required";
 			}

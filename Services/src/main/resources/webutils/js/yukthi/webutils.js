@@ -72,6 +72,65 @@ $.application.controller('webutilsCommonController', ["$scope", "utils", functio
 
 }]);
 
+$.modalManager = {
+	"modalStack": [],
+	
+	"openModal": function(id, config) {
+		var dlg = $("#" + id);
+		
+		if(dlg.length < 0)
+		{
+			throw "No modal found with specified id - " + id;
+		}
+		
+		$('#' + id).off('shown.bs.modal').on('shown.bs.modal', $.proxy(function (e) {
+			this.modalStack.push(this.id);
+			
+			if(this.config && this.config.onShow)
+			{
+				var onShow = this.config.onShow;
+				
+				if(this.config.context)
+				{
+					onShow = $.proxy(onShow, this.config.context);
+				}
+				
+				onShow();
+			}
+		}, {"modalStack": this.modalStack, "config": config, "id": id}));
+
+		$('#' + id).off('hidden.bs.modal').on('hidden.bs.modal', $.proxy(function (e) {
+			var idx = this.modalStack.indexOf(this.id);
+			
+			if(idx < 0)
+			{
+				return;
+			}
+			
+			this.modalStack.splice(idx, 1);
+			
+			if(this.modalStack.length > 0)
+			{
+				$('body').addClass('modal-open');
+			}
+			
+			if(this.config && this.config.onHide)
+			{
+				var onHide = this.config.onHide;
+				
+				if(this.config.context)
+				{
+					onHide = $.proxy(onHide, this.config.context);
+				}
+				
+				onHide();
+			}
+		}, {"modalStack": this.modalStack, "config": config, "id": id}));
+		
+		$('#' + id).modal('show');
+	}
+};
+
 
 $.application.factory('utils', [function(){
 	var utils = {
@@ -121,15 +180,12 @@ $.application.factory('utils', [function(){
 			this.callback = callback;
 			
 			$('#' + ALERTS_DLG_ID + ' .modal-body').html(message);
-			$('#' + ALERTS_DLG_ID).modal('show');
 			
-			if(this.firstAlert)
-			{
-				$('#' + ALERTS_DLG_ID).off('shown.bs.modal').on('shown.bs.modal', function (e) {
+			this.openModal(ALERTS_DLG_ID, {
+				onShow: function() {
 					$('#' + ALERTS_DLG_ID + " .btn-primary").focus();
-				});
-				this.firstAlert = false;
-			}
+				}
+			});
 		},
 
 		/*
@@ -168,16 +224,12 @@ $.application.factory('utils', [function(){
 			this.callback = callback;
 
 			$('#' + CONFIRM_DLG_ID + ' .modal-body').html(message);
-			$('#' + CONFIRM_DLG_ID).modal('show');
-
-			if(this.firstConfirm)
-			{
-				$('#' + CONFIRM_DLG_ID).off('shown.bs.modal').on('shown.bs.modal', function (e) {
+			
+			this.openModal(CONFIRM_DLG_ID, {
+				onShow: function() {
 					$('#' + CONFIRM_DLG_ID + " .btn-primary").focus();
-				});
-				
-				this.firstConfirm = false;
-			}
+				}
+			});
 		},
 		
 		/**
@@ -199,15 +251,13 @@ $.application.factory('utils', [function(){
 				//change the status
 				this.inProgressState = IN_PRGORESS_STATE_SHOWING;
 
-				//for first time add listeners
-				if(this.inProgressFirstTime)
-				{
-					this.inProgressFirstTime = false;
-
+				this.openModal(IN_PRGORESS_DLG_ID, {
+					context: this,
+					
 					/*
 					 * after dialog is shown, at specific intervals check for flag and close the dialog 
 					 */
-					$('#' + IN_PRGORESS_DLG_ID).off('shown.bs.modal').on('shown.bs.modal', $.proxy(function (e) {
+					onShow: function() {
 						//change the state
 						this.inProgressState = IN_PRGORESS_STATE_SHOWN;
 						
@@ -219,15 +269,13 @@ $.application.factory('utils', [function(){
 								$('#' + IN_PRGORESS_DLG_ID).modal('hide');
 							}
 						}, this),  100);
-						
-					}, this));
-					
+					},
 					
 					/*
 					 * After dialog is closed, add listener to check if the in progress dialog is requested to display,
 					 * if so display it
 					 */
-					$('#' + IN_PRGORESS_DLG_ID).off('hidden.bs.modal').on('hidden.bs.modal', $.proxy(function (e) {
+					onHide: function() {
 						//kill thread which was started when dialog was shown
 						clearInterval(this.inProgressCheckId);
 						
@@ -243,12 +291,9 @@ $.application.factory('utils', [function(){
 								$('#' + IN_PRGORESS_DLG_ID).modal('show');
 							}
 						}, this), 100);
-					}, this));
-					
-				}
+					}
+				});
 				
-				//show the dialog
-				$('#' + IN_PRGORESS_DLG_ID).modal('show');
 			}
 		},
 
@@ -316,6 +361,9 @@ $.application.factory('utils', [function(){
 			invokeNextFunction();
 		},
 	};
+	
+	//copy modal manager functionality into utils
+	$.extend(utils, $.modalManager);
 
 	return utils;
 }]);
@@ -802,7 +850,7 @@ $.application.factory('actionHelper', ['clientContext', function(clientContext){
 					val = filterEntity(arr[i]);
 					
 					//ignore filtered null values
-					if(val == null)
+					if(val == null || val == undefined)
 					{
 						continue;
 					}
@@ -822,7 +870,7 @@ $.application.factory('actionHelper', ['clientContext', function(clientContext){
 			//function which recursively removes null, empty objects. And also remove properties having $ (which angular js injects)
 			var filterEntity = function(obj) {
 				//if value is null, return null
-				if(!obj)
+				if(obj == null || obj == undefined)
 				{
 					return null;
 				}
@@ -857,7 +905,7 @@ $.application.factory('actionHelper', ['clientContext', function(clientContext){
 					propValue = filterEntity(obj[name]);
 					
 					//ignore null, which can be the case after filtering
-					if(!propValue)
+					if(propValue == null || propValue == undefined)
 					{
 						delete obj[name];
 						continue;
@@ -886,7 +934,7 @@ $.application.factory('actionHelper', ['clientContext', function(clientContext){
 				for(var i = 0; i < urlparamLst.length; i++)
 				{
 					//if any url param is not specified, throw error
-					if(!params[urlparamLst[i]])
+					if(params[urlparamLst[i]] == null || params[urlparamLst[i]] == undefined)
 					{
 						throw "Required url-parameter '" + urlparamLst[i] + "' is not specified for invocation of action - " + actionName;
 					}
