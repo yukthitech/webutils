@@ -32,37 +32,16 @@ $.fontWidth = function(font, text) {
 $.application.controller('webutilsCommonController', ["$scope", "utils", function($scope, utils) {
 	
 	$scope.closeAlert = function() {
-		//ensure call back is called after proper closing of dialog. This is needed for
-			//	nested dialogs
-		$('#' + ALERTS_DLG_ID).off('hidden.bs.modal').on('hidden.bs.modal', function (e) {
-			if(utils.callback)
-			{
-				utils.callback();
-			}
-		});
-
 		$('#' + ALERTS_DLG_ID).modal('hide');
 	};
 	
 	$scope.closeConfirm = function() {
-		$('#' + CONFIRM_DLG_ID).off('hidden.bs.modal').on('hidden.bs.modal', function (e) {
-			if(utils.callback)
-			{
-				utils.callback(true);
-			}
-		});
-
+		utils.confirmYes = true;
 		$('#' + CONFIRM_DLG_ID).modal('hide');
 	};
 	
 	$scope.cancelConfirm = function() {
-		$('#' + CONFIRM_DLG_ID).off('hidden.bs.modal').on('hidden.bs.modal', function (e) {
-			if(utils.callback)
-			{
-				utils.callback(false);
-			}
-		});
-
+		utils.confirmYes = false;
 		$('#' + CONFIRM_DLG_ID).modal('hide');
 	};
 	
@@ -111,7 +90,13 @@ $.modalManager = {
 			
 			if(this.modalStack.length > 0)
 			{
+				console.log("Retaining class modal-open...");
 				$('body').addClass('modal-open');
+			}
+			else
+			{
+				console.log("Removin class modal-open...");
+				$('body').removeClass('modal-open');
 			}
 			
 			if(this.config && this.config.onHide)
@@ -136,8 +121,11 @@ $.application.factory('utils', [function(){
 	var utils = {
 		"ARG_PATERN" : /\{\}/g,
 		"callback": null,
-		"firstAlert": true,
-		"firstConfirm": true,
+		
+		/*
+		 * Flag. True, indicates "Yes" was clicked in last confirm box
+		 */
+		"confirmYes" : false,
 		
 		"inProgressDisplayed": false,
 		"inProgressState": IN_PRGORESS_STATE_HIDDEN,
@@ -182,8 +170,19 @@ $.application.factory('utils', [function(){
 			$('#' + ALERTS_DLG_ID + ' .modal-body').html(message);
 			
 			this.openModal(ALERTS_DLG_ID, {
+				context: {"callback": callback},
+				
+				//on show, highlight okay button
 				onShow: function() {
 					$('#' + ALERTS_DLG_ID + " .btn-primary").focus();
+				},
+				
+				//on hide, call the callback if specified
+				onHide: function() {
+					if(this.callback)
+					{
+						this.callback();
+					}
 				}
 			});
 		},
@@ -223,11 +222,22 @@ $.application.factory('utils', [function(){
 			message = $.isArray(message) ? this.format(message[0], message, 1) : message;
 			this.callback = callback;
 
+			this.confirmYes = false;
 			$('#' + CONFIRM_DLG_ID + ' .modal-body').html(message);
 			
 			this.openModal(CONFIRM_DLG_ID, {
+				context: {"callback": callback, "utils": this},
+				
 				onShow: function() {
 					$('#' + CONFIRM_DLG_ID + " .btn-primary").focus();
+				},
+				
+				//on hide, call the callback if specified
+				onHide: function() {
+					if(this.callback)
+					{
+						this.callback(utils.confirmYes);
+					}
 				}
 			});
 		},

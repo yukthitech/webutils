@@ -55,6 +55,11 @@ public interface IWebUtilsActionConstants
 	public String ACTION_TYPE_EXECUTE = "execute";
 
 	/**
+	 * Action be be used for exporting the data
+	 */
+	public String ACTION_TYPE_EXPORT = "export";
+
+	/**
 	 * Action be be used for deleting all 
 	 */
 	public String ACTION_TYPE_DELETE_ALL = "deleteAll";

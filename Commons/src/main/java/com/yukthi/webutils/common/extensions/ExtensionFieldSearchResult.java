@@ -26,6 +26,7 @@ package com.yukthi.webutils.common.extensions;
 import java.util.Date;
 
 import com.yukthi.persistence.repository.annotations.Field;
+import com.yukthi.webutils.common.annotations.Label;
 import com.yukthi.webutils.common.annotations.Model;
 import com.yukthi.webutils.common.annotations.NonDisplayable;
 
@@ -34,6 +35,7 @@ import com.yukthi.webutils.common.annotations.NonDisplayable;
  * 
  * @author akiran
  */
+@Label("Extensions")
 @Model
 public class ExtensionFieldSearchResult
 {

@@ -198,4 +198,11 @@ button.yk-info-close-button:hover
 	border-radius: 0.5em;
 }
 
-
+.popupIconsContainer
+{
+	position: absolute; 
+	display: none;
+	background-color: white;
+	border: 1px solid blue;
+	border-radius: 0.5em;
+}

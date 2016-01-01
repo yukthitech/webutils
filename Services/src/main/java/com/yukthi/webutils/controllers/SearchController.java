@@ -23,12 +23,17 @@
 
 package com.yukthi.webutils.controllers;
 
-import static com.yukthi.webutils.common.IWebUtilsActionConstants.ACTION_PREFIX_SEARCH;
+import static com.yukthi.webutils.common.IWebUtilsActionConstants.*;
 import static com.yukthi.webutils.common.IWebUtilsActionConstants.ACTION_TYPE_EXECUTE;
 import static com.yukthi.webutils.common.IWebUtilsActionConstants.ACTION_TYPE_FETCH_QUERY_DEF;
 import static com.yukthi.webutils.common.IWebUtilsActionConstants.ACTION_TYPE_FETCH_RESULT_DEF;
 import static com.yukthi.webutils.common.IWebUtilsActionConstants.PARAM_NAME;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.apache.logging.log4j.LogManager;
@@ -42,14 +47,19 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.yukthi.excel.exporter.ExcelExporter;
 import com.yukthi.webutils.InvalidRequestParameterException;
+import com.yukthi.webutils.SearchExcelDataReport;
 import com.yukthi.webutils.annotations.ActionName;
+import com.yukthi.webutils.common.FileInfo;
 import com.yukthi.webutils.common.IWebUtilsCommonConstants;
 import com.yukthi.webutils.common.SearchExecutionModel;
 import com.yukthi.webutils.common.models.ExecuteSearchResponse;
 import com.yukthi.webutils.common.models.ModelDefResponse;
+import com.yukthi.webutils.common.models.def.ModelDef;
 import com.yukthi.webutils.services.SearchService;
 import com.yukthi.webutils.services.ValidationService;
+import com.yukthi.webutils.utils.WebAttachmentUtils;
 
 /**
  * Controller for fetching LOV values.
@@ -70,6 +80,12 @@ public class SearchController extends BaseController
 	
 	private ObjectMapper objectMapper = new ObjectMapper();
 	
+	/**
+	 * Used to export search results in excel format
+	 */
+	private ExcelExporter excelExporter = new ExcelExporter();
+	
+	//default block
 	{
 		objectMapper.setDateFormat(IWebUtilsCommonConstants.DEFAULT_DATE_FORMAT);
 	}
@@ -135,5 +151,39 @@ public class SearchController extends BaseController
 		validationService.validate(query);
 		
 		return new ExecuteSearchResponse( searchService.executeSearch(queryName, query, searchExecutionModel.getPageSize()) );
+	}
+
+	@ActionName(ACTION_TYPE_EXPORT)
+	@ResponseBody
+	@RequestMapping(value = "/export/{" + PARAM_NAME + "}", method = RequestMethod.GET)
+	public void exportSearch(@PathVariable(PARAM_NAME) String queryName, @Valid SearchExecutionModel searchExecutionModel, HttpServletResponse response) throws MethodArgumentNotValidException, IOException
+	{
+		logger.trace("executeSearch is called for query - {}", queryName);
+		
+		Class<?> queryType = searchService.getSearchQueryType(queryName);
+		Object query = null;
+		
+		if(searchExecutionModel.getQueryModelJson() != null)
+		{
+			try
+			{
+				query = objectMapper.readValue(searchExecutionModel.getQueryModelJson(), queryType);
+			}catch(Exception ex)
+			{
+				throw new InvalidRequestParameterException(ex, "Failed to convert input json to {}. Input json - ", queryType.getName(), searchExecutionModel.getQueryModelJson());
+			}
+		}
+		
+		validationService.validate(query);
+		
+		ModelDef searchResultDef = searchService.getSearhResultDefinition(queryName);
+		List<Object> results = searchService.executeSearch(queryName, query, searchExecutionModel.getPageSize());
+
+		SearchExcelDataReport searchExcelDataReport = new SearchExcelDataReport("Results", searchResultDef, results);
+		File tempFile = File.createTempFile(queryName, ".xls");
+		
+		excelExporter.generateExcelSheet(tempFile.getPath(), searchExcelDataReport);
+		
+		WebAttachmentUtils.sendFile(response, new FileInfo(searchResultDef.getLabel(), tempFile, WebAttachmentUtils.MIME_MS_EXCEL_FILE), true, true);
 	}
 }

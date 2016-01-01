@@ -1,5 +1,5 @@
-$.application.controller('searchQueryController', ["$scope", "actionHelper", "logger", "utils", "validator", "modelDefService", 
-                          function($scope, actionHelper, logger, utils, validator, modelDefService) {
+$.application.controller('searchQueryController', ["$scope", "actionHelper", "logger", "utils", "validator", "modelDefService", "clientContext",
+                          function($scope, actionHelper, logger, utils, validator, modelDefService, clientContext) {
 	$scope.name = "searchQueryControllerScope-" + $.nextScopeId();
 	$scope.modelDef = null;
 	$scope.searchQueryName = null;
@@ -120,6 +120,9 @@ $.application.controller('searchQueryController', ["$scope", "actionHelper", "lo
 				this.$scope.searchExecuted = true;
 				this.$scope.selectedIndex = -1;
 				
+				var popupDiv = $("#" + this.$scope.searchQueryId + " div.popupIcons");
+				popupDiv.css("display", "none");
+				
 				//ensure digest runs on parent to refresh the results
 					//ignore exceptions as exception is apply is already in progress
 				try
@@ -140,8 +143,39 @@ $.application.controller('searchQueryController', ["$scope", "actionHelper", "lo
 		return false;
 	};
 	
-	$scope.rowSelected = function(index) {
+
+	$scope.exportResults = function(e) {
+		logger.trace("Eport results is triggered for query - " + $scope.searchQueryName);
 		
+		$scope.initErrors("searchQuery");
+		
+		if(!validator.validateModel($scope.searchQuery, $scope.modelDef, $scope.errors.searchQuery))
+		{
+			utils.alert("Please correct the errors and then try!");
+			return;
+		}
+		
+		var queryJson = JSON.stringify($scope.searchQuery);
+		var request = {
+				"queryModelJson" : 	queryJson,
+				"pageSize": -1,
+				"name": $scope.searchQueryName
+			};
+
+		var queryUrl = actionHelper.actionUrl("search.export", request);
+		
+		var exportForm = $("#" + $scope.searchQueryId + " form[name='exportForm']");
+		exportForm.find("input[name='queryModelJson']").val(queryJson);
+		exportForm.find("input[name='AUTH_TOKEN']").val(clientContext.authToken);
+		exportForm.attr("action", queryUrl);
+		exportForm.attr("method", "GET");
+		
+		exportForm.submit();
+
+		return false;
+	};
+
+	$scope.rowSelected = function(index, event) {
 		//remove current selection if any
 		if($scope.selectedIndex != null)
 		{
@@ -149,10 +183,28 @@ $.application.controller('searchQueryController', ["$scope", "actionHelper", "lo
 		}
 		
 		//set new selected row id
+		var popupDiv = $("#" + $scope.searchQueryId + " div.popupIcons");
+		var popupDivParent = popupDiv.parent();
+		var selectedRow = $("#" + $scope.searchQueryId + " table.searchResults tr[search-row-id='" + index + "']");
+
+		//set popup y position just above the selected row
+		var popupTop = selectedRow.offset().top - popupDiv.height();
+		
+		//ensure the popup x position is not resulting parent overflow
+		var maxX = popupDivParent.offset().left + popupDivParent.width() - popupDiv.width() - 5;
+		
+		popupDiv.css("display", "block");
+		
+		popupDiv.offset({
+			top: popupTop, 
+			left: (event.pageX >  maxX) ? maxX : event.pageX 
+		});
+		
+		
 		$scope.selectedIndex = index;
 		
 		//highlight selected row
-		$("#" + $scope.searchQueryId + " table.searchResults tr[search-row-id='" + $scope.selectedIndex + "']").addClass('info');
+		selectedRow.addClass('info');
 		
 		//send selection event to parent controller
 		$scope.$emit('searchResultSelectionChanged', {

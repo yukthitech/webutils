@@ -116,6 +116,11 @@
 			<artifactId>yukthi-utils</artifactId>
 			<version>1.0</version>
 		</dependency>
+		<dependency>
+			<groupId>com.yukthi</groupId>
+			<artifactId>yukthi-excel-reports</artifactId>
+			<version>1.0</version>
+		</dependency>
 
 
 		<dependency>

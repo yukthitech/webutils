@@ -243,6 +243,14 @@
 				{
 					context["actions"] = null;
 				}
+				
+				context["export-action"] = true;
+				
+				if(context.attr("export-action") == 'false')
+				{
+					context["export-action"] = false;
+				}
+				
 			</exe-script>
 			
 			<set-var name="_showQuery" expr=" (context.attr('hide-query') == 'true') ? false : true"/>
@@ -288,8 +296,21 @@
 				</if>
 				
 				<div class="row">
+					<form name="exportForm" style="diplay: none;">
+						<input type="hidden" name="queryModelJson"/>
+						<input type="hidden" name="pageSize" value="-1"/>
+						<input type="hidden" name="AUTH_TOKEN" value=""/>
+					</form>
+				
 					<if test="context.actions">
 						<div class="col-xs-12" style="text-align: right; padding-bottom: 0.4em;">
+							<if test="context['export-action']">
+								<a role="button" ng-click="exportResults()" style="text-decoration: none; color: green" class="yk-icon-link" 
+											data-toggle="tooltip" title="Export Excel" ng-if="searchResults.length != 0">
+									<i class="fa fa-building"></i>
+								</a>
+							</if>
+							
 							<for-each data="${actions}" loop-var="action" index-var="actionIdx">
 								<set-var name="_action" expr="$(context.action)"/>
 								<set-var name="_label" expr="context._action.attr('label') ? context._action.attr('label') : ''"/>
@@ -325,7 +346,23 @@
 						</div>
 					</if>
 				</div>
-	
+
+				<!-- Popup actions -->	
+				<div class="popupIconsContainer popupIcons">
+					<if test="context.actions">
+						<for-each data="${actions}" loop-var="action" index-var="actionIdx">
+							<set-var name="_action" expr="$(context.action)"/>
+							<set-var name="_label" expr="context._action.attr('label') ? context._action.attr('label') : ''"/>
+
+							<a role="button" ng-click="${_action.attr('method')}" style="text-decoration: none; color: ${_action.attr('color')};" class="yk-icon-link" 
+										data-toggle="tooltip" title="${_action.attr('label')}" >
+								<i class="glyphicon ${_action.attr('icon')}"></i>
+							</a>
+						</for-each>
+					</if>
+				</div>
+				<!-- End of popup actions -->
+
 				<div class="panel panel-default" data-toggle="context" data-target="#${attr('id')}_context_menu">
 					<div class="panel-heading" style="padding: 0.3em 1em; font-weight: bold;">
 						${attr('title')} - Results
@@ -341,7 +378,7 @@
 								</th>
 							</tr>
 							
-							<tr ng-repeat="result in searchResults" ng-click="rowSelected($index)" yk-right-click="rowSelected({{$index}})" search-row-id="{{$index}}" style="cursor: pointer;">
+							<tr ng-repeat="result in searchResults" ng-click="rowSelected($index, $event)" yk-right-click="rowSelected({{$index}}, $event)" search-row-id="{{$index}}" style="cursor: pointer;">
 								<td>{{$index + 1}}</td>
 								<td ng-repeat="field in searchResultDef.fields" ng-if="field.displayable">
 									{{result[field.name]}}
@@ -1220,6 +1257,7 @@
 				}
 				
 				var expr = this.element.attr("yk-right-click");
+				var $event = e;
 				eval("this.$scope." + expr);
 			}, {"element": targetElem, "$scope" : context.$scope, "actionHelper" : context.actionHelper}));
 		</script>
