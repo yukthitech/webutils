@@ -90,13 +90,12 @@ $.modalManager = {
 			
 			if(this.modalStack.length > 0)
 			{
-				console.log("Retaining class modal-open...");
 				$('body').addClass('modal-open');
 			}
 			else
 			{
-				console.log("Removin class modal-open...");
 				$('body').removeClass('modal-open');
+				$('body').css('padding', "0px");
 			}
 			
 			if(this.config && this.config.onHide)

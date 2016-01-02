@@ -305,6 +305,11 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 				value = strValue;
 			}
 			
+			if(value instanceof Enum)
+			{
+				value = value.toString();
+			}
+			
 			searchCondition = new SearchCondition(condition.value(), condition.op(), value);
 			searchCondition.setIgnoreCase(condition.ignoreCase());
 			

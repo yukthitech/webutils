@@ -23,6 +23,8 @@
 
 package com.yukthi.webutils.services.job;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -36,6 +38,8 @@ import com.yukthi.common.util.JsonWrapper;
  */
 public class QuartzJobBridge implements Job
 {
+	private static Logger logger = LogManager.getLogger(QuartzJobBridge.class);
+	
 	/**
 	 * Spring application context that will be set by {@link JobService} during initialization
 	 */
@@ -69,9 +73,15 @@ public class QuartzJobBridge implements Job
 		//autowire dependencies
 		applicationContext.getAutowireCapableBeanFactory().autowireBean(job);
 		applicationContext.getAutowireCapableBeanFactory().applyBeanPostProcessorsBeforeInitialization(job, null);
-		
-		//execute the job
-		job.execute(jobData, context);
+
+		try
+		{
+			//execute the job
+			job.execute(jobData, context);
+		}catch(Exception ex)
+		{
+			logger.error("An error occurred while executing job - " + job.getClass().getName(), ex);
+		}
 	}
 	
 	

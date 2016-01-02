@@ -111,6 +111,6 @@ public interface IWebUtilsCommonConstants
 	/**
 	 * Email pattern string
 	 */
-	public String PATTERN_EMAIL = "[\\w\\.\\-]+\\@[\\w\\.\\-]+";
+	public String PATTERN_EMAIL = "[\\w\\.\\-]+\\@[\\w\\.\\-]+\\.[\\w]+";
 	
 }
