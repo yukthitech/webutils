@@ -305,10 +305,8 @@
 					<if test="context.actions">
 						<div class="col-xs-12" style="text-align: right; padding-bottom: 0.4em;">
 							<if test="context['export-action']">
-								<a role="button" ng-click="exportResults()" style="text-decoration: none; color: green" class="yk-icon-link" 
-											data-toggle="tooltip" title="Export Excel" ng-if="searchResults.length != 0">
-									<i class="fa fa-building"></i>
-								</a>
+								<yk-icon-link icon="fa fa-building" ng-click="exportResults()" 
+										color="green" label="Export Excel" ng-if="searchResults.length != 0"></yk-icon-link>
 							</if>
 							
 							<for-each data="${actions}" loop-var="action" index-var="actionIdx">
@@ -319,7 +317,7 @@
 									expr="(context._action.attr('row-action') == 'true') ? 'selectedIndex != null &amp;&amp; selectedIndex &gt;= 0' : 'true'"/>
 								
 								<yk-icon-link icon="glyphicon ${_action.attr('icon')}" ng-click="${_action.attr('method')}" 
-										color="${_action.attr('color')}" tooltip="${_action.attr('label')}" ng-show="${_showExpr}"></yk-icon-link>
+										color="${_action.attr('color')}" label="${_action.attr('label')}" ng-show="${_showExpr}"></yk-icon-link>
 							</for-each>
 							
 							<div id="${attr('id')}_context_menu">
@@ -956,13 +954,17 @@
 		</post-script>
 	</directive>
 
-	<directive name="ykIconLink" required-attr="icon, ng-click, color, tooltip">
+	<directive name="ykIconLink" required-attr="icon, ng-click, color, label">
 		<content>
 			<set-var name="_showExpr" 
 				expr="context.attr('ng-show')? context.attr('ng-show') : 'true'"/>
+			<set-var name="_ifExpr" 
+				expr="context.attr('ng-if')? context.attr('ng-if') : 'true'"/>
+			<set-var name="_sizeAttr" 
+				expr="context.attr('size')? 'font-size: ' + context.attr('size') + ';' : '' "/>
 
-			<a role="button" ng-click="${attr('ng-click')}" style="text-decoration: none; color: ${attr('color')};" class="yk-icon-link" 
-						data-toggle="tooltip" title="${attr('tooltip')}" ng-show="${_showExpr}">
+			<a role="button" ng-click="${attr('ng-click')}" style="text-decoration: none; color: ${attr('color')};${_sizeAttr}" class="yk-icon-link" 
+						data-toggle="tooltip" title="${attr('label')}" ng-show="${_showExpr}" ng-if="${_ifExpr}">
 				<i class="${attr('icon')}"></i>
 			</a>
 		</content>
@@ -991,8 +993,6 @@
 			var element = $(context.$result).find("div.date");
 			element = $(element);
 			
-			console.log("==================> Element : ");
-			console.log(element);
 			element.datetimepicker({
 				"format" : dateFormat
 			});
