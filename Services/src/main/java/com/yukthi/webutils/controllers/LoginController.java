@@ -23,6 +23,10 @@
 
 package com.yukthi.webutils.controllers;
 
+import static com.yukthi.webutils.common.IWebUtilsActionConstants.ACTION_TYPE_ACTIVE_USER;
+import static com.yukthi.webutils.common.IWebUtilsActionConstants.ACTION_TYPE_AUTH;
+import static com.yukthi.webutils.common.IWebUtilsActionConstants.ACTION_TYPE_LOGIN;
+
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
@@ -35,8 +39,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.yukthi.webutils.annotations.ActionName;
 import com.yukthi.webutils.annotations.NoAuthentication;
 import com.yukthi.webutils.common.IWebUtilsCommonConstants;
+import com.yukthi.webutils.common.models.ActiveUserModel;
+import com.yukthi.webutils.common.models.BasicReadResponse;
 import com.yukthi.webutils.common.models.LoginCredentials;
 import com.yukthi.webutils.common.models.LoginResponse;
 import com.yukthi.webutils.security.ISecurityService;
@@ -50,6 +57,7 @@ import com.yukthi.webutils.utils.WebUtils;
  */
 @RestController
 @RequestMapping(IWebUtilsCommonConstants.AUTH_GROUP_URI)
+@ActionName(ACTION_TYPE_AUTH)
 public class LoginController extends BaseController
 {
 	private static Logger logger = LogManager.getLogger(LoginController.class);
@@ -75,6 +83,7 @@ public class LoginController extends BaseController
 	 */
 	@NoAuthentication
 	@ResponseBody
+	@ActionName(ACTION_TYPE_LOGIN)
 	@RequestMapping(value = IWebUtilsCommonConstants.LOGIN_URI_PATH, method = RequestMethod.POST)
 	public LoginResponse performLogin(@RequestBody @Valid LoginCredentials credentials, HttpServletResponse response)
 	{
@@ -92,5 +101,19 @@ public class LoginController extends BaseController
 		logger.debug("Authentication successful");
 		userDetails.setSessionStartTime(WebUtils.currentTimeInMin());
 		return new LoginResponse(securityEncryptionService.encrypt(userDetails));
+	}
+
+	/**
+	 * Fetches current active user details and configuration
+	 * @return
+	 */
+	@ResponseBody
+	@ActionName(ACTION_TYPE_ACTIVE_USER)
+	@RequestMapping(value = IWebUtilsCommonConstants.FETCH_USER_PATH, method = RequestMethod.GET)
+	public BasicReadResponse<ActiveUserModel> activeUser()
+	{
+		logger.debug("Trying to fetch active user details");
+		
+		return new BasicReadResponse<>(authenticationService.getActiverUser());
 	}
 }

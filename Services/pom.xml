@@ -91,6 +91,14 @@
 			<artifactId>reflections</artifactId>
 			<version>0.9.9-RC2</version>
 		</dependency>
+		
+		<!-- Email related dependencies -->
+		<dependency>
+			<groupId>javax.mail</groupId>
+			<artifactId>mail</artifactId>
+			<version>1.4.7</version>
+		</dependency>
+		
 
 		<dependency>
 			<groupId>javax.validation</groupId>

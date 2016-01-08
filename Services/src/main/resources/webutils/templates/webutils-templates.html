@@ -318,10 +318,8 @@
 								<set-var name="_showExpr" 
 									expr="(context._action.attr('row-action') == 'true') ? 'selectedIndex != null &amp;&amp; selectedIndex &gt;= 0' : 'true'"/>
 								
-								<a role="button" ng-click="${_action.attr('method')}" style="text-decoration: none; color: ${_action.attr('color')};" class="yk-icon-link" 
-											data-toggle="tooltip" title="${_action.attr('label')}" ng-show="${_showExpr}">
-									<i class="glyphicon ${_action.attr('icon')}"></i>
-								</a>
+								<yk-icon-link icon="glyphicon ${_action.attr('icon')}" ng-click="${_action.attr('method')}" 
+										color="${_action.attr('color')}" tooltip="${_action.attr('label')}" ng-show="${_showExpr}"></yk-icon-link>
 							</for-each>
 							
 							<div id="${attr('id')}_context_menu">
@@ -757,6 +755,9 @@
 									</select>
 								</else-if>
 								<else-if test="context.fieldDef.fieldType == 'DATE'">
+									<yk-date-field name="${fieldDef.name}" label="${fieldDef.label}" ng-model="${modelField}"
+										yk-read-only="${fieldDef.readOnly}" ng-change="${validateFunc}"></yk-date-field>
+									<!--  
 									<div class="form-group" style="margin-bottom: 0px;">
 										<div class="model-form-date input-group date" yk-date-format="${modelDef.jsDateFormat}">
 											<input type="text" class="form-control"   name="${fieldDef.name}" placeholder="${fieldDef.label}" 
@@ -765,7 +766,8 @@
 												<span class="glyphicon glyphicon-calendar"></span>
 											</span>
 										</div>
-									</div>								
+									</div>
+									-->								
 								</else-if>
 								<else-if test="context.fieldDef.fieldType == 'LIST_OF_VALUES'">
 									<if test="context.extended == 'true'">
@@ -954,6 +956,53 @@
 		</post-script>
 	</directive>
 
+	<directive name="ykIconLink" required-attr="icon, ng-click, color, tooltip">
+		<content>
+			<set-var name="_showExpr" 
+				expr="context.attr('ng-show')? context.attr('ng-show') : 'true'"/>
+
+			<a role="button" ng-click="${attr('ng-click')}" style="text-decoration: none; color: ${attr('color')};" class="yk-icon-link" 
+						data-toggle="tooltip" title="${attr('tooltip')}" ng-show="${_showExpr}">
+				<i class="${attr('icon')}"></i>
+			</a>
+		</content>
+	</directive>
+
+	<directive name="ykDateField" required-attr="name, label, ng-model">
+		<content>
+			<set-var name="_readOnly" 
+				expr="context.attr('yk-read-only')? context.attr('yk-read-only') : 'false'"/>
+			<set-var name="_onChange" 
+				expr="context.attr('ng-change')? context.attr('ng-change') : ''"/>
+
+			<div class="form-group" style="margin-bottom: 0px;">
+				<div class="model-form-date input-group date">
+					<input type="text" class="form-control" name="${attr('name')}" placeholder="${attr('label')}" 
+						ng-model="${attr('ng-model')}" yk-read-only="${_readOnly}" ng-change="${_onChange}"></input>
+					<span class="input-group-addon">
+						<span class="glyphicon glyphicon-calendar"></span>
+					</span>
+				</div>
+			</div>								
+		</content>
+
+		<post-script>
+			var dateFormat = context.$scope.activeUser.jsDateFormat;
+			var element = $(context.$result).find("div.date");
+			element = $(element);
+			
+			console.log("==================> Element : ");
+			console.log(element);
+			element.datetimepicker({
+				"format" : dateFormat
+			});
+			
+			element.off("dp.change").on("dp.change", $.proxy(function(event){
+				this.element.find("input").trigger("change");
+			}, {"element": element, "$scope" : context.$scope}));
+		</post-script>
+	</directive>
+
 	<attr-directive name="ykHideFrom">
 		<script>
 			var hideFrom = context.attributeValue;
@@ -1041,7 +1090,6 @@
 	<!--
 		Invokes the date-time-picker data function on target element
 		with specified date format value 
-	 -->	
 	<attr-directive name="ykDateFormat">
 		<script>
 			var dateFormat = context.attributeValue;
@@ -1054,7 +1102,7 @@
 			}, {"element": context.element, "$scope" : context.$scope}));
 		</script>
 	</attr-directive>
-
+	-->
 	<!--
 		Expected to be used as part of file widget. This is used on file's individual remove
 		button. And deletes the corresponding file 

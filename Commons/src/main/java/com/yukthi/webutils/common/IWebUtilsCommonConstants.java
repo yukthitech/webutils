@@ -75,6 +75,11 @@ public interface IWebUtilsCommonConstants
 	public String AUTH_GROUP_URI = "/auth";
 	public String LOGIN_URI_PATH = "/login";
 	
+	/**
+	 * Path for fetching active user details
+	 */
+	public String FETCH_USER_PATH = "/fetch/user";
+	
 	public String ACTION_GROUP_URI = "/actions";
 	public String FETCH_URI_PATH = "/fetch";
 	

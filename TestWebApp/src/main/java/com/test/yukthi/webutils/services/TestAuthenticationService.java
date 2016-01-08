@@ -33,6 +33,7 @@ import com.test.yukthi.webutils.Authorization;
 import com.test.yukthi.webutils.SecurityRole;
 import com.test.yukthi.webutils.TestUserDetails;
 import com.yukthi.utils.CommonUtils;
+import com.yukthi.webutils.common.models.ActiveUserModel;
 import com.yukthi.webutils.extensions.ExtensionPointDetails;
 import com.yukthi.webutils.repository.file.FileEntity;
 import com.yukthi.webutils.security.ISecurityService;
@@ -119,5 +120,12 @@ public class TestAuthenticationService implements ISecurityService
 	{
 		return true;
 	}
+
+	@Override
+	public ActiveUserModel getActiverUser()
+	{
+		return new ActiveUserModel();
+	}
+	
 	
 }

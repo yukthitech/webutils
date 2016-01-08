@@ -2,15 +2,6 @@ $.application = angular.module("application", ["ngSanitize", "ui.router"]);
 $.application["directiveTemplateEngine"] = new TemplateEngine();
 
 
-$.application.controller('mainController', ["$scope", "$rootScope", function($scope, $rootScope) {
-	$rootScope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState, fromParams)
-	{
-		console.log('Moved to state - ' + toState.name + ". Activating tab - " + toState.tab);
-		$("#" + toState.tab + "_tab").tab("show");
-	});
-}]);
-
-
 /*
  * Function to define custom angular element directive
  */
@@ -27,13 +18,16 @@ $.addElementDirective = function(directiveObj) {
 		directive.priority = this.priority;
 
 		directive.compile =  $.proxy(function($element, attributes) {
+			
+			var jqelement = $($element);
+			
 			//if mandatory attr is specified for tag
 			if(this.requiredAttr)
 			{
 				//ensure all mandatory attr are provided
 				for(var i = 0; i < this.requiredAttr.length; i++)
 				{
-					if(!attributes[this.requiredAttr[i]])
+					if(!jqelement.attr(this.requiredAttr[i]))
 					{
 						throw "Mandatory attribute '" + this.requiredAttr[i] + "' is not defined for tag <" + this.tagName + ">"; 
 					}
@@ -128,6 +122,7 @@ $.addElementDirective = function(directiveObj) {
 					
 						if(this.directiveObj.postScript)
 						{
+							context.$result = e;
 							this.directiveObj.postScript(context);
 						}
 					}, {"directiveObj": this.directiveObj, "element": this.elementHtml, 

@@ -25,6 +25,7 @@ package com.yukthi.webutils.security;
 
 import java.lang.reflect.Method;
 
+import com.yukthi.webutils.common.models.ActiveUserModel;
 import com.yukthi.webutils.extensions.ExtensionPointDetails;
 import com.yukthi.webutils.repository.file.FileEntity;
 
@@ -43,6 +44,12 @@ public interface ISecurityService
 	 * @return User details if authentication is successful, otherwise null
 	 */
 	public UserDetails authenticate(String userName, String password);
+	
+	/**
+	 * Should return user details and configurations of the current user. 
+	 * @return current active user details
+	 */
+	public ActiveUserModel getActiverUser();
 	
 	/**
 	 * Invoked to check if specified user is authorized to invoke specified method. This method is expected to read

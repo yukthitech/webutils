@@ -1,0 +1,8 @@
+<email-templates>
+	<emailTemplate name="test">
+		<subject>Test subject - $${name}</subject>
+		<body>
+			This is a test template email body used by $${name} with age $${age}
+		</body>
+	</emailTemplate>
+</email-templates>

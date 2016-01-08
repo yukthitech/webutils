@@ -22,10 +22,16 @@
  */
 package com.test.yukthi.webutils.client;
 
+import java.io.File;
+
+import org.apache.commons.io.FileUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import com.test.yukthi.webutils.models.TestBean;
+import com.test.yukthi.webutils.models.TestMailBean;
+import com.test.yukthi.webutils.models.TestMailModel;
+import com.yukthi.utils.CommonUtils;
 import com.yukthi.utils.rest.PostRestRequest;
 import com.yukthi.utils.rest.RestClient;
 import com.yukthi.utils.rest.RestRequest;
@@ -74,5 +80,47 @@ public class TFSpringValidation extends TFBase
 		
 		//test for positive test case where validation succeeds
 		test(new TestBean("name", 25, "test", "test"), IWebUtilsCommonConstants.RESPONSE_CODE_SUCCESS, "name");
+	}
+
+	@Test
+	public void testSendMail() throws Exception
+	{
+		File file1 = File.createTempFile("Test", ".txt");
+		FileUtils.writeStringToFile(file1, "Some test attachment content 1");
+		
+		File file2 = File.createTempFile("Test", ".txt");
+		FileUtils.writeStringToFile(file2, "Some test attachment content 2");
+		
+		//check for negative test case, where validation fails
+		TestMailModel mailModel = new TestMailModel();
+		mailModel.setSubject("Test subject");
+		mailModel.setContent("Some test content for <B>mail</B> testing.");
+		mailModel.setToId("akranthikiran@gmail.com");
+		mailModel.setFromId("dev@yukthi-tech.co.in");
+		mailModel.setAttachments(new String[] {file1.getPath(), file2.getPath()});
+		
+		//invoke the request
+		RestRequest<?> request = ActionRequestBuilder.buildRequest(super.clientContext, "test.sendMail", mailModel, null);
+		
+		RestClient client = clientContext.getRestClient();
+		
+		RestResult<BaseResponse> result = client.invokeJsonRequest(request, BaseResponse.class);
+		
+		Assert.assertEquals(result.getValue().getCode(), 0);
+	}
+
+	@Test
+	public void testSendMailByTemplate() throws Exception
+	{
+		TestMailBean bean = new TestMailBean("Test1234", 34, "akranthikiran@gmail.com");
+		
+		//invoke the request
+		RestRequest<?> request = ActionRequestBuilder.buildRequest(super.clientContext, "test.sendMailByTemplate", bean, null);
+		
+		RestClient client = clientContext.getRestClient();
+		
+		RestResult<BaseResponse> result = client.invokeJsonRequest(request, BaseResponse.class);
+		
+		Assert.assertEquals(result.getValue().getCode(), 0);
 	}
 }

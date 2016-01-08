@@ -141,7 +141,7 @@ public class ActionsService
 		String actionName = null;
 		RequestMethod requestMethods[] = null;
 		Annotation fullParamAnnotations[][] = null;
-		boolean bodyExpected = false;
+		boolean isBodyParam = false, isBodySpecified = false;
 		Set<String> expectedRequestParams = new TreeSet<>(); 
 
 		RequestParam requestParam = null;
@@ -199,11 +199,11 @@ public class ActionsService
 
 			//get the service method parameter annotations
 			fullParamAnnotations = method.getParameterAnnotations();
-			bodyExpected = false;
 			
 			attachmentsExpected = (method.getAnnotation(AttachmentsExpected.class) != null);
 			paramTypes = method.getParameterTypes();
 			paramIndex = -1;
+			isBodySpecified = false;
 			
 			//based on param annotation check if request is expected as HTTP body
 			if(fullParamAnnotations != null)
@@ -211,6 +211,7 @@ public class ActionsService
 				for(Annotation paramAnnotations[] : fullParamAnnotations)
 				{
 					paramIndex++;
+					isBodyParam = false;
 					
 					if(paramAnnotations == null || paramAnnotations.length == 0)
 					{
@@ -229,13 +230,13 @@ public class ActionsService
 							}
 
 							//if multiple parameters are marked for body throw error
-							if(bodyExpected)
+							if(isBodySpecified)
 							{
 								throw new InvalidConfigurationException("Multiple parameters are marked as body attributes. Method - {}.{}()",  
 											method.getDeclaringClass().getName(), method.getName());
 							}
 							
-							bodyExpected = true;
+							isBodyParam = true;
 						}
 						
 						if(RequestPart.class.equals(annotation.annotationType()))
@@ -257,17 +258,17 @@ public class ActionsService
 							}
 							
 							//if multiple parameters are marked for body throw error
-							if(bodyExpected)
+							if(isBodySpecified)
 							{
 								throw new InvalidConfigurationException("Multiple parameters are marked as body attributes. Method - {}.{}()",  
 											method.getDeclaringClass().getName(), method.getName());
 							}
 
-							bodyExpected = true;
+							isBodyParam = true;
 						}
 
 						//if body is expected
-						if(bodyExpected)
+						if(isBodyParam)
 						{
 							//if non model is declared as body throw error
 							if(paramTypes[paramIndex].getAnnotation(Model.class) == null && paramTypes[paramIndex].getAnnotation(ExtendableModel.class) == null)
@@ -290,6 +291,8 @@ public class ActionsService
 											method.getDeclaringClass().getName(), method.getName());
 								}
 							}
+							
+							isBodySpecified = true;
 						}
 						
 						//if the parameter is defined to fetch from request, collect the param names
@@ -320,7 +323,7 @@ public class ActionsService
 			}
 			
 			nameToModel.put( actionName, new ActionModel(actionName, url, 
-					httpMethod, bodyExpected, expectedRequestParams.toArray(new String[0]), getUrlParameters(url), attachmentsExpected, fileFields) );
+					httpMethod, isBodyParam, expectedRequestParams.toArray(new String[0]), getUrlParameters(url), attachmentsExpected, fileFields) );
 		}
 	}
 	

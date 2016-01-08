@@ -184,6 +184,6 @@ public class SearchController extends BaseController
 		
 		excelExporter.generateExcelSheet(tempFile.getPath(), searchExcelDataReport);
 		
-		WebAttachmentUtils.sendFile(response, new FileInfo(searchResultDef.getLabel(), tempFile, WebAttachmentUtils.MIME_MS_EXCEL_FILE), true, true);
+		WebAttachmentUtils.sendFile(response, new FileInfo(searchResultDef.getLabel() + ".xls", tempFile, WebAttachmentUtils.MIME_MS_EXCEL_FILE), true, true);
 	}
 }

@@ -84,6 +84,15 @@ public interface IWebUtilsActionConstants
 	 */
 	public String ACTION_TYPE_FETCH_ATTACHMENT = "fetch.attachment";
 
+	/**
+	 * Action be be used for login operation
+	 */
+	public String ACTION_TYPE_LOGIN = "login";
+
+	/**
+	 * Action be be used to fetch active user
+	 */
+	public String ACTION_TYPE_ACTIVE_USER = "fetch.activeUser";
 	////////////////////////////////////////////////////////////////////////////
 	/**
 	 * Action prefix that can be used on LOV controller
@@ -109,6 +118,11 @@ public interface IWebUtilsActionConstants
 	 * Actions prefix used for files controller
 	 */
 	public String ACTION_PREFIX_FILES = "files";
+
+	/**
+	 * Actions prefix used for auth controller
+	 */
+	public String ACTION_TYPE_AUTH = "auth";
 
 	////////////////////////////////////////////////////////////////////////////
 	/**
