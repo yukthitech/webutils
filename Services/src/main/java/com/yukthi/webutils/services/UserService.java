@@ -55,6 +55,17 @@ public class UserService extends BaseCrudService<UserEntity, IUserRepository>
 	{
 		return super.repository.fetchUser(userName, ownerType, ownerId);
 	}
+	
+	/**
+	 * Fetches user based on base entity details
+	 * @param baseEntityType Base entity type for which this user is created
+	 * @param baseEntityId Base entity id for which this user is created
+	 * @return Matching user entity
+	 */
+	public UserEntity fetchUser(String baseEntityType, long baseEntityId)
+	{
+		return super.repository.fetchUserByBaseEntity(baseEntityType, baseEntityId);
+	}
 
 	/* (non-Javadoc)
 	 * @see com.yukthi.webutils.services.BaseCrudService#deleteById(long)

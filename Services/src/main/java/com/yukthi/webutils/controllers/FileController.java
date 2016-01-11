@@ -23,7 +23,7 @@
 
 package com.yukthi.webutils.controllers;
 
-import static com.yukthi.webutils.common.IWebUtilsActionConstants.ACTION_PREFIX_FILES;
+import static com.yukthi.webutils.common.IWebUtilsActionConstants.*;
 import static com.yukthi.webutils.common.IWebUtilsActionConstants.ACTION_TYPE_FETCH;
 import static com.yukthi.webutils.common.IWebUtilsActionConstants.ACTION_TYPE_FETCH_ATTACHMENT;
 import static com.yukthi.webutils.common.IWebUtilsActionConstants.PARAM_ID;
@@ -39,6 +39,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.yukthi.webutils.annotations.ActionName;
+import com.yukthi.webutils.annotations.NoAuthentication;
 import com.yukthi.webutils.common.FileInfo;
 import com.yukthi.webutils.repository.file.FileEntity;
 import com.yukthi.webutils.security.ISecurityService;
@@ -74,9 +75,18 @@ public class FileController
 	 * @return
 	 * @throws IOException
 	 */
-	private FileInfo getFileInfo(long id, HttpServletResponse response) throws IOException
+	private FileInfo getFileInfo(long id, boolean secured, HttpServletResponse response) throws IOException
 	{
-		FileEntity fileEntity = fileService.getFileEntity(id);
+		FileEntity fileEntity = null;
+		
+		if(secured)
+		{
+			fileEntity = fileService.getFileEntity(id);
+		}
+		else
+		{
+			fileEntity = fileService.getFileEntity(id, false);
+		}
 		
 		//if file is not found
 		if(fileEntity == null)
@@ -86,7 +96,7 @@ public class FileController
 		}
 		
 		//check authorization of current user
-		if(!securityService.isAuthorized(fileEntity))
+		if(secured && !securityService.isAuthorized(fileEntity))
 		{
 			//delete the temp file that was created during db read
 			fileEntity.getFile().delete();
@@ -111,7 +121,7 @@ public class FileController
 	@RequestMapping(value = "/fetch/{" + PARAM_ID + "}", method = RequestMethod.GET)
 	public void fetchFile(@PathVariable(PARAM_ID) long id, HttpServletResponse response) throws IOException
 	{
-		FileInfo fileInfo = getFileInfo(id, response);
+		FileInfo fileInfo = getFileInfo(id, true, response);
 
 		if(fileInfo == null)
 		{
@@ -131,7 +141,50 @@ public class FileController
 	@RequestMapping(value = "/download/{" + PARAM_ID + "}", method = RequestMethod.GET)
 	public void fetchFileAsAttachment(@PathVariable(PARAM_ID) long id, HttpServletResponse response) throws IOException
 	{
-		FileInfo fileInfo = getFileInfo(id, response);
+		FileInfo fileInfo = getFileInfo(id, true, response);
+
+		if(fileInfo == null)
+		{
+			return;
+		}
+
+		WebAttachmentUtils.sendFile(response, fileInfo, true, true);
+	}
+
+	/**
+	 * Fetches file content from db for specified id, as part of request body. Useful to include content as
+	 * image, css etc
+	 * @param id Id of the file to be fetched
+	 * @param response Response on which content needs to be sent
+	 * @throws IOException
+	 */
+	@NoAuthentication
+	@ActionName(ACTION_TYPE_FETCH + "." + ACTION_TYPE_INSECURE)
+	@RequestMapping(value = "/fetch/insecure/{" + PARAM_ID + "}", method = RequestMethod.GET)
+	public void fetchInsecureFile(@PathVariable(PARAM_ID) long id, HttpServletResponse response) throws IOException
+	{
+		FileInfo fileInfo = getFileInfo(id, false, response);
+
+		if(fileInfo == null)
+		{
+			return;
+		}
+
+		WebAttachmentUtils.sendFile(response, fileInfo, false, true);
+	}
+
+	/**
+	 * Fetches file content from db for specified id, as part attachment.
+	 * @param id Id of the file to be fetched
+	 * @param response Response on which content needs to be sent
+	 * @throws IOException
+	 */
+	@NoAuthentication
+	@ActionName(ACTION_TYPE_FETCH_ATTACHMENT + "." + ACTION_TYPE_INSECURE)
+	@RequestMapping(value = "/download/insecure/{" + PARAM_ID + "}", method = RequestMethod.GET)
+	public void fetchInsecureFileAsAttachment(@PathVariable(PARAM_ID) long id, HttpServletResponse response) throws IOException
+	{
+		FileInfo fileInfo = getFileInfo(id, false, response);
 
 		if(fileInfo == null)
 		{

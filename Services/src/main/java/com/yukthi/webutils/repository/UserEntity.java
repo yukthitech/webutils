@@ -48,7 +48,8 @@ import com.yukthi.webutils.repository.ITrackedEntity;
  */
 @Table(name = "USERS")
 @UniqueConstraints({
-	@UniqueConstraint(name = "UQ_USERS_OWNR_UNAME", fields = {"ownerType", "ownerId", "userName"})
+	@UniqueConstraint(name = "UQ_USERS_OWNR_UNAME", fields = {"ownerType", "ownerId", "userName"}),
+	@UniqueConstraint(name = "UQ_USERS_BASE_DET", fields = {"baseEntityType", "baseEntityId"})
 })
 public class UserEntity implements ITrackedEntity
 {
@@ -87,6 +88,7 @@ public class UserEntity implements ITrackedEntity
 	 * Owner under which this user is being defined. Idea is under different owners (customers)
 	 * same user name can be used. Zero value is used for Administrator 
 	 */
+	@NotUpdateable
 	@Column(name = "OWNER_TYPE", nullable = false)
 	private String ownerType;
 	
@@ -94,18 +96,21 @@ public class UserEntity implements ITrackedEntity
 	 * Owner under which this user is being defined. Idea is under different owners (customers)
 	 * same user name can be used. Zero value is used for Administrator 
 	 */
+	@NotUpdateable
 	@Column(name = "OWNER_ID", nullable = false)
 	private Long ownerId = 0L;
 
 	/**
 	 * Actual entity for which this user object is created
 	 */
+	@NotUpdateable
 	@Column(name = "BASE_ENT_TYPE", length = 200)
 	private String  baseEntityType;
 	
 	/**
 	 * Actual entity id, for which this auth details is created
 	 */
+	@NotUpdateable
 	@Column(name = "BASE_ENT_ID")
 	private Long baseEntityId;
 	

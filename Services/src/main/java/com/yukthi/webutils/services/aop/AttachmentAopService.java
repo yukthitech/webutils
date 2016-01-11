@@ -78,7 +78,7 @@ public class AttachmentAopService
 	 * @param arguments Method arguments in which one of them is expected to be model
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private void setAttachments(ProceedingJoinPoint joinPoint, Map<String, List<FileInfo>> fieldAttachments, Object arguments[])
+	private void setAttachments(ProceedingJoinPoint joinPoint, Map<String, List<FileInfo>> fieldAttachments, Object arguments[], boolean secured)
 	{
 		if(arguments == null || arguments.length == 0)
 		{
@@ -124,6 +124,12 @@ public class AttachmentAopService
 				if(fileDetailsLst == null)
 				{
 					continue;
+				}
+
+				//set secured flags on the files
+				for(FileInfo fileInfo : fileDetailsLst)
+				{
+					fileInfo.setSecured(secured);
 				}
 				
 				//set the file details on the field
@@ -199,7 +205,7 @@ public class AttachmentAopService
 		logger.debug("Found following attachments in request - {}", fieldAttachments);
 		
 		//set the attachments on the model fields as part of pre processing
-		setAttachments(joinPoint, fieldAttachments, joinPoint.getArgs());
+		setAttachments(joinPoint, fieldAttachments, joinPoint.getArgs(), attachmentsExpected.secured());
 		
 		//call actual method
 		Object result = joinPoint.proceed();

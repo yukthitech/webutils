@@ -1,6 +1,9 @@
 $.application = angular.module("application", ["ngSanitize", "ui.router"]);
 $.application["directiveTemplateEngine"] = new TemplateEngine();
 
+$.application.filter('unsafe', ["$sce", function($sce) { 
+	return $sce.trustAsHtml; 
+}]);
 
 /*
  * Function to define custom angular element directive

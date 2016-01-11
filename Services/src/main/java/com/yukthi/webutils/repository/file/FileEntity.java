@@ -96,6 +96,12 @@ public class FileEntity implements ITrackedEntity
 	private String contentType;
 	
 	/**
+	 * Flag indicating if this is secured file. Unsecured files can be accessed without authentication
+	 */
+	@Column(name = "SECURED", nullable = false)
+	private boolean secured = true;
+	
+	/**
 	 * Owner entity type
 	 */
 	@Column(name = "OWNER_ENTITY_TYPE", length = 250, nullable = false)
@@ -297,6 +303,26 @@ public class FileEntity implements ITrackedEntity
 		this.contentType = contentType;
 	}
 	
+	/**
+	 * Checks if is flag indicating if this is secured file. Unsecured files can be accessed without authentication.
+	 *
+	 * @return the flag indicating if this is secured file
+	 */
+	public boolean isSecured()
+	{
+		return secured;
+	}
+
+	/**
+	 * Sets the flag indicating if this is secured file. Unsecured files can be accessed without authentication.
+	 *
+	 * @param secured the new flag indicating if this is secured file
+	 */
+	public void setSecured(boolean secured)
+	{
+		this.secured = secured;
+	}
+
 	/**
 	 * Gets the owner entity type.
 	 *

@@ -37,4 +37,9 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface AttachmentsExpected
 {
+	/**
+	 * Indicates whether or not expected attachments are secured
+	 * @return
+	 */
+	public boolean secured() default true;
 }

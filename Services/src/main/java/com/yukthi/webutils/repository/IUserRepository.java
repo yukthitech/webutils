@@ -49,4 +49,13 @@ public interface IUserRepository extends ICrudRepository<UserEntity>
 	 */
 	@UpdateFunction
 	public boolean markAsDeleted(@Condition("id") long userId, @Field("deleted") boolean deleted, @Field("userName") String userName);
+	
+	
+	/**
+	 * Fetches user based on base entity details
+	 * @param baseEntityType Base entity type for which this user is created
+	 * @param baseEntityId Base entity id for which this user is created
+	 * @return Matching user entity
+	 */
+	public UserEntity fetchUserByBaseEntity(@Condition("baseEntityType") String baseEntityType, @Condition("baseEntityId") long baseEntityId);
 }

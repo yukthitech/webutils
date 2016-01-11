@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.yukthi.webutils.annotations.ActionName;
+import com.yukthi.webutils.annotations.NoAuthentication;
 import com.yukthi.webutils.common.IWebUtilsCommonConstants;
 import com.yukthi.webutils.common.models.FetchActionsResponse;
 import com.yukthi.webutils.services.ActionsService;
@@ -52,6 +53,7 @@ public class ActionController extends BaseController
 	 * Controller method to fetch actions
 	 * @return Actions available
 	 */
+	@NoAuthentication
 	@ActionName("fetch")
 	@RequestMapping(value = IWebUtilsCommonConstants.FETCH_URI_PATH, method = RequestMethod.GET)
 	public FetchActionsResponse getActions()

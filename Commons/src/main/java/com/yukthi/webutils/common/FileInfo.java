@@ -27,6 +27,7 @@ import java.io.File;
 
 import com.yukthi.persistence.repository.annotations.Field;
 import com.yukthi.utils.annotations.IgnorePropertyDestination;
+import com.yukthi.webutils.common.annotations.NonDisplayable;
 
 /**
  * File details used to store files
@@ -71,6 +72,12 @@ public class FileInfo
 	@Field("contentType")
 	private String contentType;
 
+	/**
+	 * Indicates if this is secured file or not
+	 */
+	@NonDisplayable
+	private boolean secured = true;
+	
 	/**
 	 * Instantiates a new file entity.
 	 */
@@ -209,6 +216,28 @@ public class FileInfo
 	public void setContentType(String contentType)
 	{
 		this.contentType = contentType;
+	}
+	
+	
+
+	/**
+	 * Checks if is indicates if this is secured file or not.
+	 *
+	 * @return the indicates if this is secured file or not
+	 */
+	public boolean isSecured()
+	{
+		return secured;
+	}
+
+	/**
+	 * Sets the indicates if this is secured file or not.
+	 *
+	 * @param secured the new indicates if this is secured file or not
+	 */
+	public void setSecured(boolean secured)
+	{
+		this.secured = secured;
 	}
 
 	/* (non-Javadoc)

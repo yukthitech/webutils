@@ -88,6 +88,11 @@ public interface IWebUtilsActionConstants
 	 * Action be be used for login operation
 	 */
 	public String ACTION_TYPE_LOGIN = "login";
+	
+	/**
+	 * Insecure prefix or postfix
+	 */
+	public String ACTION_TYPE_INSECURE = "insecure";
 
 	/**
 	 * Action be be used to fetch active user

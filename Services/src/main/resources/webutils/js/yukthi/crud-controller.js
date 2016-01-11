@@ -175,6 +175,11 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 						}
 
 						this.$scope.$broadcast("rowsModified");
+
+						if(this.$scope.rowsModified)
+						{
+							this.$scope.rowsModified();
+						}
 						
 						this.logger.trace("Successfully deleted {} '{}'", this.$scope.crudConfig.name, this.selectedName);
 						this.utils.info(["Successfully deleted {} '{}'", this.$scope.crudConfig.name, this.selectedName]);
@@ -288,6 +293,11 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 					if(response.code == 0)
 					{
 						this.$scope.$broadcast("rowsModified");
+						
+						if(this.$scope.rowsModified)
+						{
+							this.$scope.rowsModified();
+						}
 					
 						if(this.$scope[this.$scope.dlgModeField])
 						{

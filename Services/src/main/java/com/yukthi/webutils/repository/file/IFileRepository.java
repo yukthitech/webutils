@@ -38,6 +38,14 @@ import com.yukthi.webutils.common.FileInfo;
 public interface IFileRepository extends ICrudRepository<FileEntity>
 {
 	/**
+	 * Fetches the file entity based on id and security flag
+	 * @param id
+	 * @param secured
+	 * @return
+	 */
+	public FileEntity findBySecurityFlag(@Condition("id") long id, @Condition("secured") boolean secured);
+	
+	/**
 	 * Fetches file info for specified id
 	 * @param id Id for which file info needs to be fetched
 	 * @return Matching file information

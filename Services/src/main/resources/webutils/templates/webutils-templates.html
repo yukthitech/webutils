@@ -21,39 +21,32 @@
 		<content>
 			<set-var name="_idAttr" expr="context.attributes.id"/>
 			<set-var name="_dataAttr" expr="context.attributes.dataattr"/>
-
-			<div class="container" style="width: ${attributes.width};height: ${attributes.height};">
-				<br/>
-				<div id="${_idAttr}" class="carousel slide" data-ride="carousel">
-					<!-- Indicators -->
-					<ol class="carousel-indicators">
-						<li data-target="#myCarousel" ng-repeat="slideImage in ${_dataAttr}" data-slide-to="{{$index}}" class="{{$first ? 'active' : ''}}"></li>
-					</ol>
 			
-					<!-- Wrapper for slides -->
-					<div class="carousel-inner" role="listbox">
-
-						<div ng-repeat="slideImage in ${_dataAttr}" class="item {{$first ? 'active' : ''}}">
-							<img src="{{slideImage.imagePath}}" style="height: ${attributes.height}"/>
-							<div class="carousel-caption" ng-bind-html="slideImage.caption">
-						    </div>
-						</div>
+			<div id="${_idAttr}" style="width: ${attributes.width};height: ${attributes.height};">
+				<div style="width: ${attributes.width};height: ${attributes.height}; position: absolute;">
+					
+					<div ng-repeat="slideImage in ${_dataAttr}" class="slideImage {{$first ? 'slideImageActive' : 'slideImageInactive'}}"
+						style="width: 100%; height: ${attributes.height}; background-image: url('{{slideImage.imagePath}}'); background-repeat: no-repeat; background-size: 100% 100%;">
+						<div ng-bind-html="slideImage.caption | unsafe">
+					    </div>
 					</div>
-			
-					<!-- Left and right controls -->
-					<a class="left carousel-control" href="#${_idAttr}" role="button" data-slide="prev" style="width: 2em;"> 
-						<span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span> 
-						<span class="sr-only">Previous</span>
-					</a> 
-					<a class="right carousel-control" href="#${_idAttr}" role="button" data-slide="next" style="width: 2em;"> 
-						<span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
-						<span class="sr-only">Next</span>
-					</a>
+					
+					<div class="slideImageNavBut leftNav" style="left: 0px;">
+						<span class="glyphicon glyphicon-chevron-left" style="font-size: 2em;"></span>
+					</div>
+					
+					<div class="slideImageNavBut rightNav" style="right: 0px;">
+					 	<span class="glyphicon glyphicon-chevron-right" style="font-size: 2em;"></span>
+					</div>
 				</div>
 			</div>
 		</content>
+		
+		<post-script>
+			$.slideImages(context.attr("id"));
+		</post-script>
 	</directive>
-	
+
 	<directive name="ykDropDown" required-attr="id, icon">
 		<content>
 			<set-var name="_label" expr="context.flexAttr('label')"/>
@@ -962,8 +955,10 @@
 				expr="context.attr('ng-if')? context.attr('ng-if') : 'true'"/>
 			<set-var name="_sizeAttr" 
 				expr="context.attr('size')? 'font-size: ' + context.attr('size') + ';' : '' "/>
+			<set-var name="_extraStyle" 
+				expr="context.attr('style')? context.attr('style') : '' "/>
 
-			<a role="button" ng-click="${attr('ng-click')}" style="text-decoration: none; color: ${attr('color')};${_sizeAttr}" class="yk-icon-link" 
+			<a role="button" ng-click="${attr('ng-click')}" style="text-decoration: none; color: ${attr('color')};${_sizeAttr};${_extraStyle}" class="yk-icon-link" 
 						data-toggle="tooltip" title="${attr('label')}" ng-show="${_showExpr}" ng-if="${_ifExpr}">
 				<i class="${attr('icon')}"></i>
 			</a>

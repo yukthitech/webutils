@@ -270,6 +270,7 @@ public class FileService
 		fileEntity.setOwnerEntityType(ownerEntityType.getName());
 		fileEntity.setOwnerEntityField(ownerEntityField);
 		fileEntity.setOwnerEntityId(ownerEntityId);
+		fileEntity.setSecured(file.isSecured());
 		
 		//get security customization
 		securityService.addSecurityCustomization(fileEntity);
@@ -426,5 +427,17 @@ public class FileService
 	{
 		logger.trace("Fetching file content for id - {}", id);
 		return repository.findById(id);
+	}
+
+	/**
+	 * Fetches file entity based on id and secured flag
+	 * @param id
+	 * @param secured
+	 * @return
+	 */
+	public FileEntity getFileEntity(Long id, boolean secured)
+	{
+		logger.trace("Fetching file content for id - {} and security flag - {}", id, secured);
+		return repository.findBySecurityFlag(id, secured);
 	}
 }
