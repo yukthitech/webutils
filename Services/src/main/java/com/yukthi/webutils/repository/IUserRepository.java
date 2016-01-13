@@ -3,7 +3,9 @@ package com.yukthi.webutils.repository;
 import com.yukthi.persistence.ICrudRepository;
 import com.yukthi.persistence.repository.annotations.Condition;
 import com.yukthi.persistence.repository.annotations.CountFunction;
+import com.yukthi.persistence.repository.annotations.DefaultCondition;
 import com.yukthi.persistence.repository.annotations.Field;
+import com.yukthi.persistence.repository.annotations.MethodConditions;
 import com.yukthi.persistence.repository.annotations.UpdateFunction;
 
 /**
@@ -19,6 +21,9 @@ public interface IUserRepository extends ICrudRepository<UserEntity>
 	 * @param ownerId Owner id under which user name should be present
 	 * @return 0 if user is not present otherwise 1
 	 */
+	@MethodConditions(conditions = {
+		@DefaultCondition(field = "deleted", value = "false")
+	})
 	@CountFunction
 	public int checkForUser(@Condition("userName") String userName, @Condition("ownerType") String ownerType, @Condition("ownerId") long ownerId);
 	
@@ -29,6 +34,9 @@ public interface IUserRepository extends ICrudRepository<UserEntity>
 	 * @param ownerId Owner id under which user name should be present
 	 * @return Encrypted password
 	 */
+	@MethodConditions(conditions = {
+			@DefaultCondition(field = "deleted", value = "false")
+		})
 	@Field("password")
 	public String fetchPassword(@Condition("userName") String userName, @Condition("ownerType") String ownerType, @Condition("ownerId") long ownerId);
 	
@@ -39,6 +47,9 @@ public interface IUserRepository extends ICrudRepository<UserEntity>
 	 * @param ownerId Owner id under which user name should be present
 	 * @return Matching user details
 	 */
+	@MethodConditions(conditions = {
+			@DefaultCondition(field = "deleted", value = "false")
+		})
 	public UserEntity fetchUser(@Condition("userName") String userName, @Condition("ownerType") String ownerType, @Condition("ownerId") long ownerId);
 	
 	/**
@@ -57,5 +68,8 @@ public interface IUserRepository extends ICrudRepository<UserEntity>
 	 * @param baseEntityId Base entity id for which this user is created
 	 * @return Matching user entity
 	 */
+	@MethodConditions(conditions = {
+			@DefaultCondition(field = "deleted", value = "false")
+		})
 	public UserEntity fetchUserByBaseEntity(@Condition("baseEntityType") String baseEntityType, @Condition("baseEntityId") long baseEntityId);
 }

@@ -12,6 +12,12 @@ $.application.controller('mainController', ["$scope", "$rootScope", "logger", "a
 		
 		this.$scope.activeUser = activeUserResp.model;
 		
+		try
+		{
+			this.$scope.$digest();
+		}catch(ex)
+		{}
+		
 	}, {"$scope": $scope}));
 	
 	$rootScope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState, fromParams)
@@ -19,5 +25,14 @@ $.application.controller('mainController', ["$scope", "$rootScope", "logger", "a
 		console.log('Moved to state - ' + toState.name + ". Activating tab - " + toState.tab);
 		$("#" + toState.tab + "_tab").tab("show");
 	});
+	
+	$scope.hasRole = function(roleName) {
+		if(!this.$scope.activeUser)
+		{
+			return true;
+		}
+		
+		return (this.$scope.activeUser.roles.indexOf(roleName) > 0);
+	};
 	
 }]);

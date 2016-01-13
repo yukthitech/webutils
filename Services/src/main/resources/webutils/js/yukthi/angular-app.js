@@ -210,10 +210,12 @@ $.addAttributeDirective = function(directiveObj) {
 			//eval directive script
 			this.scriptFunc(context);
 			
+			/*
 			if(this.recompile)
 			{
 				$compile(element.contents())($scope);
 			}
+			*/
 			
 			//IMP NOTE: Done do anything here as eval() can have return statement (and if it does this part will never
 					//gets executed) 
@@ -328,7 +330,7 @@ $.loadCustomDirectives = function(templateFilePath) {
 				name : childName,
 				scriptFunc: scriptFunc,
 				attrName: tagName,
-				"recompile" : (child.attr("recompile") == "true") ? true : false,
+				//"recompile" : (child.attr("recompile") == "true") ? true : false,
 				priority: priority
 			});
 		}

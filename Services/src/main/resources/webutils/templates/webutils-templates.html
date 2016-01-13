@@ -94,8 +94,9 @@
 						<set-var name="_tabId" expr="context._tab.attr('id')"/>
 						<set-var name="_tabActive" expr="context.tabIdx == 0 ? 'active' : ''"/>
 						<set-var name="_tabShowExpr" expr="context.attr('ng-show', null, context._tab) ? context.attr('ng-show', null, context._tab) : 'true'"/>
+						<set-var name="_forRole" expr="context.attr('yk-for-role', null, context._tab) ? context.attr('yk-for-role', null, context._tab) : ''"/>
 						
-						<li role="presentation" class="${_tabActive}" ng-show="${_tabShowExpr}">
+						<li role="presentation" class="${_tabActive}" ng-show="${_tabShowExpr}" yk-for-role="${_forRole}">
 							<a id="${_tabId}_tab" ui-sref="${_tab.attr('state')}" href="#${_tabId}" onfocus="blur()" data-target="#${_tabId}" data-toggle="tab">
 								<if test="context.attr('icon', null, context._tab)">
 									<i class="glyphicon ${_tab.attr('icon')}" 
@@ -114,8 +115,9 @@
 						<set-var name="_tabActive" expr="context.tabIdx == 0 ? 'active' : ''"/>
 						<set-var name="_tabContent" expr="context._tab.html()"/>
 						<set-var name="_tabShowExpr" expr="context.attr('ng-show', null, context._tab) ? context.attr('ng-show', null, context._tab) : 'true'"/>
+						<set-var name="_forRole" expr="context.attr('yk-for-role', null, context._tab) ? context.attr('yk-for-role', null, context._tab) : ''"/>
 						
-						<div role="tabpanel" class="tab-pane ${_tabActive}" id="${_tab.attr('id')}" ui-view="${_tab.attr('view')}" style="padding: 0.5em;" ng-show="${_tabShowExpr}">
+						<div role="tabpanel" class="tab-pane ${_tabActive}" id="${_tab.attr('id')}" ui-view="${_tab.attr('view')}" style="padding: 0.5em;" ng-show="${_tabShowExpr}"  yk-for-role="_forRole">
 							${_tabContent}
 						</div>
 
@@ -1306,4 +1308,16 @@
 		</script>
 	</attr-directive>
 
+	<attr-directive name="ykForRole">
+		<script>
+			var attrVal = context.attributeValue;
+			
+			if(!attrVal || attrVal.length == 0)
+			{
+				return;
+			}
+			
+			context.element.attr("ng-if", "hasRole('" + attrVal + "')");
+		</script>
+	</attr-directive>
 </directives>
