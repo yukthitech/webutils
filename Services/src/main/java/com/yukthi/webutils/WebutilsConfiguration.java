@@ -24,7 +24,9 @@
 package com.yukthi.webutils;
 
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
@@ -89,6 +91,11 @@ public class WebutilsConfiguration
 	 * Javascript based date format
 	 */
 	private String jsDateFormat = "DD/MM/YYYY";
+	
+	/**
+	 *  Application specific configurations
+	 */
+	private Map<String, String> appConfigurations = new HashMap<>();
 	
 	/**
 	 * Validte.
@@ -311,6 +318,24 @@ public class WebutilsConfiguration
 	{
 		this.jsDateFormat = jsDateFormat;
 	}
-	
-	
+
+	/**
+	 * Gets the application specific configurations.
+	 *
+	 * @return the application specific configurations
+	 */
+	public Map<String, String> getAppConfigurations()
+	{
+		return appConfigurations;
+	}
+
+	/**
+	 * Sets the application specific configurations.
+	 *
+	 * @param appConfigurations the new application specific configurations
+	 */
+	public void setAppConfigurations(Map<String, String> appConfigurations)
+	{
+		this.appConfigurations = appConfigurations;
+	}
 }

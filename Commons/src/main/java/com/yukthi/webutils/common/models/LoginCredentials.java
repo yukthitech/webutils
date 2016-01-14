@@ -23,7 +23,10 @@
 
 package com.yukthi.webutils.common.models;
 
+import java.util.Map;
+
 import com.yukthi.validation.annotations.NotEmpty;
+import com.yukthi.webutils.common.annotations.IgnoreField;
 import com.yukthi.webutils.common.annotations.Model;
 
 /**
@@ -45,6 +48,12 @@ public class LoginCredentials
 	 */
 	@NotEmpty
 	private String password;
+	
+	/**
+	 * Extra attributes that can be used for customization of login process 
+	 */
+	@IgnoreField
+	private Map<String, String> attributes;
 
 	/**
 	 * Instantiates a new login credentials.
@@ -104,4 +113,23 @@ public class LoginCredentials
 		this.password = password;
 	}
 
+	/**
+	 * Gets the extra attributes that can be used for customization of login process.
+	 *
+	 * @return the extra attributes that can be used for customization of login process
+	 */
+	public Map<String, String> getAttributes()
+	{
+		return attributes;
+	}
+
+	/**
+	 * Sets the extra attributes that can be used for customization of login process.
+	 *
+	 * @param attributes the new extra attributes that can be used for customization of login process
+	 */
+	public void setAttributes(Map<String, String> attributes)
+	{
+		this.attributes = attributes;
+	}
 }

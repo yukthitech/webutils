@@ -462,6 +462,11 @@ $.application.factory('clientContext', ['logger', 'utils', function(logger, util
 		scriptsAdded: [],
 		
 		/**
+		 * Map of attributes, if set will be used during authentication
+		 */
+		authAttributes: null,
+		
+		/**
 		 * Checks and return true if the current context is initialize, that
 		 * is current is authenticated
 		 */
@@ -657,6 +662,18 @@ $.application.factory('clientContext', ['logger', 'utils', function(logger, util
 		},
 		
 		/**
+		 * Method to add authentication attributes
+		 */
+		"addAuthAttribute" : function(name, value) {
+			if(!this.authAttributes)
+			{
+				this.authAttributes = {};
+			}
+			
+			this.authAttributes[name] = value;
+		},
+		
+		/**
 		 * Tries to authenticate the context with specified 
 		 * user name and password. On error, exception will be thrown
 		 * @param userName User name
@@ -680,7 +697,7 @@ $.application.factory('clientContext', ['logger', 'utils', function(logger, util
     		
     		this.invokePostApi(
 				$.appConfiguration.apiBaseUrl + LOGIN_URI,
-				{"userName":  userName, "password": password},
+				{"userName":  userName, "password": password, "attributes": this.authAttributes},
 				
 				function(resData, config) {
 					

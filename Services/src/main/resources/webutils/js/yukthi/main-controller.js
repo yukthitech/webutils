@@ -27,12 +27,12 @@ $.application.controller('mainController', ["$scope", "$rootScope", "logger", "a
 	});
 	
 	$scope.hasRole = function(roleName) {
-		if(!this.$scope.activeUser)
+		if(!$scope.activeUser)
 		{
 			return true;
 		}
 		
-		return (this.$scope.activeUser.roles.indexOf(roleName) > 0);
+		return ($scope.activeUser.roles.indexOf(roleName) >= 0);
 	};
 	
 }]);

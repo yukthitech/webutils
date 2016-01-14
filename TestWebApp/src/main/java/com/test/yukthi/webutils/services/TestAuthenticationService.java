@@ -24,6 +24,7 @@
 package com.test.yukthi.webutils.services;
 
 import java.lang.reflect.Method;
+import java.util.Map;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,17 +47,20 @@ import com.yukthi.webutils.services.CurrentUserService;
 @Service
 public class TestAuthenticationService implements ISecurityService
 {
+	
+	/** The user service. */
 	@Autowired
 	private TestUserService userService;
 	
+	/** The current user service. */
 	@Autowired
 	private CurrentUserService currentUserService;
 	
 	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.security.IAuthenticationService#authenticate(java.lang.String, java.lang.String)
+	 * @see com.yukthi.webutils.security.ISecurityService#authenticate(java.lang.String, java.lang.String, java.util.Map)
 	 */
 	@Override
-	public TestUserDetails authenticate(String userName, String password)
+	public TestUserDetails authenticate(String userName, String password, Map<String, String> attrMap)
 	{
 		if(!"admin".equals(userName) || !"admin".equals(password))
 		{
@@ -121,6 +125,9 @@ public class TestAuthenticationService implements ISecurityService
 		return true;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.yukthi.webutils.security.ISecurityService#getActiverUser()
+	 */
 	@Override
 	public ActiveUserModel getActiverUser()
 	{

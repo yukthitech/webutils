@@ -117,7 +117,7 @@
 						<set-var name="_tabShowExpr" expr="context.attr('ng-show', null, context._tab) ? context.attr('ng-show', null, context._tab) : 'true'"/>
 						<set-var name="_forRole" expr="context.attr('yk-for-role', null, context._tab) ? context.attr('yk-for-role', null, context._tab) : ''"/>
 						
-						<div role="tabpanel" class="tab-pane ${_tabActive}" id="${_tab.attr('id')}" ui-view="${_tab.attr('view')}" style="padding: 0.5em;" ng-show="${_tabShowExpr}"  yk-for-role="_forRole">
+						<div role="tabpanel" class="tab-pane ${_tabActive}" id="${_tab.attr('id')}" ui-view="${_tab.attr('view')}" style="padding: 0.5em;" ng-show="${_tabShowExpr}"  yk-for-role="${_forRole}">
 							${_tabContent}
 						</div>
 
@@ -1308,6 +1308,10 @@
 		</script>
 	</attr-directive>
 
+	<!--
+		If a non-zero value is specified, checks if the current user has target role. If not, 
+		target element will be marked with display = none style (which results in hiding parent element) 
+	 -->
 	<attr-directive name="ykForRole">
 		<script>
 			var attrVal = context.attributeValue;
@@ -1317,7 +1321,18 @@
 				return;
 			}
 			
-			context.element.attr("ng-if", "hasRole('" + attrVal + "')");
+			var watchFunc = $.proxy(function(){
+				return this.$scope.hasRole(this.role);
+			}, {"$scope" : context.$scope, "role": attrVal});
+			
+			var respFunc = $.proxy(function(newValue, oldValue){
+				if(!newValue)
+				{
+					this.element.css("display", "none");
+				}
+			}, {"$scope" : context.$scope, "element": context.element});
+			
+			context.$scope.$watch(watchFunc, respFunc);
 		</script>
 	</attr-directive>
 </directives>

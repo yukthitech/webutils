@@ -89,7 +89,7 @@ public class LoginController extends BaseController
 	{
 		logger.debug("Trying to peform login operation for user - {}", credentials.getUserName());
 		
-		UserDetails userDetails = authenticationService.authenticate(credentials.getUserName(), credentials.getPassword());
+		UserDetails userDetails = authenticationService.authenticate(credentials.getUserName(), credentials.getPassword(), credentials.getAttributes());
 		
 		if(userDetails == null)
 		{

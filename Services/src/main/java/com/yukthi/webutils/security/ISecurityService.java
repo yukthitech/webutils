@@ -24,6 +24,7 @@
 package com.yukthi.webutils.security;
 
 import java.lang.reflect.Method;
+import java.util.Map;
 
 import com.yukthi.webutils.common.models.ActiveUserModel;
 import com.yukthi.webutils.extensions.ExtensionPointDetails;
@@ -41,9 +42,10 @@ public interface ISecurityService
 	 * are value
 	 * @param userName User name
 	 * @param password password
+	 * @param attributes Extra attributes from client for custom login
 	 * @return User details if authentication is successful, otherwise null
 	 */
-	public UserDetails authenticate(String userName, String password);
+	public UserDetails authenticate(String userName, String password, Map<String, String> attributes);
 	
 	/**
 	 * Should return user details and configurations of the current user. 
