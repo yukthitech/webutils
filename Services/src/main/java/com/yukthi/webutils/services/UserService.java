@@ -62,9 +62,20 @@ public class UserService extends BaseCrudService<UserEntity, IUserRepository>
 	 * @param baseEntityId Base entity id for which this user is created
 	 * @return Matching user entity
 	 */
-	public UserEntity fetchUser(String baseEntityType, long baseEntityId)
+	public UserEntity fetchUserByBaseEntity(String baseEntityType, long baseEntityId)
 	{
 		return super.repository.fetchUserByBaseEntity(baseEntityType, baseEntityId);
+	}
+
+	/**
+	 * Marks user as deleted based on specified base entity type and id
+	 * @param baseEntityType
+	 * @param baseEntityId
+	 * @return
+	 */
+	public boolean deleteByBaseEntity(String baseEntityType, long baseEntityId)
+	{
+		return super.repository.markDeletedByBaseEntity(baseEntityType, baseEntityId, true);
 	}
 
 	/* (non-Javadoc)

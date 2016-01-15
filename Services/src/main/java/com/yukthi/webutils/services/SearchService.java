@@ -139,12 +139,12 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 		
 		if(queryModelType.getAnnotation(Model.class) == null)
 		{
-			throw new InvalidStateException("For search-method {} non-model {} is defined as query-model-type", repository.getClass().getName(), method.getName(), queryModelType.getName());
+			throw new InvalidStateException("For search-method {}.{} non-model {} is defined as query-model-type", repository.getClass().getName(), method.getName(), queryModelType.getName());
 		}
 		
 		if(returnModelType.getAnnotation(Model.class) == null)
 		{
-			throw new InvalidStateException("For search-method {} non-model {} is defined as query-return-type", repository.getClass().getName(), method.getName(), returnModelType.getName());
+			throw new InvalidStateException("For search-method {}.{} non-model {} is defined as query-return-type", repository.getClass().getName(), method.getName(), returnModelType.getName());
 		}
 		
 		String queryName = annotation.name();

@@ -72,4 +72,13 @@ public interface IUserRepository extends ICrudRepository<UserEntity>
 			@DefaultCondition(field = "deleted", value = "false")
 		})
 	public UserEntity fetchUserByBaseEntity(@Condition("baseEntityType") String baseEntityType, @Condition("baseEntityId") long baseEntityId);
+
+	/**
+	 * Marks user as deleted based on specified based entity type and id 
+	 * @param baseEntityType
+	 * @param baseEntityId
+	 * @return
+	 */
+	@UpdateFunction
+	public boolean markDeletedByBaseEntity(@Condition("baseEntityType") String baseEntityType, @Condition("baseEntityId") long baseEntityId, @Field("deleted") boolean deleted);
 }

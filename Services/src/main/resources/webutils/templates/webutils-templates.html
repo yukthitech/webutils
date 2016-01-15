@@ -85,6 +85,7 @@
 			
 			<set-var name="_footer" expr="context.flexAttr('footer')"/>
 			<set-var name="_content" expr="context.element.find('content').html()"/>
+			<set-var name="_showContent" expr="context.attr('show-content') ? context.attr('show-content') : 'true'"/>
 			
 			<div>
 				<!-- Nav tabs -->
@@ -109,20 +110,22 @@
 				</ul>
 			
 				<!-- Tab panes -->
-				<div class="tab-content">
-					<for-each data="${_tabs}" loop-var="tab" index-var="tabIdx">
-						<set-var name="_tab" expr="$(context.tab)"/>
-						<set-var name="_tabActive" expr="context.tabIdx == 0 ? 'active' : ''"/>
-						<set-var name="_tabContent" expr="context._tab.html()"/>
-						<set-var name="_tabShowExpr" expr="context.attr('ng-show', null, context._tab) ? context.attr('ng-show', null, context._tab) : 'true'"/>
-						<set-var name="_forRole" expr="context.attr('yk-for-role', null, context._tab) ? context.attr('yk-for-role', null, context._tab) : ''"/>
-						
-						<div role="tabpanel" class="tab-pane ${_tabActive}" id="${_tab.attr('id')}" ui-view="${_tab.attr('view')}" style="padding: 0.5em;" ng-show="${_tabShowExpr}"  yk-for-role="${_forRole}">
-							${_tabContent}
-						</div>
-
-					</for-each>
-				</div>
+				<if test="context._showContent == 'true'">
+					<div class="tab-content">
+						<for-each data="${_tabs}" loop-var="tab" index-var="tabIdx">
+							<set-var name="_tab" expr="$(context.tab)"/>
+							<set-var name="_tabActive" expr="context.tabIdx == 0 ? 'active' : ''"/>
+							<set-var name="_tabContent" expr="context._tab.html()"/>
+							<set-var name="_tabShowExpr" expr="context.attr('ng-show', null, context._tab) ? context.attr('ng-show', null, context._tab) : 'true'"/>
+							<set-var name="_forRole" expr="context.attr('yk-for-role', null, context._tab) ? context.attr('yk-for-role', null, context._tab) : ''"/>
+							
+							<div role="tabpanel" class="tab-pane ${_tabActive}" id="${_tab.attr('id')}" ui-view="${_tab.attr('view')}" style="padding: 0.5em;" ng-show="${_tabShowExpr}"  yk-for-role="${_forRole}">
+								${_tabContent}
+							</div>
+	
+						</for-each>
+					</div>
+				</if>
 			</div>
 		</content>
 	</directive>
@@ -713,6 +716,9 @@
 							${fieldDef.label}
 						</td>
 						<td style="padding: 0px;">
+							<div class="visible-xs-block yk-field-label" field-label="${fieldLabel}" style="font-size: 0.8em;">
+								${fieldDef.label}
+							</div>
 							<div style="width: ${element.attr('field-width')}; display: inline-block; padding: 0px;">
 								<if test="context.fieldDef.fieldType == 'STRING'">
 									<input type="text" name="${fieldDef.name}" placeholder="${fieldDef.label}" 
