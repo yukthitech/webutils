@@ -231,7 +231,9 @@ $.addAttributeDirective = function(directiveObj) {
 $.loadCustomDirectives = function(templateFilePath) {
 	var directivesParent = $.makeJsonCall(templateFilePath, null, {cache: false, dataType: "xml", "methodType": "GET"});
 	directivesParent = directivesParent.documentElement;
-	var children = directivesParent.children;
+	
+	//Cross Browser Fix : directivesParent.children does not work in IE. IE supports childNodes property on node
+	var children = directivesParent.children ? directivesParent.children : directivesParent.childNodes;
 	var tagName = null;
 	var CAP_PATTERN = /([A-Z])/g;
 	var child = null, contentChild = null, scriptChild= null;

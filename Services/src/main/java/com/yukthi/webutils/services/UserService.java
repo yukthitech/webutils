@@ -77,6 +77,19 @@ public class UserService extends BaseCrudService<UserEntity, IUserRepository>
 	{
 		return super.repository.markDeletedByBaseEntity(baseEntityType, baseEntityId, true);
 	}
+	
+	/**
+	 * Updates password of user under specified ownership and with specified user name
+	 * @param ownerType
+	 * @param ownerId
+	 * @param userName
+	 * @param password
+	 * @return
+	 */
+	public boolean updatePassword(String ownerType, long ownerId, String userName, String password)
+	{
+		return super.repository.updatePassword(ownerType, ownerId, userName, password);
+	}
 
 	/* (non-Javadoc)
 	 * @see com.yukthi.webutils.services.BaseCrudService#deleteById(long)

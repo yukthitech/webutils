@@ -174,6 +174,6 @@ public class BaseController
 		
 		response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		
-		return new BaseResponse(IWebUtilsCommonConstants.RESPONSE_CODE_UNHANDLED_SERVER_ERROR, "Unknown server error");
+		return new BaseResponse(IWebUtilsCommonConstants.RESPONSE_CODE_UNHANDLED_SERVER_ERROR, "Unknown server error - " + ex.getMessage());
 	}
 }

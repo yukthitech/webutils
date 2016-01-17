@@ -81,4 +81,14 @@ public interface IUserRepository extends ICrudRepository<UserEntity>
 	 */
 	@UpdateFunction
 	public boolean markDeletedByBaseEntity(@Condition("baseEntityType") String baseEntityType, @Condition("baseEntityId") long baseEntityId, @Field("deleted") boolean deleted);
+	
+	/**
+	 * Updates password of user under specified ownership and with specified user name
+	 * @param ownerType
+	 * @param ownerId
+	 * @param userName
+	 * @param password
+	 * @return
+	 */
+	public boolean updatePassword(@Condition("ownerType") String ownerType, @Condition("ownerId") long ownerId, @Condition("userName") String userName, @Field("password") String password);
 }

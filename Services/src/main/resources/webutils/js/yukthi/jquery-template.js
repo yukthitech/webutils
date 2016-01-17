@@ -617,7 +617,6 @@ $.makeJsonCall = function(url, data, config) {
 	var methodType = (config && config.methodType)? config.methodType: "POST";
 	var processData = (config && isDefined(config.processData))? config.processData : undefined;
 	
-	
 	$(document).data("makeJsonCall.data", null);
 	$(document).data("makeJsonCall.dataType", dataTypeVal);
 	
@@ -637,7 +636,7 @@ $.makeJsonCall = function(url, data, config) {
 		  error: function(jqXHR, textStatus, errorThrown){
 			  var resData = null;
 			  var dataType = $(document).data("makeJsonCall.dataType");
-			  
+
 			  if(dataType == 'json')
 			  {
 				  try
@@ -660,7 +659,7 @@ $.makeJsonCall = function(url, data, config) {
 	});
 	
 	var result = $(document).data("makeJsonCall.data");
-	
+
 	if(result != null)
 	{
 		if(result.status >= 200 && result.status <= 300)

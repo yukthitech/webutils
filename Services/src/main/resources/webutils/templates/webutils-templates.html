@@ -97,8 +97,8 @@
 						<set-var name="_tabShowExpr" expr="context.attr('ng-show', null, context._tab) ? context.attr('ng-show', null, context._tab) : 'true'"/>
 						<set-var name="_forRole" expr="context.attr('yk-for-role', null, context._tab) ? context.attr('yk-for-role', null, context._tab) : ''"/>
 						
-						<li role="presentation" class="${_tabActive}" ng-show="${_tabShowExpr}" yk-for-role="${_forRole}">
-							<a id="${_tabId}_tab" ui-sref="${_tab.attr('state')}" href="#${_tabId}" onfocus="blur()" data-target="#${_tabId}" data-toggle="tab">
+						<li role="presentation" class="${_tabActive}" ng-show="${_tabShowExpr}" yk-for-role="${_forRole}" style="cursor: pointer;">
+							<a id="${_tabId}_tab" ui-sref="${_tab.attr('state')}" onfocus="blur()" data-target="#${_tabId}" data-toggle="tab">
 								<if test="context.attr('icon', null, context._tab)">
 									<i class="glyphicon ${_tab.attr('icon')}" 
 										style="color: ${attr('icon-color', '', context._tab)};font-weight: bold;" aria-hidden="true"></i>
@@ -128,6 +128,14 @@
 				</if>
 			</div>
 		</content>
+		
+		<pre-compile-script>
+			var links = context.$result.find("a[ui-sref='undefined']");
+			
+			links.each(function(){
+				$(this).removeAttr("ui-sref");
+			});
+		</pre-compile-script>
 	</directive>
 
 
@@ -1003,6 +1011,23 @@
 			element.off("dp.change").on("dp.change", $.proxy(function(event){
 				this.element.find("input").trigger("change");
 			}, {"element": element, "$scope" : context.$scope}));
+		</post-script>
+	</directive>
+
+	<directive name="ykMarquee" required-attr="id, width, height">
+		<content>
+			<set-var name="_content" expr="context.bodyAsHtml()"/>
+
+			<div id="${attr('id')}" style="width: ${attr('width')}; height: ${attr('height')};">
+				<div style="position: absolute;width: ${attr('width')}; height: ${attr('height')}; overflow: hidden;">
+					<div class="contentElem" style="position: absolute; width: 98%;">
+						${_content}
+					</div>
+				</div>
+			</div>
+		</content>
+		<post-script>
+			$.marquee(context.attr("id"), context.attr('speed'));
 		</post-script>
 	</directive>
 

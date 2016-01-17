@@ -79,3 +79,55 @@ $.slideImages = function(id) {
 	}, context));
 	
 };
+
+$.marquee = function(id, speed) {
+	var element = $("#" + id);
+	var iSpeed = 100;
+	var contentElem = $(element.find(".contentElem").first());
+	
+	try
+	{
+		iSpeed = parseInt(speed);
+	}catch(ex)
+	{}
+	
+	var context = {
+		"element": element, 
+		"speed": iSpeed, 
+		"mouseEntered": false, 
+		"contentElem": contentElem
+	};
+	
+	console.log("===============>Using speed - " + iSpeed + "==>" + speed);
+	
+	setInterval($.proxy(function(){
+		if(this.mouseEntered)
+		{
+			return;
+		}
+
+		var containerHeight = context.element.height();
+		var height = context.contentElem.height();
+		var y = context.contentElem.position().top;
+		
+		if( (0-y) > height)
+		{
+			context.contentElem.css("top", containerHeight);
+		}
+		else
+		{
+			context.contentElem.css("top", y - 5);
+		}
+	}, context),  iSpeed);
+	
+	var mouseEnterFunc = $.proxy(function(){
+		this.mouseEntered = true;
+	}, context);
+	
+	var mouseExitFunc = $.proxy(function(){
+		this.mouseEntered = false;
+	}, context);
+	
+	element.mousemove(mouseEnterFunc);
+	element.mouseleave(mouseExitFunc);
+};
