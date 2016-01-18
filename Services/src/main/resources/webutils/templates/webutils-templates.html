@@ -312,7 +312,7 @@
 						<div class="col-xs-12" style="text-align: right; padding-bottom: 0.4em;">
 							<if test="context['export-action']">
 								<yk-icon-link icon="fa fa-building" ng-click="exportResults()" 
-										color="green" label="Export Excel" ng-if="searchResults.length != 0"></yk-icon-link>
+										color="green" label="Export Excel" ng-show="searchResults.length != 0"></yk-icon-link>
 							</if>
 							
 							<for-each data="${actions}" loop-var="action" index-var="actionIdx">
