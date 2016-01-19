@@ -764,17 +764,6 @@
 								<else-if test="context.fieldDef.fieldType == 'DATE'">
 									<yk-date-field name="${fieldDef.name}" label="${fieldDef.label}" ng-model="${modelField}"
 										yk-read-only="${fieldDef.readOnly}" ng-change="${validateFunc}"></yk-date-field>
-									<!--  
-									<div class="form-group" style="margin-bottom: 0px;">
-										<div class="model-form-date input-group date" yk-date-format="${modelDef.jsDateFormat}">
-											<input type="text" class="form-control"   name="${fieldDef.name}" placeholder="${fieldDef.label}" 
-												ng-model="${modelField}" yk-read-only="${fieldDef.readOnly}" ng-change="${validateFunc}"></input>
-											<span class="input-group-addon">
-												<span class="glyphicon glyphicon-calendar"></span>
-											</span>
-										</div>
-									</div>
-									-->								
 								</else-if>
 								<else-if test="context.fieldDef.fieldType == 'LIST_OF_VALUES'">
 									<if test="context.extended == 'true'">
@@ -789,7 +778,7 @@
 									<else>
 										<yk-lov-field name="${fieldDef.name}" label="${fieldDef.label}" lov="${fieldDef.lovDetails.lovName}" yk-read-only="${fieldDef.readOnly}"
 													type="${fieldDef.lovDetails.lovType}" model="${modelField}" on-change="${validateFunc}"
-													actual-type="${fieldDef.lovDetails.actualType}"></yk-lov-field>
+													actual-type="${fieldDef.lovDetails.actualType}" multi-valued="${fieldDef.multiValued}"></yk-lov-field>
 									</else> 
 								</else-if>
 								<else-if test="context.fieldDef.fieldType == 'FILE'">
@@ -944,16 +933,71 @@
 				}
 				
 				context.$scope.dropDown[context.attr('name')] = lovList;
+				
+				//check and set if this field is multi valued lov
+				context.multiValued = (context.attr("multi-valued") == 'true') ? true : false;
 			</exe-script>
 			
 			<set-var name="_readOnly" expr="(context.attr('yk-read-only') == 'true') ? 'true' : 'false'"/>
 			<set-var name="_actualType" expr="context.attr('actual-type')"/>
 
-			<select name="${attr('name')}"  ng-model="${modelField}" yk-read-only="${_readOnly}" ng-change="${attr('on-change')}" 
-					ng-options="item.value as item.label for item in dropDown.${attr('name')}">
-				<option value="" selected=""> -- Select ${attr('label')} --  </option>
-			</select>
+			<if test="context.multiValued">
+				<div style="width: 100%; padding: 0.3em;border: solid 1px rgb(200, 200, 200); border-radius: 0.4em; overflow: auto; height: 4em;">
+					<table>
+						<for-each data="${lovList}" loop-var="lov" index-var="lovIdx">
+							<tr>
+								<td>
+									<input type="checkbox" value="${lov.value}" style="min-width: 1px; height: 1em; width: 1em; margin: 0.2em;"/> 
+									${lov.label}
+								</td>
+							</tr>
+						</for-each>
+					</table>
+				</div>
+			</if>
+			<else>
+				<select name="${attr('name')}"  ng-model="${modelField}" yk-read-only="${_readOnly}" ng-change="${attr('on-change')}" 
+						ng-options="item.value as item.label for item in dropDown.${attr('name')}">
+					<option value="" selected=""> -- Select ${attr('label')} --  </option>
+				</select>
+			</else>
 		</content>
+
+		<post-script>
+			var multiValued = (context.attr("multi-valued") == 'true') ? true : false;
+			
+			//for single values lov nothing needs to be done
+			if(!multiValued)
+			{
+				return;
+			}
+			
+			var lovCheckBoxes = $(context.$result).find("input[type='checkbox']");
+			
+			lovCheckBoxes.off("click").on("click", $.proxy(function(event){
+				var lst = [];
+				
+				for(var i = 0; i &lt; this.lovCheckBoxes.length; i++)
+				{
+					//if checkbox is checked add the value to final result
+					if( $(this.lovCheckBoxes[i]).prop("checked") )
+					{
+						lst.push( $(this.lovCheckBoxes[i]).val() );
+					}
+				}
+				
+				//set the value on the scope
+				eval("this.$scope." + this.modelField + " = lst");
+				
+				//invoke on change method if any
+				if(this.onChange &amp;&amp; this.onChange.length &gt; 0)
+				{
+					var $event = $(event);
+					eval("this.$scope." + this.onChange );
+				}
+				
+			}, {"lovCheckBoxes": lovCheckBoxes, "$scope" : context.$scope, "onChange": context.attr('on-change'), "modelField": context.modelField}));
+		</post-script>
 	</directive>
 
 	<directive name="ykInvoke" required-attr="method">
