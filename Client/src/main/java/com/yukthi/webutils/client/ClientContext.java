@@ -121,10 +121,15 @@ public class ClientContext
 	
 	public void authenticate(String userName, String password)
 	{
+		this.authenticate(userName, password, null);
+	}
+	
+	public void authenticate(String userName, String password, Map<String, String> attributes)
+	{
 		//build request
 		PostRestRequest request = new PostRestRequest(IWebUtilsCommonConstants.LOGIN_URI);
 		request.setSecured(true);
-		request.setJsonBody(new LoginCredentials(userName, password));
+		request.setJsonBody(new LoginCredentials(userName, password, attributes));
 		
 		//invoke login api
 		RestResult<LoginResponse> authResult = restClient.invokeJsonRequest(request, LoginResponse.class);

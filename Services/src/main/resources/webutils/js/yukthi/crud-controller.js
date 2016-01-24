@@ -16,6 +16,19 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 			$scope.dlgModeField = "newModelMode";
 			$scope.crudConfig = config;
 			
+			$scope.$watch(function(){
+				
+				if(!$scope.model)
+				{
+					return null;
+				}
+				return $scope.model.name;
+			}, function(newVal, oldVal){
+				console.log("Model is changed....");
+				console.log(newVal);
+				console.log(oldVal);
+			});
+			
 			$scope.$on('searchResultSelectionChanged', function(event, data){
 				$scope.selectedId = data.selectedRow ? data.selectedRow["id"] : -1;
 				$scope.selectedName = data.selectedRow ? data.selectedRow[$scope.crudConfig.nameColumn] : null;
@@ -128,6 +141,10 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 					this.$scope.model = model;
 					this.$scope.$digest();
 					
+					console.log("During Edit....");
+					console.log(this.$scope.name);
+					console.log(this.$scope.model);
+					
 					$("#" + this.$scope.crudConfig.modelDailogId + " [yk-read-only='true']").prop('disabled', true);
 
 					utils.openModal(this.$scope.crudConfig.modelDailogId, {
@@ -135,6 +152,9 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 						
 						"onShow": function(){
 							$("#" + this.$scope.crudConfig.modelDailogId +" input").first().focus();
+							console.log("During Edit Display....");
+							console.log(this.$scope.name);
+							console.log(this.$scope.model);
 						}
 					});
 				}, {"$scope": $scope, "logger": logger, "utils": utils});

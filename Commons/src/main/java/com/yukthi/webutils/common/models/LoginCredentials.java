@@ -72,6 +72,13 @@ public class LoginCredentials
 		this.userName = userName;
 		this.password = password;
 	}
+	
+	public LoginCredentials(String userName, String password, Map<String, String> attributes)
+	{
+		this.userName = userName;
+		this.password = password;
+		this.attributes = attributes;
+	}
 
 	/**
 	 * Gets the credentials - user name.
