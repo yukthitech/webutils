@@ -31,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.yukthi.persistence.ICrudRepository;
 import com.yukthi.persistence.ITransaction;
+import com.yukthi.persistence.PersistenceException;
 import com.yukthi.persistence.repository.RepositoryFactory;
 import com.yukthi.utils.exceptions.InvalidStateException;
 import com.yukthi.webutils.IEntity;
@@ -166,6 +167,12 @@ public abstract class BaseCrudService<E extends IEntity, R extends ICrudReposito
 		}catch(Exception ex)
 		{
 			logger.error("An error occurred while saving entity - " + entity, ex);
+			
+			if(ex instanceof PersistenceException)
+			{
+				throw (PersistenceException)ex;
+			}
+			
 			throw new IllegalStateException("An error occurred while saving entity - " + entity, ex);
 		}
 	}
@@ -228,6 +235,12 @@ public abstract class BaseCrudService<E extends IEntity, R extends ICrudReposito
 		}catch(Exception ex)
 		{
 			logger.error("An error occurred while updating entity - " + entity, ex);
+
+			if(ex instanceof PersistenceException)
+			{
+				throw (PersistenceException)ex;
+			}
+			
 			throw new IllegalStateException("An error occurred while updating entity - " + entity, ex);
 		}
 	}
@@ -332,6 +345,12 @@ public abstract class BaseCrudService<E extends IEntity, R extends ICrudReposito
 		}catch(Exception ex)
 		{
 			logger.error("An error occurred while deleting entity with id - " + id, ex);
+			
+			if(ex instanceof PersistenceException)
+			{
+				throw (PersistenceException)ex;
+			}
+			
 			throw new IllegalStateException("An error occurred while deleting entity with id - " + id, ex);
 		}
 	}

@@ -38,6 +38,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.yukthi.persistence.PersistenceException;
 import com.yukthi.webutils.BeanValidationException;
 import com.yukthi.webutils.InvalidRequestParameterException;
 import com.yukthi.webutils.common.IWebUtilsCommonConstants;
@@ -158,6 +159,23 @@ public class BaseController
 		response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 		
 		return new BaseResponse(IWebUtilsCommonConstants.RESPONSE_CODE_AUTHORIZATION_ERROR, ex.getMessage());
+	}
+
+	/**
+	 * Handler to handle persistence exception
+	 * @param response
+	 * @param ex
+	 * @return
+	 */
+	@ExceptionHandler(value={PersistenceException.class})
+	@ResponseBody
+	public BaseResponse handlePersistenceException(HttpServletResponse response, PersistenceException ex)
+	{
+		logger.debug("Encountered PersistenceException exception - ", ex);
+
+		response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+		
+		return new BaseResponse(IWebUtilsCommonConstants.RESPONSE_CODE_INVALID_REQUEST, ex.getMessage());
 	}
 
 	/**
