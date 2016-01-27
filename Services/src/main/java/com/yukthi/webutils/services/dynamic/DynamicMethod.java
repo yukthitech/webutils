@@ -28,12 +28,14 @@ import java.util.Arrays;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.yukthi.utils.CommonUtils;
 import com.yukthi.utils.ConvertUtils;
+import com.yukthi.utils.exceptions.InvalidStateException;
 import com.yukthi.webutils.WebutilsContext;
 
 /**
@@ -154,7 +156,13 @@ public class DynamicMethod
 				//based on argument type fetch the value
 				if(arguments[i].getArgumentType() == ArgumentType.CONTEXT_PARAM)
 				{
-					argValues[i] = context.getAttribute(arguments[i].getName());
+					try
+					{
+						argValues[i] = PropertyUtils.getProperty(context.getAttributeMap(), arguments[i].getName());
+					}catch(Exception ex)
+					{
+						throw new InvalidStateException(ex, "An error occurred while fetching context attribute - {}", arguments[i].getName());
+					}
 				}
 				else
 				{

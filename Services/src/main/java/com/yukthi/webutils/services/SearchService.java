@@ -32,6 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -45,6 +46,8 @@ import com.yukthi.utils.exceptions.InvalidConfigurationException;
 import com.yukthi.utils.exceptions.InvalidStateException;
 import com.yukthi.webutils.IRepositoryMethodRegistry;
 import com.yukthi.webutils.InvalidRequestParameterException;
+import com.yukthi.webutils.WebutilsContext;
+import com.yukthi.webutils.annotations.ContextAttribute;
 import com.yukthi.webutils.annotations.SearchQueryMethod;
 import com.yukthi.webutils.common.annotations.Model;
 import com.yukthi.webutils.common.models.def.ModelDef;
@@ -264,6 +267,8 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 		String strValue = null;
 		
 		SearchCondition searchCondition = null;
+		ContextAttribute contextAttribute = null;
+		WebutilsContext context = WebutilsContext.getContext();
 				
 		//loop through query object fields and extract conditions and add it repo search query
 		for(Field field : queryFields)
@@ -276,13 +281,27 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 			}
 			
 			field.setAccessible(true);
+			contextAttribute = field.getAnnotation(ContextAttribute.class);
 			
-			try
+			if(contextAttribute == null)
 			{
-				value = field.get(query);
-			}catch(Exception ex)
+				try
+				{
+					value = field.get(query);
+				}catch(Exception ex)
+				{
+					throw new InvalidStateException("An error occurred while fetching field value - {}", field.getName());
+				}
+			}
+			else
 			{
-				throw new InvalidStateException("An error occurred while fetching field value - {}", field.getName());
+				try
+				{
+					value = PropertyUtils.getProperty(context.getAttributeMap(), contextAttribute.value());
+				}catch(Exception ex)
+				{
+					throw new InvalidStateException(ex, "An error occurred while fetching context attribute - {}", contextAttribute.value());
+				}
 			}
 			
 			//ignore nulls

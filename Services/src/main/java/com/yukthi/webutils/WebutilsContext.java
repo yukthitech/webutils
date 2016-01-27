@@ -80,4 +80,13 @@ public class WebutilsContext
 	{
 		return attributeMap.get(name);
 	}
+	
+	/**
+	 * Fetches attribute map of the context
+	 * @return
+	 */
+	public Map<String, Object> getAttributeMap() 
+	{
+		return attributeMap;
+	}
 }
