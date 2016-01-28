@@ -40,4 +40,6 @@ public interface IWebUtilsInternalConstants
 	 * Request attribute to maintian current user details
 	 */
 	public String REQ_ATTR_USER_DETAILS = "request.userDetails";
+	
+	public String CONTEXT_ATTR_CURRENT_USER = "currentUser";
 }

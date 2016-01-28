@@ -42,6 +42,7 @@ import com.yukthi.utils.exceptions.InvalidConfigurationException;
 import com.yukthi.utils.exceptions.InvalidStateException;
 import com.yukthi.webutils.IWebUtilsInternalConstants;
 import com.yukthi.webutils.WebutilsConfiguration;
+import com.yukthi.webutils.WebutilsContext;
 import com.yukthi.webutils.annotations.NoAuthentication;
 import com.yukthi.webutils.common.IWebUtilsCommonConstants;
 import com.yukthi.webutils.common.models.BaseResponse;
@@ -130,6 +131,9 @@ public class SecurityInterceptor extends HandlerInterceptorAdapter
 			
 			request.setAttribute(IWebUtilsInternalConstants.REQ_ATTR_USER_DETAILS, userDetails);
 			response.setHeader(IWebUtilsCommonConstants.HEADER_AUTHORIZATION_TOKEN, userDetails.getAuthToken());
+			
+			//set user details on context
+			WebutilsContext.getContext().addAttribute(IWebUtilsInternalConstants.CONTEXT_ATTR_CURRENT_USER, userDetails);
 			
 			return userDetails;
 		}catch(SecurityException ex)
