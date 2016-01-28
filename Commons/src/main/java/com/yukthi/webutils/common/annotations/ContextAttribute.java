@@ -1,11 +1,9 @@
-package com.yukthi.webutils.annotations;
+package com.yukthi.webutils.common.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-
-import com.yukthi.webutils.WebutilsContext;
 
 /**
  * For dynamic methods used to fetch attribute from {@link WebutilsContext} object.

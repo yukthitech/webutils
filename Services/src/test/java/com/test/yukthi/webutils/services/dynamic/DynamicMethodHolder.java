@@ -24,9 +24,9 @@
 package com.test.yukthi.webutils.services.dynamic;
 
 
-import com.yukthi.webutils.annotations.ContextAttribute;
 import com.yukthi.webutils.annotations.RequestParam;
 import com.yukthi.webutils.common.LovType;
+import com.yukthi.webutils.common.annotations.ContextAttribute;
 
 /**
  * Test class to hold dynamic methods
