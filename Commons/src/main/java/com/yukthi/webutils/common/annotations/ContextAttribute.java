@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * For dynamic methods used to fetch attribute from {@link WebutilsContext} object.
+ * For dynamic methods used to fetch attribute from WebutilsContext object.
  * @author akiran
  */
 @Retention(RetentionPolicy.RUNTIME)
