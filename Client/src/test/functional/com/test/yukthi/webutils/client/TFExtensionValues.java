@@ -1,3 +1,4 @@
+package com.test.yukthi.webutils.client;
 /*
  * The MIT License (MIT)
  * Copyright (c) 2015 "Yukthi Techsoft Pvt. Ltd." (http://yukthi-tech.co.in)
@@ -21,7 +22,7 @@
  * SOFTWARE.
  */
 
-package com.test.yukthi.webutils.client;
+
 
 import java.util.Arrays;
 
@@ -30,8 +31,8 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.test.yukthi.webutils.models.CustomerModel;
-import com.test.yukthi.webutils.models.EmployeeModel;
+import com.test.yukthi.webutils.models.TestCustomerModel;
+import com.test.yukthi.webutils.models.TestEmployeeModel;
 import com.yukthi.utils.CommonUtils;
 import com.yukthi.utils.exceptions.InvalidStateException;
 import com.yukthi.utils.rest.RestClient;
@@ -63,7 +64,7 @@ public class TFExtensionValues extends TFBase
 	
 	private long addCustomer(String name)
 	{
-		RestRequest<?> request = ActionRequestBuilder.buildRequest(super.clientContext, "customer.save", new CustomerModel(name), null);
+		RestRequest<?> request = ActionRequestBuilder.buildRequest(super.clientContext, "customer.save", new TestCustomerModel(name), null);
 		
 		RestClient client = clientContext.getRestClient();
 		
@@ -77,7 +78,7 @@ public class TFExtensionValues extends TFBase
 	
 	private long addEmployee(long customerId, String name, long salary, String... extendedFields)
 	{
-		EmployeeModel emp = new EmployeeModel(name, salary);
+		TestEmployeeModel emp = new TestEmployeeModel(name, salary);
 		
 		for(int i = 0; i < extendedFields.length; i += 2)
 		{
@@ -110,7 +111,7 @@ public class TFExtensionValues extends TFBase
 	
 	private long updateEmployee(long customerId, long empId, int version, String name, long salary, String... extendedFields)
 	{
-		EmployeeModel emp = new EmployeeModel(name, salary);
+		TestEmployeeModel emp = new TestEmployeeModel(name, salary);
 		emp.setId(empId);
 		emp.setVersion(version);
 		
@@ -180,7 +181,7 @@ public class TFExtensionValues extends TFBase
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private EmployeeModel getEmployee(long customerId, long empId)
+	private TestEmployeeModel getEmployee(long customerId, long empId)
 	{
 		RestRequest<?> request = ActionRequestBuilder.buildRequest(
 				clientContext.setRequestCustomizer(new RequestHeadersCustomizer(CommonUtils.toMap("customerId", "" + customerId))), 
@@ -190,7 +191,7 @@ public class TFExtensionValues extends TFBase
 		
 		RestClient client = clientContext.getRestClient();
 		
-		RestResult<BasicReadResponse<EmployeeModel>> result = (RestResult)client.invokeJsonRequest(request, BasicReadResponse.class, EmployeeModel.class);
+		RestResult<BasicReadResponse<TestEmployeeModel>> result = (RestResult)client.invokeJsonRequest(request, BasicReadResponse.class, TestEmployeeModel.class);
 		return result.getValue().getModel();
 	}
 
@@ -247,21 +248,21 @@ public class TFExtensionValues extends TFBase
 
 		
 		//fetch and validate models
-		EmployeeModel emp1 = getEmployee(customer1, id1);
+		TestEmployeeModel emp1 = getEmployee(customer1, id1);
 		
 		Assert.assertEquals(emp1.getExtendedFields().size(), 3);
 		Assert.assertEquals(emp1.getExtendedFields().get("field1"), "123");
 		Assert.assertEquals(emp1.getExtendedFields().get("field2"), "3.45");
 		Assert.assertEquals(emp1.getExtendedFields().get("field3"), "2");
 
-		EmployeeModel emp2 = getEmployee(customer1, id2);
+		TestEmployeeModel emp2 = getEmployee(customer1, id2);
 		
 		Assert.assertEquals(emp2.getExtendedFields().size(), 2);
 		Assert.assertEquals(emp2.getExtendedFields().get("field1"), "1234");
 		Assert.assertEquals(emp2.getExtendedFields().get("field2"), "4");
 		Assert.assertNull(emp2.getExtendedFields().get("field3"));
 
-		EmployeeModel emp3 = getEmployee(customer2, id3);
+		TestEmployeeModel emp3 = getEmployee(customer2, id3);
 		
 		Assert.assertEquals(emp3.getExtendedFields().size(), 4);
 		Assert.assertEquals(emp3.getExtendedFields().get("field1"), "true");
@@ -391,7 +392,7 @@ public class TFExtensionValues extends TFBase
 				"field1", "123", "field2", "3.45", "field3", "2");
 		
 		//fetch and validate after basic save
-		EmployeeModel emp1 = getEmployee(customer1, id1);
+		TestEmployeeModel emp1 = getEmployee(customer1, id1);
 		
 		Assert.assertEquals(emp1.getExtendedFields().size(), 3);
 		Assert.assertEquals(emp1.getExtendedFields().get("field1"), "123");
@@ -421,12 +422,12 @@ public class TFExtensionValues extends TFBase
 		long empId1 = addEmployee(customer1, "emp1", 100, 
 				"field1", "123", "field2", "3.45", "field3", "2");
 		
-		EmployeeModel emp1 = getEmployee(customer1, empId1);
+		TestEmployeeModel emp1 = getEmployee(customer1, empId1);
 
 		long empId2 = addEmployee(customer2, "emp3", 300, 
 				"field1", "true", "field2", "12/11/2015", "field3", "str1", "field4", "dfdf\ndffd");
 
-		EmployeeModel emp2 = getEmployee(customer2, empId2);
+		TestEmployeeModel emp2 = getEmployee(customer2, empId2);
 		
 		//test by passing invalid int
 		try

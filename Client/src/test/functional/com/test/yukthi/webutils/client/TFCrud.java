@@ -27,7 +27,7 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
-import com.test.yukthi.webutils.models.EmployeeModel;
+import com.test.yukthi.webutils.models.TestEmployeeModel;
 import com.yukthi.utils.CommonUtils;
 import com.yukthi.utils.exceptions.InvalidStateException;
 import com.yukthi.utils.rest.RestClient;
@@ -47,7 +47,7 @@ import com.yukthi.webutils.common.models.BasicSaveResponse;
 public class TFCrud extends TFBase
 {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private EmployeeModel getEmployee(long empId)
+	private TestEmployeeModel getEmployee(long empId)
 	{
 		RestRequest<?> request = ActionRequestBuilder.buildRequest(
 				clientContext, 
@@ -57,14 +57,14 @@ public class TFCrud extends TFBase
 		
 		RestClient client = clientContext.getRestClient();
 		
-		RestResult<BasicReadResponse<EmployeeModel>> result = (RestResult)client.invokeJsonRequest(request, BasicReadResponse.class, EmployeeModel.class);
+		RestResult<BasicReadResponse<TestEmployeeModel>> result = (RestResult)client.invokeJsonRequest(request, BasicReadResponse.class, TestEmployeeModel.class);
 		return result.getValue().getModel();
 	}
 	
 	@Test
 	public void testSave()
 	{
-		EmployeeModel emp = new EmployeeModel("TestEmp", 1000);
+		TestEmployeeModel emp = new TestEmployeeModel("TestEmp", 1000);
 		
 		RestRequest<?> request = ActionRequestBuilder.buildRequest(
 				clientContext, 
@@ -88,7 +88,7 @@ public class TFCrud extends TFBase
 		Assert.assertEquals(response.getCode(), IWebUtilsCommonConstants.RESPONSE_CODE_SUCCESS);
 
 		//validate save
-		EmployeeModel savedEmp = getEmployee(response.getId());
+		TestEmployeeModel savedEmp = getEmployee(response.getId());
 		Assert.assertEquals(savedEmp.getName(), "TestEmp");
 		Assert.assertEquals(savedEmp.getSalary(), 1000L);
 	}

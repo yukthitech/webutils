@@ -33,7 +33,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.test.yukthi.webutils.models.EmployeeModel;
+import com.test.yukthi.webutils.models.TestEmployeeModel;
 import com.yukthi.utils.CommonUtils;
 import com.yukthi.utils.exceptions.InvalidStateException;
 import com.yukthi.utils.rest.RestClient;
@@ -60,7 +60,7 @@ public class TFLovQueries extends TFBase
 	
 	private long addEmployee(String name, long salary)
 	{
-		EmployeeModel emp = new EmployeeModel(name, salary);
+		TestEmployeeModel emp = new TestEmployeeModel(name, salary);
 		
 		RestRequest<?> request = ActionRequestBuilder.buildRequest(
 				clientContext, 

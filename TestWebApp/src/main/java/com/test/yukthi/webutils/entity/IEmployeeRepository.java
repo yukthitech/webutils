@@ -27,8 +27,8 @@ import java.util.List;
 
 import com.test.yukthi.webutils.Authorization;
 import com.test.yukthi.webutils.SecurityRole;
-import com.test.yukthi.webutils.models.EmpSearchQuery;
-import com.test.yukthi.webutils.models.EmpSearchResult;
+import com.test.yukthi.webutils.models.TestEmpSearchQuery;
+import com.test.yukthi.webutils.models.TestEmpSearchResult;
 import com.yukthi.persistence.ICrudRepository;
 import com.yukthi.persistence.repository.annotations.OrderBy;
 import com.yukthi.persistence.repository.search.SearchQuery;
@@ -55,19 +55,19 @@ public interface IEmployeeRepository extends ICrudRepository<EmployeeEntity>
 	
 	
 	
-	@SearchQueryMethod(name = "empSearch", queryModel = EmpSearchQuery.class)
+	@SearchQueryMethod(name = "empSearch", queryModel = TestEmpSearchQuery.class)
 	@OrderBy("name")
-	public List<EmpSearchResult> findEmployees(SearchQuery searchQuery);
+	public List<TestEmpSearchResult> findEmployees(SearchQuery searchQuery);
 
 	@Authorization(SecurityRole.PROJ_ADMIN)
-	@SearchQueryMethod(name = "empSearchUnauthorized", queryModel = EmpSearchQuery.class)
+	@SearchQueryMethod(name = "empSearchUnauthorized", queryModel = TestEmpSearchQuery.class)
 	@OrderBy("name")
-	public List<EmpSearchResult> findEmployees1(SearchQuery searchQuery);
+	public List<TestEmpSearchResult> findEmployees1(SearchQuery searchQuery);
 
 	@Authorization(SecurityRole.CLIENT_ADMIN)
-	@SearchQueryMethod(name = "empSearchAuthorized", queryModel = EmpSearchQuery.class)
+	@SearchQueryMethod(name = "empSearchAuthorized", queryModel = TestEmpSearchQuery.class)
 	@OrderBy("name")
-	public List<EmpSearchResult> findEmployees2(SearchQuery searchQuery);
+	public List<TestEmpSearchResult> findEmployees2(SearchQuery searchQuery);
 
 	
 	

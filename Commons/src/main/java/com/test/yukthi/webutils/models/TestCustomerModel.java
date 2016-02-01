@@ -23,25 +23,33 @@
 
 package com.test.yukthi.webutils.models;
 
-import com.yukthi.persistence.repository.annotations.Field;
 import com.yukthi.webutils.common.annotations.Model;
 
 /**
- * Emp search result
+ * Test entity
  * 
  * @author akiran
  */
 @Model
-public class EmpSearchResult
+public class TestCustomerModel
 {
-	@Field(value = "id")
+	/**
+	 * Employee id
+	 */
 	private long id;
 
-	@Field(value = "name")
+	/**
+	 * Name of the employee
+	 */
 	private String name;
 
-	@Field(value = "salary")
-	private long salary;
+	public TestCustomerModel()
+	{}
+
+	public TestCustomerModel(String name)
+	{
+		this.name = name;
+	}
 
 	public long getId()
 	{
@@ -62,15 +70,4 @@ public class EmpSearchResult
 	{
 		this.name = name;
 	}
-
-	public long getSalary()
-	{
-		return salary;
-	}
-
-	public void setSalary(long salary)
-	{
-		this.salary = salary;
-	}
-
 }

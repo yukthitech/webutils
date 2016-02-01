@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.test.yukthi.webutils.entity.CustomerEntity;
-import com.test.yukthi.webutils.models.CustomerModel;
+import com.test.yukthi.webutils.models.TestCustomerModel;
 import com.test.yukthi.webutils.services.CustomerService;
 import com.yukthi.webutils.annotations.ActionName;
 import com.yukthi.webutils.common.models.BaseResponse;
@@ -53,7 +53,7 @@ public class CustomerController extends BaseController
 	@ResponseBody
 	@RequestMapping(value = "/save", method = RequestMethod.POST)
 	@ActionName("save")
-	public BasicSaveResponse save(@RequestBody CustomerModel model)
+	public BasicSaveResponse save(@RequestBody TestCustomerModel model)
 	{
 		CustomerEntity entity = WebUtils.convertBean(model, CustomerEntity.class); 
 		customerService.save(entity);
@@ -63,9 +63,9 @@ public class CustomerController extends BaseController
 	@ResponseBody
 	@RequestMapping("/fetch/{name}")
 	@ActionName("fetch")
-	public CustomerModel fetch(String name)
+	public TestCustomerModel fetch(String name)
 	{
-		return WebUtils.convertBean(customerService.findByName(name), CustomerModel.class);
+		return WebUtils.convertBean(customerService.findByName(name), TestCustomerModel.class);
 	}
 
 	@ResponseBody

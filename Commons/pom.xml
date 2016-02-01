@@ -36,6 +36,7 @@
 		</dependency>
 	</dependencies>
 
+	<!--  
 	<build>
 		<plugins>
 			<plugin>
@@ -50,7 +51,8 @@
 			</plugin>
 		</plugins>
 	</build>
-
+	-->
+	
 	<parent>
 		<groupId>com.yukthi.webutils</groupId>
 		<artifactId>WebUtils</artifactId>

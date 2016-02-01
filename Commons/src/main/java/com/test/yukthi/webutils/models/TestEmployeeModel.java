@@ -23,40 +23,52 @@
 
 package com.test.yukthi.webutils.models;
 
-import com.yukthi.webutils.common.annotations.Model;
+import com.yukthi.webutils.common.AbstractExtendableModel;
+import com.yukthi.webutils.common.annotations.ExtendableModel;
 
 /**
- * Test entity
+ * Test model
  * 
  * @author akiran
  */
-@Model
-public class CustomerModel
+@ExtendableModel(name = "Employee")
+public class TestEmployeeModel extends AbstractExtendableModel
 {
 	/**
 	 * Employee id
 	 */
-	private long id;
+	private Long id;
+	
+	/**
+	 * Version of the entity
+	 */
+	private Integer version;
 
 	/**
 	 * Name of the employee
 	 */
 	private String name;
 
-	public CustomerModel()
+	/**
+	 * Salary of the employee
+	 */
+	private long salary;
+
+	public TestEmployeeModel()
 	{}
 
-	public CustomerModel(String name)
+	public TestEmployeeModel(String name, long salary)
 	{
 		this.name = name;
+		this.salary = salary;
 	}
 
-	public long getId()
+	public Long getId()
 	{
 		return id;
 	}
 
-	public void setId(long id)
+	public void setId(Long id)
 	{
 		this.id = id;
 	}
@@ -70,4 +82,26 @@ public class CustomerModel
 	{
 		this.name = name;
 	}
+
+	public long getSalary()
+	{
+		return salary;
+	}
+
+	public void setSalary(long salary)
+	{
+		this.salary = salary;
+	}
+
+	public Integer getVersion()
+	{
+		return version;
+	}
+
+	public void setVersion(Integer version)
+	{
+		this.version = version;
+	}
+
+	
 }

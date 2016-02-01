@@ -23,58 +23,54 @@
 
 package com.test.yukthi.webutils.models;
 
-import com.yukthi.persistence.repository.annotations.Condition;
-import com.yukthi.persistence.repository.annotations.Operator;
-import com.yukthi.validation.annotations.Required;
+import com.yukthi.persistence.repository.annotations.Field;
 import com.yukthi.webutils.common.annotations.Model;
 
 /**
- * Emp search query
+ * Emp search result
+ * 
  * @author akiran
  */
 @Model
-public class EmpSearchQuery
+public class TestEmpSearchResult
 {
-	/**
-	 * Employee search name pattern
-	 */
-	@Required
-	@Condition(value = "name", op = Operator.LIKE)
-	private String name;
-	
-	/**
-	 * Instantiates a new emp search query.
-	 */
-	public EmpSearchQuery()
-	{}
+	@Field(value = "id")
+	private long id;
 
-	/**
-	 * Instantiates a new emp search query.
-	 *
-	 * @param name the name
-	 */
-	public EmpSearchQuery(String name)
+	@Field(value = "name")
+	private String name;
+
+	@Field(value = "salary")
+	private long salary;
+
+	public long getId()
 	{
-		this.name = name;
+		return id;
 	}
 
-	/**
-	 * Gets the employee search name pattern.
-	 *
-	 * @return the employee search name pattern
-	 */
+	public void setId(long id)
+	{
+		this.id = id;
+	}
+
 	public String getName()
 	{
 		return name;
 	}
 
-	/**
-	 * Sets the employee search name pattern.
-	 *
-	 * @param name the new employee search name pattern
-	 */
 	public void setName(String name)
 	{
 		this.name = name;
 	}
+
+	public long getSalary()
+	{
+		return salary;
+	}
+
+	public void setSalary(long salary)
+	{
+		this.salary = salary;
+	}
+
 }

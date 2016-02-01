@@ -33,7 +33,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.test.yukthi.webutils.entity.EmployeeEntity;
-import com.test.yukthi.webutils.models.EmployeeModel;
+import com.test.yukthi.webutils.models.TestEmployeeModel;
 import com.test.yukthi.webutils.services.EmployeeService;
 import com.yukthi.webutils.InvalidRequestParameterException;
 import com.yukthi.webutils.annotations.ActionName;
@@ -59,7 +59,7 @@ public class EmployeeController extends BaseController
 	@ResponseBody
 	@RequestMapping(value = "/save", method = RequestMethod.POST)
 	@ActionName("save")
-	public BasicSaveResponse save(@RequestBody @Valid EmployeeModel model)
+	public BasicSaveResponse save(@RequestBody @Valid TestEmployeeModel model)
 	{
 		EmployeeEntity entity = WebUtils.convertBean(model, EmployeeEntity.class); 
 		service.save(entity, model);
@@ -70,7 +70,7 @@ public class EmployeeController extends BaseController
 	@ResponseBody
 	@RequestMapping(value = "/update", method = RequestMethod.POST)
 	@ActionName("update")
-	public BasicSaveResponse update(@RequestBody @Valid EmployeeModel model)
+	public BasicSaveResponse update(@RequestBody @Valid TestEmployeeModel model)
 	{
 		if(model.getId() == null || model.getId() <= 0)
 		{
@@ -86,10 +86,10 @@ public class EmployeeController extends BaseController
 	@ResponseBody
 	@RequestMapping("/fetch/{id}")
 	@ActionName("fetch")
-	public BasicReadResponse<EmployeeModel> fetch(@PathVariable("id") long id)
+	public BasicReadResponse<TestEmployeeModel> fetch(@PathVariable("id") long id)
 	{
-		EmployeeModel model = service.fetchFullModel(id, EmployeeModel.class);
-		return new BasicReadResponse<EmployeeModel>(model);
+		TestEmployeeModel model = service.fetchFullModel(id, TestEmployeeModel.class);
+		return new BasicReadResponse<TestEmployeeModel>(model);
 	}
 	
 	@ResponseBody

@@ -33,9 +33,9 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.test.yukthi.webutils.models.EmpSearchQuery;
-import com.test.yukthi.webutils.models.EmpSearchResult;
-import com.test.yukthi.webutils.models.EmployeeModel;
+import com.test.yukthi.webutils.models.TestEmpSearchQuery;
+import com.test.yukthi.webutils.models.TestEmpSearchResult;
+import com.test.yukthi.webutils.models.TestEmployeeModel;
 import com.yukthi.utils.CommonUtils;
 import com.yukthi.utils.exceptions.InvalidStateException;
 import com.yukthi.utils.rest.RestClient;
@@ -56,13 +56,11 @@ import com.yukthi.webutils.common.models.def.ModelDef;
  */
 public class TFSearchQuery extends TFBase
 {
-	private static Logger logger = LogManager.getLogger(TFSearchQuery.class);
-	
 	private SearchHelper searchHelper = new SearchHelper();
 	
 	private long addEmployee(String name, long salary)
 	{
-		EmployeeModel emp = new EmployeeModel(name, salary);
+		TestEmployeeModel emp = new TestEmployeeModel(name, salary);
 		
 		RestRequest<?> request = ActionRequestBuilder.buildRequest(
 				clientContext, 
@@ -110,7 +108,7 @@ public class TFSearchQuery extends TFBase
 	{
 		ModelDef modelDef = searchHelper.getSearchQueryDef(clientContext, "empSearch");
 		
-		Assert.assertEquals(modelDef.getName(), EmpSearchQuery.class.getSimpleName());
+		Assert.assertEquals(modelDef.getName(), TestEmpSearchQuery.class.getSimpleName());
 		Assert.assertEquals(modelDef.getFields().size(), 1);
 		Assert.assertEquals(modelDef.getFields().get(0).getName(), "name");
 	}
@@ -120,7 +118,7 @@ public class TFSearchQuery extends TFBase
 	{
 		ModelDef modelDef = searchHelper.getSearchResultDef(clientContext, "empSearch");
 		
-		Assert.assertEquals(modelDef.getName(), EmpSearchResult.class.getSimpleName());
+		Assert.assertEquals(modelDef.getName(), TestEmpSearchResult.class.getSimpleName());
 		Assert.assertEquals(modelDef.getFields().size(), 3);
 		
 		Map<String, FieldDef> map = CommonUtils.buildMap(modelDef.getFields(), "name", null);
@@ -130,11 +128,11 @@ public class TFSearchQuery extends TFBase
 	@Test
 	public void testSearchResults()
 	{
-		EmpSearchQuery query = new EmpSearchQuery("%a%");
-		List<EmpSearchResult> results = searchHelper.executeSearchQuery(clientContext, "empSearch", query, -1, EmpSearchResult.class);
+		TestEmpSearchQuery query = new TestEmpSearchQuery("%a%");
+		List<TestEmpSearchResult> results = searchHelper.executeSearchQuery(clientContext, "empSearch", query, -1, TestEmpSearchResult.class);
 		Assert.assertEquals(results.size(), 9);
 		
-		results = searchHelper.executeSearchQuery(clientContext, "empSearch", query, 3, EmpSearchResult.class);
+		results = searchHelper.executeSearchQuery(clientContext, "empSearch", query, 3, TestEmpSearchResult.class);
 		Assert.assertEquals(results.size(), 3);
 		
 		//to ensure bean conversion is good, check first bean
@@ -148,8 +146,8 @@ public class TFSearchQuery extends TFBase
 	@Test
 	public void testSearchAuthorization()
 	{
-		EmpSearchQuery query = new EmpSearchQuery("%a%");
-		List<EmpSearchResult> results = searchHelper.executeSearchQuery(clientContext, "empSearchAuthorized", query, -1, EmpSearchResult.class);
+		TestEmpSearchQuery query = new TestEmpSearchQuery("%a%");
+		List<TestEmpSearchResult> results = searchHelper.executeSearchQuery(clientContext, "empSearchAuthorized", query, -1, TestEmpSearchResult.class);
 		
 		Assert.assertNotNull(results);
 	}
@@ -160,11 +158,11 @@ public class TFSearchQuery extends TFBase
 	@Test
 	public void testSearchUnauthorized()
 	{
-		EmpSearchQuery query = new EmpSearchQuery("%a%");
+		TestEmpSearchQuery query = new TestEmpSearchQuery("%a%");
 		
 		try
 		{
-			searchHelper.executeSearchQuery(clientContext, "empSearchUnauthorized", query, -1, EmpSearchResult.class);
+			searchHelper.executeSearchQuery(clientContext, "empSearchUnauthorized", query, -1, TestEmpSearchResult.class);
 			Assert.fail("No exception is thrown when unauthorized search method is accessed");
 		}catch(RestException ex)
 		{
@@ -175,11 +173,11 @@ public class TFSearchQuery extends TFBase
 	@Test
 	public void testSearchWithViolations()
 	{
-		EmpSearchQuery query = new EmpSearchQuery(null);
+		TestEmpSearchQuery query = new TestEmpSearchQuery(null);
 		
 		try
 		{
-			searchHelper.executeSearchQuery(clientContext, "empSearchAuthorized", query, -1, EmpSearchResult.class);
+			searchHelper.executeSearchQuery(clientContext, "empSearchAuthorized", query, -1, TestEmpSearchResult.class);
 			Assert.fail("No exception is thrown when query is passing with mandatory fields as null");
 		}catch(RestException ex)
 		{

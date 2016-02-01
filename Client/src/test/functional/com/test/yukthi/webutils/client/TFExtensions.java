@@ -32,7 +32,7 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
-import com.test.yukthi.webutils.models.CustomerModel;
+import com.test.yukthi.webutils.models.TestCustomerModel;
 import com.yukthi.utils.CommonUtils;
 import com.yukthi.utils.rest.RestClient;
 import com.yukthi.utils.rest.RestRequest;
@@ -58,7 +58,7 @@ public class TFExtensions extends TFBase
 	
 	private long addCustomer(String name)
 	{
-		RestRequest<?> request = ActionRequestBuilder.buildRequest(super.clientContext, "customer.save", new CustomerModel(name), null);
+		RestRequest<?> request = ActionRequestBuilder.buildRequest(super.clientContext, "customer.save", new TestCustomerModel(name), null);
 		
 		RestClient client = clientContext.getRestClient();
 		

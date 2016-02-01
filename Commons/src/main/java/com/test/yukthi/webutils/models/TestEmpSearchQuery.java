@@ -23,85 +23,58 @@
 
 package com.test.yukthi.webutils.models;
 
-import com.yukthi.webutils.common.AbstractExtendableModel;
-import com.yukthi.webutils.common.annotations.ExtendableModel;
+import com.yukthi.persistence.repository.annotations.Condition;
+import com.yukthi.persistence.repository.annotations.Operator;
+import com.yukthi.validation.annotations.Required;
+import com.yukthi.webutils.common.annotations.Model;
 
 /**
- * Test model
- * 
+ * Emp search query
  * @author akiran
  */
-@ExtendableModel(name = "Employee")
-public class EmployeeModel extends AbstractExtendableModel
+@Model
+public class TestEmpSearchQuery
 {
 	/**
-	 * Employee id
+	 * Employee search name pattern
 	 */
-	private Long id;
+	@Required
+	@Condition(value = "name", op = Operator.LIKE)
+	private String name;
 	
 	/**
-	 * Version of the entity
+	 * Instantiates a new emp search query.
 	 */
-	private Integer version;
-
-	/**
-	 * Name of the employee
-	 */
-	private String name;
-
-	/**
-	 * Salary of the employee
-	 */
-	private long salary;
-
-	public EmployeeModel()
+	public TestEmpSearchQuery()
 	{}
 
-	public EmployeeModel(String name, long salary)
+	/**
+	 * Instantiates a new emp search query.
+	 *
+	 * @param name the name
+	 */
+	public TestEmpSearchQuery(String name)
 	{
 		this.name = name;
-		this.salary = salary;
 	}
 
-	public Long getId()
-	{
-		return id;
-	}
-
-	public void setId(Long id)
-	{
-		this.id = id;
-	}
-
+	/**
+	 * Gets the employee search name pattern.
+	 *
+	 * @return the employee search name pattern
+	 */
 	public String getName()
 	{
 		return name;
 	}
 
+	/**
+	 * Sets the employee search name pattern.
+	 *
+	 * @param name the new employee search name pattern
+	 */
 	public void setName(String name)
 	{
 		this.name = name;
 	}
-
-	public long getSalary()
-	{
-		return salary;
-	}
-
-	public void setSalary(long salary)
-	{
-		this.salary = salary;
-	}
-
-	public Integer getVersion()
-	{
-		return version;
-	}
-
-	public void setVersion(Integer version)
-	{
-		this.version = version;
-	}
-
-	
 }
