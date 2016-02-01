@@ -98,8 +98,6 @@ $.marquee = function(id, speed) {
 		"contentElem": contentElem
 	};
 	
-	console.log("===============>Using speed - " + iSpeed + "==>" + speed);
-	
 	setInterval($.proxy(function(){
 		if(this.mouseEntered)
 		{
@@ -130,4 +128,48 @@ $.marquee = function(id, speed) {
 	
 	element.mousemove(mouseEnterFunc);
 	element.mouseleave(mouseExitFunc);
+};
+
+$.verticalTabs = function(element, $compile, $scope) {
+	var contentContainer = $(element.find(".vtabContent").get(0));
+	var tabs = element.find(".vtab");
+	var activeTab = $(element.find(".vtab-active").get(0));
+
+	var context = {
+		"contentContainer" : contentContainer,
+		"activeTabId": activeTab.attr("id"),
+		"$scope" : $scope,
+		"$compile": $compile,
+		
+		"loadHtml": function(htmlPath){
+			$.get(htmlPath, $.proxy(function(data) {
+				this.contentContainer.html(data);
+				
+				html = this.$compile(this.contentContainer.contents())(this.$scope);
+				this.$scope.$digest();
+			}, this));
+		}
+	};
+	
+	var tabClickFunc = $.proxy(function(e){
+		var elem = $(e.currentTarget);
+		var newTabId = elem.attr("id");
+		
+		if(newTabId == this.activeTabId)
+		{
+			return;
+		}
+		
+		$("#" + this.activeTabId).removeClass("vtab-active").addClass("vtab");
+		elem.removeClass("vtab").addClass("vtab-active");
+		this.activeTabId = newTabId;
+		
+		var htmlPath = elem.attr("html-src");
+		this.loadHtml(htmlPath);
+	}, context);
+
+	context.loadHtml(activeTab.attr("html-src"));
+
+	tabs.on("click", tabClickFunc);
+	activeTab.on("click", tabClickFunc)
 };

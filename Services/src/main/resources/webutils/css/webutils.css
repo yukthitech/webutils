@@ -4,6 +4,11 @@ body
 	letter-spacing: 0.5px;
 }
 
+.preProcessHidden
+{
+	display: none;
+}
+
 .carousel-inner > .item > img,
   .carousel-inner > .item > a > img 
 {
@@ -230,3 +235,39 @@ button.yk-info-close-button:hover
 {
 	color: rgba(255,255,255, 0.5);
 }
+
+.vtab
+{
+	background-color: black;
+	font: bold 1em "Times New Roman", Times, serif;
+	color: white;
+	padding: 0.5em;
+	cursor: pointer;
+}
+
+.vtab-active
+{
+	background-color: white;
+	font: bold 1em "Times New Roman", Times, serif;
+	color: black;
+	padding: 0.5em;
+	cursor: default;
+}
+
+.vtabMainContainer
+{
+	border: 1px solid black; 
+	white-space: nowrap;
+}
+
+.vtabContentContainer
+{
+	vertical-align: top;
+}
+
+.vtabContainer
+{
+	background-color: black;
+	vertical-align: top;
+}
+

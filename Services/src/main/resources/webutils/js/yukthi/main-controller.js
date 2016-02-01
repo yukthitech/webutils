@@ -18,6 +18,8 @@ $.application.controller('mainController', ["$scope", "$rootScope", "logger", "a
 		}catch(ex)
 		{}
 		
+		$(".preProcessHidden").removeClass("preProcessHidden");
+		
 	}, {"$scope": $scope}));
 	
 	$rootScope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState, fromParams)

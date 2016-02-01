@@ -79,7 +79,6 @@
 	</directive>
 
 	<directive name="ykTabs">
-
 		<content>
 			<set-var name="_tabs" expr="context.element.find('tab')"/>
 			
@@ -89,7 +88,7 @@
 			
 			<div>
 				<!-- Nav tabs -->
-				<ul class="nav nav-tabs" role="tablist">
+				<ul class="nav nav-tabs" role="tablist" style="min-width: 1000em;">
 					<for-each data="${_tabs}" loop-var="tab" index-var="tabIdx">
 						<set-var name="_tab" expr="$(context.tab)"/>
 						<set-var name="_tabId" expr="context._tab.attr('id')"/>
@@ -138,6 +137,47 @@
 		</pre-compile-script>
 	</directive>
 
+	<directive name="ykVerticalTabs" required-attr="id, height">
+		<content>
+			<set-var name="_tabs" expr="context.element.find('tab')"/>
+			
+			<div style="width: 100%;" id="${attr('id')}">
+				<table style="width: 100%;" class="vtabMainContainer">
+					<tr>
+						<td style="width: 1px;" class="vtabContainer">
+							<table style="width: 100%">
+								
+								<for-each data="${_tabs}" loop-var="tab" index-var="tabIdx">
+									<set-var name="_tab" expr="$(context.tab)"/>
+									<set-var name="_tabId" expr="context._tab.attr('id')"/>
+									<set-var name="_tabActive" expr="context.tabIdx == 0 ? 'vtab-active' : 'vtab'"/>
+									<set-var name="_forRole" expr="context.attr('yk-for-role', null, context._tab) ? context.attr('yk-for-role', null, context._tab) : ''"/>
+									
+									<tr>
+										<td id="${_tabId}_tab" class="${_tabActive}" html-src="${_tab.attr('html-src')}">
+											<if test="context.attr('icon', null, context._tab)">
+												<i class="glyphicon ${_tab.attr('icon')}" 
+													style="color: ${attr('icon-color', '', context._tab)};font-weight: bold;" aria-hidden="true"></i>
+											</if>
+											<span yk-hide-from="sm">${_tab.attr('label')}</span>
+										</td>
+									</tr>
+								</for-each>
+							</table>
+						</td>
+						<td class="vtabContentContainer" >
+							<div class="vtabContent" style="overflow: auto; height: ${attr('height')}; padding: 0.5em; padding-left: 1em;">
+							</div>
+						</td>
+					</tr>
+				</table>
+			</div>
+		</content>
+
+		<post-script>
+			$.verticalTabs(context.$result, context.$compile, context.$scope);
+		</post-script>
+	</directive>
 
 	<directive name="ykNavTree">
 		<content>
@@ -279,6 +319,10 @@
 							<form>
 								<div style="width: 100%; padding: 0px;">
 									<for-each data="${searchModel.fields}" loop-var="field" index-var="idx">
+										<if test="!context.field.displayable">
+											<continue/>
+										</if>
+										
 										<yk-model-field id="searchQuery.${field.name}" name="${field.name}" modelobj="searchQuery" 
 												label-width="${labelSize}px" field-width="${fieldWidth}em" full-width="" 
 												element-style="margin: 1em; margin-bottom: 0px;"></yk-model-field>
@@ -1397,7 +1441,17 @@
 			}
 			
 			var watchFunc = $.proxy(function(){
-				return this.$scope.hasRole(this.role);
+				var roles = this.role.split(/\s*\,\s*/);
+
+				for(var i = 0; i &lt; roles.length; i++)
+				{
+					if(this.$scope.hasRole(this.role))
+					{
+						return true;
+					}
+				}
+				
+				return false;
 			}, {"$scope" : context.$scope, "role": attrVal});
 			
 			var respFunc = $.proxy(function(newValue, oldValue){

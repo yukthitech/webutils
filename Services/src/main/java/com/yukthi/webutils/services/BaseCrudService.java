@@ -75,12 +75,12 @@ public abstract class BaseCrudService<E extends IEntity, R extends ICrudReposito
 	/**
 	 * Repository type
 	 */
-	private Class<R> repositoryType;
+	protected Class<R> repositoryType;
 	
 	/**
 	 * Entity type
 	 */
-	private Class<E> entityType;
+	protected Class<E> entityType;
 	
 	/**
 	 * CRUD repository obtained from factory in init()

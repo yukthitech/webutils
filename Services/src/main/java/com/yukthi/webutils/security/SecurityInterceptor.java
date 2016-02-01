@@ -71,7 +71,7 @@ public class SecurityInterceptor extends HandlerInterceptorAdapter
 	{
 		if(configuration.isAuthEnabled() && securityService == null)
 		{
-			throw new InvalidConfigurationException("Authorization is enable but {} implementation is not provided", ISecurityService.class.getName());
+			throw new InvalidConfigurationException("Authorization is enabled but {} implementation is not provided", ISecurityService.class.getName());
 		}
 	}
 

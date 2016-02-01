@@ -55,6 +55,7 @@ $.addElementDirective = function(directiveObj) {
 					"utils": utils,
 					"logger": logger,
 					"modelDefService": modelDefService,
+					"$compile": $compile,
 					
 					"invokeAction": function(actionName, requestEntity, params, callback) {
 						return actionHelper.invokeAction(actionName, requestEntity, params, callback);
