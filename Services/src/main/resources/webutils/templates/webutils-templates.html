@@ -986,7 +986,7 @@
 			<set-var name="_actualType" expr="context.attr('actual-type')"/>
 
 			<if test="context.multiValued">
-				<div style="width: 100%; padding: 0.3em;border: solid 1px rgb(200, 200, 200); border-radius: 0.4em; overflow: auto; height: 4em;">
+				<div style="width: 100%; padding: 0.3em;border: solid 1px rgb(200, 200, 200); border-radius: 0.4em; overflow: auto; height: 7em;">
 					<table>
 						<for-each data="${lovList}" loop-var="lov" index-var="lovIdx">
 							<tr>
@@ -1041,6 +1041,47 @@
 				}
 				
 			}, {"lovCheckBoxes": lovCheckBoxes, "$scope" : context.$scope, "onChange": context.attr('on-change'), "modelField": context.modelField}));
+
+			//Add watch function for lov field			
+			var watchFunc = $.proxy(function(){
+				//get the model field values
+				var values = null;
+				
+				//during first time model may not be present
+				try
+				{
+					values = eval("this.$scope." + this.modelField);
+				}catch(ex)
+				{}
+				
+				if(!values)
+				{
+					values = [];
+				}
+				
+				//loop through the check boxes and check the checkboxes whose value is present
+					// in model field values. If not uncheck.
+				for(var i = 0; i &lt; this.lovCheckBoxes.length; i++)
+				{
+					if(values.indexOf( $(this.lovCheckBoxes[i]).val() ) &gt;= 0 )
+					{
+						$(this.lovCheckBoxes[i]).prop("checked", true);
+					}
+					else
+					{
+						$(this.lovCheckBoxes[i]).prop("checked", false);
+					}
+				}
+				
+				return false;
+				
+			}, {"$scope" : context.$scope, "modelField": context.modelField, "lovCheckBoxes": lovCheckBoxes});
+			
+			var respFunc = $.proxy(function(newValue, oldValue){
+			}, {"$scope" : context.$scope, "element": context.element});
+			
+			context.$scope.$watch(watchFunc, respFunc);
+			
 		</post-script>
 	</directive>
 

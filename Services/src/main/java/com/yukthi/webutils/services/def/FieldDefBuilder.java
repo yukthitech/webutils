@@ -216,15 +216,15 @@ public class FieldDefBuilder
 			fieldType = (Class<?>)paramType;
 		}
 		
-		//if field type is enum
-		if(fieldType.isEnum())
-		{
-			getEnumLovDetails(fieldDef, fieldType);
-		}
 		//if field is marked as dynamic LOV
-		else if(field.getAnnotation(LOV.class) != null)
+		if(field.getAnnotation(LOV.class) != null)
 		{
 			getCustomLovDetails(modelType, fieldDef, field);
+		}
+		//if field type is enum
+		else if(fieldType.isEnum())
+		{
+			getEnumLovDetails(fieldDef, fieldType);
 		}
 		//if it is a simple field
 		else
