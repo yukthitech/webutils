@@ -41,8 +41,8 @@ import com.yukthi.utils.rest.RestResult;
 import com.yukthi.webutils.client.ActionRequestBuilder;
 import com.yukthi.webutils.client.RequestHeadersCustomizer;
 import com.yukthi.webutils.client.RestException;
-import com.yukthi.webutils.client.helpers.ExtensionsHelper;
 import com.yukthi.webutils.common.IWebUtilsCommonConstants;
+import com.yukthi.webutils.common.controllers.IExtensionController;
 import com.yukthi.webutils.common.extensions.ExtensionFieldType;
 import com.yukthi.webutils.common.extensions.LovOption;
 import com.yukthi.webutils.common.models.BaseResponse;
@@ -57,10 +57,9 @@ import com.yukthi.webutils.common.models.ExtensionFieldModel;
  */
 public class TFExtensionValues extends TFBase
 {
-	private ExtensionsHelper extensionsHelper = new ExtensionsHelper();
+	private IExtensionController extensionsController;
 
 	private long customer1, customer2;
-	
 	
 	private long addCustomer(String name)
 	{
@@ -197,9 +196,9 @@ public class TFExtensionValues extends TFBase
 
 	private long addExtensionField(long customerId, ExtensionFieldModel field)
 	{
-		long id = extensionsHelper.addExtensionField(
-				clientContext.setRequestCustomizer(new RequestHeadersCustomizer(CommonUtils.toMap("customerId", "" + customerId))), 
-				field );
+		long id = extensionsController
+			.setRequestCustomizer(new RequestHeadersCustomizer(CommonUtils.toMap("customerId", "" + customerId)))
+			.saveExtensionField(field).getId();
 		
 		return id;
 	}
@@ -211,6 +210,8 @@ public class TFExtensionValues extends TFBase
 	@BeforeClass
 	private void setup()
 	{
+		extensionsController = super.clientControllerFactory.getController(IExtensionController.class);
+		
 		customer1 = addCustomer("Customer4Val1");
 		customer2 = addCustomer("Customer4Val2");
 		
@@ -553,7 +554,7 @@ public class TFExtensionValues extends TFBase
 		client.invokeJsonRequest(request, BaseResponse.class);
 		
 		//delete extended fields
-		extensionsHelper.deleteAllExtensionFields(clientContext);
+		extensionsController.deleteAllExtensionFields();
 
 	}
 }

@@ -33,6 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.yukthi.webutils.InvalidRequestParameterException;
 import com.yukthi.webutils.annotations.ActionName;
+import com.yukthi.webutils.common.controllers.IModelController;
 import com.yukthi.webutils.common.models.ModelDefResponse;
 import com.yukthi.webutils.common.models.def.ModelDef;
 import com.yukthi.webutils.services.ModelDetailsService;
@@ -44,16 +45,15 @@ import com.yukthi.webutils.services.ModelDetailsService;
 @RestController
 @ActionName(ACTION_PREFIX_MODEL_DEF)
 @RequestMapping("/models")
-public class ModelController
+public class ModelController implements IModelController
 {
 	@Autowired
 	private ModelDetailsService modelService;
 	
-	/**
-	 * Service method to fetch LOV values
-	 * @param modelName Model details whose needs to be fetched
-	 * @return Response model definition
+	/* (non-Javadoc)
+	 * @see com.yukthi.webutils.controllers.IModelController#fetchModel(java.lang.String)
 	 */
+	@Override
 	@ActionName(ACTION_TYPE_FETCH)
 	@RequestMapping(value = "/fetch/{" + PARAM_NAME + "}", method = RequestMethod.GET)
 	public ModelDefResponse fetchModel(@PathVariable(PARAM_NAME) String modelName)

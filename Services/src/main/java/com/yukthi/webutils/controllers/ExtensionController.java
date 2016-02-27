@@ -57,6 +57,7 @@ import com.yukthi.utils.exceptions.InvalidArgumentException;
 import com.yukthi.utils.exceptions.InvalidStateException;
 import com.yukthi.webutils.InvalidRequestParameterException;
 import com.yukthi.webutils.annotations.ActionName;
+import com.yukthi.webutils.common.controllers.IExtensionController;
 import com.yukthi.webutils.common.extensions.ExtensionFieldType;
 import com.yukthi.webutils.common.models.BaseResponse;
 import com.yukthi.webutils.common.models.BasicSaveResponse;
@@ -80,7 +81,7 @@ import com.yukthi.webutils.utils.WebUtils;
 @RestController
 @ActionName(ACTION_PREFIX_EXTENSIONS)
 @RequestMapping("/extensions")
-public class ExtensionController extends BaseController
+public class ExtensionController extends BaseController implements IExtensionController
 {
 	private static Logger logger = LogManager.getLogger(ExtensionController.class);
 	
@@ -93,18 +94,19 @@ public class ExtensionController extends BaseController
 	@Autowired
 	private ISecurityService securityService;
 	
+	@Autowired
+	private HttpServletRequest request;
+	
 	private JsonConverter jsonConverter = new JsonConverter();
 	
-	/**
-	 * Fetches extension fields for specified extension name (for current or request specific owner)
-	 * @param extensionName Name of the entity extension
-	 * @param request Http request
-	 * @return Response holding extension fields
+	/* (non-Javadoc)
+	 * @see com.yukthi.webutils.controllers.IExtensionController#fetchExtensionFields(java.lang.String)
 	 */
+	@Override
 	@ActionName(ACTION_TYPE_FETCH)
 	@ResponseBody
 	@RequestMapping(value = "/fetch/{" + PARAM_NAME + "}", method = RequestMethod.POST)
-	public ExtensionFieldsResponse fetchExtensionFields(@PathVariable(PARAM_NAME) String extensionName, HttpServletRequest request)
+	public ExtensionFieldsResponse fetchExtensionFields(@PathVariable(PARAM_NAME) String extensionName)
 	{
 		logger.trace("Fetching extension fields for - {}", extensionName);
 		
@@ -164,16 +166,14 @@ public class ExtensionController extends BaseController
 		}
 	}
 	
-	/**
-	 * Saves the extension field with specified name. If no extension exists, a new extension gets created
-	 * @param extensionField Extension field model
-	 * @param request Http Request
-	 * @return Save response with id
+	/* (non-Javadoc)
+	 * @see com.yukthi.webutils.controllers.IExtensionController#saveExtensionField(com.yukthi.webutils.common.models.ExtensionFieldModel)
 	 */
+	@Override
 	@ActionName(ACTION_TYPE_SAVE)
 	@ResponseBody
 	@RequestMapping(value = "/save", method = RequestMethod.POST)
-	public BasicSaveResponse saveExtensionField(@RequestBody @Valid ExtensionFieldModel extensionField, HttpServletRequest request)
+	public BasicSaveResponse saveExtensionField(@RequestBody @Valid ExtensionFieldModel extensionField)
 	{
 		logger.trace("Save invoked with params [Field: {}]", extensionField);
 
@@ -269,16 +269,14 @@ public class ExtensionController extends BaseController
 		return extensionId;
 	}
 
-	/**
-	 * Updates specified extension field under specified extension name
-	 * @param extensionField Field to be updated
-	 * @param request Http request
-	 * @return Success/failure message
+	/* (non-Javadoc)
+	 * @see com.yukthi.webutils.controllers.IExtensionController#updateExtensionField(com.yukthi.webutils.common.models.ExtensionFieldModel)
 	 */
+	@Override
 	@ActionName(ACTION_TYPE_UPDATE)
 	@ResponseBody
 	@RequestMapping(value = "/update", method = RequestMethod.POST)
-	public BaseResponse updateExtensionField(@RequestBody @Valid ExtensionFieldModel extensionField, HttpServletRequest request)
+	public BaseResponse updateExtensionField(@RequestBody @Valid ExtensionFieldModel extensionField)
 	{
 		logger.trace("Update invoked with params [Field: {}]", extensionField);
 		
@@ -301,15 +299,14 @@ public class ExtensionController extends BaseController
 		return new BaseResponse("Success");
 	}
 
-	/**
-	 * Deletes extension field with specified id
-	 * @param fieldId Extension field id to be deleted
-	 * @return Success/failure response
+	/* (non-Javadoc)
+	 * @see com.yukthi.webutils.controllers.IExtensionController#deleteExtensionField(java.lang.String, long)
 	 */
+	@Override
 	@ActionName(ACTION_TYPE_DELETE)
 	@ResponseBody
 	@RequestMapping(value = "/delete/{" + PARAM_NAME + "}/{" + PARAM_ID + "}", method = RequestMethod.GET)
-	public BaseResponse deleteExtensionField(@PathVariable(PARAM_NAME) String extensionName, @PathVariable(PARAM_ID) long fieldId, HttpServletRequest request)
+	public BaseResponse deleteExtensionField(@PathVariable(PARAM_NAME) String extensionName, @PathVariable(PARAM_ID) long fieldId)
 	{
 		logger.trace("Delete invoked with params [Extension: {}, Id: {}]", extensionName, fieldId);
 
@@ -321,12 +318,10 @@ public class ExtensionController extends BaseController
 		return new BaseResponse("Success");
 	}
 
-	/**
-	 * API to read extension field for specified extension with specified id
-	 * @param extensionName Extension name under which field needs to be fetched
-	 * @param fieldId Id of the extension field to be fetched
-	 * @return response with extension field model
+	/* (non-Javadoc)
+	 * @see com.yukthi.webutils.controllers.IExtensionController#readExtensionField(java.lang.String, long)
 	 */
+	@Override
 	@ActionName(ACTION_TYPE_FETCH_FIELD)
 	@ResponseBody
 	@RequestMapping(value = "/read/{" + PARAM_NAME + "}/{" + PARAM_ID + "}", method = RequestMethod.GET)
@@ -347,15 +342,14 @@ public class ExtensionController extends BaseController
 		return new ExtensionFieldReadResponse(model);
 	}
 	
-	/**
-	 * Deletes all extension fields of all extensions. Expected to be used for cleanup by test cases/ 
-	 * @param request
-	 * @return
+	/* (non-Javadoc)
+	 * @see com.yukthi.webutils.controllers.IExtensionController#deleteAllExtensionFields()
 	 */
+	@Override
 	@ActionName(ACTION_TYPE_DELETE_ALL)
 	@ResponseBody
 	@RequestMapping(value = "/deleteAll", method = RequestMethod.GET)
-	public BaseResponse deleteAllExtensionFields(HttpServletRequest request)
+	public BaseResponse deleteAllExtensionFields()
 	{
 		logger.trace("Delete all invoked");
 		

@@ -58,16 +58,21 @@ import com.yukthi.webutils.utils.WebUtils;
 public class FileController
 {
 	/**
-	 * File service to fetch file content based on id
+	 * File service to fetch file content based on id.
 	 */
 	@Autowired
 	private FileService fileService;
 	
 	/**
-	 * Service to check authorization for file
+	 * Service to check authorization for file.
 	 */
 	@Autowired
 	private ISecurityService securityService;
+	
+	/**
+	 * Current http servlet response.
+	 */
+	private HttpServletResponse response;
 	
 	/**
 	 * @param id
@@ -114,12 +119,10 @@ public class FileController
 	 * Fetches file content from db for specified id, as part of request body. Useful to include content as
 	 * image, css etc
 	 * @param id Id of the file to be fetched
-	 * @param response Response on which content needs to be sent
-	 * @throws IOException
 	 */
 	@ActionName(ACTION_TYPE_FETCH)
 	@RequestMapping(value = "/fetch/{" + PARAM_ID + "}", method = RequestMethod.GET)
-	public void fetchFile(@PathVariable(PARAM_ID) long id, HttpServletResponse response) throws IOException
+	public void fetchFile(@PathVariable(PARAM_ID) long id) throws IOException
 	{
 		FileInfo fileInfo = getFileInfo(id, true, response);
 
@@ -139,7 +142,7 @@ public class FileController
 	 */
 	@ActionName(ACTION_TYPE_FETCH_ATTACHMENT)
 	@RequestMapping(value = "/download/{" + PARAM_ID + "}", method = RequestMethod.GET)
-	public void fetchFileAsAttachment(@PathVariable(PARAM_ID) long id, HttpServletResponse response) throws IOException
+	public void fetchFileAsAttachment(@PathVariable(PARAM_ID) long id) throws IOException
 	{
 		FileInfo fileInfo = getFileInfo(id, true, response);
 
@@ -155,13 +158,12 @@ public class FileController
 	 * Fetches file content from db for specified id, as part of request body. Useful to include content as
 	 * image, css etc
 	 * @param id Id of the file to be fetched
-	 * @param response Response on which content needs to be sent
 	 * @throws IOException
 	 */
 	@NoAuthentication
 	@ActionName(ACTION_TYPE_FETCH + "." + ACTION_TYPE_INSECURE)
 	@RequestMapping(value = "/fetch/insecure/{" + PARAM_ID + "}", method = RequestMethod.GET)
-	public void fetchInsecureFile(@PathVariable(PARAM_ID) long id, HttpServletResponse response) throws IOException
+	public void fetchInsecureFile(@PathVariable(PARAM_ID) long id) throws IOException
 	{
 		FileInfo fileInfo = getFileInfo(id, false, response);
 
@@ -176,13 +178,12 @@ public class FileController
 	/**
 	 * Fetches file content from db for specified id, as part attachment.
 	 * @param id Id of the file to be fetched
-	 * @param response Response on which content needs to be sent
 	 * @throws IOException
 	 */
 	@NoAuthentication
 	@ActionName(ACTION_TYPE_FETCH_ATTACHMENT + "." + ACTION_TYPE_INSECURE)
 	@RequestMapping(value = "/download/insecure/{" + PARAM_ID + "}", method = RequestMethod.GET)
-	public void fetchInsecureFileAsAttachment(@PathVariable(PARAM_ID) long id, HttpServletResponse response) throws IOException
+	public void fetchInsecureFileAsAttachment(@PathVariable(PARAM_ID) long id) throws IOException
 	{
 		FileInfo fileInfo = getFileInfo(id, false, response);
 

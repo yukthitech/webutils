@@ -28,6 +28,7 @@ import java.util.Properties;
 import org.testng.annotations.BeforeClass;
 
 import com.yukthi.webutils.client.ClientContext;
+import com.yukthi.webutils.client.ClientControllerFactory;
 
 /**
  * Base class for test cases
@@ -37,6 +38,7 @@ public abstract class TFBase
 {
 	protected String baseUrl;
 	protected ClientContext clientContext;
+	protected ClientControllerFactory clientControllerFactory;
 	
 	@BeforeClass
 	public final void init() throws Exception
@@ -50,6 +52,8 @@ public abstract class TFBase
 		this.baseUrl = baseUrl;
 		
 		clientContext.authenticate(prop.getProperty("test.username"), prop.getProperty("test.password"));
+		
+		clientControllerFactory = new ClientControllerFactory(clientContext);
 	}
 	
 }

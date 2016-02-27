@@ -21,14 +21,14 @@
  * SOFTWARE.
  */
 
-package com.yukthi.webutils.client;
+package com.yukthi.webutils.common.client;
 
 import com.yukthi.utils.rest.RestRequest;
 
 /**
  * Used to customize the rest-request before sending to server. The instance of this interface can be
  * passed to client context using {@link ClientContext#setRequestCustomizer(IRequestCustomizer)}, which would be used for
- * the immediate rest request going to made using this context, with same thread. For consequent requests, customizer should be set explicitly again. 
+ * the immediate rest request going to made using this context, with same thread. For consequent requests, customizer should be set explicitly again.
  * @author akiran
  */
 public interface IRequestCustomizer

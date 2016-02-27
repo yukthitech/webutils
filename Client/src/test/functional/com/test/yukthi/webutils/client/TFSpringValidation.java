@@ -26,17 +26,14 @@ import java.io.File;
 
 import org.apache.commons.io.FileUtils;
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import com.test.yukthi.webutils.models.ITestController;
 import com.test.yukthi.webutils.models.TestBean;
 import com.test.yukthi.webutils.models.TestMailBean;
 import com.test.yukthi.webutils.models.TestMailModel;
-import com.yukthi.utils.CommonUtils;
-import com.yukthi.utils.rest.PostRestRequest;
-import com.yukthi.utils.rest.RestClient;
-import com.yukthi.utils.rest.RestRequest;
-import com.yukthi.utils.rest.RestResult;
-import com.yukthi.webutils.client.ActionRequestBuilder;
+import com.yukthi.webutils.client.RestException;
 import com.yukthi.webutils.common.IWebUtilsCommonConstants;
 import com.yukthi.webutils.common.models.BaseResponse;
 
@@ -46,24 +43,39 @@ import com.yukthi.webutils.common.models.BaseResponse;
  */
 public class TFSpringValidation extends TFBase
 {
+	private ITestController testController;
+	
+	@BeforeClass
+	public void setup()
+	{
+		this.testController = super.clientControllerFactory.getController(ITestController.class);
+	}
+	
 	private void test(TestBean bean, int expectedCode, String messageSubstr)
 	{
-		//check for negative test case, where validation fails
-		PostRestRequest req = new PostRestRequest("/test/test");
-		req.setJsonBody(bean);
-		
-		//invoke the request
-		RestRequest<?> request = ActionRequestBuilder.buildRequest(super.clientContext, "test.test", bean, null);
-		
-		RestClient client = clientContext.getRestClient();
-		
-		RestResult<BaseResponse> result = client.invokeJsonRequest(request, BaseResponse.class);
-		
-		Assert.assertEquals(result.getValue().getCode(), expectedCode);
-		
-		if(messageSubstr != null)
+		try
 		{
-			Assert.assertTrue(result.getValue().getMessage().toLowerCase().contains(messageSubstr.toLowerCase()));
+			BaseResponse response = testController.test(bean);
+			
+			Assert.assertEquals(response.getCode(), expectedCode);
+			
+			if(messageSubstr != null)
+			{
+				Assert.assertTrue(response.getMessage().toLowerCase().contains(messageSubstr.toLowerCase()));
+			}
+			
+			if(expectedCode != 0)
+			{
+				Assert.fail("No exception is thrown when success is not expected");
+			}
+		}catch(RestException ex)
+		{
+			Assert.assertEquals(ex.getResponseCode(), expectedCode);
+			
+			if(messageSubstr != null)
+			{
+				Assert.assertTrue(ex.getMessage().toLowerCase().contains(messageSubstr.toLowerCase()));
+			}
 		}
 	}
 	
@@ -99,14 +111,8 @@ public class TFSpringValidation extends TFBase
 		mailModel.setFromId("dev@yukthi-tech.co.in");
 		mailModel.setAttachments(new String[] {file1.getPath(), file2.getPath()});
 		
-		//invoke the request
-		RestRequest<?> request = ActionRequestBuilder.buildRequest(super.clientContext, "test.sendMail", mailModel, null);
-		
-		RestClient client = clientContext.getRestClient();
-		
-		RestResult<BaseResponse> result = client.invokeJsonRequest(request, BaseResponse.class);
-		
-		Assert.assertEquals(result.getValue().getCode(), 0);
+		BaseResponse response = testController.sendMail(mailModel);
+		Assert.assertEquals(response.getCode(), 0);
 	}
 
 	@Test
@@ -114,13 +120,7 @@ public class TFSpringValidation extends TFBase
 	{
 		TestMailBean bean = new TestMailBean("Test1234", 34, "akranthikiran@gmail.com");
 		
-		//invoke the request
-		RestRequest<?> request = ActionRequestBuilder.buildRequest(super.clientContext, "test.sendMailByTemplate", bean, null);
-		
-		RestClient client = clientContext.getRestClient();
-		
-		RestResult<BaseResponse> result = client.invokeJsonRequest(request, BaseResponse.class);
-		
-		Assert.assertEquals(result.getValue().getCode(), 0);
+		BaseResponse response = testController.sendMailByTemplate(bean);
+		Assert.assertEquals(response.getCode(), 0);
 	}
 }

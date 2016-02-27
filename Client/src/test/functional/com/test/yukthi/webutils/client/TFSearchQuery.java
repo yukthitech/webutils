@@ -26,8 +26,6 @@ package com.test.yukthi.webutils.client;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -45,6 +43,7 @@ import com.yukthi.webutils.client.ActionRequestBuilder;
 import com.yukthi.webutils.client.RestException;
 import com.yukthi.webutils.client.helpers.SearchHelper;
 import com.yukthi.webutils.common.IWebUtilsCommonConstants;
+import com.yukthi.webutils.common.controllers.ISearchController;
 import com.yukthi.webutils.common.models.BaseResponse;
 import com.yukthi.webutils.common.models.BasicSaveResponse;
 import com.yukthi.webutils.common.models.def.FieldDef;
@@ -56,6 +55,8 @@ import com.yukthi.webutils.common.models.def.ModelDef;
  */
 public class TFSearchQuery extends TFBase
 {
+	private ISearchController searchController;
+	
 	private SearchHelper searchHelper = new SearchHelper();
 	
 	private long addEmployee(String name, long salary)
@@ -89,6 +90,8 @@ public class TFSearchQuery extends TFBase
 	@BeforeClass
 	private void setup()
 	{
+		searchController = super.clientControllerFactory.getController(ISearchController.class);
+		
 		addEmployee("abc", 100);
 		addEmployee("hbc", 200);
 		addEmployee("tab", 300);
@@ -106,7 +109,7 @@ public class TFSearchQuery extends TFBase
 	@Test
 	public void testSearchQueryModel()
 	{
-		ModelDef modelDef = searchHelper.getSearchQueryDef(clientContext, "empSearch");
+		ModelDef modelDef = searchController.fetchSearchQueryDef("empSearch").getModelDef();
 		
 		Assert.assertEquals(modelDef.getName(), TestEmpSearchQuery.class.getSimpleName());
 		Assert.assertEquals(modelDef.getFields().size(), 1);
@@ -116,7 +119,7 @@ public class TFSearchQuery extends TFBase
 	@Test
 	public void testSearchQueryResult()
 	{
-		ModelDef modelDef = searchHelper.getSearchResultDef(clientContext, "empSearch");
+		ModelDef modelDef = searchController.fetchSearchResultDef("empSearch").getModelDef();
 		
 		Assert.assertEquals(modelDef.getName(), TestEmpSearchResult.class.getSimpleName());
 		Assert.assertEquals(modelDef.getFields().size(), 3);

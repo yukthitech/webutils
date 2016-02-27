@@ -42,6 +42,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.yukthi.webutils.annotations.ActionName;
 import com.yukthi.webutils.annotations.NoAuthentication;
 import com.yukthi.webutils.common.IWebUtilsCommonConstants;
+import com.yukthi.webutils.common.controllers.ILoginController;
 import com.yukthi.webutils.common.models.ActiveUserModel;
 import com.yukthi.webutils.common.models.BasicReadResponse;
 import com.yukthi.webutils.common.models.LoginCredentials;
@@ -58,7 +59,7 @@ import com.yukthi.webutils.utils.WebUtils;
 @RestController
 @RequestMapping(IWebUtilsCommonConstants.AUTH_GROUP_URI)
 @ActionName(ACTION_TYPE_AUTH)
-public class LoginController extends BaseController
+public class LoginController extends BaseController implements ILoginController
 {
 	private static Logger logger = LogManager.getLogger(LoginController.class);
 	
@@ -75,17 +76,20 @@ public class LoginController extends BaseController
 	private SecurityEncryptionService securityEncryptionService;
 	
 	/**
-	 * Login operation service method. On success, returns auth token that needs to be included
-	 * in every request header with name specified by {@link IWebUtilsCommonConstants#HEADER_AUTHORIZATION_TOKEN}.
-	 * 
-	 * @param credentials Credentials to be used for login
-	 * @return On success, returns auth token as part of response
+	 * Current http response.
 	 */
+	@Autowired
+	private HttpServletResponse response;
+	
+	/* (non-Javadoc)
+	 * @see com.yukthi.webutils.controllers.ILoginController#performLogin(com.yukthi.webutils.common.models.LoginCredentials)
+	 */
+	@Override
 	@NoAuthentication
 	@ResponseBody
 	@ActionName(ACTION_TYPE_LOGIN)
 	@RequestMapping(value = IWebUtilsCommonConstants.LOGIN_URI_PATH, method = RequestMethod.POST)
-	public LoginResponse performLogin(@RequestBody @Valid LoginCredentials credentials, HttpServletResponse response)
+	public LoginResponse performLogin(@RequestBody @Valid LoginCredentials credentials)
 	{
 		logger.debug("Trying to peform login operation for user - {}", credentials.getUserName());
 		
@@ -104,8 +108,8 @@ public class LoginController extends BaseController
 	}
 
 	/**
-	 * Fetches current active user details and configuration
-	 * @return
+	 * Fetches current active user details and configuration.
+	 * @return Base read response with active user details.
 	 */
 	@ResponseBody
 	@ActionName(ACTION_TYPE_ACTIVE_USER)

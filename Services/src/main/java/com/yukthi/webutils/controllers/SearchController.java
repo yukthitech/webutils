@@ -54,6 +54,7 @@ import com.yukthi.webutils.annotations.ActionName;
 import com.yukthi.webutils.common.FileInfo;
 import com.yukthi.webutils.common.IWebUtilsCommonConstants;
 import com.yukthi.webutils.common.SearchExecutionModel;
+import com.yukthi.webutils.common.controllers.ISearchController;
 import com.yukthi.webutils.common.models.ExecuteSearchResponse;
 import com.yukthi.webutils.common.models.ModelDefResponse;
 import com.yukthi.webutils.common.models.def.ModelDef;
@@ -68,7 +69,7 @@ import com.yukthi.webutils.utils.WebAttachmentUtils;
 @RestController
 @ActionName(ACTION_PREFIX_SEARCH)
 @RequestMapping("/search")
-public class SearchController extends BaseController
+public class SearchController extends BaseController implements ISearchController
 {
 	private static Logger logger = LogManager.getLogger(SearchController.class);
 	
@@ -80,6 +81,9 @@ public class SearchController extends BaseController
 	
 	private ObjectMapper objectMapper = new ObjectMapper();
 	
+	@Autowired
+	private HttpServletResponse response;
+	
 	/**
 	 * Used to export search results in excel format
 	 */
@@ -90,11 +94,10 @@ public class SearchController extends BaseController
 		objectMapper.setDateFormat(IWebUtilsCommonConstants.DEFAULT_DATE_FORMAT);
 	}
 	
-	/**
-	 * Used to fetch query definition for specified query
-	 * @param queryName Query name for which query def needs to be fetched
-	 * @return Query object definition
+	/* (non-Javadoc)
+	 * @see com.yukthi.webutils.controllers.ISearchController#fetchSearchQueryDef(java.lang.String)
 	 */
+	@Override
 	@ActionName(ACTION_TYPE_FETCH_QUERY_DEF)
 	@ResponseBody
 	@RequestMapping(value = "/fetch/{" + PARAM_NAME + "}/query/def", method = RequestMethod.GET)
@@ -105,11 +108,10 @@ public class SearchController extends BaseController
 		return new ModelDefResponse( searchService.getSearhQueryDefinition(queryName) );
 	}
 
-	/**
-	 * Used to fetch query result definitions for specified query
-	 * @param queryName Query for which query result def needs to be fetched
-	 * @return Query result definition
+	/* (non-Javadoc)
+	 * @see com.yukthi.webutils.controllers.ISearchController#fetchSearchResultDef(java.lang.String)
 	 */
+	@Override
 	@ActionName(ACTION_TYPE_FETCH_RESULT_DEF)
 	@ResponseBody
 	@RequestMapping(value = "/fetch/{" + PARAM_NAME + "}/execute", method = RequestMethod.GET)
@@ -120,17 +122,14 @@ public class SearchController extends BaseController
 		return new ModelDefResponse( searchService.getSearhResultDefinition(queryName) );
 	}
 	
-	/**
-	 * Executes specified search query with query object
-	 * @param queryName Name of the query to execute
-	 * @param searchExecutionModel Query object
-	 * @return List of search results
-	 * @throws MethodArgumentNotValidException 
+	/* (non-Javadoc)
+	 * @see com.yukthi.webutils.controllers.ISearchController#executeSearch(java.lang.String, com.yukthi.webutils.common.SearchExecutionModel)
 	 */
+	@Override
 	@ActionName(ACTION_TYPE_EXECUTE)
 	@ResponseBody
 	@RequestMapping(value = "/execute/{" + PARAM_NAME + "}", method = RequestMethod.GET)
-	public ExecuteSearchResponse executeSearch(@PathVariable(PARAM_NAME) String queryName, @Valid SearchExecutionModel searchExecutionModel) throws MethodArgumentNotValidException
+	public ExecuteSearchResponse executeSearch(@PathVariable(PARAM_NAME) String queryName, @Valid SearchExecutionModel searchExecutionModel) throws Exception
 	{
 		logger.trace("executeSearch is called for query - {}", queryName);
 		
@@ -153,10 +152,14 @@ public class SearchController extends BaseController
 		return new ExecuteSearchResponse( searchService.executeSearch(queryName, query, searchExecutionModel.getPageSize()) );
 	}
 
+	/* (non-Javadoc)
+	 * @see com.yukthi.webutils.controllers.ISearchController#exportSearch(java.lang.String, com.yukthi.webutils.common.SearchExecutionModel)
+	 */
+	@Override
 	@ActionName(ACTION_TYPE_EXPORT)
 	@ResponseBody
 	@RequestMapping(value = "/export/{" + PARAM_NAME + "}", method = RequestMethod.GET)
-	public void exportSearch(@PathVariable(PARAM_NAME) String queryName, @Valid SearchExecutionModel searchExecutionModel, HttpServletResponse response) throws MethodArgumentNotValidException, IOException
+	public void exportSearch(@PathVariable(PARAM_NAME) String queryName, @Valid SearchExecutionModel searchExecutionModel) throws Exception
 	{
 		logger.trace("executeSearch is called for query - {}", queryName);
 		

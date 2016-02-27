@@ -35,6 +35,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.test.yukthi.webutils.Authorization;
 import com.test.yukthi.webutils.SecurityRole;
+import com.test.yukthi.webutils.models.ITestController;
 import com.test.yukthi.webutils.models.TestBean;
 import com.test.yukthi.webutils.models.TestMailBean;
 import com.test.yukthi.webutils.models.TestMailModel;
@@ -53,7 +54,7 @@ import com.yukthi.webutils.mail.FileAttachment;
 @RestController
 @RequestMapping("/test")
 @ActionName("test")
-public class TestController extends BaseController
+public class TestController extends BaseController implements ITestController
 {
 	@Autowired
 	private EmailService emailService;
@@ -61,12 +62,10 @@ public class TestController extends BaseController
 	@Autowired
 	private EmailTemplateService emailTemplateService;
 	
-	/**
-	 * Simple test control method which is used by client test cases to 
-	 * check for spring validation enabling.
-	 * @param testBean
-	 * @return
+	/* (non-Javadoc)
+	 * @see com.test.yukthi.webutils.controllers.ITestController#test(com.test.yukthi.webutils.models.TestBean)
 	 */
+	@Override
 	@ResponseBody
 	@RequestMapping("/test")
 	@ActionName("test")
@@ -75,6 +74,10 @@ public class TestController extends BaseController
 		return new BaseResponse(0, "Sucess - " + testBean.getName());
 	}
 	
+	/* (non-Javadoc)
+	 * @see com.test.yukthi.webutils.controllers.ITestController#secured1(com.test.yukthi.webutils.models.TestBean)
+	 */
+	@Override
 	@ResponseBody
 	@RequestMapping("/secured1")
 	@ActionName("secured1")
@@ -84,6 +87,10 @@ public class TestController extends BaseController
 		return new BaseResponse(0, "Sucess - " + testBean.getName());
 	}
 
+	/* (non-Javadoc)
+	 * @see com.test.yukthi.webutils.controllers.ITestController#secured2(com.test.yukthi.webutils.models.TestBean)
+	 */
+	@Override
 	@ResponseBody
 	@RequestMapping("/secured2")
 	@ActionName("secured2")
@@ -93,6 +100,10 @@ public class TestController extends BaseController
 		return new BaseResponse(0, "Sucess - " + testBean.getName());
 	}
 	
+	/* (non-Javadoc)
+	 * @see com.test.yukthi.webutils.controllers.ITestController#sendMail(com.test.yukthi.webutils.models.TestMailModel)
+	 */
+	@Override
 	@ResponseBody
 	@RequestMapping(value = "/sendMail", method = RequestMethod.POST)
 	@ActionName("sendMail")
@@ -122,6 +133,10 @@ public class TestController extends BaseController
 		return new BaseResponse(0, "Success");
 	}
 	
+	/* (non-Javadoc)
+	 * @see com.test.yukthi.webutils.controllers.ITestController#sendMailByTemplate(com.test.yukthi.webutils.models.TestMailBean)
+	 */
+	@Override
 	@ResponseBody
 	@RequestMapping(value = "/sendMailByTemplate", method = RequestMethod.POST)
 	@ActionName("sendMailByTemplate")

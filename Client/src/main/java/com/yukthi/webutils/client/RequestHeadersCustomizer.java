@@ -26,6 +26,7 @@ package com.yukthi.webutils.client;
 import java.util.Map;
 
 import com.yukthi.utils.rest.RestRequest;
+import com.yukthi.webutils.common.client.IRequestCustomizer;
 
 /**
  * Request customizer ( {@link IRequestCustomizer} ) that can be used to set headers on the next immediate
@@ -36,10 +37,15 @@ import com.yukthi.utils.rest.RestRequest;
 public class RequestHeadersCustomizer implements IRequestCustomizer
 {
 	/**
-	 * Headers to set on request
+	 * Headers to set on request.
 	 */
 	private Map<String, Object> headers;
 	
+	/**
+	 * Instantiates a new request headers customizer.
+	 *
+	 * @param headers the headers
+	 */
 	public RequestHeadersCustomizer(Map<String, Object> headers)
 	{
 		this.headers = headers;
@@ -63,5 +69,4 @@ public class RequestHeadersCustomizer implements IRequestCustomizer
 			request.addHeader(name, "" + headers.get(name));
 		}
 	}
-
 }

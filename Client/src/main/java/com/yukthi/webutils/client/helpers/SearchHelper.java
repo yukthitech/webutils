@@ -62,62 +62,6 @@ public class SearchHelper
 	{
 		objectMapper.setDateFormat(IWebUtilsCommonConstants.DEFAULT_DATE_FORMAT);
 	}
-	
-	/**
-	 * Fetches search query definition for specified query
-	 * @param context Client context
-	 * @param queryName Query name for which query def needs to be fetched
-	 * @return Query model def
-	 */
-	public ModelDef getSearchQueryDef(ClientContext context, String queryName)
-	{
-		//build request object
-		RestRequest<?> request = ActionRequestBuilder.buildRequest(context, ACTION_PREFIX_SEARCH + "." + ACTION_TYPE_FETCH_QUERY_DEF, null, CommonUtils.toMap(
-				PARAM_NAME, queryName
-		));
-		
-		RestClient client = context.getRestClient();
-		
-		
-		//execute request
-		RestResult<ModelDefResponse> modelDefResult = client.invokeJsonRequest(request, ModelDefResponse.class);
-		ModelDefResponse response = modelDefResult.getValue();
-		
-		if(response == null || response.getCode() != 0)
-		{
-			throw new RestException("An error occurred while fetching search-query definition for - " + queryName, modelDefResult.getStatusCode(), response);
-		}
-		
-		return response.getModelDef();
-	}
-
-	/**
-	 * Fetches search definition for specified query
-	 * @param context Client context
-	 * @param queryName Query for which result def needs to be fetched
-	 * @return query result def
-	 */
-	public ModelDef getSearchResultDef(ClientContext context, String queryName)
-	{
-		//build request object
-		RestRequest<?> request = ActionRequestBuilder.buildRequest(context, ACTION_PREFIX_SEARCH + "." + ACTION_TYPE_FETCH_RESULT_DEF, null, CommonUtils.toMap(
-				PARAM_NAME, queryName
-		));
-		
-		RestClient client = context.getRestClient();
-		
-		
-		//execute request
-		RestResult<ModelDefResponse> modelDefResult = client.invokeJsonRequest(request, ModelDefResponse.class);
-		ModelDefResponse response = modelDefResult.getValue();
-		
-		if(response == null || response.getCode() != 0)
-		{
-			throw new RestException("An error occurred while fetching search-result definition for - " + queryName, modelDefResult.getStatusCode(), response);
-		}
-		
-		return response.getModelDef();
-	}
 
 	/**
 	 * Executes search query with specified query object

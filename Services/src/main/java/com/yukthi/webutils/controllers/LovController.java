@@ -39,6 +39,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.yukthi.webutils.annotations.ActionName;
 import com.yukthi.webutils.common.LovType;
+import com.yukthi.webutils.common.controllers.ILovController;
 import com.yukthi.webutils.common.models.LovListResponse;
 import com.yukthi.webutils.services.LovService;
 
@@ -49,22 +50,22 @@ import com.yukthi.webutils.services.LovService;
 @RestController
 @ActionName(ACTION_PREFIX_LOV)
 @RequestMapping("/lov")
-public class LovController extends BaseController
+public class LovController extends BaseController implements ILovController
 {
 	@Autowired
 	private LovService lovService;
 	
-	/**
-	 * Service method to fetch LOV values
-	 * @param lovName LOV name whose values needs to be fetched
-	 * @param type Static or dynamic lov
-	 * @param request Current servlet request
-	 * @return Response hacing list of LOV values
+	@Autowired
+	private HttpServletRequest request;
+	
+	/* (non-Javadoc)
+	 * @see com.yukthi.webutils.controllers.ILovController#fetchLov(java.lang.String, com.yukthi.webutils.common.LovType)
 	 */
+	@Override
 	@ActionName(ACTION_TYPE_FETCH)
 	@ResponseBody
 	@RequestMapping(value = "/fetch/{" + PARAM_NAME + "}/{" + PARAM_TYPE + "}", method = RequestMethod.GET)
-	public LovListResponse fetchLov(@PathVariable(PARAM_NAME) String lovName, @PathVariable(PARAM_TYPE) LovType type, HttpServletRequest request)
+	public LovListResponse fetchLov(@PathVariable(PARAM_NAME) String lovName, @PathVariable(PARAM_TYPE) LovType type)
 	{
 		if(type == LovType.STATIC_TYPE)
 		{

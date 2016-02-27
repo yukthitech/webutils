@@ -33,6 +33,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.test.yukthi.webutils.entity.EmployeeEntity;
+import com.test.yukthi.webutils.models.IEmployeeController;
 import com.test.yukthi.webutils.models.TestEmployeeModel;
 import com.test.yukthi.webutils.services.EmployeeService;
 import com.yukthi.webutils.InvalidRequestParameterException;
@@ -51,11 +52,15 @@ import com.yukthi.webutils.utils.WebUtils;
 @RestController
 @RequestMapping("/employee")
 @ActionName("employee")
-public class EmployeeController extends BaseController
+public class EmployeeController extends BaseController implements IEmployeeController
 {
 	@Autowired
 	private EmployeeService service;
 	
+	/* (non-Javadoc)
+	 * @see com.test.yukthi.webutils.controllers.IEmployeeController#save(com.test.yukthi.webutils.models.TestEmployeeModel)
+	 */
+	@Override
 	@ResponseBody
 	@RequestMapping(value = "/save", method = RequestMethod.POST)
 	@ActionName("save")
@@ -67,6 +72,10 @@ public class EmployeeController extends BaseController
 		return new BasicSaveResponse(entity.getId());
 	}
 	
+	/* (non-Javadoc)
+	 * @see com.test.yukthi.webutils.controllers.IEmployeeController#update(com.test.yukthi.webutils.models.TestEmployeeModel)
+	 */
+	@Override
 	@ResponseBody
 	@RequestMapping(value = "/update", method = RequestMethod.POST)
 	@ActionName("update")
@@ -83,6 +92,10 @@ public class EmployeeController extends BaseController
 		return new BasicSaveResponse(entity.getId());
 	}
 	
+	/* (non-Javadoc)
+	 * @see com.test.yukthi.webutils.controllers.IEmployeeController#fetch(long)
+	 */
+	@Override
 	@ResponseBody
 	@RequestMapping("/fetch/{id}")
 	@ActionName("fetch")
@@ -92,6 +105,10 @@ public class EmployeeController extends BaseController
 		return new BasicReadResponse<TestEmployeeModel>(model);
 	}
 	
+	/* (non-Javadoc)
+	 * @see com.test.yukthi.webutils.controllers.IEmployeeController#delete(long)
+	 */
+	@Override
 	@ResponseBody
 	@RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
 	@ActionName("delete")
@@ -102,6 +119,10 @@ public class EmployeeController extends BaseController
 		return new BaseResponse();
 	}
 
+	/* (non-Javadoc)
+	 * @see com.test.yukthi.webutils.controllers.IEmployeeController#deleteAll()
+	 */
+	@Override
 	@ResponseBody
 	@RequestMapping("/deleteAll")
 	@ActionName("deleteAll")
@@ -111,6 +132,10 @@ public class EmployeeController extends BaseController
 		return new BaseResponse();
 	}
 
+	/* (non-Javadoc)
+	 * @see com.test.yukthi.webutils.controllers.IEmployeeController#count()
+	 */
+	@Override
 	@ResponseBody
 	@RequestMapping("/count")
 	@ActionName("count")

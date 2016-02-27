@@ -30,6 +30,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.test.yukthi.webutils.models.TestCustomerModel;
@@ -39,8 +40,8 @@ import com.yukthi.utils.rest.RestRequest;
 import com.yukthi.utils.rest.RestResult;
 import com.yukthi.webutils.client.ActionRequestBuilder;
 import com.yukthi.webutils.client.RequestHeadersCustomizer;
-import com.yukthi.webutils.client.helpers.ExtensionsHelper;
 import com.yukthi.webutils.common.IWebUtilsCommonConstants;
+import com.yukthi.webutils.common.controllers.IExtensionController;
 import com.yukthi.webutils.common.extensions.ExtensionFieldType;
 import com.yukthi.webutils.common.extensions.LovOption;
 import com.yukthi.webutils.common.models.BasicSaveResponse;
@@ -54,7 +55,13 @@ public class TFExtensions extends TFBase
 {
 	private static Logger logger = LogManager.getLogger(TFExtensions.class);
 	
-	private ExtensionsHelper extensionsHelper = new ExtensionsHelper();
+	private IExtensionController extensionController;
+	
+	@BeforeClass
+	public void setup()
+	{
+		extensionController = super.clientControllerFactory.getController(IExtensionController.class);
+	}
 	
 	private long addCustomer(String name)
 	{
@@ -70,11 +77,10 @@ public class TFExtensions extends TFBase
 		return response.getId();
 	}
 	
-	private long addExtensionField(String customerId, ExtensionFieldModel field)
+	private long saveExtensionField(String customerId, ExtensionFieldModel field)
 	{
-		return extensionsHelper.addExtensionField(
-				clientContext.setRequestCustomizer(new RequestHeadersCustomizer(CommonUtils.toMap("customerId", customerId))), 
-				field );
+		clientContext.setRequestCustomizer(new RequestHeadersCustomizer(CommonUtils.toMap("customerId", customerId)));
+		return extensionController.saveExtensionField(field).getId();
 	}
 	
 	/**
@@ -86,17 +92,19 @@ public class TFExtensions extends TFBase
 		String id1 = "" + addCustomer("Customer1");
 		String id2 = "" + addCustomer("Customer2");
 		
-		addExtensionField(id1, new ExtensionFieldModel("Employee", "field1", "field1", "Desc1", ExtensionFieldType.INTEGER, true) );
+		saveExtensionField(id1, new ExtensionFieldModel("Employee", "field1", "field1", "Desc1", ExtensionFieldType.INTEGER, true) );
 
-		addExtensionField(id1, new ExtensionFieldModel("Employee", "field2", "field2", "Desc2", ExtensionFieldType.DECIMAL, true) );
+		saveExtensionField(id1, new ExtensionFieldModel("Employee", "field2", "field2", "Desc2", ExtensionFieldType.DECIMAL, true) );
 
-		addExtensionField(id2, new ExtensionFieldModel("Employee", "field1", "field1", "Desc3", false, 
+		saveExtensionField(id2, new ExtensionFieldModel("Employee", "field1", "field1", "Desc3", false, 
 				Arrays.asList(
 						new LovOption("1", "Label1"),
 						new LovOption("2", "Label2")) ) );
 
-		List<ExtensionFieldModel> fieldList1 = extensionsHelper.fetchExtensionFields(
-				clientContext.setRequestCustomizer(new RequestHeadersCustomizer(CommonUtils.toMap("customerId", id1))), "Employee");
+		List<ExtensionFieldModel> fieldList1 = extensionController
+			.setRequestCustomizer(new RequestHeadersCustomizer(CommonUtils.toMap("customerId", id1)))
+			.fetchExtensionFields("Employee").getExtensionFields();
+		
 		Assert.assertEquals(fieldList1.size(), 2);
 		Assert.assertEquals(CommonUtils.toSet(fieldList1.get(0).getName(), fieldList1.get(1).getName()), 
 				CommonUtils.toSet("field1", "field2"));
@@ -104,8 +112,10 @@ public class TFExtensions extends TFBase
 				CommonUtils.toSet(ExtensionFieldType.INTEGER, ExtensionFieldType.DECIMAL));
 		Assert.assertEquals(fieldList1.get(0).isRequired(), true);
 		
-		List<ExtensionFieldModel> fieldList2 = extensionsHelper.fetchExtensionFields(
-				clientContext.setRequestCustomizer(new RequestHeadersCustomizer(CommonUtils.toMap("customerId", id2))), "Employee");
+		List<ExtensionFieldModel> fieldList2 = extensionController
+			.setRequestCustomizer(new RequestHeadersCustomizer(CommonUtils.toMap("customerId", id2)))
+			.fetchExtensionFields("Employee").getExtensionFields();
+		
 		Assert.assertEquals(fieldList2.size(), 1);
 		Assert.assertEquals(fieldList2.get(0).getName(), "field1");
 		Assert.assertEquals(fieldList2.get(0).getLabel(), "field1");
@@ -119,9 +129,9 @@ public class TFExtensions extends TFBase
 
 		try
 		{
-			extensionsHelper.addExtensionField(
-					clientContext.setRequestCustomizer(new RequestHeadersCustomizer(CommonUtils.toMap("customerId", id1))), 
-					new ExtensionFieldModel("Employee", "field1", "field1", "Desc4", ExtensionFieldType.BOOLEAN, true) );
+			extensionController
+				.setRequestCustomizer(new RequestHeadersCustomizer(CommonUtils.toMap("customerId", id1)))
+				.saveExtensionField(new ExtensionFieldModel("Employee", "field1", "field1", "Desc4", ExtensionFieldType.BOOLEAN, true) );
 			Assert.fail("Able to add multiple fields with same name");
 		}catch(Exception ex)
 		{
@@ -141,11 +151,13 @@ public class TFExtensions extends TFBase
 		ExtensionFieldModel field1 = new ExtensionFieldModel("Employee", "field1", "field1", "Desc1", ExtensionFieldType.INTEGER, true);
 		ExtensionFieldModel field2 = new ExtensionFieldModel("Employee", "field2", "field2", "Desc2", ExtensionFieldType.DECIMAL, true);
 		
-		long fieldId1 = addExtensionField(id1, field1 );
-		addExtensionField(id1, field2);
+		long fieldId1 = saveExtensionField(id1, field1 );
+		saveExtensionField(id1, field2);
 
-		List<ExtensionFieldModel> fieldList1 = extensionsHelper.fetchExtensionFields(
-				clientContext.setRequestCustomizer(new RequestHeadersCustomizer(CommonUtils.toMap("customerId", id1))), "Employee");
+		List<ExtensionFieldModel> fieldList1 = extensionController
+			.setRequestCustomizer(new RequestHeadersCustomizer(CommonUtils.toMap("customerId", id1)))
+			.fetchExtensionFields("Employee").getExtensionFields();
+		
 		Assert.assertEquals(fieldList1.size(), 2);
 		Assert.assertEquals(CommonUtils.toSet(fieldList1.get(0).getName(), fieldList1.get(1).getName()), 
 				CommonUtils.toSet("field1", "field2"));
@@ -158,12 +170,14 @@ public class TFExtensions extends TFBase
 		field1.setType(ExtensionFieldType.DATE);
 		field1.setVersion(1);
 		
-		extensionsHelper.updateExtensionField(
-				clientContext.setRequestCustomizer(new RequestHeadersCustomizer(CommonUtils.toMap("customerId", id1))), 
-				field1);
+		extensionController
+			.setRequestCustomizer(new RequestHeadersCustomizer(CommonUtils.toMap("customerId", id1)))
+			.updateExtensionField(field1);
 		
-		fieldList1 = extensionsHelper.fetchExtensionFields(
-				clientContext.setRequestCustomizer(new RequestHeadersCustomizer(CommonUtils.toMap("customerId", id1))), "Employee");
+		fieldList1 = extensionController
+			.setRequestCustomizer(new RequestHeadersCustomizer(CommonUtils.toMap("customerId", id1)))
+			.fetchExtensionFields("Employee").getExtensionFields();
+		
 		Assert.assertEquals(fieldList1.size(), 2);
 		Assert.assertEquals(CommonUtils.toSet(fieldList1.get(0).getName(), fieldList1.get(1).getName()), 
 				CommonUtils.toSet("field1", "field2"));
@@ -180,15 +194,15 @@ public class TFExtensions extends TFBase
 		ExtensionFieldModel field2 = new ExtensionFieldModel("Employee", "field2", "field2", "Desc2", ExtensionFieldType.DECIMAL, true);
 		ExtensionFieldModel field3 = new ExtensionFieldModel("Employee", "field3", "field3", "Desc3", ExtensionFieldType.BOOLEAN, true);
 		
-		long fieldId1 = addExtensionField(id1, field1);
+		long fieldId1 = saveExtensionField(id1, field1);
 
-		addExtensionField(id1, field2);
+		saveExtensionField(id1, field2);
 		
-		addExtensionField(id1, field3);
+		saveExtensionField(id1, field3);
 		
-		List<ExtensionFieldModel> fieldList1 = extensionsHelper.fetchExtensionFields(
-				clientContext.setRequestCustomizer(new RequestHeadersCustomizer(CommonUtils.toMap("customerId", id1))), 
-				"Employee");
+		List<ExtensionFieldModel> fieldList1 = extensionController
+			.setRequestCustomizer(new RequestHeadersCustomizer(CommonUtils.toMap("customerId", id1)))
+			.fetchExtensionFields("Employee").getExtensionFields();
 		Assert.assertEquals(fieldList1.size(), 3);
 		Assert.assertEquals(CommonUtils.toSet(fieldList1.get(0).getName(), fieldList1.get(1).getName(), fieldList1.get(2).getName()), 
 				CommonUtils.toSet("field1", "field2", "field3"));
@@ -197,13 +211,13 @@ public class TFExtensions extends TFBase
 		
 		
 		//update and validate
-		extensionsHelper.deleteExtensionField(
-				clientContext.setRequestCustomizer(new RequestHeadersCustomizer(CommonUtils.toMap("customerId", id1))), 
-				"Employee", fieldId1);
+		extensionController
+			.setRequestCustomizer(new RequestHeadersCustomizer(CommonUtils.toMap("customerId", id1)))
+			.deleteExtensionField("Employee", fieldId1);
 		
-		fieldList1 = extensionsHelper.fetchExtensionFields(
-				clientContext.setRequestCustomizer(new RequestHeadersCustomizer(CommonUtils.toMap("customerId", id1))), 
-				"Employee");
+		fieldList1 = extensionController
+						.setRequestCustomizer(new RequestHeadersCustomizer(CommonUtils.toMap("customerId", id1))) 
+						.fetchExtensionFields("Employee").getExtensionFields();
 		Assert.assertEquals(fieldList1.size(), 2);
 		Assert.assertEquals(CommonUtils.toSet(fieldList1.get(0).getName(), fieldList1.get(1).getName()), 
 				CommonUtils.toSet("field2", "field3"));
@@ -217,15 +231,15 @@ public class TFExtensions extends TFBase
 	@Test
 	public void testExtendedFieldAddition_noOwner()
 	{
-		extensionsHelper.deleteAllExtensionFields(clientContext);
+		extensionController.deleteAllExtensionFields();
 		
-		extensionsHelper.addExtensionField(clientContext,  
+		extensionController.saveExtensionField(  
 				new ExtensionFieldModel("Customer", "fieldAdd1", "fieldAdd1", "Desc1", ExtensionFieldType.INTEGER, true));
 
-		extensionsHelper.addExtensionField(clientContext, 
+		extensionController.saveExtensionField( 
 				new ExtensionFieldModel("Customer", "fieldAdd2", "fieldAdd2", "Desc2", ExtensionFieldType.DECIMAL, true));
 
-		List<ExtensionFieldModel> fieldList1 = extensionsHelper.fetchExtensionFields(clientContext, "Customer");
+		List<ExtensionFieldModel> fieldList1 = extensionController.fetchExtensionFields("Customer").getExtensionFields();
 		Assert.assertEquals(fieldList1.size(), 2);
 		Assert.assertEquals(CommonUtils.toSet(fieldList1.get(0).getName(), fieldList1.get(1).getName()), 
 				CommonUtils.toSet("fieldAdd1", "fieldAdd2"));
@@ -240,16 +254,16 @@ public class TFExtensions extends TFBase
 	@Test
 	public void testUpdateExtensionField_noOwner()
 	{
-		extensionsHelper.deleteAllExtensionFields(clientContext);
+		extensionController.deleteAllExtensionFields();
 		
 		ExtensionFieldModel field1 = new ExtensionFieldModel("Customer", "fieldUpd1", "fieldUpd1", "Desc1", ExtensionFieldType.INTEGER, true);
 		ExtensionFieldModel field2 = new ExtensionFieldModel("Customer", "fieldUpd2", "fieldUpd2", "Desc2", ExtensionFieldType.DECIMAL, true);
 		
-		long fieldId1 = extensionsHelper.addExtensionField(clientContext, field1);
+		long fieldId1 = extensionController.saveExtensionField(field1).getId();
 
-		extensionsHelper.addExtensionField(clientContext, field2);
+		extensionController.saveExtensionField(field2);
 
-		List<ExtensionFieldModel> fieldList1 = extensionsHelper.fetchExtensionFields(clientContext, "Customer");
+		List<ExtensionFieldModel> fieldList1 = extensionController.fetchExtensionFields("Customer").getExtensionFields();
 		Assert.assertEquals(fieldList1.size(), 2);
 		Assert.assertEquals(CommonUtils.toSet(fieldList1.get(0).getName(), fieldList1.get(1).getName()), 
 				CommonUtils.toSet("fieldUpd1", "fieldUpd2"));
@@ -262,9 +276,9 @@ public class TFExtensions extends TFBase
 		field1.setType(ExtensionFieldType.DATE);
 		field1.setVersion(1);
 		
-		extensionsHelper.updateExtensionField(clientContext, field1);
+		extensionController.updateExtensionField(field1);
 		
-		fieldList1 = extensionsHelper.fetchExtensionFields(clientContext, "Customer");
+		fieldList1 = extensionController.fetchExtensionFields("Customer").getExtensionFields();
 		Assert.assertEquals(fieldList1.size(), 2);
 		Assert.assertEquals(CommonUtils.toSet(fieldList1.get(0).getName(), fieldList1.get(1).getName()), 
 				CommonUtils.toSet("fieldUpd1", "fieldUpd2"));
@@ -275,19 +289,19 @@ public class TFExtensions extends TFBase
 	@Test
 	public void testDeleteExtensionField_noOwner()
 	{
-		extensionsHelper.deleteAllExtensionFields(clientContext);
+		extensionController.deleteAllExtensionFields();
 		
 		ExtensionFieldModel field1 = new ExtensionFieldModel("Customer", "fieldDel1", "fieldDel1", "Desc1", ExtensionFieldType.INTEGER, true);
 		ExtensionFieldModel field2 = new ExtensionFieldModel("Customer", "fieldDel2", "fieldDel2", "Desc2", ExtensionFieldType.DECIMAL, true);
 		ExtensionFieldModel field3 = new ExtensionFieldModel("Customer", "fieldDel3", "fieldDel3", "Desc3", ExtensionFieldType.BOOLEAN, true);
 		
-		long fieldId1 = extensionsHelper.addExtensionField(clientContext, field1);
+		long fieldId1 = extensionController.saveExtensionField(field1).getId();
 
-		extensionsHelper.addExtensionField(clientContext, field2);
+		extensionController.saveExtensionField(field2);
 
-		extensionsHelper.addExtensionField(clientContext, field3);
+		extensionController.saveExtensionField(field3);
 
-		List<ExtensionFieldModel> fieldList1 = extensionsHelper.fetchExtensionFields(clientContext, "Customer");
+		List<ExtensionFieldModel> fieldList1 = extensionController.fetchExtensionFields("Customer").getExtensionFields();
 		Assert.assertEquals(fieldList1.size(), 3);
 		Assert.assertEquals(CommonUtils.toSet(fieldList1.get(0).getName(), fieldList1.get(1).getName(), fieldList1.get(2).getName()), 
 				CommonUtils.toSet("fieldDel1", "fieldDel2", "fieldDel3"));
@@ -296,9 +310,9 @@ public class TFExtensions extends TFBase
 		
 		
 		//update and validate
-		extensionsHelper.deleteExtensionField(clientContext, "Customer", fieldId1);
+		extensionController.deleteExtensionField("Customer", fieldId1);
 		
-		fieldList1 = extensionsHelper.fetchExtensionFields(clientContext, "Customer");
+		fieldList1 = extensionController.fetchExtensionFields("Customer").getExtensionFields();
 		Assert.assertEquals(fieldList1.size(), 2);
 		Assert.assertEquals(CommonUtils.toSet(fieldList1.get(0).getName(), fieldList1.get(1).getName()), 
 				CommonUtils.toSet("fieldDel2", "fieldDel3"));
@@ -315,6 +329,6 @@ public class TFExtensions extends TFBase
 		
 		client.invokeJsonRequest(request, BasicSaveResponse.class);
 		
-		extensionsHelper.deleteAllExtensionFields(clientContext);
+		extensionController.deleteAllExtensionFields();
 	}
 }

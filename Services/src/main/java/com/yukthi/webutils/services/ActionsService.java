@@ -23,9 +23,9 @@
 
 package com.yukthi.webutils.services;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -33,8 +33,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.annotation.PostConstruct;
 
@@ -42,6 +40,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -54,15 +53,18 @@ import com.yukthi.webutils.annotations.AttachmentsExpected;
 import com.yukthi.webutils.annotations.RequestParam;
 import com.yukthi.webutils.common.HttpMethod;
 import com.yukthi.webutils.common.IWebUtilsCommonConstants;
+import com.yukthi.webutils.common.RemoteService;
+import com.yukthi.webutils.common.WebutilsCommonUtils;
 import com.yukthi.webutils.common.annotations.ExtendableModel;
 import com.yukthi.webutils.common.annotations.Model;
 import com.yukthi.webutils.common.models.ActionModel;
+import com.yukthi.webutils.common.models.ActionParamModel;
 import com.yukthi.webutils.common.models.def.FieldDef;
 import com.yukthi.webutils.common.models.def.FieldType;
 import com.yukthi.webutils.common.models.def.ModelDef;
 
 /**
- * Service to maintain actions that can be invoked from client
+ * Service to maintain actions that can be invoked from client.
  * 
  * @author akiran
  */
@@ -70,24 +72,25 @@ import com.yukthi.webutils.common.models.def.ModelDef;
 public class ActionsService
 {
 	/**
-	 * Pattern to find url parameters inside url
-	 */
-	private static Pattern URL_PARAM_PATTERN = Pattern.compile("\\{(\\w+)\\}");
-	
-	/**
-	 * Default http method to be used when no method is defined
+	 * Default http method to be used when no method is defined.
 	 */
 	private static RequestMethod DEFAULT_METHODS[] = {RequestMethod.POST};
 	
 	/**
-	 * Service to scan classes
+	 * Service to scan classes.
 	 */
 	@Autowired
 	private ClassScannerService classScanService;
 	
+	/**
+	 * This service is used to fetch model field details.
+	 */
 	@Autowired
 	private ModelDetailsService modelDetailsService;
 
+	/**
+	 * List of actions information resulted from scanning.
+	 */
 	private List<ActionModel> actionModels;
 	
 	/**
@@ -120,7 +123,170 @@ public class ActionsService
 	}
 
 	/**
-	 * Loads client executable action details from the specified class "cls"
+	 * Fetch remote interface implemented by specified controller type.
+	 * @param controllerType Controller to be checked
+	 * @return Remote interface class implemented by specified controller type
+	 */
+	private Class<?> getRemoteInterface(Class<?> controllerType)
+	{
+		Class<?> interTypes[] = controllerType.getInterfaces();
+		
+		if(interTypes == null || interTypes.length == 0)
+		{
+			return null;
+		}
+		
+		for(Class<?> interType : interTypes)
+		{
+			if(interType.getAnnotation(RemoteService.class) != null)
+			{
+				return interType;
+			}
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * Fetches the action parameter details from specified method parameters into specified action.
+	 * @param action Action to which parameter details needs to be fetched
+	 * @param method Method whose parameters needs to be used
+	 */
+	private void fetchActionParameters(ActionModel action, Method method)
+	{
+		ActionParamModel actionParam = null;
+		Set<String> fileFields = null;
+		String paramName = null;
+		
+		for(Parameter parameter : method.getParameters())
+		{
+			actionParam = new ActionParamModel();
+			
+			//if RequestBody annotation is present on the parameter
+			if(parameter.getAnnotation(RequestBody.class) != null)
+			{
+				if(action.isAttachmentsExpected())
+				{
+					throw new InvalidConfigurationException("@RequestBody is used in service method where attachments are expected. "
+							+ "Use @RequestPart(\"{}\") instead. Method - {}.{}()", IWebUtilsCommonConstants.MULTIPART_DEFAULT_PART, 
+								method.getDeclaringClass().getName(), method.getName());
+				}
+
+				//if multiple parameters are marked for body throw error
+				if(action.isBodyExpected())
+				{
+					throw new InvalidConfigurationException("Multiple parameters are marked as body attributes.  Method - {}.{}()",  
+								method.getDeclaringClass().getName(), method.getName());
+				}
+				
+				actionParam.setType(ActionParamModel.TYPE_BODY);
+			}
+
+			if(parameter.getAnnotation(RequestPart.class) != null)
+			{
+				if(!action.isAttachmentsExpected())
+				{
+					throw new InvalidConfigurationException("@RequestPart is used in service method where attachments are not expected. "
+							+ "Use @RequestBody instead. Method - {}.{}()", method.getDeclaringClass().getName(), method.getName());
+				}
+				
+				String partName = parameter.getAnnotation(RequestPart.class).value();
+				
+				if(!IWebUtilsCommonConstants.MULTIPART_DEFAULT_PART.equals(partName))
+				{
+					throw new InvalidConfigurationException("Invalid request part name used '{}'. "
+							+ "Only '{}' is supported as part name for action methods. Method - {}.{}()", 
+							partName, IWebUtilsCommonConstants.MULTIPART_DEFAULT_PART, 
+							method.getDeclaringClass().getName(), method.getName());
+				}
+				
+				//if multiple parameters are marked for body throw error
+				if(action.isBodyExpected())
+				{
+					throw new InvalidConfigurationException("Multiple parameters are marked as body attributes. Method - {}.{}()",  
+								method.getDeclaringClass().getName(), method.getName());
+				}
+
+				actionParam.setType(ActionParamModel.TYPE_BODY);
+			}
+			
+			//if body is expected
+			if(actionParam.isBodyParameter())
+			{
+				//if non model is declared as body throw error
+				if(parameter.getType().getAnnotation(Model.class) == null && parameter.getType().getAnnotation(ExtendableModel.class) == null)
+				{
+					throw new InvalidConfigurationException("Non-model parameter type '{}' is defined as body attribute. Method - {}.{}()", 
+							parameter.getType().getName(), 
+							method.getDeclaringClass().getName(), method.getName());
+				}
+				
+				//if attachments are expected
+				if(action.isAttachmentsExpected())
+				{
+					fileFields = getFileFields(parameter.getType());
+
+					//if no file fields are found
+					if(fileFields == null)
+					{
+						throw new InvalidConfigurationException("No file fields are found in model though service method is marked as attachments expected. Method - {}.{}()", 
+								parameter.getType().getName(), 
+								method.getDeclaringClass().getName(), method.getName());
+					}
+					
+					action.setFileFields(fileFields);
+				}
+			}
+			
+			//if the parameter is defined to fetch from request
+			if(parameter.getAnnotation(RequestParam.class) != null)
+			{
+				paramName = parameter.getAnnotation(RequestParam.class).value();
+				
+				if( StringUtils.isBlank(paramName) )
+				{
+					throw new InvalidConfigurationException("@RequestParam is defined without value argument in method {}.{}()", 
+							method.getDeclaringClass().getName(), method.getName());
+				}
+				
+				actionParam.setName(paramName);
+				actionParam.setType(ActionParamModel.TYPE_REQUEST_PARAM);
+			}
+			
+			//if the parameter is defined to fetch from url path
+			if(parameter.getAnnotation(PathVariable.class) != null)
+			{
+				paramName = parameter.getAnnotation(PathVariable.class).value();
+				
+				if( StringUtils.isBlank(paramName) )
+				{
+					throw new InvalidConfigurationException("@PathVariable is defined without value argument in method {}.{}()", 
+							method.getDeclaringClass().getName(), method.getName());
+				}
+				
+				actionParam.setName(paramName);
+				actionParam.setType(ActionParamModel.TYPE_URL_PARAM);
+			}
+			
+			//if unable to determine action type 
+			if(actionParam.getType() == 0)
+			{
+				//if the parameter is non-model type
+				if(parameter.getType().getAnnotation(Model.class) == null && parameter.getType().getAnnotation(ExtendableModel.class) == null)
+				{
+					throw new InvalidConfigurationException("Unable to determine action parameter type in method {}.{}()", 
+							method.getDeclaringClass().getName(), method.getName());
+				}
+
+				actionParam.setType(ActionParamModel.TYPE_EMBEDDED_REQUEST_PARAMS);
+			}
+			
+			action.addParam(actionParam);
+		}
+	}
+
+	/**
+	 * Loads client executable action details from the specified class "cls".
 	 * 
 	 * @param classActionName Action name defined on main controller class
 	 * @param clsRequestMapping Request mapping path defined on main controller class
@@ -139,19 +305,15 @@ public class ActionsService
 		RequestMapping requestMapping = null;
 
 		String actionName = null;
-		RequestMethod requestMethods[] = null;
-		Annotation fullParamAnnotations[][] = null;
-		boolean isBodyParam = false, isBodySpecified = false;
 		Set<String> expectedRequestParams = new TreeSet<>(); 
 
-		RequestParam requestParam = null;
 		String url = null;
-		boolean attachmentsExpected = false;
-		HttpMethod httpMethod = null;
 		
-		Class<?> paramTypes[] = null;
-		int paramIndex = 0;
-		Set<String> fileFields = null;
+		//fetch the remote interface of the current controller
+		Class<?> remoteInterType = getRemoteInterface(cls);
+		String remoteInterTypeName = remoteInterType != null ? remoteInterType.getName() : null;
+		
+		ActionModel action = null;
 		
 		//get controller methods
 		for(Method method : cls.getMethods())
@@ -173,181 +335,55 @@ public class ActionsService
 			{
 				continue;
 			}
-
+			
+			action = new ActionModel(remoteInterTypeName, WebutilsCommonUtils.getMethodSignature(method));
+			
 			//use method name as action name if action is not defined
 			actionName = (actName == null) ? method.getName() : actName.value();
-
+			
 			//combine with class action name, to build final action name
 			if(classActionName != null)
 			{
 				actionName = classActionName + "." + actionName;
 			}
-
+			
 			//if action name is duplicated throw error
-			if(nameToModel.containsKey("actionName"))
+			if(nameToModel.containsKey(actionName))
 			{
 				throw new IllegalStateException("Duplicate action configuration encountered for action: " + actionName);
 			}
-
+			
 			//get the http method of the service method
-			requestMethods = requestMapping.method();
-
-			if(requestMethods.length == 0)
+			if(requestMapping.method().length == 0)
 			{
-				requestMethods = DEFAULT_METHODS;
+				action.setMethod( toHttpMethod(DEFAULT_METHODS[0]) );
+			}
+			else
+			{
+				action.setMethod( toHttpMethod(requestMapping.method()[0]) );
 			}
 
-			//get the service method parameter annotations
-			fullParamAnnotations = method.getParameterAnnotations();
+			action.setAttachmentsExpected(method.getAnnotation(AttachmentsExpected.class) != null);
+			fetchActionParameters(action, method);
 			
-			attachmentsExpected = (method.getAnnotation(AttachmentsExpected.class) != null);
-			paramTypes = method.getParameterTypes();
-			paramIndex = -1;
-			isBodySpecified = false;
-			
-			//based on param annotation check if request is expected as HTTP body
-			if(fullParamAnnotations != null)
-			{
-				for(Annotation paramAnnotations[] : fullParamAnnotations)
-				{
-					paramIndex++;
-					isBodyParam = false;
-					
-					if(paramAnnotations == null || paramAnnotations.length == 0)
-					{
-						continue;
-					}
-
-					for(Annotation annotation : paramAnnotations)
-					{
-						if(RequestBody.class.equals(annotation.annotationType()))
-						{
-							if(attachmentsExpected)
-							{
-								throw new InvalidConfigurationException("@RequestBody is used in service method where attachments are expected. "
-										+ "Use @RequestPart(\"{}\") instead. Method - {}.{}()", IWebUtilsCommonConstants.MULTIPART_DEFAULT_PART, 
-											method.getDeclaringClass().getName(), method.getName());
-							}
-
-							//if multiple parameters are marked for body throw error
-							if(isBodySpecified)
-							{
-								throw new InvalidConfigurationException("Multiple parameters are marked as body attributes. Method - {}.{}()",  
-											method.getDeclaringClass().getName(), method.getName());
-							}
-							
-							isBodyParam = true;
-						}
-						
-						if(RequestPart.class.equals(annotation.annotationType()))
-						{
-							if(!attachmentsExpected)
-							{
-								throw new InvalidConfigurationException("@RequestPart is used in service method where attachments are not expected. "
-										+ "Use @RequestBody instead. Method - {}.{}()", method.getDeclaringClass().getName(), method.getName());
-							}
-							
-							String partName = ((RequestPart)annotation).value();
-							
-							if(!IWebUtilsCommonConstants.MULTIPART_DEFAULT_PART.equals(partName))
-							{
-								throw new InvalidConfigurationException("Invalid request part name used '{}'. "
-										+ "Only '{}' is supported as part name for action methods. Method - {}.{}()", 
-										partName, IWebUtilsCommonConstants.MULTIPART_DEFAULT_PART, 
-										method.getDeclaringClass().getName(), method.getName());
-							}
-							
-							//if multiple parameters are marked for body throw error
-							if(isBodySpecified)
-							{
-								throw new InvalidConfigurationException("Multiple parameters are marked as body attributes. Method - {}.{}()",  
-											method.getDeclaringClass().getName(), method.getName());
-							}
-
-							isBodyParam = true;
-						}
-
-						//if body is expected
-						if(isBodyParam)
-						{
-							//if non model is declared as body throw error
-							if(paramTypes[paramIndex].getAnnotation(Model.class) == null && paramTypes[paramIndex].getAnnotation(ExtendableModel.class) == null)
-							{
-								throw new InvalidConfigurationException("Non-model parameter type '{}' is defined as body attribute. Method - {}.{}()", 
-										paramTypes[paramIndex].getName(), 
-										method.getDeclaringClass().getName(), method.getName());
-							}
-							
-							//if attachments are expected
-							if(attachmentsExpected)
-							{
-								fileFields = getFileFields(paramTypes[paramIndex]);
-
-								//if no file fields are found
-								if(fileFields == null)
-								{
-									throw new InvalidConfigurationException("No file fields are found in model though service method is marked as attachments expected. Method - {}.{}()", 
-											paramTypes[paramIndex].getName(), 
-											method.getDeclaringClass().getName(), method.getName());
-								}
-							}
-							
-							isBodySpecified = true;
-						}
-						
-						//if the parameter is defined to fetch from request, collect the param names
-						if(RequestParam.class.equals(annotation.annotationType()))
-						{
-							requestParam = (RequestParam)annotation;
-							
-							if( StringUtils.isBlank(requestParam.value()) )
-							{
-								throw new IllegalStateException( String.format("@RequestParam is defined without value argument in method %s.%s()", 
-										cls.getName(), method.getName()) );
-							}
-							
-							expectedRequestParams.add(requestParam.value());
-						}
-					}
-				}
-			}
-
 			//build action model object and cache it
 			url = clsRequestMapping + requestMapping.value()[0];
-			httpMethod = toHttpMethod(requestMethods[0]);
 			
-			if(httpMethod != HttpMethod.POST && attachmentsExpected)
+			if(action.getMethod() != HttpMethod.POST && action.isAttachmentsExpected())
 			{
 				throw new InvalidConfigurationException("Non-POST method is configured with @{}. Method - {}.{}()", 
 						AttachmentsExpected.class.getName(), method.getDeclaringClass().getName(), method.getName());
 			}
 			
-			nameToModel.put( actionName, new ActionModel(actionName, url, 
-					httpMethod, isBodyParam, expectedRequestParams.toArray(new String[0]), getUrlParameters(url), attachmentsExpected, fileFields) );
+			action.setName(actionName);
+			action.setUrl(url);
+			
+			nameToModel.put(actionName, action);
 		}
 	}
 	
 	/**
-	 * Converts {@link RequestMethod} to {@link HttpMethod} instance
-	 * @param requestMethod
-	 * @return
-	 */
-	private HttpMethod toHttpMethod(RequestMethod requestMethod)
-	{
-		if(requestMethod == RequestMethod.GET)
-		{
-			return HttpMethod.GET;
-		}
-		else if(requestMethod == RequestMethod.DELETE)
-		{
-			return HttpMethod.DELETE;
-		}
-		
-		return HttpMethod.POST;
-	}
-	
-	/**
-	 * Loads actions from specified class recursively in the specified class hierarchy
+	 * Loads actions from specified class recursively in the specified class hierarchy.
 	 * @param cls Class from which actions should be loaded
 	 * @param nameToModel Map to which action models neees to be loaded
 	 */
@@ -385,30 +421,26 @@ public class ActionsService
 	}
 	
 	/**
-	 * Fetches url parameters from specified url
-	 * @param url url string from which url-params can be found
-	 * @return url parameters find
+	 * Converts {@link RequestMethod} to {@link HttpMethod} instance.
+	 * @param requestMethod Request method to be converted
+	 * @return Converted http method
 	 */
-	private String[] getUrlParameters(String url)
+	private HttpMethod toHttpMethod(RequestMethod requestMethod)
 	{
-		Matcher matcher = URL_PARAM_PATTERN.matcher(url);
-		List<String> params = new ArrayList<>();
-		
-		while(matcher.find())
+		if(requestMethod == RequestMethod.GET)
 		{
-			params.add(matcher.group(1));
+			return HttpMethod.GET;
+		}
+		else if(requestMethod == RequestMethod.DELETE)
+		{
+			return HttpMethod.DELETE;
 		}
 		
-		if(params.isEmpty())
-		{
-			return null;
-		}
-		
-		return params.toArray(new String[0]);
+		return HttpMethod.POST;
 	}
-
+	
 	/**
-	 * Called by spring post construction, which will load all available actions into memory
+	 * Called by spring post construction, which will load all available actions into memory.
 	 */
 	@PostConstruct
 	private void init()
@@ -431,7 +463,7 @@ public class ActionsService
 	}
 	
 	/**
-	 * Service method to get available actions with details
+	 * Service method to get available actions with details.
 	 * @return Available action details
 	 */
 	public List<ActionModel> getActions()

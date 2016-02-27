@@ -25,18 +25,12 @@ package com.test.yukthi.webutils.client;
 
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import com.test.yukthi.webutils.models.IEmployeeController;
 import com.test.yukthi.webutils.models.TestEmployeeModel;
-import com.yukthi.utils.CommonUtils;
-import com.yukthi.utils.exceptions.InvalidStateException;
-import com.yukthi.utils.rest.RestClient;
-import com.yukthi.utils.rest.RestRequest;
-import com.yukthi.utils.rest.RestResult;
-import com.yukthi.webutils.client.ActionRequestBuilder;
-import com.yukthi.webutils.client.RestException;
 import com.yukthi.webutils.common.IWebUtilsCommonConstants;
-import com.yukthi.webutils.common.models.BaseResponse;
 import com.yukthi.webutils.common.models.BasicReadResponse;
 import com.yukthi.webutils.common.models.BasicSaveResponse;
 
@@ -46,44 +40,25 @@ import com.yukthi.webutils.common.models.BasicSaveResponse;
  */
 public class TFCrud extends TFBase
 {
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private IEmployeeController employeeController;
+	
+	@BeforeClass
+	public void setup()
+	{
+		employeeController = super.clientControllerFactory.getController(IEmployeeController.class);
+	}
+	
 	private TestEmployeeModel getEmployee(long empId)
 	{
-		RestRequest<?> request = ActionRequestBuilder.buildRequest(
-				clientContext, 
-				"employee.fetch", null, CommonUtils.toMap(
-						"id", "" + empId
-					));
-		
-		RestClient client = clientContext.getRestClient();
-		
-		RestResult<BasicReadResponse<TestEmployeeModel>> result = (RestResult)client.invokeJsonRequest(request, BasicReadResponse.class, TestEmployeeModel.class);
-		return result.getValue().getModel();
+		BasicReadResponse<TestEmployeeModel> response = employeeController.fetch(empId);
+		return response.getModel();
 	}
 	
 	@Test
 	public void testSave()
 	{
 		TestEmployeeModel emp = new TestEmployeeModel("TestEmp", 1000);
-		
-		RestRequest<?> request = ActionRequestBuilder.buildRequest(
-				clientContext, 
-				"employee.save", emp, null);
-		
-		RestClient client = clientContext.getRestClient();
-		
-		RestResult<BasicSaveResponse> result = client.invokeJsonRequest(request, BasicSaveResponse.class);
-		BasicSaveResponse response = result.getValue();
-		
-		if(response == null || response.getCode() != IWebUtilsCommonConstants.RESPONSE_CODE_SUCCESS)
-		{
-			if(response != null)
-			{
-				throw new RestException(response.getMessage(), response.getCode());
-			}
-			
-			throw new InvalidStateException("Unknow error occurred - {}", result);
-		}
+		BasicSaveResponse response = employeeController.save(emp);
 		
 		Assert.assertEquals(response.getCode(), IWebUtilsCommonConstants.RESPONSE_CODE_SUCCESS);
 
@@ -96,8 +71,6 @@ public class TFCrud extends TFBase
 	@AfterClass
 	private void clean()
 	{
-		RestClient client = clientContext.getRestClient();
-		RestRequest<?> request = ActionRequestBuilder.buildRequest(super.clientContext, "employee.deleteAll", null, null);
-		client.invokeJsonRequest(request, BaseResponse.class);
+		employeeController.deleteAll();
 	}
 }

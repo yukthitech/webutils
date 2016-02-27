@@ -24,23 +24,23 @@
 package com.yukthi.webutils.common;
 
 /**
- * Defines list of supported/used http methods
+ * Defines list of supported/used http methods.
  * @author akiran
  */
 public enum HttpMethod
 {
 	/**
-	 * HTTP GET method
+	 * HTTP GET method.
 	 */
 	GET,
 	
 	/**
-	 * HTTP POST method
+	 * HTTP POST method.
 	 */
 	POST,
 	
 	/**
-	 * Http DELETE method
+	 * Http DELETE method.
 	 */
 	DELETE
 }

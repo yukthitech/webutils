@@ -188,9 +188,9 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 						if(!baseResponse || baseResponse.code != 0)
 						{
 							this.logger.error("An error occurred while deleting {} - {}. Server Error - {}", 
-									this.$scope.crudConfig.name, this.selectedName, baseResonse.message);
+									this.$scope.crudConfig.name, this.selectedName, baseResponse.message);
 							this.utils.alert(["An error occurred while deleting {} - {}. <BR/>Server Error - {}", 
-							        this.$scope.crudConfig.name, this.selectedName, baseResonse.message]);
+							        this.$scope.crudConfig.name, this.selectedName, baseResponse.message]);
 							return;
 						}
 

@@ -27,10 +27,12 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.yukthi.webutils.client.helpers.ModelDefHelper;
+import com.yukthi.webutils.client.ClientControllerFactory;
 import com.yukthi.webutils.common.LovType;
+import com.yukthi.webutils.common.controllers.IModelController;
 import com.yukthi.webutils.common.models.def.FieldDef;
 import com.yukthi.webutils.common.models.def.ModelDef;
 import com.yukthi.webutils.common.models.def.ValidationDef;
@@ -43,12 +45,18 @@ public class TFModelDef extends TFBase
 {
 	private static Logger logger = LogManager.getLogger(TFModelDef.class);
 	
-	private ModelDefHelper modelDefHelper = new ModelDefHelper();
+	private IModelController modelController;
+	
+	@BeforeClass
+	public void setup()
+	{
+		modelController = super.clientControllerFactory.getController(IModelController.class);
+	}
 	
 	@Test
 	public void testModelDef()
 	{
-		ModelDef modelDef = modelDefHelper.getModelDef(clientContext, "TestModel");
+		ModelDef modelDef = modelController.fetchModel("TestModel").getModelDef(); 
 		
 		logger.debug("Got model def as - " + modelDef);
 		

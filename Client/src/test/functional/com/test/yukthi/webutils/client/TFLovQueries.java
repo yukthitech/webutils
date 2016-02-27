@@ -41,9 +41,9 @@ import com.yukthi.utils.rest.RestRequest;
 import com.yukthi.utils.rest.RestResult;
 import com.yukthi.webutils.client.ActionRequestBuilder;
 import com.yukthi.webutils.client.RestException;
-import com.yukthi.webutils.client.helpers.LovHelper;
 import com.yukthi.webutils.common.IWebUtilsCommonConstants;
 import com.yukthi.webutils.common.LovType;
+import com.yukthi.webutils.common.controllers.ILovController;
 import com.yukthi.webutils.common.models.BaseResponse;
 import com.yukthi.webutils.common.models.BasicSaveResponse;
 import com.yukthi.webutils.common.models.ValueLabel;
@@ -56,7 +56,7 @@ public class TFLovQueries extends TFBase
 {
 	private static Logger logger = LogManager.getLogger(TFLovQueries.class);
 	
-	private LovHelper lovHelper = new LovHelper();
+	private ILovController lovController;
 	
 	private long addEmployee(String name, long salary)
 	{
@@ -89,6 +89,8 @@ public class TFLovQueries extends TFBase
 	@BeforeClass
 	private void setup()
 	{
+		lovController = super.clientControllerFactory.getController(ILovController.class);
+		
 		addEmployee("abc", 100);
 		addEmployee("xyz", 200);
 		addEmployee("efg", 300);
@@ -102,7 +104,7 @@ public class TFLovQueries extends TFBase
 	@Test
 	public void testStaticLov()
 	{
-		List<ValueLabel> lovList = lovHelper.getStaticLov(super.clientContext, LovType.class.getName());
+		List<ValueLabel> lovList = lovController.fetchLov(LovType.class.getName(), LovType.STATIC_TYPE).getLovList();
 		logger.debug("Got LOV as - " + lovList);
 		
 		Assert.assertEquals(lovList.size(), LovType.values().length);
@@ -120,7 +122,7 @@ public class TFLovQueries extends TFBase
 	public void testDynamicLov()
 	{
 		//get test lov dynamic values
-		List<ValueLabel> lovList = lovHelper.getDynamicLov(super.clientContext, "employeeLov");
+		List<ValueLabel> lovList = lovController.fetchLov("employeeLov", LovType.DYNAMIC_TYPE).getLovList();
 		logger.debug("Got LOV as - " + lovList);
 		
 		Assert.assertEquals(lovList.size(), 4);
@@ -143,7 +145,7 @@ public class TFLovQueries extends TFBase
 	@Test
 	public void testLovAuthorization()
 	{
-		List<ValueLabel> lovList = lovHelper.getDynamicLov(super.clientContext, "employeeLovAuthorized");
+		List<ValueLabel> lovList = lovController.fetchLov("employeeLovAuthorized", LovType.DYNAMIC_TYPE).getLovList();
 		logger.debug("Got LOV as - " + lovList);
 		
 		Assert.assertEquals(lovList.size(), 4);
@@ -157,7 +159,7 @@ public class TFLovQueries extends TFBase
 	{
 		try
 		{
-			lovHelper.getDynamicLov(super.clientContext, "employeeLovUnauthorized");
+			lovController.fetchLov("employeeLovUnauthorized", LovType.DYNAMIC_TYPE).getLovList();
 			Assert.fail("No exception is thrown when unauthorized lov method is accessed");
 		}catch(RestException ex)
 		{

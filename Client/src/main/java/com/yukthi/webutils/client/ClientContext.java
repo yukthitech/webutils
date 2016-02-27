@@ -23,6 +23,7 @@
 
 package com.yukthi.webutils.client;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,6 +38,7 @@ import com.yukthi.utils.rest.RestClient;
 import com.yukthi.utils.rest.RestRequest;
 import com.yukthi.utils.rest.RestResult;
 import com.yukthi.webutils.common.IWebUtilsCommonConstants;
+import com.yukthi.webutils.common.client.IRequestCustomizer;
 import com.yukthi.webutils.common.models.ActionModel;
 import com.yukthi.webutils.common.models.FetchActionsResponse;
 import com.yukthi.webutils.common.models.LoginCredentials;
@@ -219,5 +221,20 @@ public class ClientContext
 		}
 		
 		return this.actionsMap.get(name);
+	}
+	
+	/**
+	 * Fetches all the available actions.
+	 * @return all the available actions.
+	 */
+	Collection<ActionModel> getAllActions()
+	{
+		//if actions are not initialized, initialize actions
+		if(this.actionsMap == null)
+		{
+			initActions();
+		}
+
+		return actionsMap.values();
 	}
 }

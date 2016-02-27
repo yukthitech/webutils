@@ -24,15 +24,20 @@
 package com.test.yukthi.webutils.client;
 
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import com.test.yukthi.webutils.models.ITestController;
 import com.test.yukthi.webutils.models.TestBean;
 import com.yukthi.utils.rest.RestClient;
 import com.yukthi.utils.rest.RestRequest;
 import com.yukthi.utils.rest.RestResult;
 import com.yukthi.webutils.client.ActionRequestBuilder;
+import com.yukthi.webutils.client.RestException;
 import com.yukthi.webutils.common.IWebUtilsCommonConstants;
 import com.yukthi.webutils.common.models.BaseResponse;
+
+import junit.runner.TestCollector;
 
 /**
  * Test LOV value fetching from server
@@ -40,34 +45,37 @@ import com.yukthi.webutils.common.models.BaseResponse;
  */
 public class TFAuthorization extends TFBase
 {
+	private ITestController testController;
+	
+	@BeforeClass
+	public void setup()
+	{
+		testController = super.clientControllerFactory.getController(ITestController.class);
+	}
+	
 	/**
-	 * Tests when roles are not sufficient
+	 * Tests when roles are not sufficient.
 	 */
 	@Test
 	public void testUnauthorizedAction()
 	{
-		RestRequest<?> request = ActionRequestBuilder.buildRequest(super.clientContext, "test.secured1", new TestBean("name", 25, "test", "test"), null);
-		
-		RestClient client = clientContext.getRestClient();
-		
-		RestResult<BaseResponse> result = client.invokeJsonRequest(request, BaseResponse.class);
-		BaseResponse response = result.getValue();
-		
-		Assert.assertEquals(response.getCode(), IWebUtilsCommonConstants.RESPONSE_CODE_AUTHORIZATION_ERROR);
+		try
+		{
+			testController.secured1(new TestBean("name", 25, "test", "test"));
+			Assert.fail("No rest exception is thrown");
+		}catch(RestException ex)
+		{
+			Assert.assertEquals(ex.getResponseCode(), IWebUtilsCommonConstants.RESPONSE_CODE_AUTHORIZATION_ERROR);
+		}
 	}
-
+	
 	/**
-	 * Tests when roles are sufficient
+	 * Tests when roles are sufficient.
 	 */
 	@Test
 	public void testAuthorizedAction()
 	{
-		RestRequest<?> request = ActionRequestBuilder.buildRequest(super.clientContext, "test.secured2", new TestBean("name", 25, "test", "test"), null);
-		
-		RestClient client = clientContext.getRestClient();
-		
-		RestResult<BaseResponse> result = client.invokeJsonRequest(request, BaseResponse.class);
-		BaseResponse response = result.getValue();
+		BaseResponse response = testController.secured2(new TestBean("name", 25, "test", "test"));
 		
 		Assert.assertEquals(response.getCode(), IWebUtilsCommonConstants.RESPONSE_CODE_SUCCESS);
 	}
