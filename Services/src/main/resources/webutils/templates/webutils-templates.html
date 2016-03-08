@@ -335,7 +335,7 @@
 									 -->
 									<input type="submit" value="Search" style="display: none;" ng-click="performSearch($event)"/>
 									
-									<a class="btn btn-primary" role="button" ng-click="performSearch($event)" style="margin: 0.5em; margin-right: 0px;">
+									<a id="${attr('id')}_searchBut" class="btn btn-primary" role="button" ng-click="performSearch($event)" style="margin: 0.5em; margin-right: 0px;">
 										<i class="glyphicon glyphicon-search"></i>
 										Search
 									</a>
@@ -409,7 +409,7 @@
 				</div>
 				<!-- End of popup actions -->
 
-				<div class="panel panel-default" data-toggle="context" data-target="#${attr('id')}_context_menu">
+				<div id="${attr('id')}_search_results" class="panel panel-default" data-toggle="context" data-target="#${attr('id')}_context_menu">
 					<div class="panel-heading" style="padding: 0.3em 1em; font-weight: bold;">
 						${attr('title')} - Results
 					</div>

@@ -26,17 +26,21 @@ package com.yukthi.webutils.common.client;
 import com.yukthi.utils.rest.RestRequest;
 
 /**
- * Used to customize the rest-request before sending to server. The instance of this interface can be
- * passed to client context using {@link ClientContext#setRequestCustomizer(IRequestCustomizer)}, which would be used for
- * the immediate rest request going to made using this context, with same thread. For consequent requests, customizer should be set explicitly again.
+ * Used to customize the rest-request before sending to server. The instance of
+ * this interface can be passed to client context, which would be used for the
+ * immediate rest request going to made using this context, with same thread.
+ * For consequent requests, customizer should be set explicitly again.
+ * 
  * @author akiran
  */
 public interface IRequestCustomizer
 {
 	/**
-	 * Called by client-context before the request is sent to the server. So that caller can customize the
-	 * request (like adding headers etc).
-	 * @param request Request going to be sent to server
+	 * Called by client-context before the request is sent to the server. So
+	 * that caller can customize the request (like adding headers etc).
+	 * 
+	 * @param request
+	 *            Request going to be sent to server
 	 */
 	public void customize(RestRequest<?> request);
 }

@@ -9,6 +9,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class ActionParamModel
 {
 	/**
+	 * Indicates this is server side parameter. And should be ignored or passed null from client side
+	 */
+	public static final int TYPE_NULL = 0;
+
+	/**
 	 * Indicates the action parameter is expected as request parameter.
 	 */
 	public static final int TYPE_REQUEST_PARAM = 1;

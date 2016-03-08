@@ -12,7 +12,7 @@ public interface IExtensionController extends IClientController<IExtensionContro
 {
 
 	/**
-	 * Fetches extension fields for specified extension name (for current or request specific owner)
+	 * Fetches extension fields for specified extension name (for current or request specific owner).
 	 * @param extensionName Name of the entity extension
 	 * @return Response holding extension fields
 	 */
@@ -26,21 +26,21 @@ public interface IExtensionController extends IClientController<IExtensionContro
 	BasicSaveResponse saveExtensionField(ExtensionFieldModel extensionField);
 
 	/**
-	 * Updates specified extension field under specified extension name
+	 * Updates specified extension field under specified extension name.
 	 * @param extensionField Field to be updated
 	 * @return Success/failure message
 	 */
 	BaseResponse updateExtensionField(ExtensionFieldModel extensionField);
 
 	/**
-	 * Deletes extension field with specified id
+	 * Deletes extension field with specified id.
 	 * @param fieldId Extension field id to be deleted
 	 * @return Success/failure response
 	 */
 	BaseResponse deleteExtensionField(String extensionName, long fieldId);
 
 	/**
-	 * API to read extension field for specified extension with specified id
+	 * API to read extension field for specified extension with specified id.
 	 * @param extensionName Extension name under which field needs to be fetched
 	 * @param fieldId Id of the extension field to be fetched
 	 * @return response with extension field model
@@ -48,9 +48,8 @@ public interface IExtensionController extends IClientController<IExtensionContro
 	ExtensionFieldReadResponse readExtensionField(String extensionName, long fieldId);
 
 	/**
-	 * Deletes all extension fields of all extensions. Expected to be used for cleanup by test cases/ 
-	 * @param request
-	 * @return
+	 * Deletes all extension fields of all extensions. Expected to be used for cleanup by test cases. 
+	 * @return Success/failure message.
 	 */
 	BaseResponse deleteAllExtensionFields();
 

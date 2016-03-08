@@ -23,9 +23,10 @@
 
 package com.yukthi.webutils.controllers;
 
-import static com.yukthi.webutils.common.IWebUtilsActionConstants.*;
+import static com.yukthi.webutils.common.IWebUtilsActionConstants.ACTION_PREFIX_FILES;
 import static com.yukthi.webutils.common.IWebUtilsActionConstants.ACTION_TYPE_FETCH;
 import static com.yukthi.webutils.common.IWebUtilsActionConstants.ACTION_TYPE_FETCH_ATTACHMENT;
+import static com.yukthi.webutils.common.IWebUtilsActionConstants.ACTION_TYPE_INSECURE;
 import static com.yukthi.webutils.common.IWebUtilsActionConstants.PARAM_ID;
 
 import java.io.IOException;
@@ -137,7 +138,6 @@ public class FileController
 	/**
 	 * Fetches file content from db for specified id, as part attachment.
 	 * @param id Id of the file to be fetched
-	 * @param response Response on which content needs to be sent
 	 * @throws IOException
 	 */
 	@ActionName(ACTION_TYPE_FETCH_ATTACHMENT)

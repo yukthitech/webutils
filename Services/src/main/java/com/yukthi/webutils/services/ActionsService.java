@@ -44,13 +44,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.yukthi.utils.exceptions.InvalidConfigurationException;
 import com.yukthi.webutils.annotations.ActionName;
 import com.yukthi.webutils.annotations.AttachmentsExpected;
-import com.yukthi.webutils.annotations.RequestParam;
 import com.yukthi.webutils.common.HttpMethod;
 import com.yukthi.webutils.common.IWebUtilsCommonConstants;
 import com.yukthi.webutils.common.RemoteService;
@@ -271,14 +272,22 @@ public class ActionsService
 			//if unable to determine action type 
 			if(actionParam.getType() == 0)
 			{
-				//if the parameter is non-model type
-				if(parameter.getType().getAnnotation(Model.class) == null && parameter.getType().getAnnotation(ExtendableModel.class) == null)
+				//if parameter type is multi part request (needed during file upload)
+				if(MultipartHttpServletRequest.class.equals(parameter.getType()))
 				{
-					throw new InvalidConfigurationException("Unable to determine action parameter type in method {}.{}()", 
-							method.getDeclaringClass().getName(), method.getName());
+					actionParam.setType(ActionParamModel.TYPE_NULL);
 				}
-
-				actionParam.setType(ActionParamModel.TYPE_EMBEDDED_REQUEST_PARAMS);
+				else
+				{
+					//if the parameter is non-model type
+					if(parameter.getType().getAnnotation(Model.class) == null && parameter.getType().getAnnotation(ExtendableModel.class) == null)
+					{
+						throw new InvalidConfigurationException("Unable to determine action parameter type in method {}.{}()", 
+								method.getDeclaringClass().getName(), method.getName());
+					}
+					
+					actionParam.setType(ActionParamModel.TYPE_EMBEDDED_REQUEST_PARAMS);
+				}
 			}
 			
 			action.addParam(actionParam);
