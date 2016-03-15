@@ -35,6 +35,8 @@ import javax.persistence.Version;
 
 import com.yukthi.persistence.annotations.DataType;
 import com.yukthi.persistence.annotations.DataTypeMapping;
+import com.yukthi.persistence.annotations.Index;
+import com.yukthi.persistence.annotations.Indexes;
 import com.yukthi.persistence.annotations.NotUpdateable;
 import com.yukthi.persistence.annotations.UniqueConstraint;
 import com.yukthi.persistence.annotations.UniqueConstraints;
@@ -46,7 +48,10 @@ import com.yukthi.persistence.conversion.impl.JsonConverter;
  */
 @Table(name = "ENTITY_EXTENSIONS")
 @UniqueConstraints({
-	@UniqueConstraint(name = "OWNR_TYPE_OWNR_ID", fields = {"targetPointName", "ownerPointName", "ownerId"})
+	@UniqueConstraint(name = "NAME", fields = {"name"})
+})
+@Indexes({
+	@Index(name = "OWNR_TYPE_OWNR_ID", fields = {"targetPointName", "ownerPointName", "ownerId"})
 })
 public class ExtensionEntity implements ITrackedEntity
 {
@@ -84,7 +89,7 @@ public class ExtensionEntity implements ITrackedEntity
 	private long ownerId;
 	
 	/**
-	 * optional name for the extension
+	 * Name for the extension
 	 */
 	@Column(name = "NAME", nullable = true)
 	private String name;

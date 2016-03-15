@@ -37,4 +37,8 @@ $.application.controller('mainController', ["$scope", "$rootScope", "logger", "a
 		return ($scope.activeUser.roles.indexOf(roleName) >= 0);
 	};
 	
+	$scope.getAppConfiguration = function(name) {
+		return $.appConfiguration[name];
+	};
+	
 }]);

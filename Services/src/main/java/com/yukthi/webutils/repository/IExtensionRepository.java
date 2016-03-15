@@ -41,4 +41,11 @@ public interface IExtensionRepository extends ICrudRepository<ExtensionEntity>
 	 */
 	public ExtensionEntity findEntity(@Condition("targetPointName") String targetPointName, 
 			@Condition("ownerPointName") String ownerPointName, @Condition("ownerId") long ownerId);
+	
+	/**
+	 * Finder method to find extension with specified name.
+	 * @param name Name for which extension needs to be fetched.
+	 * @return Matching extension.
+	 */
+	public ExtensionEntity findByName(@Condition("name") String name);
 }

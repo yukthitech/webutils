@@ -1,3 +1,30 @@
+/*
+ * Following are the list of configuration parameters/functions that can be passed as config to extend() method
+ * name - Name of the controller
+ * modelName - Model Name
+ * nameColumn - Name of the column in search results which can be used to identify the selected row
+ * modelDailogId - Id of the model dialog to be displayed during Create/update operations
+ * saveAction - Action name to be invoked on save
+ * updateAction - Action name to be invoked on update
+ * readAction - Action name to be invoked for reading model data by passing selected row id.
+ * deleteAction - Action name to be invoked for delete operation by passing selected row id.
+ * 
+ * readOp($scope, actionHelper, callback) - 
+ * 				Function that will be used to read model data. If specified, "readAction" will not be used.
+ *  
+ * deleteOp($scope, actionHelper, callback) - 
+ * 				Function that will be used for delete operation. If specified "deleteAction" will not be used.
+ * 
+ * validateOp(model, $scope) - 
+ * 				Optional. If specified this function will be invoked before saving. In case of errors, this function
+ * 				should return non-zero array of object, and each object should contain following properties
+ * 					field - Name of the field
+ * 					message - Error message for the field.
+ * 
+ * onChange(field, isExtendedField, model, $scope) - 
+ * 				Event method. If specified, this method will be called whenever a field value is changed. This can be
+ * 				used to control the ui on value change events.
+ */
 $.application.factory('crudController', ["logger", "actionHelper", "utils", "validator", "modelDefService", 
                 function(logger, actionHelper, utils, validator, modelDefService){
 	
@@ -376,6 +403,12 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 					
 					$scope.errors[modelPrefix][name] = ex;
 				}
+
+				//invoke on change event listener if specified
+				if($scope.onChange)
+				{
+					$scope.onChange(name, false, $scope.model, $scope);
+				}
 			};
 
 			$scope.validateExtendedField = function(name, modelPrefix) {
@@ -393,6 +426,12 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 					}
 
 					$scope.errors.model.extendedFields[name] = ex;
+				}
+
+				//invoke on change event listener if specified
+				if($scope.onChange)
+				{
+					$scope.onChange(name, true, $scope.model, $scope);
 				}
 			};
 		}
