@@ -362,11 +362,12 @@
 							<for-each data="${actions}" loop-var="action" index-var="actionIdx">
 								<set-var name="_action" expr="$(context.action)"/>
 								<set-var name="_label" expr="context._action.attr('label') ? context._action.attr('label') : ''"/>
+								<set-var name="_actionId" expr="context._action.attr('id') ? context._action.attr('id') : ''"/>
 
 								<set-var name="_showExpr" 
 									expr="(context._action.attr('row-action') == 'true') ? 'selectedIndex != null &amp;&amp; selectedIndex &gt;= 0' : 'true'"/>
 								
-								<yk-icon-link icon="glyphicon ${_action.attr('icon')}" ng-click="${_action.attr('method')}" 
+								<yk-icon-link id="${_actionId}" icon="glyphicon ${_action.attr('icon')}" ng-click="${_action.attr('method')}" 
 										color="${_action.attr('color')}" label="${_action.attr('label')}" ng-show="${_showExpr}"></yk-icon-link>
 							</for-each>
 							
@@ -1103,7 +1104,7 @@
 			<set-var name="_extraStyle" 
 				expr="context.attr('style')? context.attr('style') : '' "/>
 
-			<a role="button" ng-click="${attr('ng-click')}" style="text-decoration: none; color: ${attr('color')};${_sizeAttr};${_extraStyle}" class="yk-icon-link" 
+			<a id="${attr('id')}" role="button" ng-click="${attr('ng-click')}" style="text-decoration: none; color: ${attr('color')};${_sizeAttr};${_extraStyle}" class="yk-icon-link" 
 						data-toggle="tooltip" title="${attr('label')}" ng-show="${_showExpr}" ng-if="${_ifExpr}">
 				<i class="${attr('icon')}"></i>
 			</a>
