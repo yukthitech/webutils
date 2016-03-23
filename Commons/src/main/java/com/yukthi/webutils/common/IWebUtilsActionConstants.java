@@ -141,6 +141,11 @@ public interface IWebUtilsActionConstants
 	public String PARAM_TYPE = "type";
 	
 	/**
+	 * Parameter with name "value".
+	 */
+	public String PARAM_VALUE = "value";
+
+	/**
 	 * Parameter with name "id"
 	 */
 	public String PARAM_ID = "id";

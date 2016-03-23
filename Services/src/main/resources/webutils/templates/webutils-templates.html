@@ -925,6 +925,15 @@
 					var lovName = this.context.attr('lov');
 					var type = this.context.attr('type');
 					var model = this.context.attr('model');
+					var parentField = this.context.attr('parent-field');
+					
+					//if this is dependency lov, dont make any call to server
+						// and assume empty data by default
+					if(parentField != null)
+					{
+						callback(null, {"lovList": []}, {"success" : true});
+						return;
+					}
 		
 					if(model &amp;&amp; model.length &gt;= 0)
 					{
@@ -989,14 +998,12 @@
 			<if test="context.multiValued">
 				<div style="width: 100%; padding: 0.3em;border: solid 1px rgb(200, 200, 200); border-radius: 0.4em; overflow: auto; height: 7em;">
 					<table>
-						<for-each data="${lovList}" loop-var="lov" index-var="lovIdx">
-							<tr>
-								<td>
-									<input type="checkbox" value="${lov.value}" style="min-width: 1px; height: 1em; width: 1em; margin: 0.2em;"/> 
-									${lov.label}
-								</td>
-							</tr>
-						</for-each>
+						<tr ng-repeat="lov in dropDown.${attr('name')}">
+							<td>
+								<input type="checkbox" value="${lov.value}" style="min-width: 1px; height: 1em; width: 1em; margin: 0.2em;"/> 
+								${lov.label}
+							</td>
+						</tr>
 					</table>
 				</div>
 			</if>
@@ -1009,6 +1016,26 @@
 		</content>
 
 		<post-script>
+			var parentField = this.context.attr('parent-field');
+
+			//if this is a dependency lov			
+			if(parentField != null)
+			{
+				//add watch function on parent field
+				var watchFunc = $.proxy(function(){
+					var value = eval("this.$scope." + this.parentField);
+					return value;
+				}, {"$scope" : this.$scope, "parentField": this.parentField, "lovCheckBoxes": lovCheckBoxes});
+				
+				var respFunc = $.proxy(function(newValue, oldValue){
+					this.actionHelper.invokeAction('lov.fetchDependentLov', null, {"name": lovName, "value": newValue}, $.proxy(function(lovRes, responseConfig){
+						this.$scope.dropDown[this.name] = lovList;
+					}, this));
+				}, {"$scope" : this.$scope, "element": this.element, "actionHelper": context.actionHelper, "name": context.attr('name')});
+				
+				this.$scope.$watch(watchFunc, respFunc);
+			}
+			
 			var multiValued = (context.attr("multi-valued") == 'true') ? true : false;
 			
 			//for single values lov nothing needs to be done

@@ -15,6 +15,10 @@
  * deleteOp($scope, actionHelper, callback) - 
  * 				Function that will be used for delete operation. If specified "deleteAction" will not be used.
  * 
+ * customizeOp(model, $scope) - 
+ * 				Optional. If specified this function will be invoked before saving. This method can be used to
+ *				customize the model data before saving (which in some cases, can not be done in standard way).
+ * 
  * validateOp(model, $scope) - 
  * 				Optional. If specified this function will be invoked before saving. In case of errors, this function
  * 				should return non-zero array of object, and each object should contain following properties
@@ -32,7 +36,7 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 		"extend" : function($scope, config){
 			$scope.name = "" + config.name + $.nextScopeId();
 			
-			$scope.modelName = null;
+			$scope.modelName = config.modelName ? config.modelName : null;
 			
 			$scope.selectedId = null;
 			$scope.selectedName = null;
@@ -51,9 +55,6 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 				}
 				return $scope.model.name;
 			}, function(newVal, oldVal){
-				console.log("Model is changed....");
-				console.log(newVal);
-				console.log(oldVal);
 			});
 			
 			$scope.$on('searchResultSelectionChanged', function(event, data){
@@ -167,10 +168,6 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 					
 					this.$scope.model = model;
 					this.$scope.$digest();
-					
-					console.log("During Edit....");
-					console.log(this.$scope.name);
-					console.log(this.$scope.model);
 					
 					$("#" + this.$scope.crudConfig.modelDailogId + " [yk-read-only='true']").prop('disabled', true);
 
@@ -310,6 +307,12 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 					});
 					
 					return;
+				}
+				
+				//if customize operator is provided, invoke it 
+				if($scope.crudConfig.customizeOp)
+				{
+					$scope.crudConfig.customizeOp($scope.model, $scope);
 				}
 				
 				//if validate operator is configured

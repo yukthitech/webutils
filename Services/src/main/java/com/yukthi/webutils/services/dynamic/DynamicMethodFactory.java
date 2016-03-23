@@ -28,8 +28,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.yukthi.utils.ReflectionUtils;
+import com.yukthi.webutils.annotations.ContextAttribute;
 import com.yukthi.webutils.annotations.RequestParam;
-import com.yukthi.webutils.common.annotations.ContextAttribute;
 
 /**
  * Factory for dynamic methods

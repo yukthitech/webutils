@@ -21,26 +21,26 @@
  * SOFTWARE.
  */
 
-package com.test.yukthi.webutils.services.dynamic;
+package com.test.yukthi.webutils.entity;
 
+import static com.yukthi.webutils.IWebUtilsInternalConstants.CONTEXT_ATTR_LOV_DEPENDENCY_VAL;
 
+import java.util.List;
+
+import com.yukthi.persistence.ICrudRepository;
+import com.yukthi.persistence.repository.annotations.Condition;
 import com.yukthi.webutils.annotations.ContextAttribute;
-import com.yukthi.webutils.annotations.RequestParam;
-import com.yukthi.webutils.common.LovType;
+import com.yukthi.webutils.annotations.LovQuery;
+import com.yukthi.webutils.common.models.ValueLabel;
 
 /**
- * Test class to hold dynamic methods
  * @author akiran
+ *
  */
-public class DynamicMethodHolder
+public interface ICityRepository extends ICrudRepository<CityEntity>
 {
-	public String dynMethod1(@RequestParam("param1") int param1, @ContextAttribute("lovType") LovType lovType)
-	{
-		return "" + param1 + "-" + lovType;
-	}
-
-	public String dynMethod2()
-	{
-		return "success";
-	}
+	@LovQuery(name = "cityLov", valueField = "id", labelField = "name")
+	public List<ValueLabel> fetchEmployeeLov(@ContextAttribute(CONTEXT_ATTR_LOV_DEPENDENCY_VAL) @Condition("state.id") long stateId);
+	
+	public void deleteAll();
 }

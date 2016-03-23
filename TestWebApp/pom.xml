@@ -16,7 +16,7 @@
 		<dependency>
 			<groupId>com.yukthi.webutils</groupId>
 			<artifactId>webutils-services</artifactId>
-			<version>1.0</version>
+			<version>1.0-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -30,7 +30,7 @@
 	<parent>
 		<groupId>com.yukthi.webutils</groupId>
 		<artifactId>WebUtils</artifactId>
-		<version>1.0</version>
+		<version>1.0-SNAPSHOT</version>
 		<relativePath>../WebUtils</relativePath>
 	</parent>
 </project>

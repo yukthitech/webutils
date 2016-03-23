@@ -27,6 +27,7 @@ import static com.yukthi.webutils.common.IWebUtilsActionConstants.ACTION_PREFIX_
 import static com.yukthi.webutils.common.IWebUtilsActionConstants.ACTION_TYPE_FETCH;
 import static com.yukthi.webutils.common.IWebUtilsActionConstants.PARAM_NAME;
 import static com.yukthi.webutils.common.IWebUtilsActionConstants.PARAM_TYPE;
+import static com.yukthi.webutils.common.IWebUtilsActionConstants.PARAM_VALUE;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -52,9 +53,15 @@ import com.yukthi.webutils.services.LovService;
 @RequestMapping("/lov")
 public class LovController extends BaseController implements ILovController
 {
+	/**
+	 * Service to fetch lov values.
+	 */
 	@Autowired
 	private LovService lovService;
 	
+	/**
+	 * Current request.
+	 */
 	@Autowired
 	private HttpServletRequest request;
 	
@@ -72,6 +79,18 @@ public class LovController extends BaseController implements ILovController
 			return new LovListResponse( lovService.getEnumLovValues(lovName, request.getLocale()) );
 		}
 		
-		return new LovListResponse( lovService.getDynamicLovValues(lovName, request.getLocale()) );
+		return new LovListResponse( lovService.getDynamicLovValues(lovName, null, request.getLocale()) );
+	}
+
+	/* (non-Javadoc)
+	 * @see com.yukthi.webutils.common.controllers.ILovController#fetchDependentLov(java.lang.String, java.lang.String)
+	 */
+	@Override
+	@ActionName("fetchDependentLov")
+	@ResponseBody
+	@RequestMapping(value = "/fetchDependentLov/{" + PARAM_NAME + "}/{" + PARAM_VALUE + "}", method = RequestMethod.GET)
+	public LovListResponse fetchDependentLov(@PathVariable(PARAM_NAME) String lovName, @PathVariable(PARAM_VALUE) String dependencyValue)
+	{
+		return new LovListResponse( lovService.getDynamicLovValues(lovName, dependencyValue, request.getLocale()) );
 	}
 }

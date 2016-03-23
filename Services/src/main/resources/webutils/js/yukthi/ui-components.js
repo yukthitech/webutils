@@ -173,3 +173,4 @@ $.verticalTabs = function(element, $compile, $scope) {
 	tabs.on("click", tabClickFunc);
 	activeTab.on("click", tabClickFunc)
 };
+

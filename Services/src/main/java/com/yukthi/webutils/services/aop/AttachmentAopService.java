@@ -138,7 +138,7 @@ public class AttachmentAopService
 					//for multi valued file field
 					if(field.isMultiValued())
 					{
-						fieldValue = (List)PropertyUtils.getProperty(arg, field.getName());
+						fieldValue = (List) PropertyUtils.getProperty(arg, field.getName());
 						
 						//append attachments to client sent values
 						if(fieldValue != null)

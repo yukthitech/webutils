@@ -50,7 +50,7 @@ import com.yukthi.webutils.utils.WebAttachmentUtils;
 import com.yukthi.webutils.utils.WebUtils;
 
 /**
- * Controller for fetching files
+ * Controller for fetching files.
  * @author akiran
  */
 @RestController
@@ -74,6 +74,11 @@ public class FileController
 	 * Current http servlet response.
 	 */
 	private HttpServletResponse response;
+	
+	public void uploadTempFile()
+	{
+		
+	}
 	
 	/**
 	 * @param id

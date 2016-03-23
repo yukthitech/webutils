@@ -50,7 +50,9 @@ import com.yukthi.persistence.ICrudRepository;
 import com.yukthi.utils.exceptions.InvalidConfigurationException;
 import com.yukthi.utils.exceptions.InvalidStateException;
 import com.yukthi.webutils.IRepositoryMethodRegistry;
+import com.yukthi.webutils.IWebUtilsInternalConstants;
 import com.yukthi.webutils.InvalidRequestParameterException;
+import com.yukthi.webutils.WebutilsContext;
 import com.yukthi.webutils.annotations.LovMethod;
 import com.yukthi.webutils.annotations.LovQuery;
 import com.yukthi.webutils.common.annotations.Label;
@@ -278,11 +280,12 @@ public class LovService implements IRepositoryMethodRegistry<LovQuery>
 	/**
 	 * Fetches dynamic LOV values based on the specified lov name. Before execution user authorization will be validated
 	 * @param name Lov name
+	 * @param dependencyValue If LOV is dependent on other field, that dependency field value should be specified here
 	 * @param locale Locale in which values needs to be fetched. Current this is not used
 	 * @return dynamic LOV values based on the specified lov name
 	 */
 	@SuppressWarnings("unchecked")
-	public List<ValueLabel> getDynamicLovValues(String name, Locale locale)
+	public List<ValueLabel> getDynamicLovValues(String name, String dependencyValue, Locale locale)
 	{
 		DynamicMethod method = nameToLovMet.get(name);
 		
@@ -300,11 +303,12 @@ public class LovService implements IRepositoryMethodRegistry<LovQuery>
 			}
 		}
 
-		return (List<ValueLabel>)method.invoke();
+		WebutilsContext.getContext().addAttribute(IWebUtilsInternalConstants.CONTEXT_ATTR_LOV_DEPENDENCY_VAL, dependencyValue);
+		return (List<ValueLabel>) method.invoke();
 	}
 	
 	/**
-	 * Checks if the specified name is valid dynamic lov name
+	 * Checks if the specified name is valid dynamic lov name.
 	 * @param name Name to be validated
 	 * @return True, if specified name is valid dynamic lov name
 	 */

@@ -88,4 +88,6 @@ public class CustomerEntity
 	{
 		this.name = name;
 	}
+	
+	
 }

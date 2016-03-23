@@ -21,26 +21,29 @@
  * SOFTWARE.
  */
 
-package com.test.yukthi.webutils.services.dynamic;
+package com.test.yukthi.webutils.entity;
 
+import java.util.List;
 
-import com.yukthi.webutils.annotations.ContextAttribute;
-import com.yukthi.webutils.annotations.RequestParam;
-import com.yukthi.webutils.common.LovType;
+import com.test.yukthi.webutils.Authorization;
+import com.test.yukthi.webutils.SecurityRole;
+import com.test.yukthi.webutils.models.TestEmpSearchQuery;
+import com.test.yukthi.webutils.models.TestEmpSearchResult;
+import com.yukthi.persistence.ICrudRepository;
+import com.yukthi.persistence.repository.annotations.OrderBy;
+import com.yukthi.persistence.repository.search.SearchQuery;
+import com.yukthi.webutils.annotations.LovQuery;
+import com.yukthi.webutils.annotations.SearchQueryMethod;
+import com.yukthi.webutils.common.models.ValueLabel;
 
 /**
- * Test class to hold dynamic methods
  * @author akiran
+ *
  */
-public class DynamicMethodHolder
+public interface IStateRepository extends ICrudRepository<StateEntity>
 {
-	public String dynMethod1(@RequestParam("param1") int param1, @ContextAttribute("lovType") LovType lovType)
-	{
-		return "" + param1 + "-" + lovType;
-	}
-
-	public String dynMethod2()
-	{
-		return "success";
-	}
+	@LovQuery(name = "statesLov", valueField = "id", labelField = "name")
+	public List<ValueLabel> fetchStates();
+	
+	public void deleteAll();
 }

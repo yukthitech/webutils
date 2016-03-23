@@ -166,6 +166,25 @@ public class TFLovQueries extends TFBase
 			Assert.assertEquals(ex.getResponseCode(), IWebUtilsCommonConstants.RESPONSE_CODE_AUTHORIZATION_ERROR);
 		}
 	}
+	
+	@Test
+	public void testDependencyLov()
+	{
+		List<ValueLabel> states = lovController.fetchLov("statesLov", LovType.DYNAMIC_TYPE).getLovList();
+		
+		Assert.assertEquals(states.size(), 2);
+		
+		String andhraId = states.get(0).getValue(), karnatakaId = states.get(1).getValue();
+
+		List<ValueLabel> cities = lovController.fetchDependentLov("cityLov", andhraId).getLovList();
+		Assert.assertEquals(cities.size(), 2);
+		Assert.assertEquals(cities.get(0).getLabel(), "Hyderabad");
+		Assert.assertEquals(cities.get(1).getLabel(), "Vijayawada");
+		
+		cities = lovController.fetchDependentLov("cityLov", karnatakaId).getLovList();
+		Assert.assertEquals(cities.size(), 1);
+		Assert.assertEquals(cities.get(0).getLabel(), "Bangalore");
+	}
 
 	@AfterClass
 	private void clean()

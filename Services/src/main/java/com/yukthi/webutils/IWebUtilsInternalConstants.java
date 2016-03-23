@@ -42,4 +42,9 @@ public interface IWebUtilsInternalConstants
 	public String REQ_ATTR_USER_DETAILS = "request.userDetails";
 	
 	public String CONTEXT_ATTR_CURRENT_USER = "currentUser";
+	
+	/**
+	 * Context attribute name, that will be used to hold current lov dependency field value.
+	 */
+	public String CONTEXT_ATTR_LOV_DEPENDENCY_VAL = "lovDependencyValue";
 }

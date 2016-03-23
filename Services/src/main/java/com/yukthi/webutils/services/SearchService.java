@@ -47,8 +47,8 @@ import com.yukthi.utils.exceptions.InvalidStateException;
 import com.yukthi.webutils.IRepositoryMethodRegistry;
 import com.yukthi.webutils.InvalidRequestParameterException;
 import com.yukthi.webutils.WebutilsContext;
+import com.yukthi.webutils.annotations.ContextAttribute;
 import com.yukthi.webutils.annotations.SearchQueryMethod;
-import com.yukthi.webutils.common.annotations.ContextAttribute;
 import com.yukthi.webutils.common.annotations.Model;
 import com.yukthi.webutils.common.models.def.ModelDef;
 import com.yukthi.webutils.security.ISecurityService;
@@ -336,7 +336,7 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 		}
 		
 		//set limit on repo search query
-		repoSearchQuery.setResultsLimitCount(resultLimit);
+		repoSearchQuery.setResultsLimit(resultLimit);
 		
 		//execute search and return results
 		try
