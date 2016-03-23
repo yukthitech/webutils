@@ -29,8 +29,8 @@ import java.util.List;
 
 import com.yukthi.persistence.ICrudRepository;
 import com.yukthi.persistence.repository.annotations.Condition;
-import com.yukthi.webutils.annotations.ContextAttribute;
 import com.yukthi.webutils.annotations.LovQuery;
+import com.yukthi.webutils.common.annotations.ContextAttribute;
 import com.yukthi.webutils.common.models.ValueLabel;
 
 /**

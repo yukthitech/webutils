@@ -1,4 +1,4 @@
-package com.yukthi.webutils.annotations;
+package com.yukthi.webutils.common.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
