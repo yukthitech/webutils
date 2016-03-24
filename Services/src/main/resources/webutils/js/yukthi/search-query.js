@@ -210,7 +210,8 @@ $.application.controller('searchQueryController', ["$scope", "actionHelper", "lo
 		$scope.$emit('searchResultSelectionChanged', {
 			"index": $scope.selectedIndex,
 			"selectedRow": $scope.searchResults[$scope.selectedIndex],
-			"searchQuery": $scope.searchQuery
+			"searchQuery": $scope.searchQuery,
+			"searchQueryName": $scope.searchQueryName
 		});
 
 		try

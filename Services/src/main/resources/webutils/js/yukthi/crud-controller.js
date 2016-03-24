@@ -8,6 +8,7 @@
  * updateAction - Action name to be invoked on update
  * readAction - Action name to be invoked for reading model data by passing selected row id.
  * deleteAction - Action name to be invoked for delete operation by passing selected row id.
+ * searchQueryName - Optional. If specified, "searchResultSelectionChanged" broadcast events will be limited to this search query name alone.
  * 
  * readOp($scope, actionHelper, callback) - 
  * 				Function that will be used to read model data. If specified, "readAction" will not be used.
@@ -58,6 +59,11 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 			});
 			
 			$scope.$on('searchResultSelectionChanged', function(event, data){
+				if($scope.crudConfig.searchQueryName && data.searchQueryName != $scope.crudConfig.searchQueryName)
+				{
+					return;
+				}
+				
 				$scope.selectedId = data.selectedRow ? data.selectedRow["id"] : -1;
 				$scope.selectedName = data.selectedRow ? data.selectedRow[$scope.crudConfig.nameColumn] : null;
 				
@@ -300,6 +306,12 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 				
 				$scope.initErrors("model");
 				
+				//if customize operator is provided, invoke it 
+				if($scope.crudConfig.customizeOp)
+				{
+					$scope.crudConfig.customizeOp($scope.model, $scope);
+				}
+				
 				if(!validator.validateModel($scope.model, $scope.modelDef, $scope.errors.model))
 				{
 					utils.alert("Please correct the errors and then try!", function(){
@@ -307,12 +319,6 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 					});
 					
 					return;
-				}
-				
-				//if customize operator is provided, invoke it 
-				if($scope.crudConfig.customizeOp)
-				{
-					$scope.crudConfig.customizeOp($scope.model, $scope);
 				}
 				
 				//if validate operator is configured
