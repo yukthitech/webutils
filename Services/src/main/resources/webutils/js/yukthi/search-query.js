@@ -230,12 +230,12 @@ $.application.controller('searchQueryController', ["$scope", "actionHelper", "lo
 	});
 
 	$scope.$on('invokeSearch', function(event, data){
-		$scope.performSearch();
-		
 		if(data.searchQuery)
 		{
 			$scope.searchQuery = data.searchQuery; 
 		}
+
+		$scope.performSearch();
 	});
 
 	$scope.validateField = function(name, modelPrefix) {
