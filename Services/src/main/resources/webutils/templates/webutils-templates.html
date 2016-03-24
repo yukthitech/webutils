@@ -721,7 +721,6 @@
 				
 				if(!modelDef)
 				{
-					debugger;
 					throw "No model-def is defined for yk-model-field with name - " + name;
 				}
 				
@@ -732,11 +731,18 @@
 					throw "Invalid field name specified under yk-model-field. No field with name '" + name + "' exists under model - " + modelDef.name;
 				}
 				
+				var lovParentField = fieldDef.lovDetails ? fieldDef.lovDetails.parentField : null;
+				
 				var modelPrefix = context.attr('modelobj');
 				
 				if(modelPrefix &amp;&amp; modelPrefix.length &gt; 0)
 				{
 					context["modelField"] = modelPrefix + "." + name;
+					
+					if(lovParentField)
+					{
+						lovParentField = modelPrefix + "." + lovParentField;
+					}
 				}
 				else
 				{
@@ -744,6 +750,8 @@
 				}
 				
 				context["fieldName"] = name;
+				context["lovParentField"] = lovParentField ? lovParentField : "";
+				
 				
 				if(extended)
 				{
@@ -823,7 +831,7 @@
 									<else>
 										<yk-lov-field name="${fieldDef.name}" label="${fieldDef.label}" lov="${fieldDef.lovDetails.lovName}" yk-read-only="${fieldDef.readOnly}"
 													type="${fieldDef.lovDetails.lovType}" model="${modelField}" on-change="${validateFunc}"
-													actual-type="${fieldDef.lovDetails.actualType}" multi-valued="${fieldDef.multiValued}"></yk-lov-field>
+													actual-type="${fieldDef.lovDetails.actualType}" multi-valued="${fieldDef.multiValued}" parent-field="${lovParentField}"></yk-lov-field>
 									</else> 
 								</else-if>
 								<else-if test="context.fieldDef.fieldType == 'FILE'">
@@ -925,19 +933,13 @@
 					var lovName = this.context.attr('lov');
 					var type = this.context.attr('type');
 					var model = this.context.attr('model');
+
 					var parentField = this.context.attr('parent-field');
+					parentField = (parentField &amp;&amp; parentField.length &gt; 0) ? parentField : null;
 					
-					//if this is dependency lov, dont make any call to server
-						// and assume empty data by default
-					if(parentField != null)
-					{
-						callback(null, {"lovList": []}, {"success" : true});
-						return;
-					}
-		
 					if(model &amp;&amp; model.length &gt;= 0)
 					{
-						this.context["modelField"] = model; 
+						this.context["modelField"] = model;
 					}
 					else
 					{
@@ -945,6 +947,16 @@
 					}
 					
 					type = (type == "static" || type == "STATIC_TYPE")? "STATIC_TYPE" : "DYNAMIC_TYPE";
+					
+					context.parentField = parentField;
+					
+					//if this is dependency lov, dont make any call to server
+						// and assume empty data by default
+					if(parentField != null)
+					{
+						callback({"lovList": []}, {"success" : true});
+						return;
+					}
 					
 					context.invokeAction('lov.fetch', null, {"name": lovName, "type": type}, callback);
 				},
@@ -1016,24 +1028,50 @@
 		</content>
 
 		<post-script>
-			var parentField = this.context.attr('parent-field');
-
 			//if this is a dependency lov			
-			if(parentField != null)
+			if(context.parentField != null)
 			{
 				//add watch function on parent field
 				var watchFunc = $.proxy(function(){
-					var value = eval("this.$scope." + this.parentField);
+					var value = null;
+					
+					//during first time model may not be present
+					try
+					{
+						value = eval("this.$scope." + this.parentField);
+					}catch(ex)
+					{}
+					
 					return value;
-				}, {"$scope" : this.$scope, "parentField": this.parentField, "lovCheckBoxes": lovCheckBoxes});
+				}, {"$scope" : context.$scope, "parentField": context.parentField});
 				
 				var respFunc = $.proxy(function(newValue, oldValue){
-					this.actionHelper.invokeAction('lov.fetchDependentLov', null, {"name": lovName, "value": newValue}, $.proxy(function(lovRes, responseConfig){
-						this.$scope.dropDown[this.name] = lovList;
+					if(!newValue)
+					{
+						this.$scope.dropDown[this.name] = [];
+						return;
+					}
+					
+					this.actionHelper.invokeAction('lov.fetchDependentLov', null, {"name": this.lovName, "value": newValue}, $.proxy(function(lovRes, responseConfig){
+						if(lovRes &amp;&amp; lovRes.lovList)
+						{
+							this.$scope.dropDown[this.name] = lovRes.lovList;
+						}
+						else
+						{
+							this.$scope.dropDown[this.name] = [];
+						}
+						
+						try
+						{
+							this.$scope.$digest();
+						}catch(ex)
+						{}
+						
 					}, this));
-				}, {"$scope" : this.$scope, "element": this.element, "actionHelper": context.actionHelper, "name": context.attr('name')});
+				}, {"$scope" : context.$scope, "actionHelper": context.actionHelper, "name": context.attr('name'), "lovName": context.attr('lov')});
 				
-				this.$scope.$watch(watchFunc, respFunc);
+				context.$scope.$watch(watchFunc, respFunc);
 			}
 			
 			var multiValued = (context.attr("multi-valued") == 'true') ? true : false;
