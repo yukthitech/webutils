@@ -908,6 +908,10 @@
 										</div>
 									</else>
 								</else-if>
+								<else-if test="context.fieldDef.fieldType == 'IMAGE'">
+									<yk-image-field width="8em" height="8em" name="${fieldDef.name}" 
+										label="${fieldDef.label}" model="${modelField}" on-change="${validateFunc}"></yk-image-field>
+								</else-if>
 								<else>
 									<exe-script var="_tmp1">
 										throw "Unsupported field type encountered - " + context.fieldDef.fieldType;
@@ -1226,6 +1230,36 @@
 		</post-script>
 	</directive>
 
+	<directive name="ykImageField" required-attr="width, height">
+		<exe-script>
+			var modelPrefix = context.attr('model');
+			var field = context.attr('name');
+			
+			if(modelPrefix &amp;&amp; modelPrefix.length &gt; 0)
+			{
+				field = modelPrefix + "." + field;
+			}
+			
+			context.imageField = field;
+		</exe-script>
+		<content>
+			<div>
+				<div name="${attr('name')}" style="width: ${attr('width')}; height: ${attr('height')}; background-image: url({{getFieldImageUrl('${attr('model')}')}})" 
+					class="yk-background-cover yk-image-field imgdiv">
+					<div class="yk-image-field-mssg" ng-show="${attr('model')} == null">
+						Upload Image<br/>
+						(Click here)
+					</div>
+				</div>
+				<input type="file" style="display: none;"/>
+			</div>
+		</content>
+		<post-script>
+			var element = $(context.$result);
+			$.imageField(element, context.$scope, context.attr('model'), context.actionHelper);
+		</post-script>
+	</directive>
+
 	<attr-directive name="ykHideFrom">
 		<script>
 			var hideFrom = context.attributeValue;
@@ -1406,16 +1440,6 @@
 				"modelName": modelName,
 				"isMultiple": isMultiple
 			};
-			
-			//add functionality for file link 
-			/*
-			var fileLink = context.element.find("a.fileLink").get(0);
-			
-			$(fileLink).off("click").on("click", $.proxy(function(event){
-				//var fileId = eval("this.$scope." + this.modelName + ".id");
-				//this.element.href = this.actionHelper.actionUrl("files.fetch.attachment", {"id": fileId});
-			}, {"element": fileLink, "$scope" : context.$scope, "actionHelper" : context.actionHelper, "modelName": modelName}));
-			*/
 			
 			//add event, such that when file selection is done, the files are added to model
 			fileElem.off("change").on('change', $.proxy(function(){

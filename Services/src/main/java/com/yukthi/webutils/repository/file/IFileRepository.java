@@ -23,30 +23,34 @@
 
 package com.yukthi.webutils.repository.file;
 
+import java.util.Date;
 import java.util.List;
 
 import com.yukthi.persistence.ICrudRepository;
 import com.yukthi.persistence.repository.annotations.Condition;
+import com.yukthi.persistence.repository.annotations.DefaultCondition;
 import com.yukthi.persistence.repository.annotations.Field;
+import com.yukthi.persistence.repository.annotations.MethodConditions;
+import com.yukthi.persistence.repository.annotations.Operator;
 import com.yukthi.persistence.repository.annotations.SearchResult;
 import com.yukthi.webutils.common.FileInfo;
 
 /**
- * Repository for storing file
+ * Repository for managing files in db.
  * @author akiran
  */
 public interface IFileRepository extends ICrudRepository<FileEntity>
 {
 	/**
-	 * Fetches the file entity based on id and security flag
-	 * @param id
-	 * @param secured
-	 * @return
+	 * Fetches the file entity based on id and security flag.
+	 * @param id Id of the file to update
+	 * @param secured Expected security file flag
+	 * @return Matching file entity
 	 */
 	public FileEntity findBySecurityFlag(@Condition("id") long id, @Condition("secured") boolean secured);
 	
 	/**
-	 * Fetches file info for specified id
+	 * Fetches file info for specified id.
 	 * @param id Id for which file info needs to be fetched
 	 * @return Matching file information
 	 */
@@ -54,7 +58,7 @@ public interface IFileRepository extends ICrudRepository<FileEntity>
 	public FileInfo fetchFileInfo(@Condition("id") long id);
 
 	/**
-	 * Fetches file information list based on specified owner details
+	 * Fetches file information list based on specified owner details.
 	 * @param ownerEntityType Owner entity type
 	 * @param ownerEntityField Owner entity field
 	 * @param ownerEntityId Owner entity id
@@ -65,7 +69,7 @@ public interface IFileRepository extends ICrudRepository<FileEntity>
 			@Condition("ownerEntityField") String ownerEntityField, @Condition("ownerEntityId") Long ownerEntityId);
 
 	/**
-	 * Fetches file ids of specified owner
+	 * Fetches file ids of specified owner.
 	 * @param ownerEntityType Owner entity type
 	 * @param ownerEntityField Owner field
 	 * @param ownerEntityId Owner entity id
@@ -76,7 +80,7 @@ public interface IFileRepository extends ICrudRepository<FileEntity>
 			@Condition("ownerEntityField") String ownerEntityField, @Condition("ownerEntityId") Long ownerEntityId);
 
 	/**
-	 * Fetches file informations based on custom attribute
+	 * Fetches file informations based on custom attribute.
 	 * @param customAttribute1 Custom attribute 1
 	 * @param customAttribute2 Custom attribute 2
 	 * @param customAttribute3 Custom attribute 3
@@ -88,7 +92,7 @@ public interface IFileRepository extends ICrudRepository<FileEntity>
 			@Condition("customAttribute3") String customAttribute3);
 
 	/**
-	 * Deletes the files for specified owner details
+	 * Deletes the files for specified owner details.
 	 * @param ownerEntityType Owner entity type
 	 * @param ownerEntityField Owner entity field
 	 * @param ownerEntityId Owner entity id
@@ -96,4 +100,24 @@ public interface IFileRepository extends ICrudRepository<FileEntity>
 	 */
 	public int deleteByOwner(@Condition("ownerEntityType") String ownerEntityType, 
 			@Condition("ownerEntityField") String ownerEntityField, @Condition("ownerEntityId") Long ownerEntityId);
+	
+	/**
+	 * Updates specified temporary file to permanent file. If non temporary file specified, this
+	 * method simply returns false.
+	 * @param id Id of the file
+	 * @param ownerEntityType Owner entity type
+	 * @param ownerEntityField Owner entity field
+	 * @param ownerEntityId Owner entity id
+	 * @return True if conversion was successful
+	 */
+	@MethodConditions(conditions = @DefaultCondition(field = "ownerEntityId", value = "0"))
+	public boolean updateToPermanentFile(@Condition("id") long id, @Field("ownerEntityType") String ownerEntityType, 
+			@Field("ownerEntityField") String ownerEntityField, @Field("ownerEntityId") Long ownerEntityId);
+	
+	/**
+	 * Deletes all temp files which are created after specified date and time.
+	 * @param createdAfter Date/time after which temp files created should be deleted.
+	 */
+	@MethodConditions(conditions = @DefaultCondition(field = "ownerEntityId", value = "0"))
+	public void deleteTempFiles(@Condition(value = "createdOn", op = Operator.GE) Date createdAfter);
 }

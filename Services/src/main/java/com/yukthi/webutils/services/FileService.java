@@ -49,7 +49,7 @@ import com.yukthi.webutils.security.ISecurityService;
 import com.yukthi.webutils.utils.WebUtils;
 
 /**
- * Repository based file service
+ * Repository based file service.
  * @author akiran
  */
 @Service
@@ -102,30 +102,52 @@ public class FileService
 	 * @param ownerEntityType Owner entity type
 	 * @param ownerField Owner field name
 	 * @param ownerId Owner id
+	 * @return id of the file entity saved
 	 */
-	private void saveFileForOwner(FileInfo fileInfo, Class<?> ownerEntityType, String ownerField, long ownerId)
+	public long saveFileForOwner(FileInfo fileInfo, Class<?> ownerEntityType, String ownerField, long ownerId)
 	{
 		//if field value is null, assume existing file needs to be deleted
-		if(fileInfo == null)
+		if(fileInfo == null && ownerId > 0)
 		{
-			logger.trace("As field value is null, deleting associated filed for field - [Owner Type: {}, Field: {}, Owner Id: {}]", 
+			logger.trace("As field value is null, deleting associated file for field - [Owner Type: {}, Field: {}, Owner Id: {}]", 
 					ownerEntityType.getName(), ownerField, ownerId);
 			this.delete(ownerEntityType, ownerField, ownerId);
-			return;
+			return -1;
 		}
 		
 		//if no new file is specified, retain existing file (though id is changed it will be ignored
-			//	 as id change is not expected from client)
+		//	 as id change is not expected from client)
 		if(fileInfo.getFile() == null)
 		{
-			return;
+			return -1;
 		}
 		
 		//if file content is present delete existing file and save new one
-		this.delete(ownerEntityType, ownerField, ownerId);
-		this.save(fileInfo, ownerEntityType, ownerField, ownerId);
+		if(ownerId > 0)
+		{
+			this.delete(ownerEntityType, ownerField, ownerId);
+		}
+		
+		return this.save(fileInfo, ownerEntityType, ownerField, ownerId);
 	}
 	
+	/**
+	 * Converts specified temporary file to permanent file.
+	 * @param fileId Id of the file to be converted
+	 * @param ownerEntityType Owner entity type.
+	 * @param ownerField Owner field
+	 * @param ownerId Owner entity id.
+	 */
+	public void convertTempToPermanent(Long fileId, Class<?> ownerEntityType, String ownerField, Long ownerId)
+	{
+		boolean res = repository.updateToPermanentFile(fileId, ownerEntityType.getName(), ownerField, ownerId);
+		
+		if(!res)
+		{
+			throw new InvalidStateException("Failed to convert specified temporary file to permanent file. Id - {}", fileId);
+		}
+	}
+
 	/**
 	 * Saves files for specified owner. Also deletes existing files of specified owner, which are not 
 	 * mentioned in specified list.
@@ -430,7 +452,7 @@ public class FileService
 	}
 
 	/**
-	 * Fetches file entity based on id and secured flag
+	 * Fetches file entity based on id and secured flag.
 	 * @param id
 	 * @param secured
 	 * @return

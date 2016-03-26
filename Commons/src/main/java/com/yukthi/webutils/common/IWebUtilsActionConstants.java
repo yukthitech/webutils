@@ -98,6 +98,12 @@ public interface IWebUtilsActionConstants
 	 * Action be be used to fetch active user
 	 */
 	public String ACTION_TYPE_ACTIVE_USER = "fetch.activeUser";
+	
+	/**
+	 * Upload action.
+	 */
+	public String ACTION_TYPE_UPLOAD = "upload";
+
 	////////////////////////////////////////////////////////////////////////////
 	/**
 	 * Action prefix that can be used on LOV controller

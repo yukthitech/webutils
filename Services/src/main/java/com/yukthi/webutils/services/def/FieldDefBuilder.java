@@ -51,32 +51,32 @@ import com.yukthi.webutils.common.models.def.ValidationDef;
 import com.yukthi.webutils.services.LovService;
 
 /**
- * Builder for field definitions
+ * Builder for field definitions.
  * @author akiran
  */
 @Component
 public class FieldDefBuilder
 {
 	/**
-	 * Common def utils
+	 * Common def utils.
 	 */
 	@Autowired
 	private DefUtils defUtils;
 	
 	/**
-	 * Lov service to check validity of LOV definition in fields
+	 * Lov service to check validity of LOV definition in fields.
 	 */
 	@Autowired
 	private LovService lovService;
 	
 	/**
-	 * Builder to build field validations
+	 * Builder to build field validations.
 	 */
 	@Autowired
 	private ValidationDefBuilder validationDefBuilder;
 	
 	/**
-	 * Used to LOV details on field-def, whose type is an enum
+	 * Used to LOV details on field-def, whose type is an enum.
 	 * @param fieldDef Field def being built
 	 * @param fieldType Field enum type
 	 */
@@ -92,7 +92,7 @@ public class FieldDefBuilder
 	}
 	
 	/**
-	 * Gets LOV field details for field which is marked as LOV field 
+	 * Gets LOV field details for field which is marked as LOV field. 
 	 * @param fieldDef
 	 * @param field
 	 * @param parentCls

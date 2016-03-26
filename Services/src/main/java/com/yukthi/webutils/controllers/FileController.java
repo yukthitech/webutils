@@ -27,21 +27,30 @@ import static com.yukthi.webutils.common.IWebUtilsActionConstants.ACTION_PREFIX_
 import static com.yukthi.webutils.common.IWebUtilsActionConstants.ACTION_TYPE_FETCH;
 import static com.yukthi.webutils.common.IWebUtilsActionConstants.ACTION_TYPE_FETCH_ATTACHMENT;
 import static com.yukthi.webutils.common.IWebUtilsActionConstants.ACTION_TYPE_INSECURE;
+import static com.yukthi.webutils.common.IWebUtilsActionConstants.ACTION_TYPE_UPLOAD;
 import static com.yukthi.webutils.common.IWebUtilsActionConstants.PARAM_ID;
 
 import java.io.IOException;
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.yukthi.webutils.annotations.ActionName;
+import com.yukthi.webutils.annotations.AttachmentsExpected;
 import com.yukthi.webutils.annotations.NoAuthentication;
 import com.yukthi.webutils.common.FileInfo;
+import com.yukthi.webutils.common.IWebUtilsCommonConstants;
+import com.yukthi.webutils.common.models.BasicSaveResponse;
+import com.yukthi.webutils.common.models.UploadTempFileRequest;
 import com.yukthi.webutils.repository.file.FileEntity;
 import com.yukthi.webutils.security.ISecurityService;
 import com.yukthi.webutils.security.UnauthorizedException;
@@ -73,11 +82,23 @@ public class FileController
 	/**
 	 * Current http servlet response.
 	 */
+	@Autowired
 	private HttpServletResponse response;
 	
-	public void uploadTempFile()
+	/**
+	 * Controller method to upload file.
+	 * @param file File information to save
+	 * @param request Multi part request required for file upload
+	 * @return Return save response with file id.
+	 */
+	@AttachmentsExpected
+	@ActionName(ACTION_TYPE_UPLOAD)
+	@RequestMapping(value = "/upload/temp", method = RequestMethod.POST)
+	public BasicSaveResponse uploadTempFile(@RequestPart(IWebUtilsCommonConstants.MULTIPART_DEFAULT_PART) @Valid UploadTempFileRequest file, 
+		MultipartHttpServletRequest request)
 	{
-		
+		long id = fileService.saveFileForOwner(file.getFile(), Object.class, UUID.randomUUID().toString(), 0);
+		return new BasicSaveResponse(id);
 	}
 	
 	/**
@@ -143,7 +164,6 @@ public class FileController
 	/**
 	 * Fetches file content from db for specified id, as part attachment.
 	 * @param id Id of the file to be fetched
-	 * @throws IOException
 	 */
 	@ActionName(ACTION_TYPE_FETCH_ATTACHMENT)
 	@RequestMapping(value = "/download/{" + PARAM_ID + "}", method = RequestMethod.GET)
@@ -163,7 +183,6 @@ public class FileController
 	 * Fetches file content from db for specified id, as part of request body. Useful to include content as
 	 * image, css etc
 	 * @param id Id of the file to be fetched
-	 * @throws IOException
 	 */
 	@NoAuthentication
 	@ActionName(ACTION_TYPE_FETCH + "." + ACTION_TYPE_INSECURE)
@@ -183,7 +202,6 @@ public class FileController
 	/**
 	 * Fetches file content from db for specified id, as part attachment.
 	 * @param id Id of the file to be fetched
-	 * @throws IOException
 	 */
 	@NoAuthentication
 	@ActionName(ACTION_TYPE_FETCH_ATTACHMENT + "." + ACTION_TYPE_INSECURE)

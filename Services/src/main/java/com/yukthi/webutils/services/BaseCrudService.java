@@ -45,45 +45,50 @@ import com.yukthi.webutils.utils.WebUtils;
  */
 public abstract class BaseCrudService<E extends IEntity, R extends ICrudRepository<E>>
 {
-	/** The logger. */
 	private static Logger logger = LogManager.getLogger(BaseCrudService.class);
 	
 	/**
-	 * Autowired repository factory, used to fetch repository
+	 * Autowired repository factory, used to fetch repository.
 	 */
 	@Autowired
 	protected RepositoryFactory repositoryFactory;
 
 	/**
-	 * Extension service to update/read extension fields
+	 * Extension service to update/read extension fields.
 	 */
 	@Autowired
 	protected ExtensionService extensionService;
 
 	/**
-	 * Used to populate tracked fields
+	 * Used to populate tracked fields.
 	 */
 	@Autowired
 	protected CurrentUserService userService;
 	
 	/**
-	 * Service to store files specified as part of model
+	 * Service to store files specified as part of model.
 	 */
 	@Autowired
 	protected FileService fileService;
 	
 	/**
-	 * Repository type
+	 * Service to maintain images of the model.
+	 */
+	@Autowired
+	protected ImageService imageService;
+
+	/**
+	 * Repository type.
 	 */
 	protected Class<R> repositoryType;
 	
 	/**
-	 * Entity type
+	 * Entity type.
 	 */
 	protected Class<E> entityType;
 	
 	/**
-	 * CRUD repository obtained from factory in init()
+	 * CRUD repository obtained from factory in init().
 	 */
 	protected R repository;
 	
@@ -99,7 +104,7 @@ public abstract class BaseCrudService<E extends IEntity, R extends ICrudReposito
 	}
 	
 	/**
-	 * Used to fetch repository from autowired factory 
+	 * Used to fetch repository from autowired factory. 
 	 */
 	@PostConstruct
 	private void init()
@@ -154,13 +159,14 @@ public abstract class BaseCrudService<E extends IEntity, R extends ICrudReposito
 			if(model != null && (model instanceof IExtendableModel))
 			{
 				logger.trace("Trying to save extended fields of entity - {}", entity);
-				extensionService.saveExtendedFields(entity.getId(), (IExtendableModel)model);
+				extensionService.saveExtendedFields(entity.getId(), (IExtendableModel) model);
 			}
 			
 			//save files specified on model
 			if(model != null)
 			{
 				fileService.saveFilesFromModel(model, entityType, entity.getId());
+				imageService.saveImagesFromModel(model, entityType, entity.getId());
 			}
 			
 			transaction.commit();
@@ -170,7 +176,7 @@ public abstract class BaseCrudService<E extends IEntity, R extends ICrudReposito
 			
 			if(ex instanceof PersistenceException)
 			{
-				throw (PersistenceException)ex;
+				throw (PersistenceException) ex;
 			}
 			
 			throw new IllegalStateException("An error occurred while saving entity - " + entity, ex);
@@ -178,7 +184,7 @@ public abstract class BaseCrudService<E extends IEntity, R extends ICrudReposito
 	}
 	
 	/**
-	 * Converts the specified model into entity and updates the converted entity
+	 * Converts the specified model into entity and updates the converted entity.
 	 * @param model Model to be converted and updated
 	 * @return Converted entity
 	 */
@@ -194,7 +200,7 @@ public abstract class BaseCrudService<E extends IEntity, R extends ICrudReposito
 	}
 	
 	/**
-	 * Updates specified entity "entity" and saves extension fields from "extendedFieldsModel"
+	 * Updates specified entity "entity" and saves extension fields from "extendedFieldsModel".
 	 * @param entity Entity field to update
 	 * @param model Model with extension field values and files to save. Optional, can be null
 	 */
@@ -208,7 +214,7 @@ public abstract class BaseCrudService<E extends IEntity, R extends ICrudReposito
 			
 			if(entity instanceof ITrackedEntity)
 			{
-				userService.populateTrackingFieldForUpdate((ITrackedEntity)entity);
+				userService.populateTrackingFieldForUpdate((ITrackedEntity) entity);
 			}
 
 			boolean res = repository.update(entity);
@@ -222,13 +228,14 @@ public abstract class BaseCrudService<E extends IEntity, R extends ICrudReposito
 			if(model != null && (model instanceof IExtendableModel))
 			{
 				logger.trace("Trying to update extended fields of entity - {}", entity);
-				extensionService.saveExtendedFields(entity.getId(), (IExtendableModel)model);
+				extensionService.saveExtendedFields(entity.getId(), (IExtendableModel) model);
 			}
 			
 			//save files specified on model
 			if(model != null)
 			{
 				fileService.saveFilesFromModel(model, entityType, entity.getId());
+				imageService.saveImagesFromModel(model, entityType, entity.getId());
 			}
 
 			transaction.commit();
@@ -246,7 +253,7 @@ public abstract class BaseCrudService<E extends IEntity, R extends ICrudReposito
 	}
 	
 	/**
-	 * Fetches entity with specified id
+	 * Fetches entity with specified id.
 	 * @param id Entity id
 	 * @return Matching entity
 	 */
@@ -259,7 +266,7 @@ public abstract class BaseCrudService<E extends IEntity, R extends ICrudReposito
 	}
 	
 	/**
-	 * To be used for fetching model with full information like - extensions, files, etc
+	 * To be used for fetching model with full information like - extensions, files, images etc.
 	 * @param id Entity id to be fetched
 	 * @param modelType Corresponding entity's model type which can hold extension fields
 	 * @return Converted model with extension fields
@@ -281,8 +288,8 @@ public abstract class BaseCrudService<E extends IEntity, R extends ICrudReposito
 	}
 	
 	/**
-	 * Converts the specified entity into specified model-type's model and populates
-	 * the extension fields and fiel fields as required.
+	 * Converts the specified entity into specified model-type's model and populates.
+	 * the extension fields and file, image fields as required.
 	 * @param entity Entity to be converted
 	 * @param modelType Model type
 	 * @return Converted model object
@@ -303,11 +310,15 @@ public abstract class BaseCrudService<E extends IEntity, R extends ICrudReposito
 
 		//fetch file information
 		fileService.readFilesForModel(model, entityType, entity.getId());
+		
+		//fetch image information
+		imageService.readImagesForModel(model, entityType, entity.getId());
+		
 		return model;
 	}
 
 	/**
-	 * Fetches number of entities in DB
+	 * Fetches number of entities in DB.
 	 * @return entity count
 	 */
 	public long getCount()
@@ -319,8 +330,9 @@ public abstract class BaseCrudService<E extends IEntity, R extends ICrudReposito
 	}
 	
 	/**
-	 * Deletes entity with specified id
+	 * Deletes entity with specified id.
 	 * @param id Entity id to delete
+	 * @return returns true if delete was successful.
 	 */
 	public boolean deleteById(long id)
 	{

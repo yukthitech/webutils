@@ -443,6 +443,18 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 					$scope.onChange(name, true, $scope.model, $scope);
 				}
 			};
+			
+			$scope.getFieldImageUrl = function(name) {
+				var fieldVal = eval("$scope." + name);
+				
+				if(!fieldVal)
+				{
+					return;
+				}
+				
+				var imgUrl = actionHelper.actionUrl('files.fetch', {'id': fieldVal.fileId});
+				return imgUrl;
+			};
 		}
 	};
 

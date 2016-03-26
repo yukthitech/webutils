@@ -271,3 +271,29 @@ button.yk-info-close-button:hover
 	vertical-align: top;
 }
 
+.yk-image-field
+{
+	border: 1px solid blue;
+	padding-top: 25%;
+	cursor: pointer;
+}
+
+.yk-image-field-mssg
+{
+	border: 1px dotted blue;
+	color: gray;
+	text-align: center;
+	vertical-align: middle;
+	margin: 0.5em;
+	font-size: 0.8em;
+}
+
+.yk-background-cover
+{
+	-webkit-background-size: 100% 100%;
+	-moz-background-size: 100% 100%;
+	-o-background-size: 100% 100%;
+	background-size: 100% 100%;
+	
+	background-repeat: no-repeat;
+}

@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.yukthi.webutils.common.FileInfo;
+import com.yukthi.webutils.common.ImageInfo;
 
 /**
  * Enumerates list of supported model field types
@@ -59,7 +60,12 @@ public enum FieldType
 	
 	LIST_OF_VALUES("lov"),
 	
-	FILE("file", FileInfo.class)
+	FILE("file", FileInfo.class),
+	
+	/**
+	 * Represent image type file data. 
+	 */
+	IMAGE("image", ImageInfo.class)
 	;
 	
 	/**

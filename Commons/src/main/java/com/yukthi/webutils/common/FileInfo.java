@@ -30,7 +30,7 @@ import com.yukthi.utils.annotations.IgnorePropertyDestination;
 import com.yukthi.webutils.common.annotations.NonDisplayable;
 
 /**
- * File details used to store files
+ * File details used to store files.
  * 
  * @author akiran
  */

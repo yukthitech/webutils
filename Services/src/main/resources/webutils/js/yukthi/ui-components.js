@@ -174,3 +174,40 @@ $.verticalTabs = function(element, $compile, $scope) {
 	activeTab.on("click", tabClickFunc)
 };
 
+$.imageField = function(element, $scope, field, actionHelper) {
+
+	var imgElement = element.find("div.imgdiv");
+	var fileElement = element.find("input[type='file']");
+	
+	$(imgElement).off('click').on('click', $.proxy(function(){
+		$(this.fileElement).click();
+	}, {"element": element, "$scope": $scope, "field": field, "actionHelper": actionHelper, "fileElement": fileElement}));
+	
+	$(fileElement).off('change').on('change', $.proxy(function(){
+		var files = $(this.fileElement).get(0).files;
+		
+		if(!files || files.length <= 0)
+		{
+			return;
+		}
+		
+		var model = {"file" : files[0]};
+
+		this.actionHelper.invokeAction("files.upload", model, null, $.proxy(function(response, respConfig){
+			if(response.code != 0)
+			{
+				throw "Failed to upload specified file";
+			}
+			
+			var imageModel = {"fileId" : response.id, "newImage": true};
+			
+			eval("this.$scope." + field + "= imageModel");
+			
+			try
+			{
+				this.$scope.$digest();
+			}catch(ex)
+			{}
+		}, this));
+	}, {"element": element, "$scope": $scope, "field": field, "actionHelper": actionHelper, "fileElement": fileElement}));
+};
