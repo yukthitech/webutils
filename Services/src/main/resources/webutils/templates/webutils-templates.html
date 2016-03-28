@@ -1016,8 +1016,8 @@
 					<table>
 						<tr ng-repeat="lov in dropDown.${attr('name')}">
 							<td>
-								<input type="checkbox" value="${lov.value}" style="min-width: 1px; height: 1em; width: 1em; margin: 0.2em;"/> 
-								${lov.label}
+								<input type="checkbox" value="{{lov.value}}" style="min-width: 1px; height: 1em; width: 1em; margin: 0.2em;"/> 
+								{{lov.label}}
 							</td>
 						</tr>
 					</table>
