@@ -25,6 +25,7 @@ package com.yukthi.webutils.controllers;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.yukthi.webutils.common.IExtendableModel;
 import com.yukthi.webutils.extensions.Extension;
 import com.yukthi.webutils.extensions.ExtensionPointDetails;
 
@@ -43,5 +44,14 @@ public interface IExtensionContextProvider
 	 */
 	public Extension getExtension(ExtensionPointDetails extensionPointDetails, HttpServletRequest request);
 	
-	
+	/**
+	 * Fetches extension name for specified model object. This method is generally invoked by framework
+	 * for model when implements {@link IExtendableModel} but does not extension point defined on it. 
+	 * @param modelObj Model object for which extension name needs to be fetched.
+	 * @return Extension name for the model.
+	 */
+	public default String getExtensionName(Object modelObj)
+	{
+		return null;
+	}
 }

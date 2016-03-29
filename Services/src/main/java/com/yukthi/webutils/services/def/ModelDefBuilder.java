@@ -83,7 +83,7 @@ public class ModelDefBuilder
 	}
 
 	/**
-	 * Builds and returns model definition for specified modelType
+	 * Builds and returns model definition for specified modelType.
 	 * @param modelType Type for which def needs to be built
 	 * @return Model def representing specified type
 	 */

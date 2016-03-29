@@ -41,7 +41,7 @@ import com.yukthi.webutils.repository.ExtensionEntity;
 import com.yukthi.webutils.services.ExtensionService;
 
 /**
- * Extension utils to fetch extension entity details
+ * Extension utils to fetch extension entity details.
  * @author akiran
  */
 @Component
@@ -59,8 +59,9 @@ public class ExtensionUtil
 	private HttpServletRequest request;
 
 	/**
-	 * Fetches extension with specified name
+	 * Fetches extension with specified name.
 	 * @param extensionName Name of extension
+	 * @param extensionWrapper empty Wrapper, if specified, corresponding extension will be set before returning. 
 	 * @return Matching extension
 	 */
 	public ExtensionEntity getExtensionEntity(String extensionName, ObjectWrapper<Extension> extensionWrapper)
@@ -105,21 +106,45 @@ public class ExtensionUtil
 		return extensionEntity;
 	}
 
+	/**
+	 * Gets extension entity for specified model target.
+	 * @param target Model object for which extension needs to be fetched.
+	 * @return Matching extension entity.
+	 */
 	public ExtensionEntity getExtensionEntity(Object target)
 	{
-		//ignore beans which are not marked as extendable models
-		ExtendableModel extendableModelAnnotation = target.getClass().getAnnotation(ExtendableModel.class);
-		
-		if(extendableModelAnnotation == null)
-		{
-			return null;
-		}
-		
 		//when extension context if not provided, warn and ignore validation
 		if(extensionContextProvider == null)
 		{
-			logger.warn("No extension context provider configured. Ignoring validation of extended model - {}", target.getClass().getName());
+			logger.warn("No extension context provider configured. Ignoring extensions- {}", target.getClass().getName());
 			return null;
+		}
+
+		String extensionName = null;
+		
+		//ignore beans which are not marked as extendable models
+		ExtendableModel extendableModelAnnotation = target.getClass().getAnnotation(ExtendableModel.class);
+		
+		//if no annotation found on model
+		if(extendableModelAnnotation == null)
+		{
+			//but model is extendable model
+			if(target instanceof IExtendableModel)
+			{
+				//try to get extension from context provider, to support dynamic extensions
+				extensionName = extensionContextProvider.getExtensionName(target);
+			}
+
+			//if dynamic extension is also not available return null
+			if(extensionName == null)
+			{
+				return null;
+			}
+		}
+		//if annotation is present get extension name from annotation
+		else
+		{
+			extensionName = extendableModelAnnotation.name();
 		}
 		
 		if(!(target instanceof IExtendableModel))
@@ -128,6 +153,6 @@ public class ExtensionUtil
 		}
 
 		//fetch extension entity for current context
-		return getExtensionEntity(extendableModelAnnotation.name(), null);
+		return getExtensionEntity(extensionName, null);
 	}
 }

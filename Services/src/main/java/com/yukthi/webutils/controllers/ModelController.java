@@ -23,7 +23,9 @@
 
 package com.yukthi.webutils.controllers;
 
-import static com.yukthi.webutils.common.IWebUtilsActionConstants.*;
+import static com.yukthi.webutils.common.IWebUtilsActionConstants.ACTION_PREFIX_MODEL_DEF;
+import static com.yukthi.webutils.common.IWebUtilsActionConstants.ACTION_TYPE_FETCH;
+import static com.yukthi.webutils.common.IWebUtilsActionConstants.PARAM_NAME;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;

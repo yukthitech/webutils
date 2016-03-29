@@ -40,7 +40,7 @@ import com.yukthi.webutils.common.models.def.ModelDef;
 import com.yukthi.webutils.services.def.ModelDefBuilder;
 
 /**
- * Service for model details functionality
+ * Service for model details functionality.
  * 
  * @author akiran
  */
@@ -50,13 +50,13 @@ public class ModelDetailsService
 	private static Logger logger = LogManager.getLogger(ModelDetailsService.class);
 	
 	/**
-	 * Used to build model definition details
+	 * Used to build model definition details.
 	 */
 	@Autowired
 	private ModelDefBuilder modelDefBuilder;
 	
 	/**
-	 * Scan services to scan model types
+	 * Scan services to scan model types.
 	 */
 	@Autowired
 	private ClassScannerService classScannerService;
@@ -71,12 +71,18 @@ public class ModelDetailsService
 	private RepositoryLoader repositoryLoader;
 	
 	/**
-	 * Mapping from model name to java type
+	 * Mapping from model name to java type.
 	 */
 	private Map<String, ModelDef> nameToModel = new HashMap<>();
 	
+	/**
+	 * Maintains mapping from model type to def.
+	 */
 	private Map<Class<?>, ModelDef> typeToModel = new HashMap<>();
 	
+	/**
+	 * Post construct method which scans for models and loads their definitions into map.
+	 */
 	@PostConstruct
 	private void init()
 	{
@@ -111,7 +117,7 @@ public class ModelDetailsService
 	}
 	
 	/**
-	 * Fetches model definition based on the type
+	 * Fetches model definition based on the type.
 	 * @param type Type of model
 	 * @return Matching model definition
 	 */
@@ -119,5 +125,4 @@ public class ModelDetailsService
 	{
 		return typeToModel.get(type);
 	}
-	
 }
