@@ -297,6 +297,13 @@
 					context["export-action"] = false;
 				}
 				
+				//check if custom results displayer is present
+				var resultCustomizer = context.element.children("result-customizer");
+				
+				if(resultCustomizer)
+				{
+					context["resultCustomizer"] = $(resultCustomizer.get(0)).html();
+				}
 			</exe-script>
 			
 			<set-var name="_showQuery" expr=" (context.attr('hide-query') == 'true') ? false : true"/>
@@ -410,33 +417,38 @@
 				</div>
 				<!-- End of popup actions -->
 
-				<div id="${attr('id')}_search_results" class="panel panel-default" data-toggle="context" data-target="#${attr('id')}_context_menu">
-					<div class="panel-heading" style="padding: 0.3em 1em; font-weight: bold;">
-						${attr('title')} - Results
-					</div>
-	
-					<div class="panel-body table-responsive"  yk-model="${searchModel.name}" style="padding: 0px;">
-						<table class="table table-striped table-bordered table-hover searchResults" ng-if="searchResults.length &gt; 0">
-							<!-- Headings row -->
-							<tr>
-								<th>#</th>
-								<th ng-repeat="field in searchResultDef.fields" ng-if="field.displayable">
-									{{field.label}}
-								</th>
-							</tr>
+				<if test="!context.resultCustomizer">
+					<div id="${attr('id')}_search_results" class="panel panel-default" data-toggle="context" data-target="#${attr('id')}_context_menu">
+						<div class="panel-heading" style="padding: 0.3em 1em; font-weight: bold;">
+							${attr('title')} - Results
+						</div>
+		
+						<div class="panel-body table-responsive"  yk-model="${searchModel.name}" style="padding: 0px;">
+							<table class="table table-striped table-bordered table-hover searchResults" ng-if="searchResults.length &gt; 0">
+								<!-- Headings row -->
+								<tr>
+									<th>#</th>
+									<th ng-repeat="field in searchResultDef.fields" ng-if="field.displayable">
+										{{field.label}}
+									</th>
+								</tr>
+								
+								<tr ng-repeat="result in searchResults" ng-click="rowSelected($index, $event)" yk-right-click="rowSelected({{$index}}, $event)" search-row-id="{{$index}}" style="cursor: pointer;">
+									<td>{{$index + 1}}</td>
+									<td ng-repeat="field in searchResultDef.fields" ng-if="field.displayable">
+										{{result[field.name]}}
+									</td>
+								</tr>
+							</table>
 							
-							<tr ng-repeat="result in searchResults" ng-click="rowSelected($index, $event)" yk-right-click="rowSelected({{$index}}, $event)" search-row-id="{{$index}}" style="cursor: pointer;">
-								<td>{{$index + 1}}</td>
-								<td ng-repeat="field in searchResultDef.fields" ng-if="field.displayable">
-									{{result[field.name]}}
-								</td>
-							</tr>
-						</table>
-						
-						<div ng-if="searchExecuted &amp;&amp; searchResults.length &lt;= 0" style="margin: 0.5em;">No records found for specified criteria.</div>
-						<div ng-if="!searchExecuted" style="margin: 0.5em; color: rgb(220, 220, 220);">Search query not executed yet!</div>
+							<div ng-if="searchExecuted &amp;&amp; searchResults.length &lt;= 0" style="margin: 0.5em;">No records found for specified criteria.</div>
+							<div ng-if="!searchExecuted" style="margin: 0.5em; color: rgb(220, 220, 220);">Search query not executed yet!</div>
+						</div>
 					</div>
-				</div>
+				</if>
+				<else>
+					${resultCustomizer}
+				</else>
 			</div>
 		</content>
 		
@@ -503,7 +515,10 @@
 				
 				context["extraHtml"] = extraHtml; 
 				
-				context["modelObj"] = context.attr("modelObj") ? context.attr("modelObj") : "model"; 
+				context["modelObj"] = context.attr("modelObj") ? context.attr("modelObj") : "model";
+				
+				var extension = context.attr("extension");
+				context["extension"] = (extension &amp;&amp; extension.length &gt; 0) ? extension : "";
 			</exe-script>
 		
 			<set-var name="_size" expr="(context.attr('size') == 'small') ? 'modal-sm' : 'modal-lg'"/>
@@ -523,7 +538,7 @@
 						
 						<!-- Content -->
 						<div class="modal-body" yk-model="${attr('name')}">
-							<yk-model-form name="${attr('name')}" columns="${attr('columns')}" modelObj="${modelObj}"></yk-model-form>
+							<yk-model-form name="${attr('name')}" columns="${attr('columns')}" modelObj="${modelObj}" extension="${extension}"></yk-model-form>
 							${extraHtml}
 						</div>
 						
@@ -563,10 +578,14 @@
 					var modelDef = modelDefResponse.modelDef;
 					this.context["modelDef"] = modelDef;
 							
+					var extension = this.context.attr("extension");
+					extension = (extension &amp;&amp; extension.length &gt; 0) ? extension : modelDef.extensionName;
+
 					//invoke the action to fetch model extensions
-					if(modelDef.extensionName)
+					if(extension)
 					{
-						this.context.invokeAction('extensions.fetch', null, {"name": modelDef.extensionName}, callback);
+						this.context["extension"] = extension;
+						this.context.invokeAction('extensions.fetch', null, {"name": extension}, callback);
 					}
 					else
 					{
@@ -579,7 +598,7 @@
 					var modelDef = this.context.modelDef;
 					
 					//if extension name is specified, expect extension field details
-					if(modelDef.extensionName)
+					if(this.context["extension"])
 					{
 						if(!responseConfig.success)
 						{
