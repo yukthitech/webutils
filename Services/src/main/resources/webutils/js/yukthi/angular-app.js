@@ -5,6 +5,8 @@ $.application.filter('unsafe', ["$sce", function($sce) {
 	return $sce.trustAsHtml; 
 }]);
 
+var CONTEXT_ID = 1;
+
 /*
  * Function to define custom angular element directive
  */
@@ -45,6 +47,7 @@ $.addElementDirective = function(directiveObj) {
 				var element = this.element;
 				
 				var context = {
+					"id": (CONTEXT_ID ++),
 					"attributes": attributes,
 					"$scope": $scope,
 					"element": element,
@@ -93,9 +96,10 @@ $.addElementDirective = function(directiveObj) {
 						
 						return (!attrVal || attrVal.length == 0) ? defVal : attrVal;
 					},
-					"attrStr": function() {
+					"attrStr": function(elem) {
 						var attrStr = "";
-						$.each(this.element.get(0).attributes, function(i, attr){
+						elem = elem ? elem : this.element.get(0);
+						$.each(elem.attributes, function(i, attr){
 							attrStr += ' ' + attr.name + '="' + attr.value + '"';
 						});
 						
@@ -183,6 +187,7 @@ $.addAttributeDirective = function(directiveObj) {
 			var context = {
 				"attributes": attributes,
 				"$scope": $scope,
+				"$compile": $compile,
 				"element": element,
 				"clientContext": clientContext,
 				"actionHelper": actionHelper,

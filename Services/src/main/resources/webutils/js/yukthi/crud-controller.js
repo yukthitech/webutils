@@ -48,6 +48,8 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 			$scope.dlgModeField = "newModelMode";
 			$scope.crudConfig = config;
 			
+			$scope.defaultValues = {};
+
 			$scope.$watch(function(){
 				
 				if(!$scope.model)
@@ -86,6 +88,11 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 				$("#" + $scope.crudConfig.modelDailogId +" [yk-read-only='true']").prop('disabled', false);
 				$scope.model = {};
 				
+				for(var fld in $scope.defaultValues)
+				{
+					$scope.model[fld] = $scope.defaultValues[fld];
+				}
+
 				utils.openModal($scope.crudConfig.modelDailogId, {
 					context: {"$scope": $scope},
 					
@@ -445,7 +452,16 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 			};
 			
 			$scope.getFieldImageUrl = function(name) {
-				var fieldVal = eval("$scope." + name);
+				var fieldVal = null;
+				
+				//get the field value. This would throw exception, if model is not yet ready
+				try
+				{
+					fieldVal = eval("$scope." + name);
+				}catch(ex)
+				{
+					return null;
+				}
 				
 				if(!fieldVal)
 				{
@@ -454,6 +470,10 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 				
 				var imgUrl = actionHelper.actionUrl('files.fetch', {'id': fieldVal.fileId});
 				return imgUrl;
+			};
+			
+			$scope.getResultFieldCustomizer = function() {
+				return $scope.resultFieldCustomizer;
 			};
 		}
 	};

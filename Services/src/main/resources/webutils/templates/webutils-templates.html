@@ -304,6 +304,46 @@
 				{
 					context["resultCustomizer"] = $(resultCustomizer.get(0)).html();
 				}
+				
+				//search field customizers
+				var resultFieldCustomizers = context.element.children("result-field-customizer");
+				var resultFieldCustomizer = {};
+								
+				if(resultFieldCustomizers.length &gt; 0)
+				{
+					var fldCustomizer = null;
+					
+					for(var i = 0; i &lt; resultFieldCustomizers.length; i++ )
+					{
+						fldCustomizer = $(resultFieldCustomizers.get(i)); 
+						
+						resultFieldCustomizer[fldCustomizer.attr("field")] = fldCustomizer.html();
+					}
+				}
+				
+				context.$scope.resultFieldCustomizer = resultFieldCustomizer;
+
+				//search field customizers
+				var searchFieldCustomizers = context.element.children("search-field-customizer");
+				var searchFieldCustomizer = {};
+								
+				if(searchFieldCustomizers.length &gt; 0)
+				{
+					var fldCustomizer = null;
+					
+					for(var i = 0; i &lt; searchFieldCustomizers.length; i++ )
+					{
+						fldCustomizer = $(searchFieldCustomizers.get(i)); 
+						
+						searchFieldCustomizer[fldCustomizer.attr("field")] = {
+							"hidden" : ("true" == fldCustomizer.attr("hide-field")) ? true : false,
+							"defaultValue" : fldCustomizer.attr("default-value")
+						};					
+					}
+				}
+				
+				context.$scope.searchFieldCustomizer = searchFieldCustomizer;
+				context["searchFieldCustomizer"] = searchFieldCustomizer;
 			</exe-script>
 			
 			<set-var name="_showQuery" expr=" (context.attr('hide-query') == 'true') ? false : true"/>
@@ -328,6 +368,17 @@
 									<for-each data="${searchModel.fields}" loop-var="field" index-var="idx">
 										<if test="!context.field.displayable">
 											<continue/>
+										</if>
+										
+										<!-- Customizes the field as specified -->
+										<if test="context.searchFieldCustomizer &amp;&amp; context.searchFieldCustomizer[context.field.name]">
+											<if test="context.searchFieldCustomizer[context.field.name].defaultValue">
+												<span style="display: none;" ng-init="defaultValues['${field.name}'] = '${searchFieldCustomizer[context.field.name].defaultValue}';"></span>
+											</if>
+										
+											<if test="context.searchFieldCustomizer[context.field.name].hidden">
+												<continue/>
+											</if>
 										</if>
 										
 										<yk-model-field id="searchQuery.${field.name}" name="${field.name}" modelobj="searchQuery" 
@@ -436,7 +487,12 @@
 								<tr ng-repeat="result in searchResults" ng-click="rowSelected($index, $event)" yk-right-click="rowSelected({{$index}}, $event)" search-row-id="{{$index}}" style="cursor: pointer;">
 									<td>{{$index + 1}}</td>
 									<td ng-repeat="field in searchResultDef.fields" ng-if="field.displayable">
-										{{result[field.name]}}
+										<div ng-if="getResultFieldCustomizer()[field.name]" style="display: inline" 
+											yk-dynamic="$scope.getResultFieldCustomizer()[$scope.field.name]">
+										</div>
+										<div ng-if="!getResultFieldCustomizer()[field.name]" style="display: inline">
+											{{result[field.name]}}
+										</div>
 									</td>
 								</tr>
 							</table>
@@ -449,6 +505,8 @@
 				<else>
 					${resultCustomizer}
 				</else>
+				
+				<span style="display: none;" ng-init="init()"></span>
 			</div>
 		</content>
 		
@@ -519,6 +577,10 @@
 				
 				var extension = context.attr("extension");
 				context["extension"] = (extension &amp;&amp; extension.length &gt; 0) ? extension : "";
+
+				//model field customizers
+				var fieldCustomizers = context.element.children("field-customizer");
+				context["fieldCustomizers"] = fieldCustomizers;
 			</exe-script>
 		
 			<set-var name="_size" expr="(context.attr('size') == 'small') ? 'modal-sm' : 'modal-lg'"/>
@@ -538,7 +600,12 @@
 						
 						<!-- Content -->
 						<div class="modal-body" yk-model="${attr('name')}">
-							<yk-model-form name="${attr('name')}" columns="${attr('columns')}" modelObj="${modelObj}" extension="${extension}"></yk-model-form>
+							<yk-model-form name="${attr('name')}" columns="${attr('columns')}" modelObj="${modelObj}" extension="${extension}">
+								<for-each data="${fieldCustomizers}" loop-var="customizer" index-var="idx"><![CDATA[
+									<field-customizer ${attrStr(context.customizer)}/>
+								]]></for-each>
+							</yk-model-form>
+							
 							${extraHtml}
 						</div>
 						
@@ -672,6 +739,28 @@
 				context["modelObj"] = modelObj;
 
 				context["containerStyle"] = context.attr("style") ? context.attr("style") : ""; 
+
+				//model field customizers
+				var fieldCustomizers = context.element.children("field-customizer");
+				var fieldCustomizer = {};
+								
+				if(fieldCustomizers.length &gt; 0)
+				{
+					var fldCustomizer = null;
+					
+					for(var i = 0; i &lt; fieldCustomizers.length; i++ )
+					{
+						fldCustomizer = $(fieldCustomizers.get(i)); 
+						
+						fieldCustomizer[fldCustomizer.attr("field")] = {
+							"hidden" : ("true" == fldCustomizer.attr("hide-field")) ? true : false,
+							"defaultValue" : fldCustomizer.attr("default-value")
+						};					
+					}
+				}
+				
+				context.$scope.fieldCustomizer = fieldCustomizer;
+				context["fieldCustomizer"] = fieldCustomizer;
 			</exe-script>
 			
 			<div class="container-fluid model-form" yk-model-def="${modelObj}" style="${containerStyle}">
@@ -688,6 +777,17 @@
 							<div style="${enclosingDivStyle}">
 						]]></if>
 						
+						<!-- Customizes the field as specified -->
+						<if test="context.fieldCustomizer &amp;&amp; context.fieldCustomizer[context.field.name]">
+							<if test="context.fieldCustomizer[context.field.name].defaultValue">
+								<span style="display: none;" ng-init="defaultValues['${field.name}'] = '${fieldCustomizer[context.field.name].defaultValue}';"></span>
+							</if>
+						
+							<if test="context.fieldCustomizer[context.field.name].hidden">
+								<continue/>
+							</if>
+						</if>
+
 						<yk-model-field name="${field.name}" modelobj="${modelObj}" label-width="${labelSize}px" 
 							field-width="100%" full-width="${fullWidth}%" 
 							element-style="margin: 0px; margin-left: 1em; margin-top: 1em;"></yk-model-field>
@@ -1313,6 +1413,7 @@
 		Adds ng-repeat with same expression as this attribute value. In some cases ng-repeat may get compiled into a comment which 
 		may get removed during directive processing. In order to retain ng-repeat this attribute directive can be used  
 	 -->
+	 <!--  
 	<attr-directive name="ykRepeat">
 		<script>
 			var repeatExpr = context.attributeValue;
@@ -1327,7 +1428,6 @@
 		</script>
 	</attr-directive>
 
-	<!-- Adds ng-if attribute. Useful to skip initial processing within other directive -->
 	<attr-directive name="ykIf">
 		<script>
 			var repeatExpr = context.attributeValue;
@@ -1360,6 +1460,22 @@
 		<script>
 			var bindExpr = context.attributeValue;
 			context.element.attr("ng-bind", bindExpr);
+		</script>
+	</attr-directive>
+	-->
+	
+	<!--
+		Used to inject dynamic html 
+	 -->
+	<attr-directive name="ykDynamic">
+		<script>
+		var $scope = context.$scope;
+		var innerHtml = eval(context.attributeValue);
+		
+		innerHtml = context.$compile(innerHtml)($scope);
+		
+		context.element.html("");
+		context.element.append(innerHtml);
 		</script>
 	</attr-directive>
 

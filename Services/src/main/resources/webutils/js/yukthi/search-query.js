@@ -1,3 +1,8 @@
+/**
+ * This controller scope will have following attributes
+ * 	searchQueryId - Html id of search query panel.
+ * 	searchQueryName - Name of the search query
+ */
 $.application.controller('searchQueryController', ["$scope", "actionHelper", "logger", "utils", "validator", "modelDefService", "clientContext",
                           function($scope, actionHelper, logger, utils, validator, modelDefService, clientContext) {
 	$scope.name = "searchQueryControllerScope-" + $.nextScopeId();
@@ -12,6 +17,15 @@ $.application.controller('searchQueryController', ["$scope", "actionHelper", "lo
 	$scope.selectedIndex = null;
 	
 	$scope.searchExecuted = false;
+	
+	$scope.defaultValues = {};
+	
+	$scope.init = function(){
+		for(var fld in $scope.defaultValues)
+		{
+			$scope.searchQuery[fld] = $scope.defaultValues[fld];
+		}
+	};
 	
 	/**
 	 * Initializes the errors object on scope if required
