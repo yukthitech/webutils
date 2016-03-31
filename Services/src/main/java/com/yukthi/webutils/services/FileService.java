@@ -46,6 +46,7 @@ import com.yukthi.webutils.common.models.def.ModelDef;
 import com.yukthi.webutils.repository.file.FileEntity;
 import com.yukthi.webutils.repository.file.IFileRepository;
 import com.yukthi.webutils.security.ISecurityService;
+import com.yukthi.webutils.security.UnauthorizedException;
 import com.yukthi.webutils.utils.WebUtils;
 
 /**
@@ -462,4 +463,35 @@ public class FileService
 		logger.trace("Fetching file content for id - {} and security flag - {}", id, secured);
 		return repository.findBySecurityFlag(id, secured);
 	}
+	
+	/**
+	 * Fetches file entity with specified ownership details.
+	 * @param entityType Entity owner type
+	 * @param field Entity field with which file is associated
+	 * @param ownerId Entity owner id.
+	 * @return Matching file entity.
+	 */
+	public FileInfo getFileByOwner(Class<?> entityType, String field, Long ownerId)
+	{
+		FileEntity file = repository.fetchEntityByOwner(entityType.getName(), field, ownerId);
+		
+		if(file == null)
+		{
+			return null;
+		}
+		
+		if(file.isSecured() && !securityService.isAuthorized(file))
+		{
+			//delete the temp file that was created during db read
+			file.getFile().delete();
+
+			throw new UnauthorizedException("Current user is not authorized to access file with specified ownership");
+		}
+		
+		FileInfo fileInfo = WebUtils.convertBean(file, FileInfo.class);
+		fileInfo.setFile(file.getFile());
+		
+		return fileInfo;
+	}
 }
+ 

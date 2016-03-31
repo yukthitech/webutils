@@ -475,6 +475,10 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 			$scope.getResultFieldCustomizer = function() {
 				return $scope.resultFieldCustomizer;
 			};
+			
+			$scope.getActionUrl = function(actionName, params) {
+				return actionHelper.actionUrl(actionName, params);
+			};
 		}
 	};
 

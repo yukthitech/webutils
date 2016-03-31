@@ -69,6 +69,16 @@ public interface IFileRepository extends ICrudRepository<FileEntity>
 			@Condition("ownerEntityField") String ownerEntityField, @Condition("ownerEntityId") Long ownerEntityId);
 
 	/**
+	 * Fetches file entity based on specified owner details.
+	 * @param ownerEntityType Owner entity type
+	 * @param ownerEntityField Owner entity field
+	 * @param ownerEntityId Owner entity id
+	 * @return Matching file entity
+	 */
+	public FileEntity fetchEntityByOwner(@Condition("ownerEntityType") String ownerEntityType, 
+			@Condition("ownerEntityField") String ownerEntityField, @Condition("ownerEntityId") Long ownerEntityId);
+
+	/**
 	 * Fetches file ids of specified owner.
 	 * @param ownerEntityType Owner entity type
 	 * @param ownerEntityField Owner field
