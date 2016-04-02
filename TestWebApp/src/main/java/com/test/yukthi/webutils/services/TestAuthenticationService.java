@@ -27,6 +27,8 @@ import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Set;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -47,7 +49,6 @@ import com.yukthi.webutils.services.CurrentUserService;
 @Service
 public class TestAuthenticationService implements ISecurityService
 {
-	
 	/** The user service. */
 	@Autowired
 	private TestUserService userService;
@@ -55,6 +56,9 @@ public class TestAuthenticationService implements ISecurityService
 	/** The current user service. */
 	@Autowired
 	private CurrentUserService currentUserService;
+	
+	@Autowired
+	private HttpServletRequest request;
 	
 	/* (non-Javadoc)
 	 * @see com.yukthi.webutils.security.ISecurityService#authenticate(java.lang.String, java.lang.String, java.util.Map)
@@ -133,6 +137,11 @@ public class TestAuthenticationService implements ISecurityService
 	{
 		return new ActiveUserModel();
 	}
-	
-	
+
+	@Override
+	public String getUserSpaceIdentity()
+	{
+		String userSpace = request.getHeader("userSpace");
+		return userSpace != null ? userSpace : "";
+	}
 }

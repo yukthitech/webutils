@@ -23,27 +23,19 @@
 
 package com.yukthi.webutils.repository;
 
-import java.util.Date;
-
 import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.Version;
 
 import com.yukthi.persistence.annotations.DataType;
 import com.yukthi.persistence.annotations.DataTypeMapping;
 import com.yukthi.persistence.annotations.Index;
 import com.yukthi.persistence.annotations.Indexes;
-import com.yukthi.persistence.annotations.NotUpdateable;
 import com.yukthi.persistence.annotations.UniqueConstraint;
 import com.yukthi.persistence.annotations.UniqueConstraints;
 import com.yukthi.persistence.conversion.impl.JsonConverter;
 
 /**
- * Entity to keep track of the extensions of other entities 
+ * Entity to keep track of the extensions of other entities. 
  * @author akiran
  */
 @Table(name = "ENTITY_EXTENSIONS")
@@ -53,31 +45,16 @@ import com.yukthi.persistence.conversion.impl.JsonConverter;
 @Indexes({
 	@Index(name = "OWNR_TYPE_OWNR_ID", fields = {"targetPointName", "ownerPointName", "ownerId"})
 })
-public class ExtensionEntity implements ITrackedEntity
+public class ExtensionEntity extends WebutilsEntity
 {
 	/**
-	 * Primary key of the entity
-	 */
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "ID")
-	private Long id;
-	
-	/**
-	 * Version of the entity
-	 */
-	@Column(name = "VERSION")
-	@Version
-	private Integer version;
-	
-	/**
-	 * Name of the target entity point for which this extended field is defined
+	 * Name of the target entity point for which this extended field is defined.
 	 */
 	@Column(name = "TARGET_POINT_NAME", nullable = false, length = 250)
 	private String targetPointName;
 	
 	/**
-	 * Owner entity point name under which extension is being defined
+	 * Owner entity point name under which extension is being defined.
 	 */
 	@Column(name = "OWNER_POINT_NAME", nullable = false, length = 100)
 	private String ownerPointName;
@@ -89,47 +66,17 @@ public class ExtensionEntity implements ITrackedEntity
 	private long ownerId;
 	
 	/**
-	 * Name for the extension
+	 * Name for the extension.
 	 */
 	@Column(name = "NAME", nullable = true)
 	private String name;
 	
 	/**
-	 * Custom attributes for the extension
+	 * Custom attributes for the extension.
 	 */
 	@Column(name = "CUSTOM_ATTR", length = 2000)
 	@DataTypeMapping(type = DataType.STRING, converterType = JsonConverter.class)
 	private Object attributes;
-
-	/**
-	 * Created by user
-	 */
-	@NotUpdateable
-	@ManyToOne
-	@Column(name = "CREATED_BY_ID")
-	private UserEntity createdBy;
-	
-	/**
-	 * Created on time
-	 */
-	@NotUpdateable
-	@Column(name = "CREATED_ON")
-	@DataTypeMapping(type = DataType.DATE_TIME)
-	private Date createdOn;
-
-	/**
-	 * Updating user
-	 */
-	@ManyToOne
-	@Column(name = "UPDATED_BY_ID")
-	private UserEntity updatedBy;
-	
-	/**
-	 * Updated on
-	 */
-	@Column(name = "UPDATED_ON")
-	@DataTypeMapping(type = DataType.DATE_TIME)
-	private Date updatedOn;
 
 	/**
 	 * Instantiates a new extension entity.
@@ -144,7 +91,7 @@ public class ExtensionEntity implements ITrackedEntity
 	 */
 	public ExtensionEntity(long id)
 	{
-		this.id = id;
+		super(id);
 	}
 
 	/**
@@ -159,40 +106,6 @@ public class ExtensionEntity implements ITrackedEntity
 		this.targetPointName = targetPointName;
 		this.ownerPointName = ownerPointName;
 		this.ownerId = ownerId;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.IEntity#getId()
-	 */
-	public Long getId()
-	{
-		return id;
-	}
-
-	/**
-	 * Sets the primary key of the entity.
-	 *
-	 * @param id the new primary key of the entity
-	 */
-	public void setId(Long id)
-	{
-		this.id = id;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.IEntity#getVersion()
-	 */
-	public Integer getVersion()
-	{
-		return version;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.IEntity#setVersion(java.lang.Integer)
-	 */
-	public void setVersion(Integer version)
-	{
-		this.version = version;
 	}
 
 	/**
@@ -294,70 +207,4 @@ public class ExtensionEntity implements ITrackedEntity
 	{
 		this.attributes = attributes;
 	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.repository.ITrackedEntity#getCreatedBy()
-	 */
-	public UserEntity getCreatedBy()
-	{
-		return createdBy;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.repository.ITrackedEntity#setCreatedBy(com.yukthi.webutils.repository.UserEntity)
-	 */
-	public void setCreatedBy(UserEntity createdBy)
-	{
-		this.createdBy = createdBy;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.repository.ITrackedEntity#getCreatedOn()
-	 */
-	public Date getCreatedOn()
-	{
-		return createdOn;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.repository.ITrackedEntity#setCreatedOn(java.util.Date)
-	 */
-	public void setCreatedOn(Date createdOn)
-	{
-		this.createdOn = createdOn;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.repository.ITrackedEntity#getUpdatedBy()
-	 */
-	public UserEntity getUpdatedBy()
-	{
-		return updatedBy;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.repository.ITrackedEntity#setUpdatedBy(com.yukthi.webutils.repository.UserEntity)
-	 */
-	public void setUpdatedBy(UserEntity updatedBy)
-	{
-		this.updatedBy = updatedBy;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.repository.ITrackedEntity#getUpdatedOn()
-	 */
-	public Date getUpdatedOn()
-	{
-		return updatedOn;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.repository.ITrackedEntity#setUpdatedOn(java.util.Date)
-	 */
-	public void setUpdatedOn(Date updatedOn)
-	{
-		this.updatedOn = updatedOn;
-	}
-
-	
 }

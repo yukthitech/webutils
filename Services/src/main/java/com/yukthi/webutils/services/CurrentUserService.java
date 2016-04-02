@@ -33,7 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.yukthi.webutils.IWebUtilsInternalConstants;
-import com.yukthi.webutils.repository.ITrackedEntity;
+import com.yukthi.webutils.repository.WebutilsEntity;
 import com.yukthi.webutils.repository.UserEntity;
 import com.yukthi.webutils.security.UserDetails;
 
@@ -66,10 +66,10 @@ public class CurrentUserService
 	}
 	
 	/**
-	 * Sets the tracked fields during create operation
+	 * Sets the tracked fields during create operation.
 	 * @param trackedEntity Entity needs to be tracked
 	 */
-	public void populateTrackingFieldForCreate(ITrackedEntity trackedEntity)
+	public void populateTrackingFieldForCreate(WebutilsEntity trackedEntity)
 	{
 		UserDetails userDetails = getCurrentUserDetails();
 
@@ -92,10 +92,10 @@ public class CurrentUserService
 	}
 
 	/**
-	 * Sets the tracked fields during update operation
+	 * Sets the tracked fields during update operation.
 	 * @param trackedEntity Entity needs to be tracked
 	 */
-	public void populateTrackingFieldForUpdate(ITrackedEntity trackedEntity)
+	public void populateTrackingFieldForUpdate(WebutilsEntity trackedEntity)
 	{
 		UserDetails userDetails = getCurrentUserDetails();
 

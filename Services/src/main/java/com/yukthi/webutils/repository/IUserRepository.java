@@ -12,7 +12,7 @@ import com.yukthi.persistence.repository.annotations.UpdateFunction;
  * Repository for user authentication details
  * @author akiran
  */
-public interface IUserRepository extends ICrudRepository<UserEntity>
+public interface IUserRepository extends IWebutilsRepository<UserEntity>
 {
 	/**
 	 * Checks if a user entry is present with specified details
@@ -56,10 +56,11 @@ public interface IUserRepository extends ICrudRepository<UserEntity>
 	 * Used to mark an user as deleted
 	 * @param userId User to be deleted
 	 * @param deleted Deleted flag
+	 * @param spaceIdentity Space to which operation should be restricted.
 	 * @param userName User name this should become null
 	 */
 	@UpdateFunction
-	public boolean markAsDeleted(@Condition("id") long userId, @Field("deleted") boolean deleted, @Field("userName") String userName);
+	public boolean markAsDeleted(@Condition("id") long userId, @Field("deleted") boolean deleted, @Field("userName") String userName, @Field("spaceIdentity") String spaceIdentity);
 	
 	
 	/**

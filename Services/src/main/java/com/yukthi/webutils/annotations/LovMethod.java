@@ -29,7 +29,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Used to mark a service method as LOV provider
+ * Used to mark a service method as LOV provider.
  * @author akiran
  */
 @Retention(RetentionPolicy.RUNTIME)
@@ -37,7 +37,7 @@ import java.lang.annotation.Target;
 public @interface LovMethod
 {
 	/**
-	 * Name of the LOV to be used by client
+	 * Name of the LOV to be used by client.
 	 * @return Name of the LOV to be used by client
 	 */
 	public String name();

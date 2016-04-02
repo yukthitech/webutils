@@ -64,7 +64,7 @@ import com.yukthi.webutils.utils.WebUtils;
 
 
 /**
- * Service to fetch LOV values
+ * Service to fetch LOV values.
  * @author akiran
  */
 @Service
@@ -73,13 +73,13 @@ public class LovService implements IRepositoryMethodRegistry<LovQuery>
 	private static Logger logger = LogManager.getLogger(LovService.class);
 	
 	/**
-	 * Message source to fetch ENUM field labels
+	 * Message source to fetch ENUM field labels.
 	 */
 	@Autowired
 	private MessageSource messageSource;
 	
 	/**
-	 * Security service to check authorization of target method
+	 * Security service to check authorization of target method.
 	 */
 	@Autowired(required = false)
 	private ISecurityService securityService;
@@ -105,7 +105,7 @@ public class LovService implements IRepositoryMethodRegistry<LovQuery>
 		Object springComponent = null;
 		
 		//loop through all registered services
-		for(Method method: lovMethods)
+		for(Method method : lovMethods)
 		{
 			springComponent = applicationContext.getBean(method.getDeclaringClass());
 			

@@ -24,52 +24,28 @@
 package com.yukthi.webutils.repository.file;
 
 import java.io.File;
-import java.util.Date;
 
 import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.Version;
 
 import com.yukthi.persistence.annotations.DataType;
 import com.yukthi.persistence.annotations.DataTypeMapping;
 import com.yukthi.persistence.annotations.Index;
 import com.yukthi.persistence.annotations.Indexed;
 import com.yukthi.persistence.annotations.Indexes;
-import com.yukthi.persistence.annotations.NotUpdateable;
-import com.yukthi.webutils.repository.ITrackedEntity;
-import com.yukthi.webutils.repository.UserEntity;
+import com.yukthi.webutils.repository.WebutilsEntity;
 
 /**
- * Entity to store files
+ * Entity to store files.
  * 
  * @author akiran
  */
 @Indexes({
 	@Index(name = "FILE_OWNER_IDX", fields = {"ownerEntityType", "ownerEntityId"})
-})
+	})
 @Table(name = "FILE_ENTITY")
-public class FileEntity implements ITrackedEntity
+public class FileEntity extends WebutilsEntity
 {
-	/**
-	 * Primary key of the entity
-	 */
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "ID")
-	private Long id;
-
-	
-	/**
-	 * Version of the entity
-	 */
-	@Column(name = "VERSION")
-	@Version
-	private Integer version;
-
 	/**
 	 * Name of the file
 	 */
@@ -94,12 +70,6 @@ public class FileEntity implements ITrackedEntity
 	 */
 	@Column(name = "CONTENT_TYPE", length = 200)
 	private String contentType;
-	
-	/**
-	 * Flag indicating if this is secured file. Unsecured files can be accessed without authentication
-	 */
-	@Column(name = "SECURED", nullable = false)
-	private boolean secured = true;
 	
 	/**
 	 * Owner entity type
@@ -158,36 +128,6 @@ public class FileEntity implements ITrackedEntity
 	private String customAttribute5;
 	
 	/**
-	 * Created by user
-	 */
-	@NotUpdateable
-	@ManyToOne
-	@Column(name = "CREATED_BY_ID")
-	private UserEntity createdBy;
-	
-	/**
-	 * Created on time
-	 */
-	@NotUpdateable
-	@Column(name = "CREATED_ON")
-	@DataTypeMapping(type = DataType.DATE_TIME)
-	private Date createdOn;
-
-	/**
-	 * Updating user
-	 */
-	@ManyToOne
-	@Column(name = "UPDATED_BY_ID")
-	private UserEntity updatedBy;
-	
-	/**
-	 * Updated on
-	 */
-	@Column(name = "UPDATED_ON")
-	@DataTypeMapping(type = DataType.DATE_TIME)
-	private Date updatedOn;
-	
-	/**
 	 * Instantiates a new file entity.
 	 */
 	public FileEntity()
@@ -200,27 +140,7 @@ public class FileEntity implements ITrackedEntity
 	 */
 	public FileEntity(long id)
 	{
-		this.id = id;
-	}
-
-	/**
-	 * Gets the primary key of the entity.
-	 *
-	 * @return the primary key of the entity
-	 */
-	public Long getId()
-	{
-		return id;
-	}
-
-	/**
-	 * Sets the primary key of the entity.
-	 *
-	 * @param id the new primary key of the entity
-	 */
-	public void setId(Long id)
-	{
-		this.id = id;
+		super(id);
 	}
 
 	/**
@@ -304,26 +224,6 @@ public class FileEntity implements ITrackedEntity
 	}
 	
 	/**
-	 * Checks if is flag indicating if this is secured file. Unsecured files can be accessed without authentication.
-	 *
-	 * @return the flag indicating if this is secured file
-	 */
-	public boolean isSecured()
-	{
-		return secured;
-	}
-
-	/**
-	 * Sets the flag indicating if this is secured file. Unsecured files can be accessed without authentication.
-	 *
-	 * @param secured the new flag indicating if this is secured file
-	 */
-	public void setSecured(boolean secured)
-	{
-		this.secured = secured;
-	}
-
-	/**
 	 * Gets the owner entity type.
 	 *
 	 * @return the owner entity type
@@ -381,136 +281,6 @@ public class FileEntity implements ITrackedEntity
 	public void setOwnerEntityId(Long ownerEntityId)
 	{
 		this.ownerEntityId = ownerEntityId;
-	}
-
-	/**
-	 * Gets the version of the entity.
-	 *
-	 * @return the version of the entity
-	 */
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.IEntity#getVersion()
-	 */
-	public Integer getVersion()
-	{
-		return version;
-	}
-
-	/**
-	 * Sets the version of the entity.
-	 *
-	 * @param version the new version of the entity
-	 */
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.IEntity#setVersion(java.lang.Integer)
-	 */
-	public void setVersion(Integer version)
-	{
-		this.version = version;
-	}
-
-	/**
-	 * Gets the created by user.
-	 *
-	 * @return the created by user
-	 */
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.repository.ITrackedEntity#getCreatedBy()
-	 */
-	public UserEntity getCreatedBy()
-	{
-		return createdBy;
-	}
-
-	/**
-	 * Sets the created by user.
-	 *
-	 * @param createdBy the new created by user
-	 */
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.repository.ITrackedEntity#setCreatedBy(com.yukthi.webutils.repository.UserEntity)
-	 */
-	public void setCreatedBy(UserEntity createdBy)
-	{
-		this.createdBy = createdBy;
-	}
-
-	/**
-	 * Gets the created on time.
-	 *
-	 * @return the created on time
-	 */
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.repository.ITrackedEntity#getCreatedOn()
-	 */
-	public Date getCreatedOn()
-	{
-		return createdOn;
-	}
-
-	/**
-	 * Sets the created on time.
-	 *
-	 * @param createdOn the new created on time
-	 */
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.repository.ITrackedEntity#setCreatedOn(java.util.Date)
-	 */
-	public void setCreatedOn(Date createdOn)
-	{
-		this.createdOn = createdOn;
-	}
-
-	/**
-	 * Gets the updating user.
-	 *
-	 * @return the updating user
-	 */
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.repository.ITrackedEntity#getUpdatedBy()
-	 */
-	public UserEntity getUpdatedBy()
-	{
-		return updatedBy;
-	}
-
-	/**
-	 * Sets the updating user.
-	 *
-	 * @param updatedBy the new updating user
-	 */
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.repository.ITrackedEntity#setUpdatedBy(com.yukthi.webutils.repository.UserEntity)
-	 */
-	public void setUpdatedBy(UserEntity updatedBy)
-	{
-		this.updatedBy = updatedBy;
-	}
-
-	/**
-	 * Gets the updated on.
-	 *
-	 * @return the updated on
-	 */
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.repository.ITrackedEntity#getUpdatedOn()
-	 */
-	public Date getUpdatedOn()
-	{
-		return updatedOn;
-	}
-
-	/**
-	 * Sets the updated on.
-	 *
-	 * @param updatedOn the new updated on
-	 */
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.repository.ITrackedEntity#setUpdatedOn(java.util.Date)
-	 */
-	public void setUpdatedOn(Date updatedOn)
-	{
-		this.updatedOn = updatedOn;
 	}
 
 	/**

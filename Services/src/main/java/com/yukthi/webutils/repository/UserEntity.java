@@ -22,23 +22,14 @@
  */
 package com.yukthi.webutils.repository;
 
-import java.util.Date;
-
 import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.Version;
 
-import com.yukthi.persistence.annotations.DataType;
 import com.yukthi.persistence.annotations.DataTypeMapping;
 import com.yukthi.persistence.annotations.NotUpdateable;
 import com.yukthi.persistence.annotations.UniqueConstraint;
 import com.yukthi.persistence.annotations.UniqueConstraints;
 import com.yukthi.persistence.conversion.impl.PasswordEncryptionConverter;
-import com.yukthi.webutils.repository.ITrackedEntity;
 
 /**
  * User details for authentication. All entities like Customer, Client or admin should create
@@ -51,20 +42,8 @@ import com.yukthi.webutils.repository.ITrackedEntity;
 	@UniqueConstraint(name = "UQ_USERS_OWNR_UNAME", fields = {"ownerType", "ownerId", "userName"}),
 	@UniqueConstraint(name = "UQ_USERS_BASE_DET", fields = {"baseEntityType", "baseEntityId"})
 })
-public class UserEntity implements ITrackedEntity
+public class UserEntity extends WebutilsEntity
 {
-	/**
-	 * Primary key
-	 */
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "ID")
-	private Long id;
-	
-	/** The version. */
-	@Version
-	private Integer version;
-
 	/**
 	 * User name used for authentication. This field value will be null for deleted users
 	 */
@@ -119,37 +98,6 @@ public class UserEntity implements ITrackedEntity
 	 */
 	@Column(name = "DELETED")
 	private boolean deleted = false;
-	
-	/**
-	 * Created by user
-	 */
-	@NotUpdateable
-	@ManyToOne
-	@Column(name = "CREATED_BY_ID")
-	private UserEntity createdBy;
-	
-	/**
-	 * Created on time
-	 */
-	@NotUpdateable
-	@Column(name = "CREATED_ON")
-	@DataTypeMapping(type = DataType.DATE_TIME)
-	private Date createdOn;
-
-	/**
-	 * Updating user
-	 */
-	@ManyToOne
-	@Column(name = "UPDATED_BY_ID")
-	private UserEntity updatedBy;
-	
-	/**
-	 * Updated on
-	 */
-	@Column(name = "UPDATED_ON")
-	@DataTypeMapping(type = DataType.DATE_TIME)
-	private Date updatedOn;
-	
 	/**
 	 * Instantiates a new user entity.
 	 */
@@ -163,7 +111,7 @@ public class UserEntity implements ITrackedEntity
 	 */
 	public UserEntity(Long id)
 	{
-		this.id = id;
+		super(id);
 	}
 	
 	/**
@@ -182,26 +130,6 @@ public class UserEntity implements ITrackedEntity
 		this.displayName = displayName;
 		this.ownerType = ownerType;
 		this.ownerId = ownerId;
-	}
-
-	/**
-	 * Gets the primary key.
-	 *
-	 * @return the primary key
-	 */
-	public Long getId()
-	{
-		return id;
-	}
-
-	/**
-	 * Sets the primary key.
-	 *
-	 * @param id the new primary key
-	 */
-	public void setId(Long id)
-	{
-		this.id = id;
 	}
 
 	/**
@@ -325,22 +253,6 @@ public class UserEntity implements ITrackedEntity
 		this.baseEntityId = baseEntityId;
 	}
 
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.IEntity#getVersion()
-	 */
-	public Integer getVersion()
-	{
-		return version;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.IEntity#setVersion(java.lang.Integer)
-	 */
-	public void setVersion(Integer version)
-	{
-		this.version = version;
-	}
-
 	/**
 	 * Gets the display name.
 	 *
@@ -379,69 +291,5 @@ public class UserEntity implements ITrackedEntity
 	public void setDeleted(boolean deleted)
 	{
 		this.deleted = deleted;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.repository.ITrackedEntity#getCreatedBy()
-	 */
-	public UserEntity getCreatedBy()
-	{
-		return createdBy;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.repository.ITrackedEntity#setCreatedBy(com.yukthi.webutils.repository.UserEntity)
-	 */
-	public void setCreatedBy(UserEntity createdBy)
-	{
-		this.createdBy = createdBy;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.repository.ITrackedEntity#getCreatedOn()
-	 */
-	public Date getCreatedOn()
-	{
-		return createdOn;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.repository.ITrackedEntity#setCreatedOn(java.util.Date)
-	 */
-	public void setCreatedOn(Date createdOn)
-	{
-		this.createdOn = createdOn;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.repository.ITrackedEntity#getUpdatedBy()
-	 */
-	public UserEntity getUpdatedBy()
-	{
-		return updatedBy;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.repository.ITrackedEntity#setUpdatedBy(com.yukthi.webutils.repository.UserEntity)
-	 */
-	public void setUpdatedBy(UserEntity updatedBy)
-	{
-		this.updatedBy = updatedBy;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.repository.ITrackedEntity#getUpdatedOn()
-	 */
-	public Date getUpdatedOn()
-	{
-		return updatedOn;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.repository.ITrackedEntity#setUpdatedOn(java.util.Date)
-	 */
-	public void setUpdatedOn(Date updatedOn)
-	{
-		this.updatedOn = updatedOn;
 	}
 }

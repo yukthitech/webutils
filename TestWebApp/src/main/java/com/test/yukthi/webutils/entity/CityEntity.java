@@ -1,26 +1,17 @@
 package com.test.yukthi.webutils.entity;
 
 import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import com.yukthi.persistence.annotations.UniqueConstraint;
-import com.yukthi.persistence.annotations.UniqueConstraints;
+import com.yukthi.webutils.repository.WebutilsEntity;
 
 /**
  * The Class CityEntity.
  */
 @Table(name = "CITY")
-public class CityEntity
+public class CityEntity extends WebutilsEntity
 {
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "ID")
-	private long id;
-
 	/**
 	 * Name.
 	 */
@@ -37,16 +28,6 @@ public class CityEntity
 	{
 		this.name = name;
 		this.state = state;
-	}
-
-	public long getId()
-	{
-		return id;
-	}
-
-	public void setId(long id)
-	{
-		this.id = id;
 	}
 
 	public StateEntity getState()

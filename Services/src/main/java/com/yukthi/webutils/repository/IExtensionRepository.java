@@ -30,7 +30,7 @@ import com.yukthi.persistence.repository.annotations.Condition;
  * Repository for entity extensions
  * @author akiran
  */
-public interface IExtensionRepository extends ICrudRepository<ExtensionEntity>
+public interface IExtensionRepository extends IWebutilsRepository<ExtensionEntity>
 {
 	/**
 	 * Finder query to find extension based on specified entity and owner details

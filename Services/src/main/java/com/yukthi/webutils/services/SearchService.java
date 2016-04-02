@@ -41,6 +41,7 @@ import org.springframework.stereotype.Service;
 
 import com.yukthi.persistence.ICrudRepository;
 import com.yukthi.persistence.repository.annotations.Condition;
+import com.yukthi.persistence.repository.annotations.Operator;
 import com.yukthi.persistence.repository.search.SearchCondition;
 import com.yukthi.utils.exceptions.InvalidConfigurationException;
 import com.yukthi.utils.exceptions.InvalidStateException;
@@ -57,7 +58,7 @@ import com.yukthi.webutils.services.dynamic.DynamicMethod;
 import com.yukthi.webutils.utils.WebUtils;
 
 /**
- * Service to fetch search query details and execute search queries
+ * Service to fetch search query details and execute search queries.
  * @author akiran
  */
 @Service
@@ -334,6 +335,8 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 			
 			repoSearchQuery.addCondition(searchCondition);
 		}
+		
+		repoSearchQuery.addCondition(new SearchCondition("spaceIdentity", Operator.EQ, securityService.getUserSpaceIdentity()));
 		
 		//set limit on repo search query
 		repoSearchQuery.setResultsLimit(resultLimit);

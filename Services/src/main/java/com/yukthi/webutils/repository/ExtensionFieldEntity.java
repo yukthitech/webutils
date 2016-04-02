@@ -23,19 +23,14 @@
 
 package com.yukthi.webutils.repository;
 
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import javax.persistence.Version;
 
 import com.yukthi.persistence.annotations.DataType;
 import com.yukthi.persistence.annotations.DataTypeMapping;
@@ -48,33 +43,18 @@ import com.yukthi.webutils.common.extensions.ExtensionFieldType;
 import com.yukthi.webutils.common.extensions.LovOption;
 
 /**
- * Represents extension field entity
+ * Represents extension field entity.
  * 
  * @author akiran
  */
 @Table(name = "EXTENSION_FIELDS")
 @UniqueConstraints({
 	@UniqueConstraint(name = "EXT_ID_NAME", fields = {"extension", "name"})
-})
-public class ExtensionFieldEntity implements ITrackedEntity
+} )
+public class ExtensionFieldEntity extends WebutilsEntity
 {
 	/**
-	 * Primary key of the entity
-	 */
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "ID")
-	private Long id;
-	
-	/**
-	 * Version of the entity
-	 */
-	@Column(name = "VERSION")
-	@Version
-	private Integer version;
-
-	/**
-	 * Extension for which this field is being defined
+	 * Extension for which this field is being defined.
 	 */
 	@NotUpdateable
 	@ManyToOne
@@ -83,32 +63,32 @@ public class ExtensionFieldEntity implements ITrackedEntity
 	private ExtensionEntity extension;
 
 	/**
-	 * Name of the field
+	 * Name of the field.
 	 */
 	@Column(name = "NAME", nullable = false, length = 50)
 	private String name;
 
 	/**
-	 * Label of the field
+	 * Label of the field.
 	 */
 	@Column(name = "LABEL", nullable = false, length = 50)
 	private String label;
 
 	/**
-	 * Description of the field
+	 * Description of the field.
 	 */
 	@Column(name = "DESCRIPTION", length = 500)
 	private String description;
 
 	/**
-	 * Field type
+	 * Field type.
 	 */
 	@Column(name = "DATA_TYPE", length = 50)
 	@DataTypeMapping(type = DataType.STRING)
 	private ExtensionFieldType type;
 
 	/**
-	 * Indicates whether this field is mandatory field
+	 * Indicates whether this field is mandatory field.
 	 */
 	@Column(name = "IS_REQUIRED")
 	private boolean required = false;
@@ -121,46 +101,16 @@ public class ExtensionFieldEntity implements ITrackedEntity
 	private List<LovOption> lovOptions;
 
 	/**
-	 * Internal field to be used to fetch unique set of lov values
+	 * Internal field to be used to fetch unique set of lov values.
 	 */
 	@Transient
 	private Set<String> lovValues;
 	
 	/**
-	 * Value Max length limit on field 
+	 * Value Max length limit on field.
 	 */
 	private int maxLength;
 	
-	/**
-	 * Created by user
-	 */
-	@NotUpdateable
-	@ManyToOne
-	@Column(name = "CREATED_BY_ID")
-	private UserEntity createdBy;
-	
-	/**
-	 * Created on time
-	 */
-	@NotUpdateable
-	@Column(name = "CREATED_ON")
-	@DataTypeMapping(type = DataType.DATE_TIME)
-	private Date createdOn;
-
-	/**
-	 * Updating user
-	 */
-	@ManyToOne
-	@Column(name = "UPDATED_BY_ID")
-	private UserEntity updatedBy;
-	
-	/**
-	 * Updated on
-	 */
-	@Column(name = "UPDATED_ON")
-	@DataTypeMapping(type = DataType.DATE_TIME)
-	private Date updatedOn;
-
 	/**
 	 * Instantiates a new extension field entity.
 	 */
@@ -174,30 +124,8 @@ public class ExtensionFieldEntity implements ITrackedEntity
 	 */
 	public ExtensionFieldEntity(Long id)
 	{
-		this.id = id;
+		super(id);
 	}
-
-	/**
-	 * Gets the primary key of the entity.
-	 *
-	 * @return the primary key of the entity
-	 */
-	public Long getId()
-	{
-		return id;
-	}
-
-	/**
-	 * Sets the primary key of the entity.
-	 *
-	 * @param id
-	 *            the new primary key of the entity
-	 */
-	public void setId(long id)
-	{
-		this.id = id;
-	}
-
 	/**
 	 * Gets the extension for which this field is being defined.
 	 *
@@ -388,95 +316,4 @@ public class ExtensionFieldEntity implements ITrackedEntity
 	{
 		this.maxLength = maxLength;
 	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.IEntity#getVersion()
-	 */
-	public Integer getVersion()
-	{
-		return version;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.IEntity#setVersion(java.lang.Integer)
-	 */
-	public void setVersion(Integer version)
-	{
-		this.version = version;
-	}
-
-	/**
-	 * Sets the primary key of the entity.
-	 *
-	 * @param id the new primary key of the entity
-	 */
-	public void setId(Long id)
-	{
-		this.id = id;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.repository.ITrackedEntity#getCreatedBy()
-	 */
-	public UserEntity getCreatedBy()
-	{
-		return createdBy;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.repository.ITrackedEntity#setCreatedBy(com.yukthi.webutils.repository.UserEntity)
-	 */
-	public void setCreatedBy(UserEntity createdBy)
-	{
-		this.createdBy = createdBy;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.repository.ITrackedEntity#getCreatedOn()
-	 */
-	public Date getCreatedOn()
-	{
-		return createdOn;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.repository.ITrackedEntity#setCreatedOn(java.util.Date)
-	 */
-	public void setCreatedOn(Date createdOn)
-	{
-		this.createdOn = createdOn;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.repository.ITrackedEntity#getUpdatedBy()
-	 */
-	public UserEntity getUpdatedBy()
-	{
-		return updatedBy;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.repository.ITrackedEntity#setUpdatedBy(com.yukthi.webutils.repository.UserEntity)
-	 */
-	public void setUpdatedBy(UserEntity updatedBy)
-	{
-		this.updatedBy = updatedBy;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.repository.ITrackedEntity#getUpdatedOn()
-	 */
-	public Date getUpdatedOn()
-	{
-		return updatedOn;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.repository.ITrackedEntity#setUpdatedOn(java.util.Date)
-	 */
-	public void setUpdatedOn(Date updatedOn)
-	{
-		this.updatedOn = updatedOn;
-	}
 }
-

@@ -27,20 +27,20 @@ import static com.yukthi.webutils.IWebUtilsInternalConstants.CONTEXT_ATTR_LOV_DE
 
 import java.util.List;
 
-import com.yukthi.persistence.ICrudRepository;
 import com.yukthi.persistence.repository.annotations.Condition;
 import com.yukthi.webutils.annotations.LovQuery;
 import com.yukthi.webutils.common.annotations.ContextAttribute;
 import com.yukthi.webutils.common.models.ValueLabel;
+import com.yukthi.webutils.repository.IWebutilsRepository;
 
 /**
  * @author akiran
  *
  */
-public interface ICityRepository extends ICrudRepository<CityEntity>
+public interface ICityRepository extends IWebutilsRepository<CityEntity>
 {
 	@LovQuery(name = "cityLov", valueField = "id", labelField = "name")
-	public List<ValueLabel> fetchEmployeeLov(@ContextAttribute(CONTEXT_ATTR_LOV_DEPENDENCY_VAL) @Condition("state.id") long stateId);
+	public List<ValueLabel> fetchCityLov(@ContextAttribute(CONTEXT_ATTR_LOV_DEPENDENCY_VAL) @Condition("state.id") long stateId);
 	
 	public void deleteAll();
 }

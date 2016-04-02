@@ -35,12 +35,13 @@ import com.yukthi.persistence.repository.search.SearchQuery;
 import com.yukthi.webutils.annotations.LovQuery;
 import com.yukthi.webutils.annotations.SearchQueryMethod;
 import com.yukthi.webutils.common.models.ValueLabel;
+import com.yukthi.webutils.repository.IWebutilsRepository;
 
 /**
  * @author akiran
  *
  */
-public interface IEmployeeRepository extends ICrudRepository<EmployeeEntity>
+public interface IEmployeeRepository extends IWebutilsRepository<EmployeeEntity>
 {
 	@LovQuery(name = "employeeLov", valueField = "id", labelField = "name")
 	public List<ValueLabel> fetchEmployeeLov();

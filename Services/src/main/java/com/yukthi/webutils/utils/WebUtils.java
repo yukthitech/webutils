@@ -37,8 +37,8 @@ import org.apache.commons.collections.CollectionUtils;
 
 import com.yukthi.utils.beans.PropertyMapper;
 import com.yukthi.utils.exceptions.InvalidStateException;
-import com.yukthi.webutils.IEntity;
 import com.yukthi.webutils.InvalidRequestParameterException;
+import com.yukthi.webutils.repository.WebutilsEntity;
 
 /**
  * Common utilities for web applications
@@ -190,10 +190,10 @@ public class WebUtils
 	}
 	
 	/**
-	 * Validates if the required parameters are set on entity during update operation
+	 * Validates if the required parameters are set on entity during update operation.
 	 * @param entity Entity to be validated for update
 	 */
-	public static void validateEntityForUpdate(IEntity entity)
+	public static void validateEntityForUpdate(WebutilsEntity entity)
 	{
 		//if invalid id is specified
 		if(entity.getId() == null || entity.getId() <= 0)

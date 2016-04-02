@@ -34,7 +34,7 @@ import com.yukthi.webutils.ExtensionValueDetails;
  * Repository for entity extension field values
  * @author akiran
  */
-public interface IExtensionFieldValueRepository extends ICrudRepository<ExtensionFieldValueEntity>
+public interface IExtensionFieldValueRepository extends IWebutilsRepository<ExtensionFieldValueEntity>
 {
 	/**
 	 * Finder method to find extension values for specified entity extension

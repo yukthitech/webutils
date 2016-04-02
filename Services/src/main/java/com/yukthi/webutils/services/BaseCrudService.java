@@ -29,21 +29,23 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.yukthi.persistence.ICrudRepository;
 import com.yukthi.persistence.ITransaction;
 import com.yukthi.persistence.PersistenceException;
 import com.yukthi.persistence.repository.RepositoryFactory;
 import com.yukthi.utils.exceptions.InvalidStateException;
-import com.yukthi.webutils.IEntity;
 import com.yukthi.webutils.common.IExtendableModel;
-import com.yukthi.webutils.repository.ITrackedEntity;
+import com.yukthi.webutils.repository.WebutilsEntity;
+import com.yukthi.webutils.repository.IWebutilsRepository;
+import com.yukthi.webutils.security.ISecurityService;
 import com.yukthi.webutils.utils.WebUtils;
 
 /**
- * Abstracts basic functionality that is required for all entities
+ * Abstracts basic functionality that is required for all entities.
  * @author akiran
+ * @param <E> Entity type
+ * @param <R> Repository type
  */
-public abstract class BaseCrudService<E extends IEntity, R extends ICrudRepository<E>>
+public abstract class BaseCrudService<E extends WebutilsEntity, R extends IWebutilsRepository<E>>
 {
 	private static Logger logger = LogManager.getLogger(BaseCrudService.class);
 	
@@ -72,11 +74,17 @@ public abstract class BaseCrudService<E extends IEntity, R extends ICrudReposito
 	protected FileService fileService;
 	
 	/**
+	 * Security service used to fetch user space identity.
+	 */
+	@Autowired
+	protected ISecurityService securityService;
+	
+	/**
 	 * Service to maintain images of the model.
 	 */
 	@Autowired
 	protected ImageService imageService;
-
+	
 	/**
 	 * Repository type.
 	 */
@@ -95,6 +103,7 @@ public abstract class BaseCrudService<E extends IEntity, R extends ICrudReposito
 	/**
 	 * Instantiates a new base crud service.
 	 *
+	 * @param entityType Entity type for which this service is being created.
 	 * @param repositoryType the repository type
 	 */
 	public BaseCrudService(Class<E> entityType, Class<R> repositoryType)
@@ -129,7 +138,7 @@ public abstract class BaseCrudService<E extends IEntity, R extends ICrudReposito
 	}
 	
 	/**
-	 * Saves specified entity "entity" and saves extension fields from "extendedFieldsModel"
+	 * Saves specified entity "entity" and saves extension fields from "extendedFieldsModel".
 	 * @param entity Entity field to save
 	 * @param model Model with extension fields and file informations to save. Optional, can be null
 	 */
@@ -140,13 +149,11 @@ public abstract class BaseCrudService<E extends IEntity, R extends ICrudReposito
 			logger.trace("Trying to save entity - {}", entity);
 
 			//populate tracked fields
-			if(entity instanceof ITrackedEntity)
-			{
-				userService.populateTrackingFieldForCreate((ITrackedEntity)entity);
-			}
+			userService.populateTrackingFieldForCreate(entity);
 			
 			//set the default version
 			entity.setVersion(1);
+			entity.setSpaceIdentity(securityService.getUserSpaceIdentity());
 
 			boolean res = repository.save(entity);
 			
@@ -212,12 +219,9 @@ public abstract class BaseCrudService<E extends IEntity, R extends ICrudReposito
 		{
 			logger.trace("Trying to update entity - {}", entity);
 			
-			if(entity instanceof ITrackedEntity)
-			{
-				userService.populateTrackingFieldForUpdate((ITrackedEntity) entity);
-			}
+			userService.populateTrackingFieldForUpdate(entity);
 
-			boolean res = repository.update(entity);
+			boolean res = repository.updateByUserSpace(entity, securityService.getUserSpaceIdentity());
 			
 			if(!res)
 			{
@@ -245,7 +249,7 @@ public abstract class BaseCrudService<E extends IEntity, R extends ICrudReposito
 
 			if(ex instanceof PersistenceException)
 			{
-				throw (PersistenceException)ex;
+				throw (PersistenceException) ex;
 			}
 			
 			throw new IllegalStateException("An error occurred while updating entity - " + entity, ex);
@@ -259,7 +263,7 @@ public abstract class BaseCrudService<E extends IEntity, R extends ICrudReposito
 	 */
 	public E fetch(long id)
 	{
-		E entity = repository.findById(id);
+		E entity = repository.findByIdAndUserSpace(id, securityService.getUserSpaceIdentity());
 		
 		logger.trace("Entity fetch with id '{}' resulted in  - {}", id, entity);
 		return entity;
@@ -269,11 +273,12 @@ public abstract class BaseCrudService<E extends IEntity, R extends ICrudReposito
 	 * To be used for fetching model with full information like - extensions, files, images etc.
 	 * @param id Entity id to be fetched
 	 * @param modelType Corresponding entity's model type which can hold extension fields
+	 * @param <M> Model type
 	 * @return Converted model with extension fields
 	 */
 	public <M> M fetchFullModel(long id, Class<M> modelType)
 	{
-		E entity = repository.findById(id);
+		E entity = repository.findByIdAndUserSpace(id, securityService.getUserSpaceIdentity());
 		
 		if(entity == null)
 		{
@@ -292,6 +297,7 @@ public abstract class BaseCrudService<E extends IEntity, R extends ICrudReposito
 	 * the extension fields and file, image fields as required.
 	 * @param entity Entity to be converted
 	 * @param modelType Model type
+	 * @param <M> Model type
 	 * @return Converted model object
 	 */
 	protected <M> M toModel(E entity, Class<M> modelType)
@@ -305,7 +311,7 @@ public abstract class BaseCrudService<E extends IEntity, R extends ICrudReposito
 		
 		if(model instanceof IExtendableModel)
 		{
-			extensionService.fetchExtendedValues((IExtendableModel)model);
+			extensionService.fetchExtendedValues((IExtendableModel) model);
 		}
 
 		//fetch file information
@@ -340,11 +346,12 @@ public abstract class BaseCrudService<E extends IEntity, R extends ICrudReposito
 		{
 			logger.trace("Trying to delete entity with id - {}", id);
 			
+			//TODO: This may not be required if this gets deleted with parent
 			int extDelCount = extensionService.deleteExtensionValues(id);
 			
 			logger.debug("Deleted {} extension field values of entity {}", extDelCount, id);
 			
-			boolean res = repository.deleteById(id);
+			boolean res = repository.deleteByIdAndUserSpace(id, securityService.getUserSpaceIdentity());
 			
 			logger.trace("Deletion of entity with id '{}' resulted in - {}", id, res);
 			
@@ -360,7 +367,7 @@ public abstract class BaseCrudService<E extends IEntity, R extends ICrudReposito
 			
 			if(ex instanceof PersistenceException)
 			{
-				throw (PersistenceException)ex;
+				throw (PersistenceException) ex;
 			}
 			
 			throw new IllegalStateException("An error occurred while deleting entity with id - " + id, ex);

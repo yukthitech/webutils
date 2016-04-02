@@ -124,36 +124,39 @@ public class ClassScannerService
 	}
 	
 	/**
-	 * Fetches classes/interfaces of specified type and it's descendants
-	 * @param type Type of class scanning is being done
+	 * Fetches classes/interfaces of specified type and it's descendants.
+	 * @param types Type of classes scanning is being done
 	 * @return List of classes of specified type
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public Set<Class<?>> getClassesOfType(Class<?> type)
+	public Set<Class<?>> getClassesOfType(Class<?>... types)
 	{
 		Set<Class<?>> result = new HashSet<>();
 		Set<Class<?>> classes = null;
 		
-		//loop through reflection object of each base package
-		for(Reflections reflection: reflections)
+		for(Class<?> type : types)
 		{
-			//find the classes for current base package
-			classes = (Set)reflection.getSubTypesOf(type);
-			
-			if(classes == null)
+			//loop through reflection object of each base package
+			for(Reflections reflection : reflections)
 			{
-				continue;
+				//find the classes for current base package
+				classes = (Set) reflection.getSubTypesOf(type);
+				
+				if(classes == null)
+				{
+					continue;
+				}
+				
+				//add to final result
+				result.addAll(classes);
 			}
-			
-			//add to final result
-			result.addAll(classes);
 		}
 		
 		return result;
 	}
 
 	/**
-	 * Fetches methods with specified annotation
+	 * Fetches methods with specified annotation.
 	 * @param type Annotation type
 	 * @return Set of methods having specified annotation
 	 */

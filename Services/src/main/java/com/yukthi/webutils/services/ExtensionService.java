@@ -107,7 +107,7 @@ public class ExtensionService
 	private IExtensionFieldValueRepository extensionFieldValueRepository;
 	
 	/**
-	 * Fetches repositories from autowired repository factory
+	 * Fetches repositories from autowired repository factory.
 	 */
 	@PostConstruct
 	private void init()
@@ -169,7 +169,7 @@ public class ExtensionService
 	}
 	
 	/**
-	 * Fetches extension point with specified name
+	 * Fetches extension point with specified name.
 	 * @param name Name of the extension point
 	 * @return
 	 */
@@ -179,7 +179,7 @@ public class ExtensionService
 	}
 	
 	/**
-	 * Fetches the extension owner details with specified nae
+	 * Fetches the extension owner details with specified name.
 	 * @param name Name of the extension owner
 	 * @return Extension owner details
 	 */
@@ -189,7 +189,7 @@ public class ExtensionService
 	}
 	
 	/**
-	 * Gets extension owner details with specified type
+	 * Gets extension owner details with specified type.
 	 * @param ownerType
 	 * @return
 	 */
@@ -244,7 +244,7 @@ public class ExtensionService
 	}
 	
 	/**
-	 * Creates new extension with specified details
+	 * Creates new extension with specified details.
 	 * @param extension Extension to be saved
 	 */
 	public void saveExtensionEntity(ExtensionEntity extension)
@@ -286,7 +286,7 @@ public class ExtensionService
 	}
 	
 	/**
-	 * Fetches extension fields for specified extension id
+	 * Fetches extension fields for specified extension id.
 	 * @param extensionId Specified extension id
 	 * @return List of extension fields
 	 */
@@ -299,7 +299,7 @@ public class ExtensionService
 	}
 	
 	/**
-	 * Fetches the extension field for specified extension with specified id
+	 * Fetches the extension field for specified extension with specified id.
 	 * @param extensionName Extension under which field is defined
 	 * @param fieldId Id of the field that needs to be fetched
 	 * @return Extension field entity
@@ -312,7 +312,7 @@ public class ExtensionService
 	}
 
 	/**
-	 * Saves specified extension field for specified extension id
+	 * Saves specified extension field for specified extension id.
 	 * @param extensionId Extension id under which field should be save
 	 * @param extensionFieldEntity Extension field to be saved
 	 */
@@ -335,7 +335,7 @@ public class ExtensionService
 	}
 	
 	/**
-	 * updates specified extension field under specified extension
+	 * updates specified extension field under specified extension.
 	 * @param extensionFieldEntity
 	 */
 	public void updateExtensionField(ExtensionFieldEntity extensionFieldEntity)
@@ -353,7 +353,7 @@ public class ExtensionService
 	}
 	
 	/**
-	 * Fetches extension id for specified field id
+	 * Fetches extension id for specified field id.
 	 * @param extensionFieldId Field id for which extension id needs to be fetched
 	 * @return Extension id
 	 */
@@ -363,7 +363,7 @@ public class ExtensionService
 	}
 	
 	/**
-	 * Deletes extension values for specified entity
+	 * Deletes extension values for specified entity.
 	 * @param entityId Entity id for which fields needs to be deleted
 	 * @return Number of deleted records
 	 */
@@ -375,7 +375,7 @@ public class ExtensionService
 	}
 	
 	/**
-	 * Deletes extension field
+	 * Deletes extension field.
 	 * @param extensionFieldId Extension field to be deleted
 	 */
 	public void deleteExtensionField(long extensionFieldId)
@@ -399,9 +399,9 @@ public class ExtensionService
 	}
 	
 	/**
-	 * Fetches extension field values for specified extension id and entity id
+	 * Fetches extension field values for specified extension id and entity id.
 	 * @param extensionId Extension id
-	 * @param entityId Entity id for which extended values needs to be fetced
+	 * @param entityId Entity id for which extended values needs to be fetched
 	 * @return Extended field values
 	 */
 	public List<ExtensionFieldValueEntity> getExtensionValues(long extensionId, long entityId)
@@ -410,7 +410,7 @@ public class ExtensionService
 	}
 
 	/**
-	 * Saves the specified value entity
+	 * Saves the specified value entity.
 	 * @param valueEntity Entity to be saved
 	 */
 	public void saveExtensionValue(ExtensionFieldValueEntity valueEntity)
@@ -427,7 +427,7 @@ public class ExtensionService
 	}
 	
 	/**
-	 * Updates the specified value entity
+	 * Updates the specified value entity.
 	 * @param valueEntity Entity to be updated
 	 */
 	public void updateExtensionValue(ExtensionFieldValueEntity valueEntity)
@@ -444,7 +444,7 @@ public class ExtensionService
 	}
 
 	/**
-	 * Saves extended field values of the specified model
+	 * Saves extended field values of the specified model.
 	 * @param extendableModel Model for which extended values needs to be saved
 	 */
 	public void saveExtendedFields(long entityId, IExtendableModel extendableModel)
@@ -523,7 +523,7 @@ public class ExtensionService
 	}
 	
 	/**
-	 * Fetches extended field values for specified model and sets them on the
+	 * Fetches extended field values for specified model and sets them on the.
 	 * specified model
 	 * @param extendableModel Model for which extended field values needs to be fetched
 	 */

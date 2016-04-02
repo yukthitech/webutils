@@ -20,6 +20,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package com.yukthi.webutils.services;
 
 import java.lang.annotation.Annotation;
@@ -36,10 +37,14 @@ import org.springframework.stereotype.Service;
 
 import com.yukthi.persistence.ICrudRepository;
 import com.yukthi.persistence.repository.RepositoryFactory;
+import com.yukthi.utils.exceptions.InvalidStateException;
 import com.yukthi.webutils.IRepositoryMethodRegistry;
 import com.yukthi.webutils.IWebUtilsInternalConstants;
 import com.yukthi.webutils.WebutilsConfiguration;
 import com.yukthi.webutils.annotations.RegistryMethod;
+import com.yukthi.webutils.repository.WebutilsEntity;
+import com.yukthi.webutils.repository.IWebutilsRepository;
+import com.yukthi.webutils.repository.RepositoryContext;
 import com.yukthi.webutils.services.dynamic.DynamicMethod;
 import com.yukthi.webutils.services.dynamic.DynamicMethodFactory;
 
@@ -54,7 +59,7 @@ import com.yukthi.webutils.services.dynamic.DynamicMethodFactory;
 @Service
 public class RepositoryLoader
 {
-	private static final Logger logger = LogManager.getLogger(RepositoryLoader.class);
+	private static Logger logger = LogManager.getLogger(RepositoryLoader.class);
 	
 	/**
 	 * Class scan service used to find repositories
@@ -80,6 +85,9 @@ public class RepositoryLoader
 	@Autowired
 	private ApplicationContext applicationContext;
 	
+	@Autowired
+	private RepositoryContext repositoryContext;
+	
 	/**
 	 * Factory to create dynamic methods
 	 */
@@ -93,11 +101,10 @@ public class RepositoryLoader
 	private void init()
 	{
 		//scan and fetch all repository classes
-		Set<Class<?>> repos = classScannerService.getClassesOfType(ICrudRepository.class);
+		Set<Class<?>> repos = classScannerService.getClassesOfType(ICrudRepository.class, IWebutilsRepository.class);
 		boolean loadExtensions = configuration.isExtensionsRequired();
 
-		Set<Class<? extends Annotation>> dynAnnotLst = (Set)classScannerService.getClassesWithAnnotation(RegistryMethod.class);
-		logger.debug("Searching with annotation - " + dynAnnotLst);
+		Set<Class<? extends Annotation>> dynAnnotLst = (Set) classScannerService.getClassesWithAnnotation(RegistryMethod.class);
 		
 		ICrudRepository<?> repository = null;
 		
@@ -105,8 +112,13 @@ public class RepositoryLoader
 		logger.debug("Repository loading started..............");
 		logger.debug("*******************************************************************");
 		
-		for(Class<?> type: repos)
+		for(Class<?> type : repos)
 		{
+			if(IWebutilsRepository.class.equals(type))
+			{
+				continue;
+			}
+			
 			if(!loadExtensions && type.getName().startsWith(IWebUtilsInternalConstants.EXTENSIONS_REPO_BASE_PACKAGE))
 			{
 				logger.debug("Skipping extensions repository as extensions are disabled: " + type.getName());
@@ -115,7 +127,19 @@ public class RepositoryLoader
 			
 			logger.debug("Loading repository: " + type.getName());
 			
-			repository = repositoryFactory.getRepository((Class)type);
+			if( !IWebutilsRepository.class.isAssignableFrom(type) )
+			{
+				throw new InvalidStateException("Found repository which is of non webutils repository type - {}", type.getName());
+			}
+			
+			repository = repositoryFactory.getRepository((Class) type);
+			repository.setExecutionContext(repositoryContext);
+			
+			if( !WebutilsEntity.class.isAssignableFrom(repository.getEntityDetails().getEntityType()) )
+			{
+				throw new InvalidStateException("Found entity which is of non webutils entity type - {}", type.getName());
+			}
+			
 			registerDynamicMethods(type, repository, dynAnnotLst);
 		}
 		

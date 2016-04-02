@@ -33,6 +33,7 @@ import com.yukthi.persistence.annotations.UniqueConstraint;
 import com.yukthi.persistence.annotations.UniqueConstraints;
 import com.yukthi.webutils.annotations.ExtendableEntity;
 import com.yukthi.webutils.annotations.ExtensionOwner;
+import com.yukthi.webutils.repository.WebutilsEntity;
 
 /**
  * Test entity
@@ -45,16 +46,8 @@ import com.yukthi.webutils.annotations.ExtensionOwner;
 })
 @ExtensionOwner(name = "Customer")
 @ExtendableEntity(name = "Customer")
-public class CustomerEntity
+public class CustomerEntity extends WebutilsEntity
 {
-	/**
-	 * Employee id
-	 */
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "ID")
-	private long id;
-
 	/**
 	 * Name of the employee
 	 */
@@ -67,16 +60,6 @@ public class CustomerEntity
 	public CustomerEntity(String name)
 	{
 		this.name = name;
-	}
-
-	public long getId()
-	{
-		return id;
-	}
-
-	public void setId(long id)
-	{
-		this.id = id;
 	}
 
 	public String getName()

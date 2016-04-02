@@ -46,7 +46,6 @@ import com.yukthi.webutils.common.models.def.ModelDef;
 import com.yukthi.webutils.repository.file.FileEntity;
 import com.yukthi.webutils.repository.file.IFileRepository;
 import com.yukthi.webutils.security.ISecurityService;
-import com.yukthi.webutils.security.UnauthorizedException;
 import com.yukthi.webutils.utils.WebUtils;
 
 /**
@@ -59,36 +58,36 @@ public class FileService
 	private static Logger logger = LogManager.getLogger(FileService.class);
 	
 	/**
-	 * Autowired repository factory, used to fetch repository
+	 * Autowired repository factory, used to fetch repository.
 	 */
 	@Autowired
 	protected RepositoryFactory repositoryFactory;
 
 	/**
-	 * Used to populate tracked fields
+	 * Used to populate tracked fields.
 	 */
 	@Autowired
 	private CurrentUserService userService;
 
 	/**
-	 * Service to populate security fields on file entity
+	 * Service to populate security fields on file entity.
 	 */
 	@Autowired
 	private ISecurityService securityService;
 	
 	/**
-	 * Service to fetch file fields out of model
+	 * Service to fetch file fields out of model.
 	 */
 	@Autowired
 	private ModelDetailsService modelDetailsService;
 
 	/**
-	 * File repository
+	 * File repository.
 	 */
 	private IFileRepository repository;
 	
 	/**
-	 * Initialize method to initialize repository
+	 * Initialize method to initialize repository.
 	 */
 	@PostConstruct
 	private void init()
@@ -141,7 +140,7 @@ public class FileService
 	 */
 	public void convertTempToPermanent(Long fileId, Class<?> ownerEntityType, String ownerField, Long ownerId)
 	{
-		boolean res = repository.updateToPermanentFile(fileId, ownerEntityType.getName(), ownerField, ownerId);
+		boolean res = repository.updateToPermanentFile(fileId, ownerEntityType.getName(), ownerField, ownerId, securityService.getUserSpaceIdentity());
 		
 		if(!res)
 		{
@@ -160,7 +159,7 @@ public class FileService
 	private void saveFilesForOwner(Collection<FileInfo> fileInfoLst, Class<?> ownerEntityType, String ownerField, long ownerId)
 	{
 		//collection to keep track of file ids to delete, by default this will all existing files
-		List<Long> idsToRemove = repository.fetchIdsByOwner(ownerEntityType.getName(), ownerField, ownerId);
+		List<Long> idsToRemove = repository.fetchIdsByOwner(ownerEntityType.getName(), ownerField, ownerId, securityService.getUserSpaceIdentity());
 		
 		//if no files are currently present, use empty collection
 		if(idsToRemove == null)
@@ -248,17 +247,17 @@ public class FileService
 				if(fieldDef.isMultiValued())
 				{
 					//if null is specified on the field, assume all existing files has to be deleted
-						// and empty collection needs to be retained
+					// 	and empty collection needs to be retained
 					if(fieldValue == null)
 					{
 						fieldValue = Collections.emptyList();
 					}
 					
-					saveFilesForOwner( (Collection<FileInfo>)fieldValue, entityType, fieldDef.getName(), ownerId);
+					saveFilesForOwner( (Collection<FileInfo>) fieldValue, entityType, fieldDef.getName(), ownerId);
 				}
 				else
 				{
-					saveFileForOwner( (FileInfo)fieldValue, entityType, fieldDef.getName(), ownerId);
+					saveFileForOwner( (FileInfo) fieldValue, entityType, fieldDef.getName(), ownerId);
 				}
 			}
 			
@@ -271,7 +270,7 @@ public class FileService
 	}
 	
 	/**
-	 * Saves the specified file entity and returns the id
+	 * Saves the specified file entity and returns the id.
 	 * @param file File to be saved
 	 * @param ownerEntityType Owner entity type
 	 * @param ownerEntityField Owner entity field
@@ -293,7 +292,8 @@ public class FileService
 		fileEntity.setOwnerEntityType(ownerEntityType.getName());
 		fileEntity.setOwnerEntityField(ownerEntityField);
 		fileEntity.setOwnerEntityId(ownerEntityId);
-		fileEntity.setSecured(file.isSecured());
+		
+		fileEntity.setSpaceIdentity(file.isSecured() ? securityService.getUserSpaceIdentity() : "");
 		
 		//get security customization
 		securityService.addSecurityCustomization(fileEntity);
@@ -312,7 +312,7 @@ public class FileService
 
 	/**
 	 * Reads corresponding file information from db for specified model under specified entity ownership 
-	 * and sets the file information on the model
+	 * and sets the file information on the model.
 	 * @param model Model for which file information needs to be fetched
 	 * @param entityType Owner entity type
 	 * @param ownerId Owner id
@@ -352,7 +352,7 @@ public class FileService
 			}
 			
 			//fetch files from db
-			filesFromDb = repository.fetchByOwner(entityType.getName(), fieldDef.getName(), ownerId);
+			filesFromDb = repository.fetchByOwner(entityType.getName(), fieldDef.getName(), ownerId, securityService.getUserSpaceIdentity());
 			
 			if(filesFromDb == null || filesFromDb.isEmpty())
 			{
@@ -369,7 +369,7 @@ public class FileService
 
 				if(fieldDef.isMultiValued())
 				{
-					Collection<Object> resCollection = (Collection)fieldDef.getCompatibleCollectionType().newInstance();
+					Collection<Object> resCollection = (Collection) fieldDef.getCompatibleCollectionType().newInstance();
 					resCollection.addAll(filesFromDb);
 					
 					field.set(model, resCollection);
@@ -386,7 +386,7 @@ public class FileService
 	}
 
 	/**
-	 * Fetches the file information for specified id
+	 * Fetches the file information for specified id.
 	 * @param id Id of the file
 	 * @return File information
 	 */
@@ -394,23 +394,23 @@ public class FileService
 	{
 		logger.trace("Fetching file-info with id - {}", id);
 
-		return repository.fetchFileInfo(id);
+		return repository.fetchFileInfo(id, securityService.getUserSpaceIdentity());
 	}
 
 	/**
-	 * Fetches file informations based on custom attributes specified
-	 * @param customAttr1
-	 * @param customAttr2
-	 * @param customAttr3
+	 * Fetches file informations based on custom attributes specified.
+	 * @param customAttr1 Custom attribute1
+	 * @param customAttr2 Custom attribute2
+	 * @param customAttr3 Custom attribute3
 	 * @return List of matching file informations
 	 */
 	public List<FileInfo> fetchFileInformations(String customAttr1, String customAttr2, String customAttr3)
 	{
-		return repository.fetchWithCustomAttributes(customAttr1, customAttr2, customAttr3);
+		return repository.fetchWithCustomAttributes(customAttr1, customAttr2, customAttr3, securityService.getUserSpaceIdentity());
 	}
 
 	/**
-	 * Deletes file with specified id
+	 * Deletes file with specified id.
 	 * @param id Id of the file to be deleted
 	 * @return true if deletion is successful
 	 */
@@ -424,7 +424,7 @@ public class FileService
 	}
 	
 	/**
-	 * Deletes files belonging to specified owner
+	 * Deletes files belonging to specified owner.
 	 * @param ownerEntityType Owner entity type
 	 * @param ownerEntityField Owner entity field which owns the file
 	 * @param ownerEntityId Entity id of the owning entity
@@ -434,7 +434,7 @@ public class FileService
 	{
 		logger.trace("Deleting file matching with owner - {}, {}, {}", ownerEntityType.getName(), ownerEntityField, ownerEntityId);
 		
-		int count = repository.deleteByOwner(ownerEntityType.getName(), ownerEntityField, ownerEntityId);
+		int count = repository.deleteByOwner(ownerEntityType.getName(), ownerEntityField, ownerEntityId, securityService.getUserSpaceIdentity());
 		
 		logger.debug("Number of files deleted - " + count);
 		
@@ -442,26 +442,26 @@ public class FileService
 	}
 
 	/**
-	 * Fetches file entity for specified id
-	 * @param id
+	 * Fetches file entity for specified id.
+	 * @param id Id of the file to be fetched
 	 * @return Matching file entity
 	 */
 	public FileEntity getFileEntity(Long id)
 	{
 		logger.trace("Fetching file content for id - {}", id);
-		return repository.findById(id);
+		return repository.findByIdAndUserSpace(id, securityService.getUserSpaceIdentity());
 	}
 
 	/**
 	 * Fetches file entity based on id and secured flag.
-	 * @param id
-	 * @param secured
-	 * @return
+	 * @param id Id of the file to be fetched.
+	 * @param secured Specifies whether the file is secured file or not.
+	 * @return Matching file.
 	 */
 	public FileEntity getFileEntity(Long id, boolean secured)
 	{
 		logger.trace("Fetching file content for id - {} and security flag - {}", id, secured);
-		return repository.findBySecurityFlag(id, secured);
+		return repository.findByIdAndUserSpace(id, secured ? securityService.getUserSpaceIdentity() : "");
 	}
 	
 	/**
@@ -473,19 +473,11 @@ public class FileService
 	 */
 	public FileInfo getFileByOwner(Class<?> entityType, String field, Long ownerId)
 	{
-		FileEntity file = repository.fetchEntityByOwner(entityType.getName(), field, ownerId);
+		FileEntity file = repository.fetchEntityByOwner(entityType.getName(), field, ownerId, securityService.getUserSpaceIdentity());
 		
 		if(file == null)
 		{
 			return null;
-		}
-		
-		if(file.isSecured() && !securityService.isAuthorized(file))
-		{
-			//delete the temp file that was created during db read
-			file.getFile().delete();
-
-			throw new UnauthorizedException("Current user is not authorized to access file with specified ownership");
 		}
 		
 		FileInfo fileInfo = WebUtils.convertBean(file, FileInfo.class);

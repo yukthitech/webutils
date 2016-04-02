@@ -26,7 +26,6 @@ package com.yukthi.webutils.repository.file;
 import java.util.Date;
 import java.util.List;
 
-import com.yukthi.persistence.ICrudRepository;
 import com.yukthi.persistence.repository.annotations.Condition;
 import com.yukthi.persistence.repository.annotations.DefaultCondition;
 import com.yukthi.persistence.repository.annotations.Field;
@@ -34,12 +33,13 @@ import com.yukthi.persistence.repository.annotations.MethodConditions;
 import com.yukthi.persistence.repository.annotations.Operator;
 import com.yukthi.persistence.repository.annotations.SearchResult;
 import com.yukthi.webutils.common.FileInfo;
+import com.yukthi.webutils.repository.IWebutilsRepository;
 
 /**
  * Repository for managing files in db.
  * @author akiran
  */
-public interface IFileRepository extends ICrudRepository<FileEntity>
+public interface IFileRepository extends IWebutilsRepository<FileEntity>
 {
 	/**
 	 * Fetches the file entity based on id and security flag.
@@ -47,69 +47,76 @@ public interface IFileRepository extends ICrudRepository<FileEntity>
 	 * @param secured Expected security file flag
 	 * @return Matching file entity
 	 */
-	public FileEntity findBySecurityFlag(@Condition("id") long id, @Condition("secured") boolean secured);
+	//public FileEntity findBySecurityFlag(@Condition("id") long id, @Condition("secured") boolean secured);
 	
 	/**
 	 * Fetches file info for specified id.
 	 * @param id Id for which file info needs to be fetched
+	 * @param spaceIdentity Space to which operation should be restricted
 	 * @return Matching file information
 	 */
 	@SearchResult
-	public FileInfo fetchFileInfo(@Condition("id") long id);
+	public FileInfo fetchFileInfo(@Condition("id") long id, @Condition("spaceIdentity") String spaceIdentity);
 
 	/**
 	 * Fetches file information list based on specified owner details.
 	 * @param ownerEntityType Owner entity type
 	 * @param ownerEntityField Owner entity field
 	 * @param ownerEntityId Owner entity id
+	 * @param spaceIdentity Space to which operation should be restricted
 	 * @return List of matching file information
 	 */
 	@SearchResult
 	public List<FileInfo> fetchByOwner(@Condition("ownerEntityType") String ownerEntityType, 
-			@Condition("ownerEntityField") String ownerEntityField, @Condition("ownerEntityId") Long ownerEntityId);
+			@Condition("ownerEntityField") String ownerEntityField, @Condition("ownerEntityId") Long ownerEntityId, @Condition("spaceIdentity") String spaceIdentity);
 
 	/**
 	 * Fetches file entity based on specified owner details.
 	 * @param ownerEntityType Owner entity type
 	 * @param ownerEntityField Owner entity field
 	 * @param ownerEntityId Owner entity id
+	 * @param spaceIdentity Space to which operation should be restricted
 	 * @return Matching file entity
 	 */
 	public FileEntity fetchEntityByOwner(@Condition("ownerEntityType") String ownerEntityType, 
-			@Condition("ownerEntityField") String ownerEntityField, @Condition("ownerEntityId") Long ownerEntityId);
+			@Condition("ownerEntityField") String ownerEntityField, @Condition("ownerEntityId") Long ownerEntityId, @Condition("spaceIdentity") String spaceIdentity);
 
 	/**
 	 * Fetches file ids of specified owner.
 	 * @param ownerEntityType Owner entity type
 	 * @param ownerEntityField Owner field
 	 * @param ownerEntityId Owner entity id
+	 * @param spaceIdentity Space to which operation should be restricted
 	 * @return List of matching file ids
 	 */
 	@Field("id")
 	public List<Long> fetchIdsByOwner(@Condition("ownerEntityType") String ownerEntityType, 
-			@Condition("ownerEntityField") String ownerEntityField, @Condition("ownerEntityId") Long ownerEntityId);
+			@Condition("ownerEntityField") String ownerEntityField, @Condition("ownerEntityId") Long ownerEntityId, @Condition("spaceIdentity") String spaceIdentity);
 
 	/**
 	 * Fetches file informations based on custom attribute.
 	 * @param customAttribute1 Custom attribute 1
 	 * @param customAttribute2 Custom attribute 2
 	 * @param customAttribute3 Custom attribute 3
+	 * @param spaceIdentity Space to which operation should be restricted
 	 * @return List of matching file informations
 	 */
 	@SearchResult
 	public List<FileInfo> fetchWithCustomAttributes(@Condition("customAttribute1") String customAttribute1, 
 			@Condition("customAttribute2") String customAttribute2,
-			@Condition("customAttribute3") String customAttribute3);
+			@Condition("customAttribute3") String customAttribute3, 
+			@Condition("spaceIdentity") String spaceIdentity);
 
 	/**
 	 * Deletes the files for specified owner details.
 	 * @param ownerEntityType Owner entity type
 	 * @param ownerEntityField Owner entity field
 	 * @param ownerEntityId Owner entity id
+	 * @param spaceIdentity Space to which operation should be restricted
 	 * @return Number of files deleted
 	 */
 	public int deleteByOwner(@Condition("ownerEntityType") String ownerEntityType, 
-			@Condition("ownerEntityField") String ownerEntityField, @Condition("ownerEntityId") Long ownerEntityId);
+			@Condition("ownerEntityField") String ownerEntityField, @Condition("ownerEntityId") Long ownerEntityId, @Condition("spaceIdentity") String spaceIdentity);
 	
 	/**
 	 * Updates specified temporary file to permanent file. If non temporary file specified, this
@@ -118,11 +125,12 @@ public interface IFileRepository extends ICrudRepository<FileEntity>
 	 * @param ownerEntityType Owner entity type
 	 * @param ownerEntityField Owner entity field
 	 * @param ownerEntityId Owner entity id
+	 * @param spaceIdentity Space to which operation should be restricted
 	 * @return True if conversion was successful
 	 */
 	@MethodConditions(conditions = @DefaultCondition(field = "ownerEntityId", value = "0"))
 	public boolean updateToPermanentFile(@Condition("id") long id, @Field("ownerEntityType") String ownerEntityType, 
-			@Field("ownerEntityField") String ownerEntityField, @Field("ownerEntityId") Long ownerEntityId);
+			@Field("ownerEntityField") String ownerEntityField, @Field("ownerEntityId") Long ownerEntityId, @Condition("spaceIdentity") String spaceIdentity);
 	
 	/**
 	 * Deletes all temp files which are created after specified date and time.

@@ -11,6 +11,7 @@ import javax.persistence.Table;
 
 import com.yukthi.persistence.annotations.UniqueConstraint;
 import com.yukthi.persistence.annotations.UniqueConstraints;
+import com.yukthi.webutils.repository.WebutilsEntity;
 
 /**
  * The Class StateEntity.
@@ -19,13 +20,8 @@ import com.yukthi.persistence.annotations.UniqueConstraints;
 @UniqueConstraints({
 	@UniqueConstraint(fields = {"name"}, name = "UQ_CITY_NAME")
 })
-public class StateEntity
+public class StateEntity extends WebutilsEntity
 {
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "ID")
-	private long id;
-
 	/**
 	 * name.
 	 */
@@ -38,18 +34,6 @@ public class StateEntity
 	public StateEntity(String name)
 	{
 		this.name = name;
-	}
-
-
-
-	public long getId()
-	{
-		return id;
-	}
-
-	public void setId(long id)
-	{
-		this.id = id;
 	}
 
 	/**

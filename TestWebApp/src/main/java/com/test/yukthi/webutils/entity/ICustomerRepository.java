@@ -23,13 +23,13 @@
 
 package com.test.yukthi.webutils.entity;
 
-import com.yukthi.persistence.ICrudRepository;
+import com.yukthi.webutils.repository.IWebutilsRepository;
 
 /**
  * @author akiran
  *
  */
-public interface ICustomerRepository extends ICrudRepository<CustomerEntity>
+public interface ICustomerRepository extends IWebutilsRepository<CustomerEntity>
 {
 	public void deleteAll();
 	

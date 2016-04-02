@@ -25,7 +25,6 @@ package com.yukthi.webutils.repository;
 
 import java.util.List;
 
-import com.yukthi.persistence.ICrudRepository;
 import com.yukthi.persistence.repository.annotations.Condition;
 import com.yukthi.persistence.repository.annotations.Field;
 import com.yukthi.persistence.repository.annotations.OrderBy;
@@ -35,10 +34,10 @@ import com.yukthi.webutils.common.extensions.ExtensionFieldSearchQuery;
 import com.yukthi.webutils.common.extensions.ExtensionFieldSearchResult;
 
 /**
- * Repository for entity extension fields
+ * Repository for entity extension fields.
  * @author akiran
  */
-public interface IExtensionFieldRepository extends ICrudRepository<ExtensionFieldEntity>
+public interface IExtensionFieldRepository extends IWebutilsRepository<ExtensionFieldEntity>
 {
 	/**
 	 * Finder method to find extension fields for specified entity extension

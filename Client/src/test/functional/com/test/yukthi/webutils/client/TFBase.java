@@ -40,18 +40,20 @@ public abstract class TFBase
 	protected ClientContext clientContext;
 	protected ClientControllerFactory clientControllerFactory;
 	
+	protected Properties configuration;
+	
 	@BeforeClass
 	public final void init() throws Exception
 	{
-		Properties prop = new Properties();
-		prop.load(TFBase.class.getResourceAsStream("/test-env.properties"));
+		configuration = new Properties();
+		configuration.load(TFBase.class.getResourceAsStream("/test-env.properties"));
 		
-		String baseUrl = prop.getProperty("test.base.url");
+		String baseUrl = configuration.getProperty("test.base.url");
 		
 		clientContext = new ClientContext(baseUrl);
 		this.baseUrl = baseUrl;
 		
-		clientContext.authenticate(prop.getProperty("test.username"), prop.getProperty("test.password"));
+		clientContext.authenticate(configuration.getProperty("test.username"), configuration.getProperty("test.password"));
 		
 		clientControllerFactory = new ClientControllerFactory(clientContext);
 	}

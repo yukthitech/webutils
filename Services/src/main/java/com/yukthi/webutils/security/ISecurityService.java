@@ -62,7 +62,22 @@ public interface ISecurityService
 	public boolean isAuthorized(Method method);
 	
 	/**
-	 * Invoked to check if specified extension can be accessed by specified user
+	 * This method should return true only if current user is authorized to access specified file content.
+	 * @param fileEntity File which needs to be checked for authorization
+	 * @return True if current user is authorized to access specified file
+	 */
+	public boolean isAuthorized(FileEntity fileEntity);
+	
+	/**
+	 * This method should return identity string to which user belongs. If the app does not have user spaces, this method
+	 * can return null.
+	 * This space is used to restrict operations to the specified user space.
+	 * @return User space identity string.
+	 */
+	public String getUserSpaceIdentity();
+	
+	/**
+	 * Invoked to check if specified extension can be accessed by specified user.
 	 * @param extensionPoint Extension point details
 	 * @return true if specified user is authorized to access specified extension
 	 */
@@ -74,11 +89,4 @@ public interface ISecurityService
 	 * @param fileEntity File entity to which security customization can be done
 	 */
 	public void addSecurityCustomization(FileEntity fileEntity);
-	
-	/**
-	 * This method should return true only if current user is authorized to access specified file content.
-	 * @param fileEntity File which needs to be checked for authorization
-	 * @return True if current user is authorized to access specified file
-	 */
-	public boolean isAuthorized(FileEntity fileEntity);
 }

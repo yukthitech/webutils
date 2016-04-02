@@ -28,6 +28,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import com.yukthi.persistence.repository.annotations.DefaultCondition;
+import com.yukthi.persistence.repository.annotations.MethodConditions;
 import com.yukthi.persistence.repository.annotations.OrderBy;
 import com.yukthi.persistence.repository.annotations.ResultMapping;
 import com.yukthi.persistence.repository.annotations.SearchResult;
@@ -48,6 +50,7 @@ import com.yukthi.webutils.services.LovService;
 		@ResultMapping(entityField = "labelField", property = "label")
 })
 @OrderBy({"labelField"})
+@MethodConditions(conditions = @DefaultCondition(field = "spaceIdentity", value = "${userSpaceIdentity=}"))
 public @interface LovQuery
 {
 	/**

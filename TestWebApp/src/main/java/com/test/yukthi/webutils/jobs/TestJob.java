@@ -39,7 +39,7 @@ import com.yukthi.webutils.services.job.IJob;
  * @author akiran
  *
  */
-@CronJob(name = "Test", cronExpression = "0/45 * * * * ?")
+@CronJob(name = "Test", cronExpression = "45 * * * * ?")
 public class TestJob implements IJob
 {
 	private static Logger logger = LogManager.getLogger(TestJob.class);

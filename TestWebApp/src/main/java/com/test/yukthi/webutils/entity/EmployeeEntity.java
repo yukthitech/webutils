@@ -23,21 +23,11 @@
 
 package com.test.yukthi.webutils.entity;
 
-import java.util.Date;
-
 import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.Version;
 
-import com.yukthi.persistence.annotations.DataType;
-import com.yukthi.persistence.annotations.DataTypeMapping;
 import com.yukthi.webutils.annotations.ExtendableEntity;
-import com.yukthi.webutils.repository.ITrackedEntity;
-import com.yukthi.webutils.repository.UserEntity;
+import com.yukthi.webutils.repository.WebutilsEntity;
 
 /**
  * Test entity
@@ -46,20 +36,8 @@ import com.yukthi.webutils.repository.UserEntity;
  */
 @ExtendableEntity(name = "Employee")
 @Table(name = "EMP")
-public class EmployeeEntity implements ITrackedEntity
+public class EmployeeEntity extends WebutilsEntity
 {
-	/**
-	 * Employee id
-	 */
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "ID")
-	private Long id;
-
-	/** The version. */
-	@Version
-	private Integer version;
-	
 	/**
 	 * Name of the employee
 	 */
@@ -72,34 +50,6 @@ public class EmployeeEntity implements ITrackedEntity
 	@Column(name = "SALARY")
 	private long salary;
 	
-	/**
-	 * Created by user
-	 */
-	@ManyToOne
-	@Column(name = "CREATED_BY_ID")
-	private UserEntity createdBy;
-	
-	/**
-	 * Created on time
-	 */
-	@Column(name = "CREATED_ON")
-	@DataTypeMapping(type = DataType.DATE_TIME)
-	private Date createdOn;
-
-	/**
-	 * Updating user
-	 */
-	@ManyToOne
-	@Column(name = "UPDATED_BY_ID")
-	private UserEntity updatedBy;
-	
-	/**
-	 * Updated on
-	 */
-	@Column(name = "UPDATED_ON")
-	@DataTypeMapping(type = DataType.DATE_TIME)
-	private Date updatedOn;
-
 	/**
 	 * Instantiates a new employee entity.
 	 */
@@ -116,24 +66,6 @@ public class EmployeeEntity implements ITrackedEntity
 	{
 		this.name = name;
 		this.salary = salary;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.IEntity#getId()
-	 */
-	public Long getId()
-	{
-		return id;
-	}
-
-	/**
-	 * Sets the employee id.
-	 *
-	 * @param id the new employee id
-	 */
-	public void setId(Long id)
-	{
-		this.id = id;
 	}
 
 	/**
@@ -175,87 +107,4 @@ public class EmployeeEntity implements ITrackedEntity
 	{
 		this.salary = salary;
 	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.IEntity#getVersion()
-	 */
-	public Integer getVersion()
-	{
-		return version;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.IEntity#setVersion(java.lang.Integer)
-	 */
-	public void setVersion(Integer version)
-	{
-		this.version = version;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.repository.ITrackedEntity#getCreatedBy()
-	 */
-	public UserEntity getCreatedBy()
-	{
-		return createdBy;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.repository.ITrackedEntity#setCreatedBy(com.yukthi.webutils.repository.UserEntity)
-	 */
-	public void setCreatedBy(UserEntity createdBy)
-	{
-		this.createdBy = createdBy;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.repository.ITrackedEntity#getCreatedOn()
-	 */
-	public Date getCreatedOn()
-	{
-		return createdOn;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.repository.ITrackedEntity#setCreatedOn(java.util.Date)
-	 */
-	public void setCreatedOn(Date createdOn)
-	{
-		this.createdOn = createdOn;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.repository.ITrackedEntity#getUpdatedBy()
-	 */
-	public UserEntity getUpdatedBy()
-	{
-		return updatedBy;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.repository.ITrackedEntity#setUpdatedBy(com.yukthi.webutils.repository.UserEntity)
-	 */
-	public void setUpdatedBy(UserEntity updatedBy)
-	{
-		this.updatedBy = updatedBy;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.repository.ITrackedEntity#getUpdatedOn()
-	 */
-	public Date getUpdatedOn()
-	{
-		return updatedOn;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.repository.ITrackedEntity#setUpdatedOn(java.util.Date)
-	 */
-	public void setUpdatedOn(Date updatedOn)
-	{
-		this.updatedOn = updatedOn;
-	}
-	
-	
-	
 }

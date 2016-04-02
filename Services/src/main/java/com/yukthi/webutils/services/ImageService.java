@@ -19,6 +19,7 @@ import com.yukthi.webutils.common.models.def.FieldDef;
 import com.yukthi.webutils.common.models.def.FieldType;
 import com.yukthi.webutils.common.models.def.ModelDef;
 import com.yukthi.webutils.repository.file.IFileRepository;
+import com.yukthi.webutils.security.ISecurityService;
 
 /**
  * Repository based image service to maintain images for different
@@ -41,6 +42,12 @@ public class ImageService
 	 */
 	@Autowired
 	private ModelDetailsService modelDetailsService;
+	
+	/**
+	 * Security service used to fetch user space identity.
+	 */
+	@Autowired
+	private ISecurityService securityService;
 
 	/**
 	 * File repository.
@@ -125,8 +132,8 @@ public class ImageService
 					continue;
 				}
 
-				repository.deleteByOwner(entityType.getName(), field.getName(), ownerId);
-				repository.updateToPermanentFile(imageInfo.getFileId(), entityType.getName(), field.getName(), ownerId);
+				repository.deleteByOwner(entityType.getName(), field.getName(), ownerId, securityService.getUserSpaceIdentity());
+				repository.updateToPermanentFile(imageInfo.getFileId(), entityType.getName(), field.getName(), ownerId, securityService.getUserSpaceIdentity());
 			}
 			
 			transaction.commit();
@@ -177,7 +184,7 @@ public class ImageService
 			}
 			
 			//fetch files from db
-			filesFromDb = repository.fetchByOwner(entityType.getName(), fieldDef.getName(), ownerId);
+			filesFromDb = repository.fetchByOwner(entityType.getName(), fieldDef.getName(), ownerId, securityService.getUserSpaceIdentity());
 			
 			if(filesFromDb == null || filesFromDb.isEmpty())
 			{

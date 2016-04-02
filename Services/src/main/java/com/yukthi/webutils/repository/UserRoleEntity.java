@@ -20,27 +20,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package com.yukthi.webutils.repository;
 
-import java.util.Date;
-
 import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.Version;
 
 import com.yukthi.persistence.annotations.DataType;
 import com.yukthi.persistence.annotations.DataTypeMapping;
-import com.yukthi.persistence.annotations.NotUpdateable;
 import com.yukthi.persistence.annotations.UniqueConstraint;
 import com.yukthi.persistence.annotations.UniqueConstraints;
 import com.yukthi.persistence.conversion.impl.JsonConverter;
 
 /**
- * Represents roles assigned to an user
+ * Represents roles assigned to an user.
  * 
  * @author akiran
  */
@@ -48,30 +42,17 @@ import com.yukthi.persistence.conversion.impl.JsonConverter;
 @UniqueConstraints({
 	@UniqueConstraint(name = "UQ_UROLE_ROLE", fields = {"user", "role", "ownerType", "ownerId"})
 })
-public class UserRoleEntity implements ITrackedEntity
+public class UserRoleEntity extends WebutilsEntity
 {
 	/**
-	 * Primary key
-	 */
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "ID")
-	private Long id;
-	
-	/** The version. */
-	@Version
-	@Column(name = "VERSION", nullable = false)
-	private Integer version = 1;
-
-	/**
-	 * User for which role is being added
+	 * User for which role is being added.
 	 */
 	@ManyToOne
 	@Column(name = "USER_ID", nullable = false)
 	private UserEntity user;
 	
 	/**
-	 * Role being assigned
+	 * Role being assigned.
 	 */
 	@DataTypeMapping(type = DataType.STRING, converterType = JsonConverter.class)
 	@Column(name = "ROLE", nullable = false, length = 200)
@@ -88,54 +69,6 @@ public class UserRoleEntity implements ITrackedEntity
 	 */
 	@Column(name = "OWNER_ID", nullable = false)
 	private Long ownerId = 0L;
-	
-	/**
-	 * Created by user
-	 */
-	@NotUpdateable
-	@ManyToOne
-	@Column(name = "CREATED_BY_ID")
-	private UserEntity createdBy;
-	
-	/**
-	 * Created on time
-	 */
-	@NotUpdateable
-	@Column(name = "CREATED_ON")
-	@DataTypeMapping(type = DataType.DATE_TIME)
-	private Date createdOn;
-
-	/**
-	 * Updating user
-	 */
-	@ManyToOne
-	@Column(name = "UPDATED_BY_ID")
-	private UserEntity updatedBy;
-	
-	/**
-	 * Updated on
-	 */
-	@Column(name = "UPDATED_ON")
-	@DataTypeMapping(type = DataType.DATE_TIME)
-	private Date updatedOn;
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.IEntity#getId()
-	 */
-	public Long getId()
-	{
-		return id;
-	}
-
-	/**
-	 * Sets the primary key.
-	 *
-	 * @param id the new primary key
-	 */
-	public void setId(Long id)
-	{
-		this.id = id;
-	}
 
 	/**
 	 * Gets the user for which role is being added.
@@ -216,88 +149,4 @@ public class UserRoleEntity implements ITrackedEntity
 	{
 		this.ownerId = ownerId;
 	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.IEntity#getVersion()
-	 */
-	@Override
-	public Integer getVersion()
-	{
-		return version;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.IEntity#setVersion(java.lang.Integer)
-	 */
-	@Override
-	public void setVersion(Integer version)
-	{
-		this.version = version;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.repository.ITrackedEntity#getCreatedBy()
-	 */
-	public UserEntity getCreatedBy()
-	{
-		return createdBy;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.repository.ITrackedEntity#setCreatedBy(com.yukthi.webutils.repository.UserEntity)
-	 */
-	public void setCreatedBy(UserEntity createdBy)
-	{
-		this.createdBy = createdBy;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.repository.ITrackedEntity#getCreatedOn()
-	 */
-	public Date getCreatedOn()
-	{
-		return createdOn;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.repository.ITrackedEntity#setCreatedOn(java.util.Date)
-	 */
-	public void setCreatedOn(Date createdOn)
-	{
-		this.createdOn = createdOn;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.repository.ITrackedEntity#getUpdatedBy()
-	 */
-	public UserEntity getUpdatedBy()
-	{
-		return updatedBy;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.repository.ITrackedEntity#setUpdatedBy(com.yukthi.webutils.repository.UserEntity)
-	 */
-	public void setUpdatedBy(UserEntity updatedBy)
-	{
-		this.updatedBy = updatedBy;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.repository.ITrackedEntity#getUpdatedOn()
-	 */
-	public Date getUpdatedOn()
-	{
-		return updatedOn;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.repository.ITrackedEntity#setUpdatedOn(java.util.Date)
-	 */
-	public void setUpdatedOn(Date updatedOn)
-	{
-		this.updatedOn = updatedOn;
-	}
-	
-	
 }
