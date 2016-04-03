@@ -28,8 +28,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import com.yukthi.persistence.repository.annotations.DefaultCondition;
-import com.yukthi.persistence.repository.annotations.MethodConditions;
 import com.yukthi.persistence.repository.annotations.OrderBy;
 import com.yukthi.persistence.repository.annotations.ResultMapping;
 import com.yukthi.persistence.repository.annotations.SearchResult;
@@ -50,24 +48,24 @@ import com.yukthi.webutils.services.LovService;
 		@ResultMapping(entityField = "labelField", property = "label")
 })
 @OrderBy({"labelField"})
-@MethodConditions(conditions = @DefaultCondition(field = "spaceIdentity", value = "${userSpaceIdentity=}"))
+@RestrictBySpace
 public @interface LovQuery
 {
 	/**
-	 * Name of the LOV to be used by client
+	 * Name of the LOV to be used by client.
 	 * @return Name of the LOV to be used by client
 	 */
 	public String name();
 	
 	/**
-	 * Specified field that needs to be used for "value" property of ValueLabel beans
+	 * Specified field that needs to be used for "value" property of ValueLabel beans.
 	 * @return Value field
 	 */
 	@OverrideProperty(targetAnnotationType = SearchResult.class, property = "mappings[0].entityField")
 	public String valueField();
 	
 	/**
-	 * Specified field that needs to be used for "label" property of ValueLabel beans
+	 * Specified field that needs to be used for "label" property of ValueLabel beans.
 	 * @return Label field
 	 */
 	@OverrideProperties({
