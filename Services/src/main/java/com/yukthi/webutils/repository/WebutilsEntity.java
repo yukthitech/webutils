@@ -42,7 +42,7 @@ public abstract class WebutilsEntity
 	 * Space identity.
 	 */
 	@NotUpdateable
-	@Column(name = "SPACE_IDENTITY", length = 500, nullable = false)
+	@Column(name = "SPACE_IDENTITY", length = 150, nullable = false)
 	private String spaceIdentity = "";
 	
 	/**
