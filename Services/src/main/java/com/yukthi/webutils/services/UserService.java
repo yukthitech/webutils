@@ -24,37 +24,34 @@ public class UserService extends BaseCrudService<UserEntity, IUserRepository>
 	/**
 	 * Checks if a user is already registered with specified details.
 	 * @param userName Name of the user
-	 * @param ownerType Owner type
-	 * @param ownerId Owner id
+	 * @param userSpace User Space
 	 * @return True if the user is already present
 	 */
-	public boolean checkForUser(String userName, String ownerType, long ownerId)
+	public boolean checkForUser(String userName, String userSpace)
 	{
-		return (repository.checkForUser(userName, ownerType, ownerId) > 0);
+		return (repository.checkForUser(userName, userSpace) > 0);
 	}
 	
 	/**
 	 * Fetches encrypted password for specified user details.
 	 * @param userName User name
-	 * @param ownerType Owner type under which user is registered
-	 * @param ownerId Owner id under which user is registered
+	 * @param userSpace User Space
 	 * @return Encrypted password
 	 */
-	public String getPassword(String userName, String ownerType, long ownerId)
+	public String getPassword(String userName, String userSpace)
 	{
-		return super.repository.fetchPassword(userName, ownerType, ownerId);
+		return super.repository.fetchPassword(userName, userSpace);
 	}
 	
 	/**
 	 * Fetches user with specified details.
 	 * @param userName User name
-	 * @param ownerType Owner type under which user is registered
-	 * @param ownerId Owner id under which user is registered
+	 * @param userSpace User Space
 	 * @return Matching user details
 	 */
-	public UserEntity getUser(String userName, String ownerType, long ownerId)
+	public UserEntity getUser(String userName, String userSpace)
 	{
-		return super.repository.fetchUser(userName, ownerType, ownerId);
+		return super.repository.fetchUser(userName, userSpace);
 	}
 	
 	/**
@@ -81,15 +78,14 @@ public class UserService extends BaseCrudService<UserEntity, IUserRepository>
 	
 	/**
 	 * Updates password of user under specified ownership and with specified user name.
-	 * @param ownerType
-	 * @param ownerId
+	 * @param userSpace User Space
 	 * @param userName
 	 * @param password
 	 * @return
 	 */
-	public boolean updatePassword(String ownerType, long ownerId, String userName, String password)
+	public boolean updatePassword(String userSpace, String userName, String password)
 	{
-		return super.repository.updatePassword(ownerType, ownerId, userName, password);
+		return super.repository.updatePassword(userSpace, userName, password);
 	}
 
 	/* (non-Javadoc)

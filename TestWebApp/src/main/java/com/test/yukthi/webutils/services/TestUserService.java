@@ -49,7 +49,7 @@ public class TestUserService
 	{
 		IUserRepository userRepository = repositoryFactory.getRepository(IUserRepository.class);
 		
-		UserEntity user = userRepository.fetchUser("admin", Object.class.getName(), 0L);
+		UserEntity user = userRepository.fetchUser("admin", "admin");
 		
 		if(user != null)
 		{
