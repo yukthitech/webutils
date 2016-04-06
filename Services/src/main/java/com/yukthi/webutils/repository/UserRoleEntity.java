@@ -41,7 +41,7 @@ import com.yukthi.persistence.conversion.impl.JsonConverter;
 @Table(name = "USER_ROLES")
 @UniqueConstraints({
 	@UniqueConstraint(name = "UQ_UROLE_ROLE", fields = {"user", "role", "ownerType", "ownerId"})
-})
+	})
 public class UserRoleEntity extends WebutilsEntity
 {
 	/**

@@ -153,7 +153,7 @@ public abstract class BaseCrudService<E extends WebutilsEntity, R extends IWebut
 			
 			//set the default version
 			entity.setVersion(1);
-			entity.setSpaceIdentity(securityService.getUserSpaceIdentity());
+			entity.setSpaceIdentity(getUserSpace(entity, model));
 
 			boolean res = repository.save(entity);
 			
@@ -372,5 +372,18 @@ public abstract class BaseCrudService<E extends WebutilsEntity, R extends IWebut
 			
 			throw new IllegalStateException("An error occurred while deleting entity with id - " + id, ex);
 		}
+	}
+	
+	/**
+	 * This method is used in save while setting user space of an entity. By default,
+	 * this method returns current user's user-space. This method can be overridden to give custom
+	 * way of setting user space.
+	 * @param entity Entity for which space identity is required.
+	 * @param model Model for which space identity is required.
+	 * @return target user space.
+	 */
+	protected String getUserSpace(E entity, Object model)
+	{
+		return securityService.getUserSpaceIdentity();
 	}
 }

@@ -1,5 +1,6 @@
 package com.yukthi.webutils.services;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import com.yukthi.webutils.repository.IUserRepository;
@@ -98,5 +99,23 @@ public class UserService extends BaseCrudService<UserEntity, IUserRepository>
 	public boolean deleteById(long id)
 	{
 		return super.repository.markAsDeleted(id, true, null, securityService.getUserSpaceIdentity());
+	}
+
+	/* (non-Javadoc)
+	 * @see com.yukthi.webutils.services.BaseCrudService#getUserSpace(com.yukthi.webutils.repository.WebutilsEntity, java.lang.Object)
+	 */
+	@Override
+	protected String getUserSpace(UserEntity entity, Object model)
+	{
+		//As the user space needs to be handled by apps this method is overridden
+		//	this method will check if entity has user space, if present the same will be used.
+		//	if not, default user space will be used.
+		
+		if( StringUtils.isNotBlank(entity.getSpaceIdentity()) )
+		{
+			return entity.getSpaceIdentity();
+		}
+		
+		return super.getUserSpace(entity, model);
 	}
 }

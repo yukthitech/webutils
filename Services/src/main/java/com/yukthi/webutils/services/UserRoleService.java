@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import com.yukthi.webutils.UserRoleKey;
@@ -56,5 +57,23 @@ public class UserRoleService extends BaseCrudService<UserRoleEntity, IUserRoleRe
 		}
 		
 		return roleMap;
+	}
+
+	/* (non-Javadoc)
+	 * @see com.yukthi.webutils.services.BaseCrudService#getUserSpace(com.yukthi.webutils.repository.WebutilsEntity, java.lang.Object)
+	 */
+	@Override
+	protected String getUserSpace(UserRoleEntity entity, Object model)
+	{
+		//As the user space needs to be handled by apps this method is overridden
+		//	this method will check if entity has user space, if present the same will be used.
+		//	if not, default user space will be used.
+		
+		if( StringUtils.isNotBlank(entity.getSpaceIdentity()) )
+		{
+			return entity.getSpaceIdentity();
+		}
+		
+		return super.getUserSpace(entity, model);
 	}
 }

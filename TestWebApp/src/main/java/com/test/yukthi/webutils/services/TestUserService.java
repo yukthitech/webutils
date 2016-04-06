@@ -57,7 +57,7 @@ public class TestUserService
 			return;
 		}
 		
-		user = new UserEntity("admin", "admin", "admin", Object.class.getName(), 0L);
+		user = new UserEntity("admin", "admin", "admin");
 		user.setVersion(1);
 		
 		userRepository.save(user);

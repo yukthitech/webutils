@@ -20,6 +20,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package com.yukthi.webutils.repository;
 
 import javax.persistence.Column;
@@ -41,7 +42,7 @@ import com.yukthi.persistence.conversion.impl.PasswordEncryptionConverter;
 @UniqueConstraints({
 	@UniqueConstraint(name = "UQ_USERS_OWNR_UNAME", fields = {"ownerType", "ownerId", "userName"}),
 	@UniqueConstraint(name = "UQ_USERS_BASE_DET", fields = {"baseEntityType", "baseEntityId"})
-})
+	})
 public class UserEntity extends WebutilsEntity
 {
 	/**
@@ -51,53 +52,38 @@ public class UserEntity extends WebutilsEntity
 	private String userName;
 
 	/**
-	 * Password used for authentication
+	 * Password used for authentication.
 	 */
 	@Column(name = "PASSWORD", length = 500, nullable = false)
 	@DataTypeMapping(converterType = PasswordEncryptionConverter.class)
 	private String password;
 	
 	/**
-	 * Display name
+	 * Display name.
 	 */
 	@Column(name = "DISPLAY_NAME", length = 500, nullable = false)
 	private String displayName;
 
 	/**
-	 * Owner under which this user is being defined. Idea is under different owners (customers)
-	 * same user name can be used. Zero value is used for Administrator 
-	 */
-	@NotUpdateable
-	@Column(name = "OWNER_TYPE", nullable = false)
-	private String ownerType;
-	
-	/**
-	 * Owner under which this user is being defined. Idea is under different owners (customers)
-	 * same user name can be used. Zero value is used for Administrator 
-	 */
-	@NotUpdateable
-	@Column(name = "OWNER_ID", nullable = false)
-	private Long ownerId = 0L;
-
-	/**
-	 * Actual entity for which this user object is created
+	 * Actual entity for which this user object is created.
 	 */
 	@NotUpdateable
 	@Column(name = "BASE_ENT_TYPE", length = 200)
 	private String  baseEntityType;
 	
 	/**
-	 * Actual entity id, for which this auth details is created
+	 * Actual entity id, for which this auth details is created.
 	 */
 	@NotUpdateable
 	@Column(name = "BASE_ENT_ID")
 	private Long baseEntityId;
 	
 	/**
-	 * Flag indicating if this user is deleting
+	 * Flag indicating if this user is deleting.
 	 */
 	@Column(name = "DELETED")
 	private boolean deleted = false;
+	
 	/**
 	 * Instantiates a new user entity.
 	 */
@@ -120,16 +106,12 @@ public class UserEntity extends WebutilsEntity
 	 * @param userName the user name
 	 * @param password the password
 	 * @param displayName the display name
-	 * @param ownerType the owner type
-	 * @param ownerId the owner id
 	 */
-	public UserEntity(String userName, String password, String displayName, String ownerType, Long ownerId)
+	public UserEntity(String userName, String password, String displayName)
 	{
 		this.userName = userName;
 		this.password = password;
 		this.displayName = displayName;
-		this.ownerType = ownerType;
-		this.ownerId = ownerId;
 	}
 
 	/**
@@ -170,47 +152,6 @@ public class UserEntity extends WebutilsEntity
 	public void setPassword(String password)
 	{
 		this.password = password;
-	}
-	
-
-	/**
-	 * Gets the owner under which this user is being defined. Idea is under different owners (customers) same user name can be used. Zero value is used for Administrator.
-	 *
-	 * @return the owner under which this user is being defined
-	 */
-	public String getOwnerType()
-	{
-		return ownerType;
-	}
-
-	/**
-	 * Sets the owner under which this user is being defined. Idea is under different owners (customers) same user name can be used. Zero value is used for Administrator.
-	 *
-	 * @param ownerType the new owner under which this user is being defined
-	 */
-	public void setOwnerType(String ownerType)
-	{
-		this.ownerType = ownerType;
-	}
-
-	/**
-	 * Gets the owner under which this user is being defined. Idea is under different owners (customers) same user name can be used.
-	 *
-	 * @return the owner under which this user is being defined
-	 */
-	public Long getOwnerId()
-	{
-		return ownerId;
-	}
-
-	/**
-	 * Sets the owner under which this user is being defined. Idea is under different owners (customers) same user name can be used.
-	 *
-	 * @param ownerId the new owner under which this user is being defined
-	 */
-	public void setOwnerId(Long ownerId)
-	{
-		this.ownerId = ownerId;
 	}
 
 	/**
