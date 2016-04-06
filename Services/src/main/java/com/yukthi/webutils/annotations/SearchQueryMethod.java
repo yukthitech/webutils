@@ -45,7 +45,7 @@ import com.yukthi.webutils.services.SearchService;
 public @interface SearchQueryMethod
 {
 	/**
-	 * Name of the Search-query to be used by client
+	 * Name of the Search-query to be used by client.
 	 * @return Name of the Search-query to be used by client
 	 */
 	public String name();

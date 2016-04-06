@@ -99,18 +99,18 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 	}
 	
 	/**
-	 * Search method details cache
+	 * Search method details cache.
 	 */
 	private Map<String, SearchQueryDetails> nameToSearchMet = new HashMap<>();
 	
 	/**
-	 * Model details service to fetch model details of query and result types
+	 * Model details service to fetch model details of query and result types.
 	 */
 	@Autowired
 	private ModelDetailsService modelDetailsService;
 	
 	/**
-	 * Security service to check authorization of target search method
+	 * Security service to check authorization of target search method.
 	 */
 	@Autowired(required = false)
 	private ISecurityService securityService;
@@ -130,15 +130,15 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 			throw new IllegalStateException("Invalid return type specified for search method - " + method);
 		}
 		
-		ParameterizedType parameterizedType = (ParameterizedType)returnType;
+		ParameterizedType parameterizedType = (ParameterizedType) returnType;
 		
-		if( !Collection.class.isAssignableFrom((Class)parameterizedType.getRawType()) || !(parameterizedType.getActualTypeArguments()[0] instanceof Class))
+		if( !Collection.class.isAssignableFrom((Class) parameterizedType.getRawType()) || !(parameterizedType.getActualTypeArguments()[0] instanceof Class))
 		{
 			throw new IllegalStateException("Invalid return type specified for search method - " + method);
 		}
 		
 		//ensure return type bean and query input are models
-		Class<?> returnModelType = (Class)parameterizedType.getActualTypeArguments()[0];
+		Class<?> returnModelType = (Class) parameterizedType.getActualTypeArguments()[0];
 		Class<?> queryModelType = annotation.queryModel();
 		
 		if(queryModelType.getAnnotation(Model.class) == null)
@@ -178,7 +178,7 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 	}
 
 	/**
-	 * Returns model definition of search query model for specified query
+	 * Returns model definition of search query model for specified query.
 	 * @param searchQueryName Query name for which query model details needs to be fetched
 	 * @return Search query model details
 	 */
@@ -195,7 +195,7 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 	}
 	
 	/**
-	 * Fetches query java type for specified search query
+	 * Fetches query java type for specified search query.
 	 * @param searchQueryName Search query for which query type needs to be fetched
 	 * @return Search query bean type
 	 */
@@ -212,7 +212,7 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 	}
 
 	/**
-	 * Returns model definition of search result model for specified query
+	 * Returns model definition of search result model for specified query.
 	 * @param searchQueryName Query name for which query model details needs to be fetched
 	 * @return Search result model details
 	 */
@@ -230,7 +230,7 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 	
 	/**
 	 * Executes search query method with name specified by "searchQueryName" by passing query-object "query". The number of results
-	 * will be limited to "resultLimit"
+	 * will be limited to "resultLimit".
 	 * @param searchQueryName Search query name to execute
 	 * @param query Query object containing conditions
 	 * @param resultLimit Limit on number of results returned
@@ -344,7 +344,7 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 		//execute search and return results
 		try
 		{
-			return (List)searchQueryDetails.method.invoke(searchQueryDetails.repository, repoSearchQuery);
+			return (List) searchQueryDetails.method.invoke(searchQueryDetails.repository, repoSearchQuery);
 		}catch(Exception ex)
 		{
 			throw new InvalidStateException(ex, "An error occurred while executing search query - {}", searchQueryName);
