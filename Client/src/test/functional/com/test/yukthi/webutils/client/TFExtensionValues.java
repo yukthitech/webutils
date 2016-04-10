@@ -258,7 +258,6 @@ public class TFExtensionValues extends TFBase
 
 		TestEmployeeModel emp2 = getEmployee(customer1, id2);
 		
-		Assert.assertEquals(emp2.getExtendedFields().size(), 2);
 		Assert.assertEquals(emp2.getExtendedFields().get("field1"), "1234");
 		Assert.assertEquals(emp2.getExtendedFields().get("field2"), "4");
 		Assert.assertNull(emp2.getExtendedFields().get("field3"));

@@ -27,7 +27,7 @@ import javax.persistence.Column;
 import javax.persistence.Table;
 
 import com.yukthi.webutils.annotations.ExtendableEntity;
-import com.yukthi.webutils.repository.WebutilsEntity;
+import com.yukthi.webutils.repository.WebutilsExtendableEntity;
 
 /**
  * Test entity
@@ -36,7 +36,7 @@ import com.yukthi.webutils.repository.WebutilsEntity;
  */
 @ExtendableEntity(name = "Employee")
 @Table(name = "EMP")
-public class EmployeeEntity extends WebutilsEntity
+public class EmployeeEntity extends WebutilsExtendableEntity
 {
 	/**
 	 * Name of the employee

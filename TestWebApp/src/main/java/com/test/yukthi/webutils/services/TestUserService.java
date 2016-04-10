@@ -59,6 +59,7 @@ public class TestUserService
 		
 		user = new UserEntity("admin", "admin", "admin");
 		user.setVersion(1);
+		user.setSpaceIdentity("admin");
 		
 		userRepository.save(user);
 		

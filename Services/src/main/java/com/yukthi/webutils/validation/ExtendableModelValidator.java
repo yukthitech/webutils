@@ -35,8 +35,9 @@ import org.springframework.validation.Validator;
 
 import com.yukthi.webutils.WebutilsConfiguration;
 import com.yukthi.webutils.common.IExtendableModel;
+import com.yukthi.webutils.common.annotations.ExtendableModel;
 import com.yukthi.webutils.common.extensions.FieldConfiguration;
-import com.yukthi.webutils.controllers.ExtensionUtil;
+import com.yukthi.webutils.controllers.IExtensionContextProvider;
 import com.yukthi.webutils.repository.ExtensionEntity;
 import com.yukthi.webutils.repository.ExtensionFieldEntity;
 import com.yukthi.webutils.services.ExtensionService;
@@ -55,7 +56,7 @@ public class ExtendableModelValidator implements Validator
 	private WebutilsConfiguration webutilsConfiguration;
 	
 	@Autowired
-	private ExtensionUtil extensionUtil;
+	private IExtensionContextProvider extensionContextProvider;
 	
 	/* (non-Javadoc)
 	 * @see org.springframework.validation.Validator#supports(java.lang.Class)
@@ -72,16 +73,24 @@ public class ExtendableModelValidator implements Validator
 	@Override
 	public void validate(Object target, Errors errors)
 	{
-		//fetch extension entity for current context
-		ExtensionEntity extensionEntity = extensionUtil.getExtensionEntity(target);
+		ExtendableModel extendableModel = target.getClass().getAnnotation(ExtendableModel.class);
+		
+		if(extendableModel == null)
+		{
+			return;
+		}
+		
+		String extensionName = extensionContextProvider.getExtensionName(target);
+		
+		ExtensionEntity extensionEntity = extensionService.getExtensionEntity(extensionName);
 		
 		if(extensionEntity == null)
 		{
 			return;
 		}
 		
-		List<ExtensionFieldEntity> extendedFields = extensionService.getExtensionFields(extensionEntity.getId());
-		Map<String, String> extendedFieldValues = new HashMap<>( ((IExtendableModel)target).getExtendedFields() );
+		List<ExtensionFieldEntity> extendedFields = extensionService.getExtensionFields(extensionName);
+		Map<String, String> extendedFieldValues = new HashMap<>( ((IExtendableModel) target).getExtendedFields() );
 		String value = null;
 		FieldConfiguration fieldConfig = null;
 		

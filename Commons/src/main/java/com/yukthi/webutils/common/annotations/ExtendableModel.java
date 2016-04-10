@@ -29,7 +29,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Used to mark an entity as extendable model and link it to extendable entity
+ * Used to mark an entity as extendable model and link it to extendable entity.
  * @author akiran
  */
 @Retention(RetentionPolicy.RUNTIME)

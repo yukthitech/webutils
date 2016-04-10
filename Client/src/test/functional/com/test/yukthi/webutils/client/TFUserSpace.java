@@ -71,7 +71,7 @@ public class TFUserSpace extends TFBase
 			@Override
 			public void customize(RestRequest<?> request)
 			{
-				request.addHeader("userSpace", "userSpace1");
+				request.addHeader("customerId", "1");
 			}
 		};
 		
@@ -80,7 +80,7 @@ public class TFUserSpace extends TFBase
 			@Override
 			public void customize(RestRequest<?> request)
 			{
-				request.addHeader("userSpace", "userSpace2");
+				request.addHeader("customerId", "2");
 			}
 		};
 	}

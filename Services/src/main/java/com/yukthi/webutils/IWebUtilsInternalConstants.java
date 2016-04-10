@@ -47,4 +47,19 @@ public interface IWebUtilsInternalConstants
 	 * Context attribute name, that will be used to hold current lov dependency field value.
 	 */
 	public String CONTEXT_ATTR_LOV_DEPENDENCY_VAL = "lovDependencyValue";
+	
+	/**
+	 * Maximum length of the extension field.
+	 */
+	public int MAX_EXT_FIELD_LENGTH = 600;
+	
+	/**
+	 * Prefix for the extension fields.
+	 */
+	public String EXT_FIELD_PREFIX = "FLD";
+	
+	/**
+	 * Number of extension fields per entity.
+	 */
+	public int EXT_FIELD_COUNT = 100;
 }

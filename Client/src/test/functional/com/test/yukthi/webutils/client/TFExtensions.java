@@ -92,11 +92,11 @@ public class TFExtensions extends TFBase
 		String id1 = "" + addCustomer("Customer1");
 		String id2 = "" + addCustomer("Customer2");
 		
-		saveExtensionField(id1, new ExtensionFieldModel("Employee", "field1", "field1", "Desc1", ExtensionFieldType.INTEGER, true) );
+		saveExtensionField(id1, new ExtensionFieldModel("Employee", "field1", "field1", "id1-Desc1", ExtensionFieldType.INTEGER, true) );
 
-		saveExtensionField(id1, new ExtensionFieldModel("Employee", "field2", "field2", "Desc2", ExtensionFieldType.DECIMAL, true) );
+		saveExtensionField(id1, new ExtensionFieldModel("Employee", "field2", "field2", "id1-Desc2", ExtensionFieldType.DECIMAL, true) );
 
-		saveExtensionField(id2, new ExtensionFieldModel("Employee", "field1", "field1", "Desc3", false, 
+		saveExtensionField(id2, new ExtensionFieldModel("Employee", "field1", "field1", "id2-Desc1", false, 
 				Arrays.asList(
 						new LovOption("1", "Label1"),
 						new LovOption("2", "Label2")) ) );
@@ -119,7 +119,7 @@ public class TFExtensions extends TFBase
 		Assert.assertEquals(fieldList2.size(), 1);
 		Assert.assertEquals(fieldList2.get(0).getName(), "field1");
 		Assert.assertEquals(fieldList2.get(0).getLabel(), "field1");
-		Assert.assertEquals(fieldList2.get(0).getDescription(), "Desc3");
+		Assert.assertEquals(fieldList2.get(0).getDescription(), "id2-Desc1");
 		Assert.assertEquals(fieldList2.get(0).isRequired(), false);
 		Assert.assertEquals(fieldList2.get(0).getType(), ExtensionFieldType.LIST_OF_VALUES);
 		Assert.assertEquals(CommonUtils.toSet(fieldList2.get(0).getLovOptions().get(0).getValue(), fieldList2.get(0).getLovOptions().get(1).getValue()), 

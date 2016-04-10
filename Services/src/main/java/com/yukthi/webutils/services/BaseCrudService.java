@@ -34,8 +34,9 @@ import com.yukthi.persistence.PersistenceException;
 import com.yukthi.persistence.repository.RepositoryFactory;
 import com.yukthi.utils.exceptions.InvalidStateException;
 import com.yukthi.webutils.common.IExtendableModel;
-import com.yukthi.webutils.repository.WebutilsEntity;
 import com.yukthi.webutils.repository.IWebutilsRepository;
+import com.yukthi.webutils.repository.WebutilsEntity;
+import com.yukthi.webutils.repository.WebutilsExtendableEntity;
 import com.yukthi.webutils.security.ISecurityService;
 import com.yukthi.webutils.utils.WebUtils;
 
@@ -155,18 +156,19 @@ public abstract class BaseCrudService<E extends WebutilsEntity, R extends IWebut
 			entity.setVersion(1);
 			entity.setSpaceIdentity(getUserSpace(entity, model));
 
+			//copy extended fields to entity
+			if(model != null && (model instanceof IExtendableModel))
+			{
+				logger.trace("Mapping extended fields entity - {}", entity);
+				extensionService.mapExtendedFieldsToEntity( (IExtendableModel) model, (WebutilsExtendableEntity) entity );
+			}
+
 			boolean res = repository.save(entity);
 			
 			if(!res)
 			{
 				logger.error("Failed to save entity - {}", entity);
 				throw new InvalidStateException("Failed to save entity");
-			}
-			
-			if(model != null && (model instanceof IExtendableModel))
-			{
-				logger.trace("Trying to save extended fields of entity - {}", entity);
-				extensionService.saveExtendedFields(entity.getId(), (IExtendableModel) model);
 			}
 			
 			//save files specified on model
@@ -221,18 +223,19 @@ public abstract class BaseCrudService<E extends WebutilsEntity, R extends IWebut
 			
 			userService.populateTrackingFieldForUpdate(entity);
 
+			//copy extended fields to entity
+			if(model != null && (model instanceof IExtendableModel))
+			{
+				logger.trace("Mapping extended fields entity - {}", entity);
+				extensionService.mapExtendedFieldsToEntity( (IExtendableModel) model, (WebutilsExtendableEntity) entity );
+			}
+
 			boolean res = repository.updateByUserSpace(entity, securityService.getUserSpaceIdentity());
 			
 			if(!res)
 			{
 				logger.error("Failed to update entity - {}", entity);
 				throw new InvalidStateException("Failed to update entity");
-			}
-			
-			if(model != null && (model instanceof IExtendableModel))
-			{
-				logger.trace("Trying to update extended fields of entity - {}", entity);
-				extensionService.saveExtendedFields(entity.getId(), (IExtendableModel) model);
 			}
 			
 			//save files specified on model
@@ -311,7 +314,7 @@ public abstract class BaseCrudService<E extends WebutilsEntity, R extends IWebut
 		
 		if(model instanceof IExtendableModel)
 		{
-			extensionService.fetchExtendedValues((IExtendableModel) model);
+			extensionService.mapExtendedFieldsToModel( repository, entity.getId(), (IExtendableModel) model); 
 		}
 
 		//fetch file information
@@ -344,13 +347,6 @@ public abstract class BaseCrudService<E extends WebutilsEntity, R extends IWebut
 	{
 		try(ITransaction transaction = repository.newOrExistingTransaction())
 		{
-			logger.trace("Trying to delete entity with id - {}", id);
-			
-			//TODO: This may not be required if this gets deleted with parent
-			int extDelCount = extensionService.deleteExtensionValues(id);
-			
-			logger.debug("Deleted {} extension field values of entity {}", extDelCount, id);
-			
 			boolean res = repository.deleteByIdAndUserSpace(id, securityService.getUserSpaceIdentity());
 			
 			logger.trace("Deletion of entity with id '{}' resulted in - {}", id, res);

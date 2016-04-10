@@ -27,7 +27,7 @@ import java.lang.reflect.Method;
 import java.util.Map;
 
 import com.yukthi.webutils.common.models.ActiveUserModel;
-import com.yukthi.webutils.extensions.ExtensionPointDetails;
+import com.yukthi.webutils.extensions.ExtensionEntityDetails;
 import com.yukthi.webutils.repository.file.FileEntity;
 
 /**
@@ -81,7 +81,7 @@ public interface ISecurityService
 	 * @param extensionPoint Extension point details
 	 * @return true if specified user is authorized to access specified extension
 	 */
-	public boolean isExtensionAuthorized(ExtensionPointDetails extensionPoint);
+	public boolean isExtensionAuthorized(ExtensionEntityDetails extensionPoint);
 	
 	/**
 	 * This method will be called before file entity is getting saved. This method can populated file entity's custom 

@@ -23,11 +23,9 @@
 
 package com.yukthi.webutils.controllers;
 
-import javax.servlet.http.HttpServletRequest;
-
 import com.yukthi.webutils.common.IExtendableModel;
-import com.yukthi.webutils.extensions.Extension;
-import com.yukthi.webutils.extensions.ExtensionPointDetails;
+import com.yukthi.webutils.extensions.ExtensionDetails;
+import com.yukthi.webutils.extensions.ExtensionEntityDetails;
 
 /**
  * Extension helper to be provided by the web applications.
@@ -38,11 +36,11 @@ public interface IExtensionContextProvider
 	/**
 	 * Should provide owner and other custom extension details. This method should also take care of 
 	 * required authorization.
+	 * @param extensionName Extension name
 	 * @param extensionPointDetails Extension point for which extension needs to be fetched
-	 * @param request Http request, which can be used to fetch current state and user provided params
 	 * @return Extension information with owner details
 	 */
-	public Extension getExtension(ExtensionPointDetails extensionPointDetails, HttpServletRequest request);
+	public ExtensionDetails getExtensionDetails(String extensionName, ExtensionEntityDetails extensionPointDetails);
 	
 	/**
 	 * Fetches extension name for specified model object. This method is generally invoked by framework

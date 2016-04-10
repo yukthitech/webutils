@@ -49,8 +49,9 @@ import com.yukthi.webutils.common.extensions.LovOption;
  */
 @Table(name = "EXTENSION_FIELDS")
 @UniqueConstraints({
-	@UniqueConstraint(name = "EXT_ID_NAME", fields = {"extension", "name"})
-} )
+	@UniqueConstraint(name = "EXT_ID_NAME", fields = {"extension", "name"}),
+	@UniqueConstraint(name = "EXT_ID_COL_NAME", fields = {"extension", "columnName"})
+	})//TODO: Add "spaceIdentity" to unique columm list
 public class ExtensionFieldEntity extends WebutilsEntity
 {
 	/**
@@ -67,6 +68,13 @@ public class ExtensionFieldEntity extends WebutilsEntity
 	 */
 	@Column(name = "NAME", nullable = false, length = 50)
 	private String name;
+	
+	/**
+	 * Extended field name of the entity.
+	 */
+	@NotUpdateable
+	@Column(name = "EXT_COL_NAME", nullable = false, length = 50)
+	private String columnName;
 
 	/**
 	 * Label of the field.
@@ -126,6 +134,7 @@ public class ExtensionFieldEntity extends WebutilsEntity
 	{
 		super(id);
 	}
+	
 	/**
 	 * Gets the extension for which this field is being defined.
 	 *
@@ -167,7 +176,27 @@ public class ExtensionFieldEntity extends WebutilsEntity
 	{
 		this.name = name;
 	}
-	
+
+	/**
+	 * Gets the extended field name of the entity.
+	 *
+	 * @return the extended field name of the entity
+	 */
+	public String getColumnName()
+	{
+		return columnName;
+	}
+
+	/**
+	 * Sets the extended field name of the entity.
+	 *
+	 * @param columnName the new extended field name of the entity
+	 */
+	public void setColumnName(String columnName)
+	{
+		this.columnName = columnName;
+	}
+
 	/**
 	 * Gets the label of the field.
 	 *
@@ -272,7 +301,9 @@ public class ExtensionFieldEntity extends WebutilsEntity
 	}
 
 	/**
-	 * @return the {@link #lovValues lovValues}
+	 * Gets the internal field to be used to fetch unique set of lov values.
+	 *
+	 * @return the internal field to be used to fetch unique set of lov values
 	 */
 	public Set<String> getLovValues()
 	{

@@ -24,25 +24,25 @@
 package com.yukthi.webutils.extensions;
 
 /**
- * Extension point details
+ * Extension point details.
  * @author akiran
  */
-public class ExtensionPointDetails
+public class ExtensionEntityDetails
 {
 	/**
-	 * Name of the extension point
+	 * Name of the extension point.
 	 */
 	private String name;
 	
 	/**
-	 * Entity type which is defined as extension type
+	 * Entity type which is defined as extension type.
 	 */
 	private Class<?> entityType;
 	
 	/**
 	 * Instantiates a new extension point details.
 	 */
-	public ExtensionPointDetails()
+	public ExtensionEntityDetails()
 	{}
 	
 	/**
@@ -51,7 +51,7 @@ public class ExtensionPointDetails
 	 * @param name the name
 	 * @param entityType the entity type
 	 */
-	public ExtensionPointDetails(String name, Class<?> entityType)
+	public ExtensionEntityDetails(String name, Class<?> entityType)
 	{
 		this.name = name;
 		this.entityType = entityType;

@@ -28,8 +28,6 @@ import javax.persistence.Table;
 
 import com.yukthi.persistence.annotations.DataType;
 import com.yukthi.persistence.annotations.DataTypeMapping;
-import com.yukthi.persistence.annotations.Index;
-import com.yukthi.persistence.annotations.Indexes;
 import com.yukthi.persistence.annotations.UniqueConstraint;
 import com.yukthi.persistence.annotations.UniqueConstraints;
 import com.yukthi.persistence.conversion.impl.JsonConverter;
@@ -40,36 +38,34 @@ import com.yukthi.persistence.conversion.impl.JsonConverter;
  */
 @Table(name = "ENTITY_EXTENSIONS")
 @UniqueConstraints({
-	@UniqueConstraint(name = "NAME", fields = {"name"})
-})
-@Indexes({
-	@Index(name = "OWNR_TYPE_OWNR_ID", fields = {"targetPointName", "ownerPointName", "ownerId"})
-})
+	@UniqueConstraint(name = "TARGET_OWNER", fields = {"targetEntityType", "ownerEntityType", "ownerEntityId"}),
+	@UniqueConstraint(name = "NAME", fields = {"spaceIdentity", "name"})
+	})
 public class ExtensionEntity extends WebutilsEntity
 {
 	/**
-	 * Name of the target entity point for which this extended field is defined.
+	 * Name of the extension.
 	 */
-	@Column(name = "TARGET_POINT_NAME", nullable = false, length = 250)
-	private String targetPointName;
+	@Column(name = "NAME", nullable = false, length = 250)
+	private String name;
 	
 	/**
-	 * Owner entity point name under which extension is being defined.
+	 * Name of the target entity type for which this extended field is defined.
 	 */
-	@Column(name = "OWNER_POINT_NAME", nullable = false, length = 100)
-	private String ownerPointName;
+	@Column(name = "TARGET_ENTITY_TYPE", nullable = false, length = 250)
+	private String targetEntityType;
+	
+	/**
+	 * Owner entity type under which extension is being defined.
+	 */
+	@Column(name = "OWNER_ENTITY_TYPE", nullable = false, length = 100)
+	private String ownerEntityType;
 	
 	/**
 	 * Owner entity id for which entity is being defined. 
 	 */
 	@Column(name = "OWNER_ENTITY_ID", nullable = false)
-	private long ownerId;
-	
-	/**
-	 * Name for the extension.
-	 */
-	@Column(name = "NAME", nullable = true)
-	private String name;
+	private long ownerEntityId;
 	
 	/**
 	 * Custom attributes for the extension.
@@ -97,81 +93,25 @@ public class ExtensionEntity extends WebutilsEntity
 	/**
 	 * Instantiates a new extension entity.
 	 *
-	 * @param targetPointName the target point name
-	 * @param ownerPointName the owner point name
-	 * @param ownerId the owner id
+	 * @param name Name of the extension
+	 * @param targetEntityType the target entity type
+	 * @param ownerEntityType the owner entity type
+	 * @param ownerEntityId the owner entity id
+	 * @param attributes the attributes
 	 */
-	public ExtensionEntity(String targetPointName, String ownerPointName, long ownerId)
+	public ExtensionEntity(String name, String targetEntityType, String ownerEntityType, long ownerEntityId, Object attributes)
 	{
-		this.targetPointName = targetPointName;
-		this.ownerPointName = ownerPointName;
-		this.ownerId = ownerId;
+		this.name = name;
+		this.targetEntityType = targetEntityType;
+		this.ownerEntityType = ownerEntityType;
+		this.ownerEntityId = ownerEntityId;
+		this.attributes = attributes;
 	}
-
+	
 	/**
-	 * Gets the name of the target entity point for which this extended field is defined.
+	 * Gets the name of the extension.
 	 *
-	 * @return the name of the target entity point for which this extended field is defined
-	 */
-	public String getTargetPointName()
-	{
-		return targetPointName;
-	}
-
-	/**
-	 * Sets the name of the target entity point for which this extended field is defined.
-	 *
-	 * @param targetPointName the new name of the target entity point for which this extended field is defined
-	 */
-	public void setTargetPointName(String targetPointName)
-	{
-		this.targetPointName = targetPointName;
-	}
-
-	/**
-	 * Gets the owner entity point name under which extension is being defined.
-	 *
-	 * @return the owner entity point name under which extension is being defined
-	 */
-	public String getOwnerPointName()
-	{
-		return ownerPointName;
-	}
-
-	/**
-	 * Sets the owner entity point name under which extension is being defined.
-	 *
-	 * @param ownerPointName the new owner entity point name under which extension is being defined
-	 */
-	public void setOwnerPointName(String ownerPointName)
-	{
-		this.ownerPointName = ownerPointName;
-	}
-
-	/**
-	 * Gets the owner entity id for which entity is being defined.
-	 *
-	 * @return the owner entity id for which entity is being defined
-	 */
-	public long getOwnerId()
-	{
-		return ownerId;
-	}
-
-	/**
-	 * Sets the owner entity id for which entity is being defined.
-	 *
-	 * @param ownerId the new owner entity id for which entity is being defined
-	 */
-	public void setOwnerId(long ownerId)
-	{
-		this.ownerId = ownerId;
-	}
-
-	/**
-	 * Gets the optional name for the extension.
-	 *
-	 * @return the optional name for the extension
+	 * @return the name of the extension
 	 */
 	public String getName()
 	{
@@ -179,13 +119,73 @@ public class ExtensionEntity extends WebutilsEntity
 	}
 
 	/**
-	 * Sets the optional name for the extension.
+	 * Sets the name of the extension.
 	 *
-	 * @param name the new optional name for the extension
+	 * @param name the new name of the extension
 	 */
 	public void setName(String name)
 	{
 		this.name = name;
+	}
+
+	/**
+	 * Gets the name of the target entity type for which this extended field is defined.
+	 *
+	 * @return the name of the target entity type for which this extended field is defined
+	 */
+	public String getTargetEntityType()
+	{
+		return targetEntityType;
+	}
+
+	/**
+	 * Sets the name of the target entity type for which this extended field is defined.
+	 *
+	 * @param targetEntityType the new name of the target entity type for which this extended field is defined
+	 */
+	public void setTargetEntityType(String targetEntityType)
+	{
+		this.targetEntityType = targetEntityType;
+	}
+
+	/**
+	 * Gets the owner entity type under which extension is being defined.
+	 *
+	 * @return the owner entity type under which extension is being defined
+	 */
+	public String getOwnerEntityType()
+	{
+		return ownerEntityType;
+	}
+
+	/**
+	 * Sets the owner entity type under which extension is being defined.
+	 *
+	 * @param ownerEntityType the new owner entity type under which extension is being defined
+	 */
+	public void setOwnerEntityType(String ownerEntityType)
+	{
+		this.ownerEntityType = ownerEntityType;
+	}
+
+	/**
+	 * Gets the owner entity id for which entity is being defined.
+	 *
+	 * @return the owner entity id for which entity is being defined
+	 */
+	public long getOwnerEntityId()
+	{
+		return ownerEntityId;
+	}
+
+	/**
+	 * Sets the owner entity id for which entity is being defined.
+	 *
+	 * @param ownerEntityId the new owner entity id for which entity is being defined
+	 */
+	public void setOwnerEntityId(long ownerEntityId)
+	{
+		this.ownerEntityId = ownerEntityId;
 	}
 
 	/**

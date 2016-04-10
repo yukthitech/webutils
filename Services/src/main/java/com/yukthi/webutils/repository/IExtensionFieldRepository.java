@@ -24,11 +24,13 @@
 package com.yukthi.webutils.repository;
 
 import java.util.List;
+import java.util.Set;
 
 import com.yukthi.persistence.repository.annotations.Condition;
 import com.yukthi.persistence.repository.annotations.Field;
 import com.yukthi.persistence.repository.annotations.OrderBy;
 import com.yukthi.persistence.repository.search.SearchQuery;
+import com.yukthi.webutils.annotations.RestrictBySpace;
 import com.yukthi.webutils.annotations.SearchQueryMethod;
 import com.yukthi.webutils.common.extensions.ExtensionFieldSearchQuery;
 import com.yukthi.webutils.common.extensions.ExtensionFieldSearchResult;
@@ -40,35 +42,51 @@ import com.yukthi.webutils.common.extensions.ExtensionFieldSearchResult;
 public interface IExtensionFieldRepository extends IWebutilsRepository<ExtensionFieldEntity>
 {
 	/**
-	 * Finder method to find extension fields for specified entity extension
-	 * @param extensionId Extension id for which fields needs to be fetched
+	 * Finder method to find extension fields for specified entity extension.
+	 * @param extensionName Extension name for which fields needs to be fetched
 	 * @return List of matching fields
 	 */
-	public List<ExtensionFieldEntity> findExtensionFields(@Condition("extension.id") long extensionId);
+	@RestrictBySpace
+	public List<ExtensionFieldEntity> findExtensionFields(@Condition("extension.name") String extensionName);
 	
 	/**
-	 * Fetches the extension field for specified extension with specified id
+	 * Fetches the extension field for specified extension with specified id.
 	 * @param extensionName Extension under which field is defined
 	 * @param id Id of the field that needs to be fetched
 	 * @return Extension field
 	 */
-	public ExtensionFieldEntity findExtensionField(@Condition("extension.targetPointName") String extensionName, @Condition("id") long id);
+	@RestrictBySpace
+	public ExtensionFieldEntity findExtensionField(@Condition("extension.name") String extensionName, @Condition("id") long id);
 
 	/**
-	 * Fetches extension id for specified field id
+	 * Fetches extension id for specified field id.
 	 * @param id Field id for which extension needs to be fetched
 	 * @return Extension id
 	 */
+	@RestrictBySpace
 	@Field("extension.id")
 	public long fetchExtensionIdById(long id);
 	
 	/**
-	 * Deletes all extension fields of all owners
+	 * Deletes all extension fields of all owners.
 	 */
 	public void deleteAll();
 	
+	/**
+	 * Search query to fetch extension fields.
+	 * @param searchQuery query.
+	 * @return Matching results.
+	 */
 	@SearchQueryMethod(name = "extensionFieldSearch", queryModel = ExtensionFieldSearchQuery.class)
 	@OrderBy("name")
 	public List<ExtensionFieldSearchResult> searchExtensionFields(SearchQuery searchQuery);
 
+	/**
+	 * Fetches used column names of the specified extension.
+	 * @param extensionId Extension id for which column names needs to be fetched.
+	 * @return Current used column names of specified extension.
+	 */
+	@RestrictBySpace
+	@Field("columnName")
+	public Set<String> fetchUsedColumnNames(@Condition("extension.id") long extensionId);
 }

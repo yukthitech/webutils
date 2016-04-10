@@ -24,10 +24,11 @@ public class CityEntity extends WebutilsEntity
 	public CityEntity()
 	{}
 	
-	public CityEntity(String name, StateEntity state)
+	public CityEntity(String name, StateEntity state, String spaceIdentity)
 	{
 		this.name = name;
 		this.state = state;
+		setSpaceIdentity(spaceIdentity);
 	}
 
 	public StateEntity getState()

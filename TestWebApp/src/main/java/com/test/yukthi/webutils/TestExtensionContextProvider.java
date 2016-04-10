@@ -25,12 +25,13 @@ package com.test.yukthi.webutils;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.test.yukthi.webutils.entity.CustomerEntity;
 import com.yukthi.webutils.controllers.IExtensionContextProvider;
-import com.yukthi.webutils.extensions.Extension;
-import com.yukthi.webutils.extensions.ExtensionPointDetails;
+import com.yukthi.webutils.extensions.ExtensionDetails;
+import com.yukthi.webutils.extensions.ExtensionEntityDetails;
 
 /**
  * @author akiran
@@ -39,21 +40,22 @@ import com.yukthi.webutils.extensions.ExtensionPointDetails;
 @Component
 public class TestExtensionContextProvider implements IExtensionContextProvider
 {
+	@Autowired
+	private HttpServletRequest request;
 
 	/* (non-Javadoc)
 	 * @see com.yukthi.webutils.controllers.IExtensionContextProvider#getExtension(com.yukthi.webutils.extensions.ExtensionPointDetails, com.yukthi.webutils.controllers.HttpServletRequest)
 	 */
 	@Override
-	public Extension getExtension(ExtensionPointDetails extensionPointDetails, HttpServletRequest request)
+	public ExtensionDetails getExtensionDetails(String extensionName, ExtensionEntityDetails extensionPointDetails)
 	{
 		String customerId = request.getHeader("customerId");
 		
 		if(customerId == null)
 		{
-			return new Extension();
+			return new ExtensionDetails();
 		}
 		
-		return new Extension(CustomerEntity.class, Long.parseLong(customerId));
+		return new ExtensionDetails(CustomerEntity.class, Long.parseLong(customerId));
 	}
-
 }

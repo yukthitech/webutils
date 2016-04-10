@@ -23,29 +23,30 @@
 
 package com.yukthi.webutils.repository;
 
-import com.yukthi.persistence.ICrudRepository;
 import com.yukthi.persistence.repository.annotations.Condition;
+import com.yukthi.persistence.repository.annotations.CountFunction;
+import com.yukthi.webutils.annotations.RestrictBySpace;
 
 /**
- * Repository for entity extensions
+ * Repository for entity extensions.
  * @author akiran
  */
 public interface IExtensionRepository extends IWebutilsRepository<ExtensionEntity>
 {
 	/**
-	 * Finder query to find extension based on specified entity and owner details
-	 * @param targetPointName Target point for which extension is being fetched
-	 * @param ownerPointName Owner point which owns the extension
-	 * @param ownerId Owner id which owns the extension
-	 * @return Matching entity extension
-	 */
-	public ExtensionEntity findEntity(@Condition("targetPointName") String targetPointName, 
-			@Condition("ownerPointName") String ownerPointName, @Condition("ownerId") long ownerId);
-	
-	/**
-	 * Finder method to find extension with specified name.
-	 * @param name Name for which extension needs to be fetched.
+	 * Fetches extension by name.
+	 * @param name Name of the extension to fetch.
 	 * @return Matching extension.
 	 */
-	public ExtensionEntity findByName(@Condition("name") String name);
+	@RestrictBySpace
+	public ExtensionEntity findExtensionByName(@Condition("name") String name);
+	
+	/**
+	 * Checks if the specified name is valid extension or not.
+	 * @param name Name to be checked.
+	 * @return True if its valid extension.
+	 */
+	@CountFunction
+	@RestrictBySpace
+	public boolean isValidExtension(@Condition("name") String name);
 }

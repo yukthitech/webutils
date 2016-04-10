@@ -23,22 +23,30 @@
 
 package com.yukthi.webutils.annotations;
 
+import static com.yukthi.webutils.IWebUtilsInternalConstants.EXT_FIELD_COUNT;
+import static com.yukthi.webutils.IWebUtilsInternalConstants.EXT_FIELD_PREFIX;
+import static com.yukthi.webutils.IWebUtilsInternalConstants.MAX_EXT_FIELD_LENGTH;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import com.yukthi.persistence.annotations.Extendable;
+import com.yukthi.persistence.repository.annotations.Charset;
+
 /**
- * Used to mark an entity as extendable and specifies owner entity type
+ * Used to mark an entity as extendable and specifies name for ui display.
  * @author akiran
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
+@Extendable(fieldSize = MAX_EXT_FIELD_LENGTH, count = EXT_FIELD_COUNT, fieldPrefix = EXT_FIELD_PREFIX, charset = Charset.LATIN1)
 public @interface ExtendableEntity
 {
 	/**
-	 * Name of the extension source
-	 * @return Name of the extension source
+	 * Name of the extension entity (to display in ui).
+	 * @return Name of the extension entity
 	 */
 	public String name();
 }

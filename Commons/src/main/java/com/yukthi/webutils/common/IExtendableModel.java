@@ -26,7 +26,7 @@ package com.yukthi.webutils.common;
 import java.util.Map;
 
 /**
- * Abstraction for models which supports extension
+ * Abstraction for models which supports extension.
  * @author akiran
  */
 public interface IExtendableModel
@@ -38,13 +38,13 @@ public interface IExtendableModel
 	public Map<String, String> getExtendedFields();
 	
 	/**
-	 * Used to set extended field values on to the model
+	 * Used to set extended field values on to the model.
 	 * @param extendedFieldValues Extended field values as map
 	 */
 	public void setExtendedFields(Map<String, String> extendedFieldValues);
 	
 	/**
-	 * Id of the entity for which extended fields needs to be added 
+	 * Id of the entity for which extended fields needs to be added.
 	 * @return entity id
 	 */
 	public Long getId();

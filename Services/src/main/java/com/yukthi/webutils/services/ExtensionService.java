@@ -24,48 +24,45 @@
 package com.yukthi.webutils.services;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.PostConstruct;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import com.yukthi.persistence.ITransaction;
 import com.yukthi.persistence.repository.RepositoryFactory;
-import com.yukthi.utils.CommonUtils;
 import com.yukthi.utils.exceptions.InvalidArgumentException;
+import com.yukthi.utils.exceptions.InvalidConfigurationException;
 import com.yukthi.utils.exceptions.InvalidStateException;
-import com.yukthi.webutils.ExtensionValueDetails;
+import com.yukthi.webutils.IWebUtilsInternalConstants;
 import com.yukthi.webutils.ServiceException;
 import com.yukthi.webutils.annotations.ExtendableEntity;
-import com.yukthi.webutils.annotations.ExtensionOwner;
 import com.yukthi.webutils.annotations.LovMethod;
 import com.yukthi.webutils.common.IExtendableModel;
+import com.yukthi.webutils.common.annotations.ExtendableModel;
 import com.yukthi.webutils.common.extensions.LovOption;
-import com.yukthi.webutils.controllers.ExtensionUtil;
-import com.yukthi.webutils.extensions.ExtensionOwnerDetails;
-import com.yukthi.webutils.extensions.ExtensionPointDetails;
+import com.yukthi.webutils.controllers.IExtensionContextProvider;
+import com.yukthi.webutils.extensions.ExtensionEntityDetails;
 import com.yukthi.webutils.repository.ExtensionEntity;
 import com.yukthi.webutils.repository.ExtensionFieldEntity;
-import com.yukthi.webutils.repository.ExtensionFieldValueEntity;
+import com.yukthi.webutils.repository.ExtensionFieldsData;
 import com.yukthi.webutils.repository.IExtensionFieldRepository;
-import com.yukthi.webutils.repository.IExtensionFieldValueRepository;
 import com.yukthi.webutils.repository.IExtensionRepository;
+import com.yukthi.webutils.repository.IWebutilsRepository;
+import com.yukthi.webutils.repository.WebutilsExtendableEntity;
 import com.yukthi.webutils.security.ISecurityService;
 import com.yukthi.webutils.utils.WebUtils;
 
 /**
- * Service related to extensions, fields and values
+ * Service related to extensions, fields and values.
  * @author akiran
  */
 @Service
@@ -73,38 +70,65 @@ public class ExtensionService
 {
 	private static Logger logger = LogManager.getLogger(ExtensionService.class);
 	
-	private static final String DEF_OWNER_POINT = Object.class.getSimpleName();
+	/**
+	 * Default owner type to be used, when owner type is not specified.
+	 */
+	private static final String DEF_OWNER_TYPE = Object.class.getSimpleName();
+	
+	/**
+	 * Default owner id to be used when owner type is not specified.
+	 */
 	private static final long DEF_OWNER_ID = 0L;
 	
 	/**
-	 * Used to fetch repository instances
+	 * Used to fetch repository instances.
 	 */
 	@Autowired
 	private RepositoryFactory repositoryFactory;
 	
+	/**
+	 * Service used to scan for extendable entities.
+	 */
 	@Autowired
 	private ClassScannerService classScannerService;
 
-	@Autowired
-	private ExtensionUtil extensionUtil;
-	
+	/**
+	 * Used to fetch current user details for tracking purpose.
+	 */
 	@Autowired
 	private CurrentUserService userService;
 	
+	/**
+	 * To filter entities for current session.
+	 */
 	@Autowired
 	private ISecurityService securityService;
 
-	private Map<String, ExtensionPointDetails> nameToExtension = new HashMap<>();
-	private Map<Class<?>, ExtensionPointDetails> typeToExtension = new HashMap<>();
+	/**
+	 * Maintains name to extension mapping.
+	 */
+	private Map<String, ExtensionEntityDetails> nameToExtension = new HashMap<>();
 	
-	private Map<String, ExtensionOwnerDetails> nameToExtensionOwner = new HashMap<>();
-	private Map<Class<?>, ExtensionOwnerDetails> typeToExtensionOwner = new HashMap<>();
+	/**
+	 * Maintains type to extension mapping.
+	 */
+	private Map<String, ExtensionEntityDetails> typeToExtension = new HashMap<>();
 	
+	/**
+	 * To persist and read extensions.
+	 */
 	private IExtensionRepository extensionRepository;
 	
+	/**
+	 * To persist and read extension fields.
+	 */
 	private IExtensionFieldRepository extensionFieldRepository;
 	
-	private IExtensionFieldValueRepository extensionFieldValueRepository;
+	/**
+	 * Used to fetch extension name of the required models.
+	 */
+	@Autowired
+	private IExtensionContextProvider extensionContextProvider;
 	
 	/**
 	 * Fetches repositories from autowired repository factory.
@@ -114,34 +138,27 @@ public class ExtensionService
 	{
 		this.extensionRepository = repositoryFactory.getRepository(IExtensionRepository.class);
 		this.extensionFieldRepository = repositoryFactory.getRepository(IExtensionFieldRepository.class);
-		this.extensionFieldValueRepository = repositoryFactory.getRepository(IExtensionFieldValueRepository.class);
 		
 		//load extension points
 		Set<Class<?>> extendableTypes = classScannerService.getClassesWithAnnotation(ExtendableEntity.class);
 		ExtendableEntity extendableEntity = null;
-		ExtensionPointDetails extensionPointDetails = null;
+		ExtensionEntityDetails extensionPointDetails = null;
+		String name = null;
 		
 		for(Class<?> type : extendableTypes)
 		{
 			extendableEntity = type.getAnnotation(ExtendableEntity.class);
-			extensionPointDetails = new ExtensionPointDetails(extendableEntity.name(), type);
+			name = extendableEntity.name();
+			
+			if(name.contains("$"))
+			{
+				throw new InvalidConfigurationException("$ found in the extension name configured on entity - {}", type.getName());
+			}
+			
+			extensionPointDetails = new ExtensionEntityDetails(name, type);
 			
 			nameToExtension.put(extendableEntity.name(), extensionPointDetails);
-			typeToExtension.put(type, extensionPointDetails);
-		}
-
-		//load extension owners
-		Set<Class<?>> ownerTypes = classScannerService.getClassesWithAnnotation(ExtensionOwner.class);
-		ExtensionOwner extensionOwner = null;
-		ExtensionOwnerDetails extensionOwnerDetails = null;
-		
-		for(Class<?> type : ownerTypes)
-		{
-			extensionOwner = type.getAnnotation(ExtensionOwner.class);
-			extensionOwnerDetails = new ExtensionOwnerDetails(extensionOwner.name(), type);
-			
-			nameToExtensionOwner.put(extensionOwner.name(), extensionOwnerDetails);
-			typeToExtensionOwner.put(type, extensionOwnerDetails);
+			typeToExtension.put(type.getName(), extensionPointDetails);
 		}
 	}
 	
@@ -151,12 +168,12 @@ public class ExtensionService
 	 * @return Extensions as lov list
 	 */
 	@LovMethod(name = "extensionLov")
-	public List<LovOption> getExtensionList()
+	public List<LovOption> getExtendableEntityList()
 	{
 		List<LovOption> filteredExtensions = new ArrayList<>(nameToExtension.size());
 		
 		//loop through extensions
-		for(ExtensionPointDetails extPoint : this.nameToExtension.values())
+		for(ExtensionEntityDetails extPoint : this.nameToExtension.values())
 		{
 			//if current user has access to current extension
 			if(securityService.isExtensionAuthorized(extPoint))
@@ -169,78 +186,42 @@ public class ExtensionService
 	}
 	
 	/**
-	 * Fetches extension point with specified name.
-	 * @param name Name of the extension point
-	 * @return
+	 * Gets extension entity details based on specified name.
+	 * @param name Name of the extension entity.
+	 * @return Matching extension entity
 	 */
-	public ExtensionPointDetails getExtensionPoint(String name)
+	public ExtensionEntityDetails getExtensionEntityDetailsByName(String name)
 	{
+		int idx = name.indexOf("$");
+		
+		if(idx > 0)
+		{
+			name = name.substring(0, idx);
+		}
+		
 		return nameToExtension.get(name);
 	}
 	
 	/**
-	 * Fetches the extension owner details with specified name.
-	 * @param name Name of the extension owner
-	 * @return Extension owner details
+	 * Fetches extension with specified criteria.
+	 * @param name Name of the extension to fetch. 
+	 * @return Matching extension entity
 	 */
-	public ExtensionOwnerDetails getExtensionOwner(String name)
+	public ExtensionEntity getExtensionEntity(String name)
 	{
-		return this.nameToExtensionOwner.get(name);
+		logger.trace("Fetching extension entity - [Name: {}]", name);
+		
+		return extensionRepository.findExtensionByName(name);
 	}
 	
 	/**
-	 * Gets extension owner details with specified type.
-	 * @param ownerType
-	 * @return
+	 * Checks if the specified name is valid extension or not.
+	 * @param name Name to be checked.
+	 * @return True if its valid extension.
 	 */
-	public ExtensionOwnerDetails getExtensionOwner(Class<?> ownerType)
+	public boolean isValidExtension(String name)
 	{
-		return this.typeToExtensionOwner.get(ownerType);
-	}
-
-	/**
-	 * Fetches extension with specified criteria. 
-	 * @param entityType Entity type for which extension is being fetched
-	 * @param ownerEntityType Owner entity type, this is optional
-	 * @param ownerId Owner entity id, this is optional
-	 * @return Matching extension entity
-	 */
-	@Cacheable("default")
-	public ExtensionEntity getExtensionEntity(Class<?> entityType, Class<?> ownerEntityType, long ownerId)
-	{
-		logger.trace("Fetching extension entity - [Entity: {}, Owner type: {}, Owner Id: {}]", entityType.getName(), 
-				(ownerEntityType != null)? ownerEntityType.getName() : null, ownerId);
-		
-		ExtensionPointDetails extensionPointDetails = typeToExtension.get(entityType);
-		
-		if(extensionPointDetails == null)
-		{
-			throw new InvalidArgumentException("Specified entity type is not an extension entity - {}", entityType.getName());
-		}
-		
-		String ownerName = null;
-		
-		//if owner entity type is not specified use Object class
-		if(ownerEntityType == null)
-		{
-			ownerName = DEF_OWNER_POINT;
-		}
-		//if owner type is specified
-		else
-		{
-			ExtensionOwnerDetails extensionOwnerDetails = typeToExtensionOwner.get(ownerEntityType);
-			
-			//if owner entity does not have required annotation
-			if(extensionOwnerDetails == null)
-			{
-				throw new InvalidArgumentException("Invalid extension owner specified - {}. Owner entity should be marked with @{}", ownerEntityType.getName(), ExtensionOwner.class.getName());
-			}
-			
-			ownerName = extensionOwnerDetails.getName();
-		}
-		
-		//try to find extension with specified details
-		return extensionRepository.findEntity(extensionPointDetails.getName(), ownerName, ownerId);
+		return extensionRepository.isValidExtension(name);
 	}
 	
 	/**
@@ -249,32 +230,22 @@ public class ExtensionService
 	 */
 	public void saveExtensionEntity(ExtensionEntity extension)
 	{
-		ExtensionPointDetails extensionPointDetails = nameToExtension.get(extension.getTargetPointName());
+		ExtensionEntityDetails extensionPointDetails = typeToExtension.get(extension.getTargetEntityType());
 		
 		if(extensionPointDetails == null)
 		{
-			throw new InvalidArgumentException("Specified entity type is not an extension entity - {}", extension.getTargetPointName());
+			throw new InvalidArgumentException("Specified entity type is not an extension entity - {}", extension.getTargetEntityType());
 		}
 		
 		//if owner entity type is not specified use Object class
-		if(extension.getOwnerPointName() == null)
+		if(extension.getOwnerEntityType() == null)
 		{
-			extension.setOwnerPointName(DEF_OWNER_POINT);
-			extension.setOwnerId(DEF_OWNER_ID);
-		}
-		//if owner type is specified
-		else
-		{
-			ExtensionOwnerDetails extensionOwnerDetails = nameToExtensionOwner.get(extension.getOwnerPointName());
-			
-			//if owner entity does not have required annotation
-			if(extensionOwnerDetails == null)
-			{
-				throw new InvalidArgumentException("Invalid extension owner specified - {}.", extension.getOwnerPointName());
-			}
+			extension.setOwnerEntityType(DEF_OWNER_TYPE);
+			extension.setOwnerEntityId(DEF_OWNER_ID);
 		}
 
 		userService.populateTrackingFieldForCreate(extension);
+		extension.setSpaceIdentity(securityService.getUserSpaceIdentity());
 		
 		//set default version
 		extension.setVersion(1);
@@ -287,15 +258,14 @@ public class ExtensionService
 	
 	/**
 	 * Fetches extension fields for specified extension id.
-	 * @param extensionId Specified extension id
+	 * @param extensionName Specified extension name
 	 * @return List of extension fields
 	 */
-	@Cacheable(value = "extensionFields", key = "#root.args[0]")
-	public List<ExtensionFieldEntity> getExtensionFields(long extensionId)
+	public List<ExtensionFieldEntity> getExtensionFields(String extensionName)
 	{
-		logger.trace("Fetching extension fields for extension - {}", extensionId);
+		logger.trace("Fetching extension fields for extension - {}", extensionName);
 		
-		return extensionFieldRepository.findExtensionFields(extensionId);
+		return extensionFieldRepository.findExtensionFields(extensionName);
 	}
 	
 	/**
@@ -324,10 +294,37 @@ public class ExtensionService
 		extensionFieldEntity.setExtension(new ExtensionEntity(extensionId));
 		
 		userService.populateTrackingFieldForCreate(extensionFieldEntity);
+		extensionFieldEntity.setSpaceIdentity(securityService.getUserSpaceIdentity());
 		
 		//set default version
 		extensionFieldEntity.setVersion(1);
 		
+		//set the unused column name for the new extension field entity
+		Set<String> usedFields = extensionFieldRepository.fetchUsedColumnNames(extensionId);
+		String columnName = IWebUtilsInternalConstants.EXT_FIELD_PREFIX + "0";
+		
+		if(usedFields != null && !usedFields.isEmpty())
+		{
+			if(usedFields.size() == IWebUtilsInternalConstants.EXT_FIELD_COUNT)
+			{
+				throw new InvalidStateException("All extension fields are consumed for entension - {}", extensionId);
+			}
+			
+			//find the first column which is not used till now
+			for(int i = 0; i < IWebUtilsInternalConstants.EXT_FIELD_COUNT; i++)
+			{
+				columnName = IWebUtilsInternalConstants.EXT_FIELD_PREFIX + i;
+				
+				if(!usedFields.contains(columnName))
+				{
+					break;
+				}
+			}
+		}
+		
+		extensionFieldEntity.setColumnName(columnName);
+		
+		//save the entity
 		if(!extensionFieldRepository.save(extensionFieldEntity))
 		{
 			throw new ServiceException("Failed to save extension field entity.");
@@ -336,7 +333,7 @@ public class ExtensionService
 	
 	/**
 	 * updates specified extension field under specified extension.
-	 * @param extensionFieldEntity
+	 * @param extensionFieldEntity Extension field to update.
 	 */
 	public void updateExtensionField(ExtensionFieldEntity extensionFieldEntity)
 	{
@@ -360,18 +357,6 @@ public class ExtensionService
 	public long getExtensionIdForField(long extensionFieldId)
 	{
 		return extensionFieldRepository.fetchExtensionIdById(extensionFieldId);
-	}
-	
-	/**
-	 * Deletes extension values for specified entity.
-	 * @param entityId Entity id for which fields needs to be deleted
-	 * @return Number of deleted records
-	 */
-	public int deleteExtensionValues(long entityId)
-	{
-		logger.trace("Deleting extension values for entity - {}", entityId);
-		
-		return extensionFieldValueRepository.deleteByEntityId(entityId);
 	}
 	
 	/**
@@ -399,155 +384,82 @@ public class ExtensionService
 	}
 	
 	/**
-	 * Fetches extension field values for specified extension id and entity id.
-	 * @param extensionId Extension id
-	 * @param entityId Entity id for which extended values needs to be fetched
-	 * @return Extended field values
+	 * Maps data from specified model to entity.
+	 * @param model model from which extended field data needs to be mapped.
+	 * @param entity Entity to which extended field data needs to be set.
 	 */
-	public List<ExtensionFieldValueEntity> getExtensionValues(long extensionId, long entityId)
+	public void mapExtendedFieldsToEntity(IExtendableModel model, WebutilsExtendableEntity entity)
 	{
-		return extensionFieldValueRepository.findExtensionValues(extensionId, entityId);
-	}
-
-	/**
-	 * Saves the specified value entity.
-	 * @param valueEntity Entity to be saved
-	 */
-	public void saveExtensionValue(ExtensionFieldValueEntity valueEntity)
-	{
-		userService.populateTrackingFieldForCreate(valueEntity);
+		//fetch extension name of the model
+		String extensionName = extensionContextProvider.getExtensionName(model);
 		
-		//set default version
-		valueEntity.setVersion(1);
-		
-		if(!extensionFieldValueRepository.save(valueEntity))
+		//if context provider is not able to provide the name, fall back to default way of fetching
+		if(extensionName == null)
 		{
-			throw new InvalidStateException("Failed to save extension field value - {}", valueEntity);
+			ExtendableModel extendableModel = model.getClass().getAnnotation(ExtendableModel.class);
+			extensionName = extendableModel.name();
 		}
-	}
-	
-	/**
-	 * Updates the specified value entity.
-	 * @param valueEntity Entity to be updated
-	 */
-	public void updateExtensionValue(ExtensionFieldValueEntity valueEntity)
-	{
-		//validate entity for update
-		WebUtils.validateEntityForUpdate(valueEntity);
 		
-		userService.populateTrackingFieldForUpdate(valueEntity);
+		//get extended field details
+		List<ExtensionFieldEntity> fields = getExtensionFields(extensionName);
 		
-		if(!extensionFieldValueRepository.update(valueEntity))
-		{
-			throw new InvalidStateException("Failed to update extension field value - {}", valueEntity);
-		}
-	}
-
-	/**
-	 * Saves extended field values of the specified model.
-	 * @param extendableModel Model for which extended values needs to be saved
-	 */
-	public void saveExtendedFields(long entityId, IExtendableModel extendableModel)
-	{
-		//fetch extended values
-		Map<String, String> newExtendedValues = extendableModel.getExtendedFields();
-		
-		//if no values are present
-		if(newExtendedValues == null || newExtendedValues.isEmpty())
+		if(fields == null || fields.isEmpty())
 		{
 			return;
 		}
 		
-		//fetch extension entity
-		ExtensionEntity extensionEntity = extensionUtil.getExtensionEntity(extendableModel);
+		//get extended field data, maps from field name to value
+		Map<String, String> extFieldData = model.getExtendedFields();
 		
-		if(extensionEntity == null)
+		//set data mapping column name to value
+		for(ExtensionFieldEntity field : fields)
 		{
-			return;
-		}
-		
-		try(ITransaction transaction = extensionFieldRepository.currentTransaction())
-		{
-			List<ExtensionFieldEntity> extensionFields = getExtensionFields(extensionEntity.getId());
-			List<ExtensionValueDetails> existingFieldValues = extensionFieldValueRepository.findExtensionValueDetails(extensionEntity.getId(), entityId); 
-			
-			//convert existing values into map
-			Map<String, ExtensionValueDetails> existingValueMap = CommonUtils.buildMap(existingFieldValues, "extensionFieldName", null);
-			Map<String, ExtensionFieldEntity> nameToField = CommonUtils.buildMap(extensionFields, "name", null);
-			
-			if(existingValueMap == null)
-			{
-				existingValueMap = Collections.emptyMap();
-			}
-			
-			ExtensionValueDetails valueDetails = null;
-			ExtensionFieldValueEntity valueEntity = null;
-			ExtensionFieldEntity extensionField = null;
-			
-			//persist the field values
-			for(String fieldName : newExtendedValues.keySet())
-			{
-				valueDetails = existingValueMap.get(fieldName);
-				
-				if(valueDetails != null)
-				{
-					valueEntity = new ExtensionFieldValueEntity(valueDetails.getId(), new ExtensionFieldEntity(valueDetails.getExtensionFieldId()), 
-								entityId, newExtendedValues.get(fieldName));
-					valueEntity.setVersion(valueDetails.getVersion());
-					
-					userService.populateTrackingFieldForUpdate(valueEntity);
-					
-					updateExtensionValue(valueEntity);
-				}
-				else
-				{
-					extensionField = nameToField.get(fieldName);
-					
-					if(extensionField == null)
-					{
-						throw new InvalidArgumentException("Invalid extension field name specified - {}", fieldName);
-					}
-					
-					valueEntity = new ExtensionFieldValueEntity(0, new ExtensionFieldEntity(extensionField.getId()), entityId, newExtendedValues.get(fieldName));
-					userService.populateTrackingFieldForUpdate(valueEntity);
-					
-					saveExtensionValue(valueEntity);
-				}
-			}
-			
-			transaction.commit();
-		}catch(Exception ex)
-		{
-			throw new InvalidStateException(ex, "An exception occurred while updating extension fields for entity - {}", entityId); 
+			entity.addExtendedField(field.getColumnName(), extFieldData.get(field.getName()));
 		}
 	}
 	
 	/**
-	 * Fetches extended field values for specified model and sets them on the.
-	 * specified model
-	 * @param extendableModel Model for which extended field values needs to be fetched
+	 * Maps the data from specified entity to model.
+	 * @param repository Repository to be used for fetching extended field values
+	 * @param entityId Entity from which extended data needs to be fetched.
+	 * @param model Model to which extended fields needs to be mapped.
 	 */
-	public void fetchExtendedValues(IExtendableModel extendableModel)
+	public void mapExtendedFieldsToModel(IWebutilsRepository<?> repository, long entityId, IExtendableModel model)
 	{
-		//fetch extension entity
-		ExtensionEntity extensionEntity = extensionUtil.getExtensionEntity(extendableModel);
+		//fetch extension name of the model
+		String extensionName = extensionContextProvider.getExtensionName(model);
 		
-		if(extensionEntity == null)
+		//if context provider is not able to provide the name, fall back to default way of fetching
+		if(extensionName == null)
+		{
+			ExtendableModel extendableModel = model.getClass().getAnnotation(ExtendableModel.class);
+			extensionName = extendableModel.name();
+		}
+		
+		//get extended field details
+		List<ExtensionFieldEntity> fields = getExtensionFields(extensionName);
+		
+		if(fields == null || fields.isEmpty())
 		{
 			return;
 		}
 		
-		long id = extendableModel.getId();
-		List<ExtensionValueDetails> existingFieldValues = extensionFieldValueRepository.findExtensionValueDetails(extensionEntity.getId(), id);
+		//build extension field names and fetch extension field data
+		Set<String> extendedFieldNames = new HashSet<>(); 
+		fields.stream().map(extFld -> extFld.getColumnName()).forEach(name -> extendedFieldNames.add(name));
 		
-		//return if no values found in db for extended fields
-		if(CollectionUtils.isEmpty(existingFieldValues))
+		ExtensionFieldsData extensionFieldsData = repository.fetchExtendedFields(entityId, extendedFieldNames);
+		
+		//get extended field data, maps from column name to value
+		Map<String, String> extFieldData = extensionFieldsData.getExtendedFields();
+		Map<String, String> modelExtFieldData = new HashMap<>();
+		
+		//set data mapping name to value
+		for(ExtensionFieldEntity field : fields)
 		{
-			return;
+			modelExtFieldData.put(field.getName(), extFieldData.get(field.getColumnName()));
 		}
 		
-		//convert existing values into map
-		Map<String, String> existingValueMap = CommonUtils.buildMap(existingFieldValues, "extensionFieldName", "value");
-		extendableModel.setExtendedFields(existingValueMap);
+		model.setExtendedFields(modelExtFieldData);
 	}
 }

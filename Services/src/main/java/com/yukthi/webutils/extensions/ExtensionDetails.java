@@ -32,7 +32,7 @@ import com.yukthi.webutils.controllers.IExtensionContextProvider;
  * 
  * @author akiran
  */
-public class Extension
+public class ExtensionDetails
 {
 	/**
 	 * Owner entity type. If no ownership is required, this can be null
@@ -51,14 +51,14 @@ public class Extension
 	private String name;
 
 	/**
-	 * Customized attributes for extension
+	 * Customized attributes for extension.
 	 */
 	private Object attributes;
 	
 	/**
 	 * Instantiates a new extension.
 	 */
-	public Extension()
+	public ExtensionDetails()
 	{}
 	
 	/**
@@ -67,7 +67,7 @@ public class Extension
 	 * @param ownerType the owner type
 	 * @param ownerId the owner id
 	 */
-	public Extension(Class<?> ownerType, long ownerId)
+	public ExtensionDetails(Class<?> ownerType, long ownerId)
 	{
 		this.ownerType = ownerType;
 		this.ownerId = ownerId;
@@ -81,7 +81,7 @@ public class Extension
 	 * @param name the name
 	 * @param attributes the attributes
 	 */
-	public Extension(Class<?> ownerType, long ownerId, String name, Object attributes)
+	public ExtensionDetails(Class<?> ownerType, long ownerId, String name, Object attributes)
 	{
 		this.ownerType = ownerType;
 		this.ownerId = ownerId;
@@ -99,6 +99,11 @@ public class Extension
 		return ownerType;
 	}
 	
+	/**
+	 * Gets the owner type name.
+	 *
+	 * @return the owner type name
+	 */
 	public String getOwnerTypeName()
 	{
 		return (ownerType != null) ? ownerType.getName() : null;
@@ -185,10 +190,10 @@ public class Extension
 
 		builder.append("Owner Type: ").append(ownerType.getName());
 		builder.append(",").append("Owner id: ").append(ownerId);
+		builder.append(",").append("Name: ").append(name);
 
 		builder.append("]");
 		return builder.toString();
 	}
-
 }
  

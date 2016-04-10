@@ -1,7 +1,11 @@
 package com.yukthi.webutils.repository;
 
+import java.util.Set;
+
 import com.yukthi.persistence.ICrudRepository;
 import com.yukthi.persistence.repository.annotations.Condition;
+import com.yukthi.persistence.repository.annotations.ExtendedFieldNames;
+import com.yukthi.persistence.repository.annotations.SearchResult;
 
 /**
  * Defines common repository methods with limitations on space.
@@ -17,6 +21,15 @@ public interface IWebutilsRepository<E extends WebutilsEntity> extends ICrudRepo
 	 * @return Matching entity.
 	 */
 	public E findByIdAndUserSpace(@Condition("id") Object id, @Condition("spaceIdentity") String spaceIdentity);
+	
+	/**
+	 * Fetches extended fields for specified entity id.
+	 * @param id Entity id for which extended fields needs to be fetched.
+	 * @param fieldNames Extended field names to fetch
+	 * @return Extended fields of the entity.
+	 */
+	@SearchResult
+	public ExtensionFieldsData fetchExtendedFields(@Condition("id") Object id, @ExtendedFieldNames Set<String> fieldNames);
 	
 	/**
 	 * Updates the specified entity restricting to specified space identity.

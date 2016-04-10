@@ -36,7 +36,6 @@ import static com.yukthi.webutils.common.IWebUtilsActionConstants.PARAM_NAME;
 import java.util.Collections;
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -52,9 +51,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.yukthi.persistence.annotations.DataType;
 import com.yukthi.persistence.conversion.impl.JsonConverter;
-import com.yukthi.utils.ObjectWrapper;
 import com.yukthi.utils.exceptions.InvalidArgumentException;
 import com.yukthi.utils.exceptions.InvalidStateException;
+import com.yukthi.webutils.IWebUtilsInternalConstants;
 import com.yukthi.webutils.InvalidRequestParameterException;
 import com.yukthi.webutils.annotations.ActionName;
 import com.yukthi.webutils.common.controllers.IExtensionController;
@@ -64,9 +63,8 @@ import com.yukthi.webutils.common.models.BasicSaveResponse;
 import com.yukthi.webutils.common.models.ExtensionFieldModel;
 import com.yukthi.webutils.common.models.ExtensionFieldReadResponse;
 import com.yukthi.webutils.common.models.ExtensionFieldsResponse;
-import com.yukthi.webutils.extensions.Extension;
-import com.yukthi.webutils.extensions.ExtensionOwnerDetails;
-import com.yukthi.webutils.extensions.ExtensionPointDetails;
+import com.yukthi.webutils.extensions.ExtensionDetails;
+import com.yukthi.webutils.extensions.ExtensionEntityDetails;
 import com.yukthi.webutils.repository.ExtensionEntity;
 import com.yukthi.webutils.repository.ExtensionFieldEntity;
 import com.yukthi.webutils.security.ISecurityService;
@@ -89,16 +87,13 @@ public class ExtensionController extends BaseController implements IExtensionCon
 	private ExtensionService extensionService;
 	
 	@Autowired
-	private ExtensionUtil extensionUtil;
-	
-	@Autowired
 	private ISecurityService securityService;
-	
-	@Autowired
-	private HttpServletRequest request;
 	
 	private JsonConverter jsonConverter = new JsonConverter();
 	
+	@Autowired(required = false)
+	private IExtensionContextProvider extensionContextProvider;
+
 	/* (non-Javadoc)
 	 * @see com.yukthi.webutils.controllers.IExtensionController#fetchExtensionFields(java.lang.String)
 	 */
@@ -110,22 +105,15 @@ public class ExtensionController extends BaseController implements IExtensionCon
 	{
 		logger.trace("Fetching extension fields for - {}", extensionName);
 		
-		if(!securityService.isExtensionAuthorized(extensionService.getExtensionPoint(extensionName)))
-		{
-			throw new UnauthorizedException("Current user is not authorized to access extesion - {}", extensionName);
-		}
-		
-		ExtensionEntity extensionEntity = extensionUtil.getExtensionEntity(extensionName, null);
-		
-		if(extensionEntity == null)
+		if(!extensionService.isValidExtension(extensionName))
 		{
 			logger.debug("No extension entity found for extension - {}", extensionName);
-			return new ExtensionFieldsResponse(Collections.emptyList());
+			throw new InvalidRequestParameterException("No extension found with specified name - " + extensionName);
 		}
 		
 		//fetch extension fields and build response
-		List<ExtensionFieldEntity> extensionFields = extensionService.getExtensionFields(extensionEntity.getId());
-		logger.debug("Found {} extension fields", (extensionFields != null)? extensionFields.size() : 0);
+		List<ExtensionFieldEntity> extensionFields = extensionService.getExtensionFields(extensionName);
+		logger.debug("Found {} extension fields", (extensionFields != null) ? extensionFields.size() : 0);
 		
 		List<ExtensionFieldModel> extensionFieldModels = WebUtils.convertBeans(extensionFields, ExtensionFieldModel.class);
 		
@@ -133,8 +121,8 @@ public class ExtensionController extends BaseController implements IExtensionCon
 	}
 
 	/**
-	 * Validates specified extension field model. Throws exception if validation fails
-	 * @param extensionField
+	 * Validates specified extension field model. Throws exception if validation fails.
+	 * @param extensionField Extension field to validated.
 	 */
 	private void validateExtensionFieldForSave(ExtensionFieldModel extensionField)
 	{
@@ -146,9 +134,9 @@ public class ExtensionController extends BaseController implements IExtensionCon
 				throw new InvalidRequestParameterException("No LOV options specified for LOV field");
 			}
 			
-			String lovOptStr = (String)jsonConverter.convertToDBType(extensionField.getLovOptions(), DataType.STRING);
+			String lovOptStr = (String) jsonConverter.convertToDBType(extensionField.getLovOptions(), DataType.STRING);
 			
-			if(lovOptStr.length() > 2000)
+			if(lovOptStr.length() > IWebUtilsInternalConstants.MAX_EXT_FIELD_LENGTH)
 			{
 				logger.error("Too many or too long lov options specified. Got result json string length as - ", lovOptStr.length());
 				throw new InvalidRequestParameterException("Too many or too long LOV options specified");
@@ -158,10 +146,12 @@ public class ExtensionController extends BaseController implements IExtensionCon
 		//for string fields ensure proper length is specified
 		if(extensionField.getType() == ExtensionFieldType.STRING || extensionField.getType() == ExtensionFieldType.MULTI_LINE_STRING)
 		{
-			if(extensionField.getMaxLength() <= 0 || extensionField.getMaxLength() > 2000)
+			if(extensionField.getMaxLength() <= 0 || extensionField.getMaxLength() > IWebUtilsInternalConstants.MAX_EXT_FIELD_LENGTH)
 			{
-				logger.error("Invalid length specified for string field. Length should be in the range of [1, 2000]. Specified length - " + extensionField.getMaxLength());
-				throw new InvalidRequestParameterException("Invalid length specified for string field. Length should be in the range of [1, 2000]. Specified length - " + extensionField.getMaxLength());
+				logger.error("Invalid length specified for string field. Length should be in the range of [1, {}]. Specified length - {}", 
+						IWebUtilsInternalConstants.MAX_EXT_FIELD_LENGTH, extensionField.getMaxLength());
+				throw new InvalidRequestParameterException("Invalid length specified for string field. Length should be in the range of [1, {}]. Specified length - {}",
+						IWebUtilsInternalConstants.MAX_EXT_FIELD_LENGTH, extensionField.getMaxLength());
 			}
 		}
 	}
@@ -178,7 +168,7 @@ public class ExtensionController extends BaseController implements IExtensionCon
 		logger.trace("Save invoked with params [Field: {}]", extensionField);
 
 		String extensionName = extensionField.getExtensionName();
-		ExtensionPointDetails extensionPointDetails = extensionService.getExtensionPoint(extensionName);
+		ExtensionEntityDetails extensionPointDetails = extensionService.getExtensionEntityDetailsByName(extensionName);
 		
 		if(extensionPointDetails == null)
 		{
@@ -191,8 +181,7 @@ public class ExtensionController extends BaseController implements IExtensionCon
 		}
 		
 		//fetch validate extension point name
-		ObjectWrapper<Extension> extensionWrapper = new ObjectWrapper<>();
-		ExtensionEntity extensionEntity = extensionUtil.getExtensionEntity(extensionName, extensionWrapper);
+		ExtensionEntity extensionEntity = extensionService.getExtensionEntity(extensionName);
 		
 		//validate specified model
 		validateExtensionFieldForSave(extensionField);
@@ -200,25 +189,20 @@ public class ExtensionController extends BaseController implements IExtensionCon
 		//if required extension does not exist, created one
 		if(extensionEntity == null)
 		{
-			logger.debug("No extension-entity found for extension '{}' with details - {}. Trying to create new one", extensionName, extensionWrapper.getValue());
-			Extension extension = extensionWrapper.getValue();
-			String extensionOwner = null;
+			logger.debug("No extension-entity found for extension '{}' with default owner. Trying to create new one", extensionName);
+			ExtensionDetails extensionDetails = extensionContextProvider.getExtensionDetails(extensionName, extensionPointDetails);
 			
-			if(extension.getOwnerType() != null)
+			extensionEntity = new ExtensionEntity();
+			extensionEntity.setName(extensionField.getExtensionName());
+			
+			if(extensionDetails.getOwnerType() != null)
 			{
-				ExtensionOwnerDetails extensionOwnerDetails = extensionService.getExtensionOwner(extension.getOwnerType());
-				
-				if(extensionOwnerDetails == null)
-				{
-					throw new InvalidStateException("Invalid extension owner type provided extension context provider - {}", extension.getOwnerType().getName());
-				}
-				
-				extensionOwner = extensionOwnerDetails.getName();
+				extensionEntity.setOwnerEntityType(extensionDetails.getOwnerType().getName());
+				extensionEntity.setOwnerEntityId(extensionDetails.getOwnerId());
 			}
 			
-			extensionEntity = new ExtensionEntity(extensionName, extensionOwner, extension.getOwnerId());
-			extensionEntity.setName(extension.getName());
-			extensionEntity.setAttributes(extension.getAttributes());
+			extensionEntity.setAttributes(extensionDetails.getAttributes());
+			extensionEntity.setTargetEntityType(extensionPointDetails.getEntityType().getName());
 			
 			extensionService.saveExtensionEntity(extensionEntity);
 		}
@@ -239,31 +223,32 @@ public class ExtensionController extends BaseController implements IExtensionCon
 	 */
 	private long validateFieldForChange(String extensionName, long fieldId)
 	{
+		ExtensionEntityDetails extensionEntityDetails = extensionService.getExtensionEntityDetailsByName(extensionName);
+		
+		//check for authorization
+		if(!securityService.isExtensionAuthorized(extensionEntityDetails))
+		{
+			throw new UnauthorizedException("Current user is not authorized to access extesion - {}", extensionName);
+		}
+
 		//fetch validate extension point name
-		ObjectWrapper<Extension> extensionWrapper = new ObjectWrapper<>();
-		ExtensionEntity extensionEntity = extensionUtil.getExtensionEntity(extensionName, extensionWrapper);
+		ExtensionEntity extensionEntity = extensionService.getExtensionEntity(extensionName);
 		
 		//if required extension does not exist, throw error
 		if(extensionEntity == null)
 		{
-			logger.error("No extension-entity found for extension '{}' with details - {}", extensionName, extensionWrapper.getValue());
+			logger.error("No extension-entity found for extension '{}'", extensionName);
 			throw new InvalidStateException("No existing extension found with name - {}", extensionName);
 		}
 
 		//fetch extension id
-		long extensionId = extensionService.getExtensionIdForField(fieldId);
+		long extensionId = extensionEntity.getId();
 		
 		//if extension name and field id are not matching
 		if(extensionId != extensionEntity.getId())
 		{
 			logger.error("No extension field exists with id {} under extension '{}'", fieldId, extensionName);
 			throw new InvalidRequestParameterException("No extension field exists with id {} under extension '{}'", fieldId, extensionName);
-		}
-		
-		//check for authorization
-		if(!securityService.isExtensionAuthorized(extensionService.getExtensionPoint(extensionName)))
-		{
-			throw new UnauthorizedException("Current user is not authorized to access extesion - {}", extensionName);
 		}
 
 		return extensionId;
@@ -328,8 +313,10 @@ public class ExtensionController extends BaseController implements IExtensionCon
 	public ExtensionFieldReadResponse readExtensionField(@PathVariable(PARAM_NAME) String extensionName, @PathVariable(PARAM_ID) long fieldId)
 	{
 		logger.trace("Read field invoked with params [Extension: {}, Id: {}]", extensionName, fieldId);
+		
+		ExtensionEntityDetails extensionEntityDetails = extensionService.getExtensionEntityDetailsByName(extensionName);
 
-		if(!securityService.isExtensionAuthorized(extensionService.getExtensionPoint(extensionName)))
+		if(!securityService.isExtensionAuthorized(extensionEntityDetails))
 		{
 			throw new UnauthorizedException("Current user is not authorized to access extesion - {}", extensionName);
 		}

@@ -30,15 +30,15 @@ public class StateCityService
 		cityRepository.deleteAll();
 		stateRepository.deleteAll();
 		
-		StateEntity apState = new StateEntity("Andhra Pradesh");
-		StateEntity karState = new StateEntity("Karnataka");
+		StateEntity apState = new StateEntity("Andhra Pradesh", "admin");
+		StateEntity karState = new StateEntity("Karnataka", "admin");
 		
 		stateRepository.save(apState);
 		stateRepository.save(karState);
 		
-		cityRepository.save(new CityEntity("Hyderabad", apState));
-		cityRepository.save(new CityEntity("Vijayawada", apState));
+		cityRepository.save(new CityEntity("Hyderabad", apState, "admin"));
+		cityRepository.save(new CityEntity("Vijayawada", apState, "admin"));
 		
-		cityRepository.save(new CityEntity("Bangalore", karState));
+		cityRepository.save(new CityEntity("Bangalore", karState, "admin"));
 	}
 }

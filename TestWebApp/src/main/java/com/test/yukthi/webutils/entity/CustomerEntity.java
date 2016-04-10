@@ -24,16 +24,13 @@
 package com.test.yukthi.webutils.entity;
 
 import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.Table;
 
 import com.yukthi.persistence.annotations.UniqueConstraint;
 import com.yukthi.persistence.annotations.UniqueConstraints;
 import com.yukthi.webutils.annotations.ExtendableEntity;
-import com.yukthi.webutils.annotations.ExtensionOwner;
 import com.yukthi.webutils.repository.WebutilsEntity;
+import com.yukthi.webutils.repository.WebutilsExtendableEntity;
 
 /**
  * Test entity
@@ -44,9 +41,8 @@ import com.yukthi.webutils.repository.WebutilsEntity;
 @UniqueConstraints({
 	@UniqueConstraint(fields = {"name"}, name = "UQ_CUST_NAME")
 })
-@ExtensionOwner(name = "Customer")
 @ExtendableEntity(name = "Customer")
-public class CustomerEntity extends WebutilsEntity
+public class CustomerEntity extends WebutilsExtendableEntity
 {
 	/**
 	 * Name of the employee

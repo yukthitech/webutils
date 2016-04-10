@@ -37,7 +37,7 @@ import com.test.yukthi.webutils.SecurityRole;
 import com.test.yukthi.webutils.TestUserDetails;
 import com.yukthi.utils.CommonUtils;
 import com.yukthi.webutils.common.models.ActiveUserModel;
-import com.yukthi.webutils.extensions.ExtensionPointDetails;
+import com.yukthi.webutils.extensions.ExtensionEntityDetails;
 import com.yukthi.webutils.repository.file.FileEntity;
 import com.yukthi.webutils.security.ISecurityService;
 import com.yukthi.webutils.services.CurrentUserService;
@@ -107,7 +107,7 @@ public class TestAuthenticationService implements ISecurityService
 	 * @see com.yukthi.webutils.security.ISecurityService#isExtensionAuthorized(com.yukthi.webutils.security.UserDetails, com.yukthi.webutils.extensions.ExtensionPointDetails)
 	 */
 	@Override
-	public boolean isExtensionAuthorized(ExtensionPointDetails extensionPoint)
+	public boolean isExtensionAuthorized(ExtensionEntityDetails extensionPoint)
 	{
 		return true;
 	}
@@ -141,7 +141,7 @@ public class TestAuthenticationService implements ISecurityService
 	@Override
 	public String getUserSpaceIdentity()
 	{
-		String userSpace = request.getHeader("userSpace");
-		return userSpace != null ? userSpace : "";
+		String custId = request.getHeader("customerId");
+		return (custId != null && custId.trim().length() > 0) ? "Cust-" + custId : "admin";
 	}
 }

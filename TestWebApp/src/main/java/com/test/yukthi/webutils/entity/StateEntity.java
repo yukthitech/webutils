@@ -31,9 +31,10 @@ public class StateEntity extends WebutilsEntity
 	{
 	}
 	
-	public StateEntity(String name)
+	public StateEntity(String name, String spaceIdentity)
 	{
 		this.name = name;
+		setSpaceIdentity(spaceIdentity);
 	}
 
 	/**
