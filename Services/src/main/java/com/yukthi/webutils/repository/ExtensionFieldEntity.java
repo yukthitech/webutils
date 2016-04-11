@@ -51,7 +51,7 @@ import com.yukthi.webutils.common.extensions.LovOption;
 @UniqueConstraints({
 	@UniqueConstraint(name = "EXT_ID_NAME", fields = {"extension", "name"}),
 	@UniqueConstraint(name = "EXT_ID_COL_NAME", fields = {"extension", "columnName"})
-	})//TODO: Add "spaceIdentity" to unique columm list
+	})
 public class ExtensionFieldEntity extends WebutilsEntity
 {
 	/**

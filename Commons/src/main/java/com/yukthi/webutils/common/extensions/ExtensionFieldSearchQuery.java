@@ -31,35 +31,35 @@ import com.yukthi.webutils.common.annotations.Label;
 import com.yukthi.webutils.common.annotations.Model;
 
 /**
- * Extension field search query
+ * Extension field search query.
  * @author akiran
  */
 @Model
 public class ExtensionFieldSearchQuery
 {
 	/**
-	 * Extension in which search needs to be performed
+	 * Extension in which search needs to be performed.
 	 */
 	@Label("Extension")
 	@Required
 	@LOV(name = "extensionLov")
-	@Condition(value = "extension.targetPointName", op = Operator.EQ)
-	private String extensionType;
+	@Condition(value = "extension.name", op = Operator.EQ)
+	private String extensionName;
 
 	/**
-	 * Name field search pattern
+	 * Name field search pattern.
 	 */
 	@Condition(value = "name", op = Operator.LIKE, ignoreCase = true)
 	private String name;
 
 	/**
-	 * Only mandatory search fields will be searched
+	 * Only mandatory search fields will be searched.
 	 */
 	@Condition(value = "required")
 	private Boolean required;
 	
 	/**
-	 * Type of the extension fields to be searched
+	 * Type of the extension fields to be searched.
 	 */
 	@Condition(value = "type")
 	private ExtensionFieldType type;
@@ -69,19 +69,19 @@ public class ExtensionFieldSearchQuery
 	 *
 	 * @return the extension in which search needs to be performed
 	 */
-	public String getExtensionType()
+	public String getExtensionName()
 	{
-		return extensionType;
+		return extensionName;
 	}
 
 	/**
 	 * Sets the extension in which search needs to be performed.
 	 *
-	 * @param extensionType the new extension in which search needs to be performed
+	 * @param extensionName the new extension in which search needs to be performed
 	 */
-	public void setExtensionType(String extensionType)
+	public void setExtensionName(String extensionName)
 	{
-		this.extensionType = extensionType;
+		this.extensionName = extensionName;
 	}
 
 	/**
@@ -143,6 +143,4 @@ public class ExtensionFieldSearchQuery
 	{
 		this.type = type;
 	}
-
-	
 }

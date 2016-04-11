@@ -25,6 +25,7 @@ package com.yukthi.webutils.repository;
 
 import com.yukthi.persistence.repository.annotations.Condition;
 import com.yukthi.persistence.repository.annotations.CountFunction;
+import com.yukthi.persistence.repository.annotations.Field;
 import com.yukthi.webutils.annotations.RestrictBySpace;
 
 /**
@@ -42,6 +43,16 @@ public interface IExtensionRepository extends IWebutilsRepository<ExtensionEntit
 	public ExtensionEntity findExtensionByName(@Condition("name") String name);
 	
 	/**
+	 * Fetches extension based on specified target and owner details.
+	 * @param targetEntityType Target entity type
+	 * @param ownerEntityType Owner entity type
+	 * @param ownerId Owner id.
+	 * @return matching extension entity.
+	 */
+	public ExtensionEntity findExtension(@Condition("targetEntityType") String targetEntityType, 
+			@Condition("ownerEntityType") String ownerEntityType, @Condition("ownerEntityId") long ownerId);
+	
+	/**
 	 * Checks if the specified name is valid extension or not.
 	 * @param name Name to be checked.
 	 * @return True if its valid extension.
@@ -49,4 +60,13 @@ public interface IExtensionRepository extends IWebutilsRepository<ExtensionEntit
 	@CountFunction
 	@RestrictBySpace
 	public boolean isValidExtension(@Condition("name") String name);
+	
+	/**
+	 * Updates name of the specified extension.
+	 * @param id Id of the extension to update.
+	 * @param name New name
+	 * @return Success/failure
+	 */
+	@RestrictBySpace
+	public boolean updateExtensionName(@Condition("id") long id, @Field("name") String name);
 }

@@ -26,32 +26,52 @@ package com.yukthi.webutils.common;
 import com.yukthi.webutils.common.annotations.Model;
 
 /**
- * Model used to execute search queries
+ * Model used to execute search queries.
  * @author akiran
  */
 @Model
 public class SearchExecutionModel
 {
 	/**
-	 * Query object json
+	 * Query object json.
 	 */
 	private String queryModelJson;
 	
 	/**
-	 * Results page size
+	 * Results page size.
 	 */
 	private int pageSize = -1;
+	
+	/**
+	 * Page to be fetched.
+	 */
+	private int pageNumber = 0;
 
+	/**
+	 * Gets the query object json.
+	 *
+	 * @return the query object json
+	 */
 	public String getQueryModelJson()
 	{
 		return queryModelJson;
 	}
 
+	/**
+	 * Sets the query object json.
+	 *
+	 * @param queryModelJson the new query object json
+	 */
 	public void setQueryModelJson(String queryModelJson)
 	{
 		this.queryModelJson = queryModelJson;
 	}
 
+	/**
+	 * Gets the results page size.
+	 *
+	 * @return the results page size
+	 */
 	public int getPageSize()
 	{
 		return pageSize;
@@ -65,5 +85,25 @@ public class SearchExecutionModel
 	public void setPageSize(int pageSize)
 	{
 		this.pageSize = pageSize;
+	}
+
+	/**
+	 * Gets the page to be fetched.
+	 *
+	 * @return the page to be fetched
+	 */
+	public int getPageNumber()
+	{
+		return pageNumber;
+	}
+
+	/**
+	 * Sets the page to be fetched.
+	 *
+	 * @param pageNumber the new page to be fetched
+	 */
+	public void setPageNumber(int pageNumber)
+	{
+		this.pageNumber = pageNumber;
 	}
 }

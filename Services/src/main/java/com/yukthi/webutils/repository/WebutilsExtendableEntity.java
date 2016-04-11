@@ -18,6 +18,24 @@ public class WebutilsExtendableEntity extends WebutilsEntity
 	private Map<String, String> extendedFields;
 
 	/**
+	 * Instantiates a new webutils extendable entity.
+	 */
+	public WebutilsExtendableEntity()
+	{
+		super();
+	}
+
+	/**
+	 * Instantiates a new webutils extendable entity.
+	 *
+	 * @param id the id
+	 */
+	public WebutilsExtendableEntity(Long id)
+	{
+		super(id);
+	}
+
+	/**
 	 * Gets the map to store extended fields data.
 	 *
 	 * @return the map to store extended fields data

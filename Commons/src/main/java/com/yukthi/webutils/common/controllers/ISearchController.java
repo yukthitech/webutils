@@ -2,8 +2,8 @@ package com.yukthi.webutils.common.controllers;
 
 import com.yukthi.webutils.common.RemoteService;
 import com.yukthi.webutils.common.SearchExecutionModel;
-import com.yukthi.webutils.common.models.ExecuteSearchResponse;
 import com.yukthi.webutils.common.models.ModelDefResponse;
+import com.yukthi.webutils.common.models.search.ExecuteSearchResponse;
 
 @RemoteService
 public interface ISearchController extends IClientController<ISearchController>

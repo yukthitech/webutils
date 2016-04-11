@@ -257,7 +257,7 @@ public class ExtensionService
 	}
 	
 	/**
-	 * Fetches extension fields for specified extension id.
+	 * Fetches extension fields for specified extension name.
 	 * @param extensionName Specified extension name
 	 * @return List of extension fields
 	 */
@@ -268,6 +268,32 @@ public class ExtensionService
 		return extensionFieldRepository.findExtensionFields(extensionName);
 	}
 	
+	/**
+	 * Fetches extension fields for specified extension id.
+	 * @param extensionId Specified extension id
+	 * @return List of extension fields
+	 */
+	public List<ExtensionFieldEntity> getExtensionFields(long extensionId)
+	{
+		logger.trace("Fetching extension fields for extension - {}", extensionId);
+		
+		return extensionFieldRepository.findExtensionFieldsByExtensionId(extensionId);
+	}
+	
+	/**
+	 * Gets extension based on specified target type and owner details.
+	 * @param targetEntityType Target type.
+	 * @param ownerEntityType Owner type.
+	 * @param ownerId Owner id.
+	 * @return Matching extension.
+	 */
+	public ExtensionEntity getExtension(Class<?> targetEntityType, Class<?> ownerEntityType, long ownerId)
+	{
+		logger.trace("Fetching extension for extension - Target: {}, Owner: {}, Owner Id: {}", targetEntityType.getName(), ownerEntityType.getName(), ownerId);
+		
+		return extensionRepository.findExtension(targetEntityType.getName(), ownerEntityType.getName(), ownerId);
+	}
+
 	/**
 	 * Fetches the extension field for specified extension with specified id.
 	 * @param extensionName Extension under which field is defined
@@ -461,5 +487,27 @@ public class ExtensionService
 		}
 		
 		model.setExtendedFields(modelExtFieldData);
+	}
+	
+	/**
+	 * Updates specified extension with specified name.
+	 * @param extensionId Id of extension to update.
+	 * @param newName New name for extension.
+	 */
+	public void updateExtensionName(long extensionId, String newName)
+	{
+		if(!extensionRepository.updateExtensionName(extensionId, newName))
+		{
+			throw new InvalidStateException("Failed to update extension '{}' to name - {}", extensionId, newName);
+		}
+	}
+	
+	/**
+	 * Deletes extension with specified id.
+	 * @param id Id of extension to be deleted.
+	 */
+	public void deleteExtension(long id)
+	{
+		extensionRepository.deleteById(id);
 	}
 }

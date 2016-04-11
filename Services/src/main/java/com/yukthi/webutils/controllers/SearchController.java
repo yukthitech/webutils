@@ -23,15 +23,14 @@
 
 package com.yukthi.webutils.controllers;
 
-import static com.yukthi.webutils.common.IWebUtilsActionConstants.*;
+import static com.yukthi.webutils.common.IWebUtilsActionConstants.ACTION_PREFIX_SEARCH;
 import static com.yukthi.webutils.common.IWebUtilsActionConstants.ACTION_TYPE_EXECUTE;
+import static com.yukthi.webutils.common.IWebUtilsActionConstants.ACTION_TYPE_EXPORT;
 import static com.yukthi.webutils.common.IWebUtilsActionConstants.ACTION_TYPE_FETCH_QUERY_DEF;
 import static com.yukthi.webutils.common.IWebUtilsActionConstants.ACTION_TYPE_FETCH_RESULT_DEF;
 import static com.yukthi.webutils.common.IWebUtilsActionConstants.PARAM_NAME;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -39,7 +38,6 @@ import javax.validation.Valid;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -55,9 +53,9 @@ import com.yukthi.webutils.common.FileInfo;
 import com.yukthi.webutils.common.IWebUtilsCommonConstants;
 import com.yukthi.webutils.common.SearchExecutionModel;
 import com.yukthi.webutils.common.controllers.ISearchController;
-import com.yukthi.webutils.common.models.ExecuteSearchResponse;
 import com.yukthi.webutils.common.models.ModelDefResponse;
 import com.yukthi.webutils.common.models.def.ModelDef;
+import com.yukthi.webutils.common.models.search.ExecuteSearchResponse;
 import com.yukthi.webutils.services.SearchService;
 import com.yukthi.webutils.services.ValidationService;
 import com.yukthi.webutils.utils.WebAttachmentUtils;
@@ -149,7 +147,7 @@ public class SearchController extends BaseController implements ISearchControlle
 		
 		validationService.validate(query);
 		
-		return new ExecuteSearchResponse( searchService.executeSearch(queryName, query, searchExecutionModel.getPageSize()) );
+		return searchService.executeSearch(queryName, query, searchExecutionModel.getPageNumber(), searchExecutionModel.getPageSize());
 	}
 
 	/* (non-Javadoc)
@@ -180,9 +178,9 @@ public class SearchController extends BaseController implements ISearchControlle
 		validationService.validate(query);
 		
 		ModelDef searchResultDef = searchService.getSearhResultDefinition(queryName);
-		List<Object> results = searchService.executeSearch(queryName, query, searchExecutionModel.getPageSize());
+		ExecuteSearchResponse results = searchService.executeSearch(queryName, query, 0, -1);
 
-		SearchExcelDataReport searchExcelDataReport = new SearchExcelDataReport("Results", searchResultDef, results);
+		SearchExcelDataReport searchExcelDataReport = new SearchExcelDataReport("Results", results);
 		File tempFile = File.createTempFile(queryName, ".xls");
 		
 		excelExporter.generateExcelSheet(tempFile.getPath(), searchExcelDataReport);

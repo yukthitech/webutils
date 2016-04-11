@@ -25,18 +25,9 @@ package com.yukthi.webutils.client.helpers;
 
 import static com.yukthi.webutils.common.IWebUtilsActionConstants.ACTION_PREFIX_SEARCH;
 import static com.yukthi.webutils.common.IWebUtilsActionConstants.ACTION_TYPE_EXECUTE;
-import static com.yukthi.webutils.common.IWebUtilsActionConstants.ACTION_TYPE_FETCH_QUERY_DEF;
-import static com.yukthi.webutils.common.IWebUtilsActionConstants.ACTION_TYPE_FETCH_RESULT_DEF;
 import static com.yukthi.webutils.common.IWebUtilsActionConstants.PARAM_NAME;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import org.apache.commons.collections.CollectionUtils;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.yukthi.utils.CommonUtils;
 import com.yukthi.utils.exceptions.InvalidStateException;
 import com.yukthi.utils.rest.RestClient;
@@ -47,9 +38,7 @@ import com.yukthi.webutils.client.ClientContext;
 import com.yukthi.webutils.client.RestException;
 import com.yukthi.webutils.common.IWebUtilsCommonConstants;
 import com.yukthi.webutils.common.SearchExecutionModel;
-import com.yukthi.webutils.common.models.ExecuteSearchResponse;
-import com.yukthi.webutils.common.models.ModelDefResponse;
-import com.yukthi.webutils.common.models.def.ModelDef;
+import com.yukthi.webutils.common.models.search.ExecuteSearchResponse;
 
 /**
  * Helper to execute search related functions
@@ -71,7 +60,7 @@ public class SearchHelper
 	 * @param pageSize Query page size
 	 * @return List of search results
 	 */
-	public <T> List<T> executeSearchQuery(ClientContext context, String queryName, Object searchQuery, int pageSize, Class<T> resultType)
+	public ExecuteSearchResponse executeSearchQuery(ClientContext context, String queryName, Object searchQuery, int pageSize)
 	{
 		//Build model object
 		SearchExecutionModel searchExecutionModel = new SearchExecutionModel();
@@ -101,21 +90,6 @@ public class SearchHelper
 			throw new RestException("An error occurred while executing search-query - " + queryName, searchResult.getStatusCode(), response);
 		}
 		
-		if(CollectionUtils.isEmpty(response.getSearchResults()))
-		{
-			return Collections.emptyList();
-		}
-		
-		//Convert generic object list into target result type
-		try
-		{
-			String resultLstAsJson = objectMapper.writeValueAsString(response.getSearchResults());
-			List<T> resLst = objectMapper.readValue(resultLstAsJson, TypeFactory.defaultInstance().constructCollectionType(ArrayList.class, resultType));
-			
-			return resLst;
-		}catch(Exception ex)
-		{
-			throw new InvalidStateException(ex, "An error occurred while converting resulting into target result type - {}", resultType.getName());
-		}
+		return response;
 	}
 }

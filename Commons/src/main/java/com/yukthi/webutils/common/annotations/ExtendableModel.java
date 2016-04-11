@@ -37,7 +37,7 @@ import java.lang.annotation.Target;
 public @interface ExtendableModel
 {
 	/**
-	 * Name of the extension source
+	 * Name of the extension source.
 	 * @return Name of the extension source
 	 */
 	public String name();

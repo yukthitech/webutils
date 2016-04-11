@@ -23,22 +23,18 @@
 
 package com.yukthi.webutils;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
-
-import org.apache.commons.beanutils.PropertyUtils;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import com.yukthi.excel.exporter.data.Cell;
 import com.yukthi.excel.exporter.data.IExcelDataReport;
-import com.yukthi.utils.exceptions.InvalidStateException;
-import com.yukthi.webutils.common.models.def.FieldDef;
-import com.yukthi.webutils.common.models.def.ModelDef;
+import com.yukthi.webutils.common.models.search.ExecuteSearchResponse;
+import com.yukthi.webutils.common.models.search.SearchColumn;
 
 /**
- * Coverts search results into excel date report format. Used during export of search results.
+ * Converts search results into excel date report format. Used during export of search results.
  * 
  * @author akiran
  */
@@ -49,66 +45,47 @@ public class SearchExcelDataReport implements IExcelDataReport
 	 */
 	private String name;
 	
+	/**
+	 * Heading of the excel sheet.
+	 */
 	private List<String> headings;
 	
+	/**
+	 * Data in excel sheet.
+	 */
 	private List<List<Cell>> rows;
 	
-	public SearchExcelDataReport(String name, ModelDef searchResultsDef, List<Object> results)
+	/**
+	 * Instantiates a new search excel data report.
+	 *
+	 * @param name the name
+	 * @param response the response
+	 */
+	public SearchExcelDataReport(String name, ExecuteSearchResponse response)
 	{
 		this.name = name;
 		
-		int fieldCount = searchResultsDef.getFields().size();
+		List<SearchColumn> searchColumns = response.getSearchColumns();
 		
 		//compute the headings
-		headings = new ArrayList<>(fieldCount);
-		
-		for(FieldDef field : searchResultsDef.getFields())
-		{
-			//ignore non displayable fields
-			if(!field.isDisplayable())
-			{
-				continue;
-			}
-			
-			headings.add(field.getLabel());
-		}
+		headings = searchColumns.stream()
+			.filter(srchCol -> srchCol.isDisplayable())
+			.map(srchCol -> srchCol.getHeading())
+			.collect(Collectors.toList());
 		
 		//compute the rows
 		rows = new LinkedList<>();
-		List<Cell> row = null;
-		Object value = null;
-		SimpleDateFormat dateFormat = new SimpleDateFormat(searchResultsDef.getDateFormat());
 		
-		for(Object bean : results)
-		{
-			row = new ArrayList<>(fieldCount);
+		response.getSearchResults().stream().forEach(searchRow -> {
+			AtomicInteger index = new AtomicInteger();
 			
-			//loop through the fields
-			for(FieldDef field : searchResultsDef.getFields())
-			{
-				//ignore non displayable fields
-				if(!field.isDisplayable())
-				{
-					continue;
-				}
-				
-				//fetch the value of the field for current row
-				try
-				{
-					value = PropertyUtils.getProperty(bean, field.getName());
-				}catch(Exception ex)
-				{
-					throw new InvalidStateException(ex, "An error occurred while fetching field '{}' from bean - {}", field.getName(), bean.getClass().getName());
-				}
-
-				value = (value == null) ? "" : value;
-				value = (value instanceof Date) ? dateFormat.format(value) : value.toString();
-				
-				row.add(new Cell((String)value));
-			}
+			List<Cell> row = searchRow.getData().stream()
+				.filter( val -> searchColumns.get(index.getAndIncrement()).isDisplayable() )
+				.map(val -> (val == null) ? new Cell("") : new Cell(val))
+				.collect(Collectors.toList());
 			
 			rows.add(row);
-		}
+		});
 	}
 	
 	/* (non-Javadoc)
@@ -137,5 +114,4 @@ public class SearchExcelDataReport implements IExcelDataReport
 	{
 		return rows;
 	}
-
 }

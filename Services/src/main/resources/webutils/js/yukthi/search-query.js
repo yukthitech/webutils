@@ -75,40 +75,8 @@ $.application.controller('searchQueryController', ["$scope", "actionHelper", "lo
 		
 		utils.executeAsyncSteps(stepExecContext, [
 			
-		    //Checks and fetches search result def if required
-			function(callback) {
-				//if result definition is not present in controller fetch it from server
-				if(!this.$scope.searchResultDef)
-				{
-					this.actionHelper.invokeAction("search.fetch.resultDef", null, {"name" : this.$scope.searchQueryName}, callback);
-				}
-				else
-				{
-					callback();
-				}
-			},
-			
-			//if the search result def is obtained from server, sets it on scope
-			function(callback, resDefresponse, respConfig) {
-				if(!this.$scope.searchResultDef)
-				{
-					if(!resDefresponse)
-					{
-						this.logger.error("An error occurred while fetching search result details. Please try refreshing the page");
-						this.utils.alert("An error occurred while fetching search result details. Please try refreshing the page");
-						return;
-					}
-					
-					this.$scope.searchResultDef = resDefresponse.modelDef;
-				}
-				
-				callback();
-			},
-			
 			//executes the search query
 			function(callback) {
-				this.$scope.searchResults = [];
-				
 				var queryJson = JSON.stringify(this.$scope.searchQuery);
 				var request = {
 					"queryModelJson" : 	queryJson,
@@ -123,12 +91,41 @@ $.application.controller('searchQueryController', ["$scope", "actionHelper", "lo
 			function(callback, result, respConfig) {
 				if(result.searchResults && result.searchResults)
 				{
-					this.$scope.searchResults = result.searchResults;
 					this.logger.trace("With specified search criteria found results of count - {}", $scope.searchResults.length);
 				}
 				else
 				{
 					this.logger.trace("No results found with specified criteria.");
+				}
+				
+				var searchResultDef = {"fields": []};
+				this.$scope.searchResults = [];
+				this.$scope.searchResultDef = searchResultDef;
+				
+				if(result.searchResults.length > 0)
+				{
+					for(var i = 0; i < result.searchColumns.length; i++)
+					{
+						searchResultDef.fields.push({
+							"displayable": result.searchColumns[i].displayable, 
+							"label": result.searchColumns[i].heading, 
+							"name": result.searchColumns[i].name
+						});
+					}
+					
+					var resultObj = null;
+					
+					for(var i = 0; i < result.searchResults.length; i++)
+					{
+						resultObj = {};
+						
+						for(var j = 0; j < result.searchColumns.length; j++)
+						{
+							resultObj[result.searchColumns[j].name] = result.searchResults[i].data[j];
+						}
+						
+						this.$scope.searchResults.push(resultObj);
+					}
 				}
 				
 				this.$scope.searchExecuted = true;

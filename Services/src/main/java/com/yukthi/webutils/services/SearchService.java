@@ -27,7 +27,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,11 +49,16 @@ import com.yukthi.utils.exceptions.InvalidConfigurationException;
 import com.yukthi.utils.exceptions.InvalidStateException;
 import com.yukthi.webutils.IRepositoryMethodRegistry;
 import com.yukthi.webutils.InvalidRequestParameterException;
+import com.yukthi.webutils.WebutilsConfiguration;
 import com.yukthi.webutils.WebutilsContext;
 import com.yukthi.webutils.annotations.SearchQueryMethod;
 import com.yukthi.webutils.common.annotations.ContextAttribute;
 import com.yukthi.webutils.common.annotations.Model;
+import com.yukthi.webutils.common.models.def.FieldDef;
 import com.yukthi.webutils.common.models.def.ModelDef;
+import com.yukthi.webutils.common.models.search.ExecuteSearchResponse;
+import com.yukthi.webutils.common.models.search.SearchColumn;
+import com.yukthi.webutils.common.models.search.SearchRow;
 import com.yukthi.webutils.security.ISecurityService;
 import com.yukthi.webutils.security.UnauthorizedException;
 import com.yukthi.webutils.services.dynamic.DynamicMethod;
@@ -114,6 +121,9 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 	 */
 	@Autowired(required = false)
 	private ISecurityService securityService;
+
+	@Autowired
+	private WebutilsConfiguration webutilsConfiguration;
 	
 	/* (non-Javadoc)
 	 * @see com.yukthi.webutils.IRepositoryMethodRegistry#registerRepositoryMethod(java.lang.reflect.Method, java.lang.annotation.Annotation)
@@ -233,11 +243,12 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 	 * will be limited to "resultLimit".
 	 * @param searchQueryName Search query name to execute
 	 * @param query Query object containing conditions
-	 * @param resultLimit Limit on number of results returned
+	 * @param pageNo Page number to fetch
+	 * @param pageSize page size
 	 * @return Results of search query execution
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public List<Object> executeSearch(String searchQueryName, Object query, int resultLimit)
+	public ExecuteSearchResponse executeSearch(String searchQueryName, Object query, int pageNo, int pageSize)
 	{
 		//validate inputs
 		SearchQueryDetails searchQueryDetails = nameToSearchMet.get(searchQueryName);
@@ -314,7 +325,7 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 			//ignore blank value
 			if(value instanceof String)
 			{
-				strValue = (String)value;
+				strValue = (String) value;
 				
 				if(strValue.trim().length() == 0)
 				{
@@ -339,15 +350,71 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 		repoSearchQuery.addCondition(new SearchCondition("spaceIdentity", Operator.EQ, securityService.getUserSpaceIdentity()));
 		
 		//set limit on repo search query
-		repoSearchQuery.setResultsLimit(resultLimit);
+		repoSearchQuery.setResultsOffset(pageNo * pageSize);
+		repoSearchQuery.setResultsLimit(pageSize);
 		
 		//execute search and return results
 		try
 		{
-			return (List) searchQueryDetails.method.invoke(searchQueryDetails.repository, repoSearchQuery);
+			List<Object> results = (List) searchQueryDetails.method.invoke(searchQueryDetails.repository, repoSearchQuery);
+			
+			return toResponse(searchQueryName, results);
 		}catch(Exception ex)
 		{
 			throw new InvalidStateException(ex, "An error occurred while executing search query - {}", searchQueryName);
 		}
+	}
+	
+	/**
+	 * Converts specified results into response.
+	 * @param searchQueryName Search query for which conversion should be done.
+	 * @param results Search results to be converted.
+	 * @return Converted response. 
+	 */
+	private ExecuteSearchResponse toResponse(String searchQueryName, List<Object> results) throws Exception
+	{
+		ExecuteSearchResponse response = new ExecuteSearchResponse();
+		ModelDef modelDef = getSearhResultDefinition(searchQueryName);
+		
+		for(FieldDef field : modelDef.getFields())
+		{
+			response.addSearchColumn(new SearchColumn(field.getName(), field.getLabel(), field.isDisplayable(), field.getFieldType()));
+		}
+		
+		if(results == null || results.isEmpty())
+		{
+			response.setSearchResults(new ArrayList<>());
+			return response;
+		}
+
+		SearchRow searchRow = null;
+		Object value = null;
+		
+		for(Object result : results)
+		{
+			searchRow = new SearchRow();
+			
+			for(FieldDef field : modelDef.getFields())
+			{
+				value = PropertyUtils.getProperty(result, field.getName());
+				
+				if(value == null)
+				{
+					searchRow.addValue(null);
+					continue;
+				}
+				
+				if(value instanceof Date)
+				{
+					value = webutilsConfiguration.getDateFormat().format(value);
+				}
+				
+				searchRow.addValue(value.toString());
+			}
+			
+			response.addSearchResult(searchRow);
+		}
+		
+		return response;
 	}
 }

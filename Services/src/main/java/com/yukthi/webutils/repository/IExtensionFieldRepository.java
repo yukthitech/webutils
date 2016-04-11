@@ -50,6 +50,14 @@ public interface IExtensionFieldRepository extends IWebutilsRepository<Extension
 	public List<ExtensionFieldEntity> findExtensionFields(@Condition("extension.name") String extensionName);
 	
 	/**
+	 * Fetches extension fields by extension id.
+	 * @param extensionId Extension id
+	 * @return Matching extension fields
+	 */
+	@RestrictBySpace
+	public List<ExtensionFieldEntity> findExtensionFieldsByExtensionId(@Condition("extension.id") long extensionId);
+
+	/**
 	 * Fetches the extension field for specified extension with specified id.
 	 * @param extensionName Extension under which field is defined
 	 * @param id Id of the field that needs to be fetched

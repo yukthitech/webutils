@@ -51,7 +51,7 @@ public @interface SearchQueryMethod
 	public String name();
 	
 	/**
-	 * Model bean to be used for query
+	 * Model bean to be used for query.
 	 * @return Search query model type
 	 */
 	public Class<?> queryModel();

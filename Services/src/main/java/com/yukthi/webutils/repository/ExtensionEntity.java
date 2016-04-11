@@ -28,6 +28,7 @@ import javax.persistence.Table;
 
 import com.yukthi.persistence.annotations.DataType;
 import com.yukthi.persistence.annotations.DataTypeMapping;
+import com.yukthi.persistence.annotations.NotUpdateable;
 import com.yukthi.persistence.annotations.UniqueConstraint;
 import com.yukthi.persistence.annotations.UniqueConstraints;
 import com.yukthi.persistence.conversion.impl.JsonConverter;
@@ -52,24 +53,28 @@ public class ExtensionEntity extends WebutilsEntity
 	/**
 	 * Name of the target entity type for which this extended field is defined.
 	 */
+	@NotUpdateable
 	@Column(name = "TARGET_ENTITY_TYPE", nullable = false, length = 250)
 	private String targetEntityType;
 	
 	/**
 	 * Owner entity type under which extension is being defined.
 	 */
+	@NotUpdateable
 	@Column(name = "OWNER_ENTITY_TYPE", nullable = false, length = 100)
 	private String ownerEntityType;
 	
 	/**
 	 * Owner entity id for which entity is being defined. 
 	 */
+	@NotUpdateable
 	@Column(name = "OWNER_ENTITY_ID", nullable = false)
 	private long ownerEntityId;
 	
 	/**
 	 * Custom attributes for the extension.
 	 */
+	@NotUpdateable
 	@Column(name = "CUSTOM_ATTR", length = 2000)
 	@DataTypeMapping(type = DataType.STRING, converterType = JsonConverter.class)
 	private Object attributes;

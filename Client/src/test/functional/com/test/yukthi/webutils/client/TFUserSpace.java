@@ -46,6 +46,8 @@ import com.yukthi.webutils.common.controllers.ILovController;
 import com.yukthi.webutils.common.models.BasicReadResponse;
 import com.yukthi.webutils.common.models.BasicSaveResponse;
 import com.yukthi.webutils.common.models.ValueLabel;
+import com.yukthi.webutils.common.models.search.ExecuteSearchResponse;
+import com.yukthi.webutils.common.models.search.SearchRow;
 
 /**
  * Tests the data save and fetch are restricted to spaces.
@@ -162,18 +164,18 @@ public class TFUserSpace extends TFBase
 		clientContext.setRequestCustomizer(customizer);
 		
 		TestEmpSearchQuery query = new TestEmpSearchQuery("*");
-		List<TestEmpSearchResult> results = searchHelper.executeSearchQuery(clientContext, "empSearch", query, -1, TestEmpSearchResult.class);
+		ExecuteSearchResponse results = searchHelper.executeSearchQuery(clientContext, "empSearch", query, -1);
 
-		if(results == null || results.isEmpty())
+		if(results.getSearchResults() == null || results.getSearchResults().isEmpty())
 		{
 			return null;
 		}
 		
 		Set<String> names = new HashSet<>();
 		
-		for(TestEmpSearchResult vl : results)
+		for(SearchRow vl : results.getSearchResults())
 		{
-			names.add(vl.getName());
+			names.add(vl.getData().get(1));
 		}
 		
 		return names;
