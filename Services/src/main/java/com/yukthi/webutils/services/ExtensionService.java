@@ -221,6 +221,13 @@ public class ExtensionService
 	 */
 	public boolean isValidExtension(String name)
 	{
+		ExtensionEntityDetails extensionEntityDetails = nameToExtension.get(name);
+		
+		if(extensionEntityDetails != null && securityService.isExtensionAuthorized(extensionEntityDetails))
+		{
+			return true;
+		}
+		
 		return extensionRepository.isValidExtension(name);
 	}
 	

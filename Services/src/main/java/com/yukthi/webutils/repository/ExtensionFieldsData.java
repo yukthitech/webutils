@@ -22,7 +22,7 @@ public class ExtensionFieldsData implements IDynamicSearchResult
 	/**
 	 * Extended field values.
 	 */
-	private Map<String, String> extendedFields;
+	private Map<String, String> extendedFields = new HashMap<>();
 
 	/**
 	 * Gets the id of the entity.
@@ -70,11 +70,6 @@ public class ExtensionFieldsData implements IDynamicSearchResult
 	@Override
 	public void addField(DynamicResultField field)
 	{
-		if(extendedFields == null)
-		{
-			extendedFields = new HashMap<>();
-		}
-		
 		Object value = field.getValue();
 		value = (value == null) ? null : value.toString();
 		
