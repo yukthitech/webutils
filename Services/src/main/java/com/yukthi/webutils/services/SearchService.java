@@ -28,6 +28,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -42,8 +43,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.yukthi.persistence.ICrudRepository;
+import com.yukthi.persistence.OrderByField;
 import com.yukthi.persistence.repository.annotations.Condition;
 import com.yukthi.persistence.repository.annotations.Operator;
+import com.yukthi.persistence.repository.annotations.OrderBy;
+import com.yukthi.persistence.repository.annotations.OrderByType;
 import com.yukthi.persistence.repository.search.SearchCondition;
 import com.yukthi.utils.exceptions.InvalidConfigurationException;
 import com.yukthi.utils.exceptions.InvalidStateException;
@@ -52,13 +56,19 @@ import com.yukthi.webutils.InvalidRequestParameterException;
 import com.yukthi.webutils.WebutilsConfiguration;
 import com.yukthi.webutils.WebutilsContext;
 import com.yukthi.webutils.annotations.SearchQueryMethod;
+import com.yukthi.webutils.common.IExtendedSearchResult;
 import com.yukthi.webutils.common.annotations.ContextAttribute;
 import com.yukthi.webutils.common.annotations.Model;
-import com.yukthi.webutils.common.models.def.FieldDef;
+import com.yukthi.webutils.common.models.def.FieldType;
 import com.yukthi.webutils.common.models.def.ModelDef;
 import com.yukthi.webutils.common.models.search.ExecuteSearchResponse;
 import com.yukthi.webutils.common.models.search.SearchColumn;
+import com.yukthi.webutils.common.models.search.SearchField;
 import com.yukthi.webutils.common.models.search.SearchRow;
+import com.yukthi.webutils.common.models.search.SearchSettingsColumn;
+import com.yukthi.webutils.controllers.IExtensionContextProvider;
+import com.yukthi.webutils.repository.WebutilsExtendableEntity;
+import com.yukthi.webutils.repository.search.SearchSettingsEntity;
 import com.yukthi.webutils.security.ISecurityService;
 import com.yukthi.webutils.security.UnauthorizedException;
 import com.yukthi.webutils.services.dynamic.DynamicMethod;
@@ -82,8 +92,10 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 		
 		private String resultTypeModelName;
 		private String queryTypeModelName;
+		
+		private OrderByField orderByFields[];
 
-		public SearchQueryDetails(Method method, ICrudRepository<?> repository, Class<?> resultType, Class<?> queryType)
+		public SearchQueryDetails(Method method, ICrudRepository<?> repository, Class<?> resultType, Class<?> queryType, OrderByField orderByFields[])
 		{
 			this.method = method;
 			this.repository = repository;
@@ -92,6 +104,8 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 			
 			this.resultTypeModelName = resultType.getAnnotation(Model.class).name();
 			this.queryTypeModelName = queryType.getAnnotation(Model.class).name();
+			
+			this.orderByFields = orderByFields;
 			
 			if(StringUtils.isBlank(this.resultTypeModelName))
 			{
@@ -122,8 +136,23 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 	@Autowired(required = false)
 	private ISecurityService securityService;
 
+	/**
+	 * Used to fetch date format.
+	 */
 	@Autowired
 	private WebutilsConfiguration webutilsConfiguration;
+	
+	/**
+	 * Used to fetch search settings.
+	 */
+	@Autowired
+	private SearchSettingsService searchSettingsService;
+	
+	/**
+	 * Used to fetch extension name of the search result.
+	 */
+	@Autowired
+	private IExtensionContextProvider extensionContextProvider;
 	
 	/* (non-Javadoc)
 	 * @see com.yukthi.webutils.IRepositoryMethodRegistry#registerRepositoryMethod(java.lang.reflect.Method, java.lang.annotation.Annotation)
@@ -161,6 +190,16 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 			throw new InvalidStateException("For search-method {}.{} non-model {} is defined as query-return-type", repository.getClass().getName(), method.getName(), returnModelType.getName());
 		}
 		
+		//for extendable entities ensure search results is also extendable
+		if(WebutilsExtendableEntity.class.isAssignableFrom(repository.getEntityDetails().getEntityType()))
+		{
+			if(!IExtendedSearchResult.class.isAssignableFrom(returnModelType))
+			{
+				throw new InvalidStateException("For extendable entity {} search result type {} defined for search method {}.{} is not extendable", 
+						repository.getEntityDetails().getEntityType().getName(), returnModelType.getName(), repository.getClass().getName(), method.getName());
+			}
+		}
+		
 		String queryName = annotation.name();
 		
 		//if duplicate lov name is encountered throw error
@@ -174,8 +213,44 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 	
 		logger.info("Loading search method - {}.{}", method.getDeclaringClass().getName(), method.getName());
 		
+		OrderBy orderByAnnot = method.getAnnotation(OrderBy.class);
+		OrderByField orderByFields[] = null;
+		
+		if(orderByAnnot != null)
+		{
+			com.yukthi.persistence.repository.annotations.OrderByField fieldsAnnot[] = orderByAnnot.fields();
+			
+			if(fieldsAnnot != null)
+			{
+				orderByFields = new OrderByField[fieldsAnnot.length];
+				int idx = 0;
+				
+				for(com.yukthi.persistence.repository.annotations.OrderByField annot : fieldsAnnot)
+				{
+					orderByFields[idx] = new OrderByField(annot.name(), annot.type());
+					idx++;
+				}
+			}
+			else
+			{
+				orderByFields = new OrderByField[orderByAnnot.value().length];
+				int idx = 0;
+				String fieldNames[] = orderByAnnot.value();
+				
+				for(String field : fieldNames)
+				{
+					orderByFields[idx] = new OrderByField(field, OrderByType.ASC);
+					idx++;
+				}
+			}
+		}
+		else
+		{
+			orderByFields = new OrderByField[]{new OrderByField("id", OrderByType.ASC)};
+		}
+		
 		//register the model
-		nameToSearchMet.put(annotation.name(), new SearchQueryDetails(method, repository, returnModelType, queryModelType));
+		nameToSearchMet.put(annotation.name(), new SearchQueryDetails(method, repository, returnModelType, queryModelType, orderByFields));
 	}
 
 	/* (non-Javadoc)
@@ -349,16 +424,49 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 		
 		repoSearchQuery.addCondition(new SearchCondition("spaceIdentity", Operator.EQ, securityService.getUserSpaceIdentity()));
 		
+		//set ordering
+		repoSearchQuery.setOrderByFields(Arrays.asList(searchQueryDetails.orderByFields));
+		
 		//set limit on repo search query
 		repoSearchQuery.setResultsOffset(pageNo * pageSize);
 		repoSearchQuery.setResultsLimit(pageSize);
+		
+		///////////////////////////////////////////////////////////
+		//Add result fields
+		SearchSettingsEntity searchSettings = searchSettingsService.fetchSettings(searchQueryName);
+		
+		for(SearchSettingsColumn column : searchSettings.getSearchColumns())
+		{
+			//if the field is required or displayable
+			if(column.isRequired() || column.isDisplayed())
+			{
+				//if the column is extended field add it the search query extended list
+				if(column.isExtended())
+				{
+					for(SearchField field : column.getFields())
+					{
+						repoSearchQuery.addAdditionEntityField(field.getField());
+					}
+				}
+			}
+			//if the column is not needed
+			else
+			{
+				//and if it is fixed field
+				if(!column.isExtended())
+				{
+					//add it to exclusion list
+					repoSearchQuery.addExcludedField(column.getFieldName());
+				}
+			}
+		}
 		
 		//execute search and return results
 		try
 		{
 			List<Object> results = (List) searchQueryDetails.method.invoke(searchQueryDetails.repository, repoSearchQuery);
 			
-			return toResponse(searchQueryName, results);
+			return toResponse(searchQueryName, results, searchSettings);
 		}catch(Exception ex)
 		{
 			throw new InvalidStateException(ex, "An error occurred while executing search query - {}", searchQueryName);
@@ -369,16 +477,28 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 	 * Converts specified results into response.
 	 * @param searchQueryName Search query for which conversion should be done.
 	 * @param results Search results to be converted.
+	 * @param searchSettings Search settings to be used
 	 * @return Converted response. 
 	 */
-	private ExecuteSearchResponse toResponse(String searchQueryName, List<Object> results) throws Exception
+	private ExecuteSearchResponse toResponse(String searchQueryName, List<Object> results, SearchSettingsEntity searchSettings) throws Exception
 	{
 		ExecuteSearchResponse response = new ExecuteSearchResponse();
-		ModelDef modelDef = getSearhResultDefinition(searchQueryName);
-		
-		for(FieldDef field : modelDef.getFields())
+
+		//add search result headers
+		for(SearchSettingsColumn column : searchSettings.getSearchColumns())
 		{
-			response.addSearchColumn(new SearchColumn(field.getName(), field.getLabel(), field.isDisplayable(), field.getFieldType()));
+			//if the field is required or displayable
+			if(column.isRequired() || column.isDisplayed())
+			{
+				if(column.isExtended())
+				{
+					response.addSearchColumn(new SearchColumn("Ext_" + column.getName().replaceAll("\\s+", "_"), column.getName(), column.isDisplayed(), FieldType.STRING));
+				}
+				else
+				{
+					response.addSearchColumn(new SearchColumn(column.getFieldName(), column.getName(), column.isDisplayed(), FieldType.STRING));
+				}
+			}
 		}
 		
 		if(results == null || results.isEmpty())
@@ -387,17 +507,52 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 			return response;
 		}
 
+		//Build the rows
 		SearchRow searchRow = null;
 		Object value = null;
+		String extensionName = null;
 		
 		for(Object result : results)
 		{
 			searchRow = new SearchRow();
 			
-			for(FieldDef field : modelDef.getFields())
+			for(SearchSettingsColumn column : searchSettings.getSearchColumns())
 			{
-				value = PropertyUtils.getProperty(result, field.getName());
+				//ignore fields which will not be part of results
+				if(!column.isRequired() && !column.isDisplayed())
+				{
+					continue;
+				}
 				
+				//if column belong to extended field
+				if(column.isExtended())
+				{
+					//if it is simple extension field
+					if(!column.isMixedField())
+					{
+						value = ((IExtendedSearchResult) result).getDynamicFieldValue(column.getFieldName());
+					}
+					//if multiple extension fields (of different extensions) point to same column
+					else
+					{
+						extensionName = extensionContextProvider.getExtensionName(result);
+						
+						if(extensionName != null)
+						{
+							value = ((IExtendedSearchResult) result).getDynamicFieldValue(column.getMixedFieldName(extensionName));
+						}
+						else
+						{
+							value = ((IExtendedSearchResult) result).getDynamicFieldValue(column.getFieldName());
+						}
+					}
+				}
+				//if column belong to static field
+				else
+				{
+					value = PropertyUtils.getProperty(result, column.getFieldName());
+				}
+
 				if(value == null)
 				{
 					searchRow.addValue(null);
@@ -411,10 +566,28 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 				
 				searchRow.addValue(value.toString());
 			}
-			
+
 			response.addSearchResult(searchRow);
 		}
 		
 		return response;
+	}
+	
+	/**
+	 * Fetches entity type of a search query.
+	 * @param searchQueryName Search query name.
+	 * @return Search query entity type.
+	 */
+	public Class<?> getEntityTypeOf(String searchQueryName)
+	{
+		//validate inputs
+		SearchQueryDetails searchQueryDetails = nameToSearchMet.get(searchQueryName);
+		
+		if(searchQueryDetails == null)
+		{
+			throw new InvalidRequestParameterException("Invalid search query name specified - " + searchQueryName);
+		}
+
+		return searchQueryDetails.repository.getEntityDetails().getEntityType();
 	}
 }

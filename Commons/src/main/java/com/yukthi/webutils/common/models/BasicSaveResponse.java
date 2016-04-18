@@ -24,14 +24,14 @@
 package com.yukthi.webutils.common.models;
 
 /**
- * Generic save response
+ * Generic save response.
  * 
  * @author akiran
  */
 public class BasicSaveResponse extends BaseResponse
 {
 	/**
-	 * ID of the saved entity
+	 * ID of the saved entity.
 	 */
 	private long id;
 
@@ -81,5 +81,4 @@ public class BasicSaveResponse extends BaseResponse
 	{
 		this.id = id;
 	}
-
 }

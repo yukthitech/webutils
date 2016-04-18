@@ -286,6 +286,20 @@ public class ExtensionService
 		
 		return extensionFieldRepository.findExtensionFieldsByExtensionId(extensionId);
 	}
+
+	/**
+	 * Fetches extension fields of specified entity under all owners restricted to current user space.
+	 * This is mainly used for search query customization.
+	 * 
+	 * @param entityType Entity type for which extension fields needs to be fetched.
+	 * @return Matching extension fields.
+	 */
+	public List<ExtensionFieldEntity> getExtensionFieldsForEntity(String entityType)
+	{
+		logger.trace("Fetching extension fields for entity type - {}", entityType);
+		
+		return extensionFieldRepository.findExtensionFieldsByEntity(entityType);
+	}
 	
 	/**
 	 * Gets extension based on specified target type and owner details.

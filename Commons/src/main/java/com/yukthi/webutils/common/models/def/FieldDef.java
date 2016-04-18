@@ -23,6 +23,7 @@
 
 package com.yukthi.webutils.common.models.def;
 
+import java.lang.reflect.Field;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -94,6 +95,27 @@ public class FieldDef
 	 * Compatible collection type that can be used for field value population
 	 */
 	private Class<?> compatibleCollectionType;
+	
+	/**
+	 * Java fields, which can be used to get further annotation on field.
+	 */
+	private Field field;
+	
+	/**
+	 * Instantiates a new field def.
+	 */
+	public FieldDef()
+	{}
+	
+	/**
+	 * Instantiates a new field def.
+	 *
+	 * @param field the field
+	 */
+	public FieldDef(Field field)
+	{
+		this.field = field;
+	}
 
 	/**
 	 * Gets the id of the field, in the cases where this field represents extension field.
@@ -336,6 +358,16 @@ public class FieldDef
 		this.compatibleCollectionType = compatibleCollectionType;
 	}
 
+	/**
+	 * Fetches underlying java field.
+	 * @return Underlying java field.
+	 */
+	@JsonIgnore
+	public Field getField()
+	{
+		return field;
+	}
+
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
@@ -355,5 +387,4 @@ public class FieldDef
 		builder.append("]");
 		return builder.toString();
 	}
-
 }

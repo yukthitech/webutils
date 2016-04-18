@@ -24,15 +24,16 @@
 package com.test.yukthi.webutils.models;
 
 import com.yukthi.persistence.repository.annotations.Field;
+import com.yukthi.webutils.common.AbstractExtendedSearchResult;
 import com.yukthi.webutils.common.annotations.Model;
 
 /**
- * Emp search result
+ * Emp search result.
  * 
  * @author akiran
  */
 @Model
-public class TestEmpSearchResult
+public class TestEmpSearchResult extends AbstractExtendedSearchResult
 {
 	@Field(value = "id")
 	private long id;
@@ -42,7 +43,7 @@ public class TestEmpSearchResult
 
 	@Field(value = "salary")
 	private long salary;
-
+	
 	public long getId()
 	{
 		return id;
@@ -72,5 +73,4 @@ public class TestEmpSearchResult
 	{
 		this.salary = salary;
 	}
-
 }

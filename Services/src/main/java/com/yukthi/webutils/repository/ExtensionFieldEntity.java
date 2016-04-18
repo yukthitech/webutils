@@ -49,8 +49,9 @@ import com.yukthi.webutils.common.extensions.LovOption;
  */
 @Table(name = "EXTENSION_FIELDS")
 @UniqueConstraints({
-	@UniqueConstraint(name = "EXT_ID_NAME", fields = {"extension", "name"}),
-	@UniqueConstraint(name = "EXT_ID_COL_NAME", fields = {"extension", "columnName"})
+	@UniqueConstraint(name = "EXT_ID_NAME", fields = {"extension", "name"}, message = "Extension field with specified name already eixsts."),
+	@UniqueConstraint(name = "EXT_ID_COL_NAME", fields = {"extension", "columnName"}, message = "Extension field for specified column already exists."),
+	@UniqueConstraint(name = "EXT_ID_LABEL", fields = {"extension", "label"}, message = "Extension field with specified label already eixsts."),
 	})
 public class ExtensionFieldEntity extends WebutilsEntity
 {

@@ -82,6 +82,11 @@ public class ExtendableModelValidator implements Validator
 		
 		String extensionName = extensionContextProvider.getExtensionName(target);
 		
+		if(extensionName == null)
+		{
+			extensionName = extendableModel.name();
+		}
+		
 		ExtensionEntity extensionEntity = extensionService.getExtensionEntity(extensionName);
 		
 		if(extensionEntity == null)

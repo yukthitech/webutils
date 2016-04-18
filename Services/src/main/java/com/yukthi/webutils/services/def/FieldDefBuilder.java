@@ -177,7 +177,7 @@ public class FieldDefBuilder
 	{
 		String fqn = modelType.getName() + "." + field.getName();
 		
-		FieldDef fieldDef = new FieldDef();
+		FieldDef fieldDef = new FieldDef(field);
 		
 		fieldDef.setName(field.getName());
 		fieldDef.setLabel(defUtils.getLabel(field, field.getName(), fqn));
