@@ -287,4 +287,15 @@ $.application.controller('searchQueryController', ["$scope", "actionHelper", "lo
 			$scope.errors[modelPrefix].extendedFields[name] = ex;
 		}
 	};
+	
+	$scope.changeRowSelection = function(index) {
+		$scope.selectedIndex = index;
+		
+		$scope.$emit('searchResultSelectionChanged', {
+		   "index": $scope.selectedIndex,
+		   "selectedRow": $scope.searchResults[$scope.selectedIndex],
+		   "searchQuery": $scope.searchQuery,
+		   "searchQueryName": $scope.searchQueryName
+		  });		
+	};
 }]);

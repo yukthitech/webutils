@@ -49,6 +49,8 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 			$scope.crudConfig = config;
 			
 			$scope.defaultValues = {};
+			
+			$scope.invalidateModelDef = false;
 
 			$scope.$watch(function(){
 				
@@ -281,7 +283,7 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 					$scope.errors[modelPrefix].extendedFields = {};
 				}
 				
-				if(!$scope.modelDef)
+				if(!$scope.modelDef || $scope.invalidateModelDef)
 				{
 					//if initModelDef is defined, use to init model def
 					if($scope.initModelDef)
@@ -295,6 +297,8 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 							this.$scope.modelDef = modelDefResp.modelDef;
 						}, {"$scope": $scope}));
 					}
+					
+					$scope.invalidateModelDef = false;
 				}
 				
 				//if clean is requested, force changes to ui
@@ -478,6 +482,10 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 			
 			$scope.getActionUrl = function(actionName, params) {
 				return actionHelper.actionUrl(actionName, params);
+			};
+			
+			$scope.resetModelDef = function() {
+				$scope.invalidateModelDef = true;
 			};
 		}
 	};

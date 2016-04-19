@@ -94,6 +94,25 @@ $.addElementDirective = function(directiveObj) {
 						
 						var attrVal = elem.attr(name);
 						
+						if(attrVal)
+						{
+							var pattern = /\$\{([\w\$\.]+)\}/g;
+							attrVal = attrVal.replace(pattern, $.proxy(function(match, p1){
+								var val = null;
+								
+								try
+								{
+									val = eval("this.$scope." + p1);
+								}catch(ex)
+								{
+									val = "";
+								}
+								
+								return val;
+							}, this));
+							
+						}
+						
 						return (!attrVal || attrVal.length == 0) ? defVal : attrVal;
 					},
 					"attrStr": function(elem) {
