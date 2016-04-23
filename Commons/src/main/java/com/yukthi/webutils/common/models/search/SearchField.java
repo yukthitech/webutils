@@ -15,6 +15,8 @@ public class SearchField
 	 * Field name.
 	 */
 	private String field;
+	
+	private String propertyName;
 
 	/**
 	 * Instantiates a new search field.
@@ -22,10 +24,11 @@ public class SearchField
 	 * @param extensionName the extension name
 	 * @param field the field
 	 */
-	public SearchField(String extensionName, String field)
+	public SearchField(String extensionName, String field, String propertyName)
 	{
 		this.extensionName = extensionName;
 		this.field = field;
+		this.propertyName = propertyName;
 	}
 
 	/**
@@ -46,5 +49,10 @@ public class SearchField
 	public String getField()
 	{
 		return field;
+	}
+	
+	public String getPropertyName()
+	{
+		return propertyName;
 	}
 }

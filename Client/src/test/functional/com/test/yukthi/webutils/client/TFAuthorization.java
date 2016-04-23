@@ -29,15 +29,9 @@ import org.testng.annotations.Test;
 
 import com.test.yukthi.webutils.models.ITestController;
 import com.test.yukthi.webutils.models.TestBean;
-import com.yukthi.utils.rest.RestClient;
-import com.yukthi.utils.rest.RestRequest;
-import com.yukthi.utils.rest.RestResult;
-import com.yukthi.webutils.client.ActionRequestBuilder;
 import com.yukthi.webutils.client.RestException;
 import com.yukthi.webutils.common.IWebUtilsCommonConstants;
 import com.yukthi.webutils.common.models.BaseResponse;
-
-import junit.runner.TestCollector;
 
 /**
  * Test LOV value fetching from server

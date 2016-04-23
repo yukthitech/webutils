@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.yukthi.persistence.ITransaction;
 import com.yukthi.persistence.PersistenceException;
+import com.yukthi.persistence.repository.annotations.Field;
 import com.yukthi.utils.exceptions.InvalidArgumentException;
 import com.yukthi.utils.exceptions.InvalidStateException;
 import com.yukthi.validation.annotations.Required;
@@ -82,24 +83,28 @@ public class SearchSettingsService extends BaseCrudService<SearchSettingsEntity,
 		
 		LinkedHashMap<SearchSettingsColumn, SearchSettingsColumn> searchColumns = new LinkedHashMap<>();
 		SearchSettingsColumn searchSettingsColumn = null, existingSettingsColumn = null;
+		String fieldName = null;
+		Field fieldAnnot = null;
 		
 		for(FieldDef field : searchResultDef.getFields())
 		{
-			if(!field.isDisplayable())
-			{
-				continue;
-			}
+			fieldAnnot = field.getField().getAnnotation(Field.class);
+			fieldName = (fieldAnnot != null) ? fieldAnnot.value() : field.getName();
 			
-			searchSettingsColumn = new SearchSettingsColumn(field.getLabel(), true, false, new SearchField(null, field.getName()));
-			searchSettingsColumn.setRequired(field.getField().getAnnotation(Required.class) != null);
+			searchSettingsColumn = new SearchSettingsColumn(field.getLabel(), field.isDisplayable(), false, new SearchField(null, fieldName, field.getField().getName()));
+			
+			if("id".equals(field.getName()) || field.getField().getAnnotation(Required.class) != null)
+			{
+				searchSettingsColumn.setRequired(true);
+			}
 			
 			searchColumns.put(searchSettingsColumn, searchSettingsColumn);
 		}
 		
 		for(ExtensionFieldEntity extensionField : extensionFields)
 		{
-			searchSettingsColumn = new SearchSettingsColumn(extensionField.getLabel(), true, true, 
-					new SearchField(extensionField.getExtension().getName(), "extendedFields." + extensionField.getName()));
+			searchSettingsColumn = new SearchSettingsColumn(extensionField.getLabel(), false, true, 
+					new SearchField(extensionField.getExtension().getName(), "extendedFields." + extensionField.getColumnName(), "extendedFields." + extensionField.getColumnName()));
 
 		 	existingSettingsColumn = searchColumns.get(searchSettingsColumn);
 		 	
@@ -129,16 +134,17 @@ public class SearchSettingsService extends BaseCrudService<SearchSettingsEntity,
 		
 		settings.setSearchColumns(new ArrayList<>(searchColumns.keySet()));
 		settings.setPageSize(DEFAULT_PAGE_SIZE);
+		settings.setSearchQueryName(searchQuery);
 		
 		return settings;
 	}
 	
 	/**
-	 * Ensures all fields mentioned in settings are valid and adds required fields which are missing in settings.
+	 * Ensures all fields mentioned in settings are valid.
 	 * @param searchQuery Search query name.
 	 * @param settings Setting being persisted.
 	 */
-	private void validateAndSetRequired(String searchQuery, SearchSettingsEntity settings)
+	private void validateColumns(String searchQuery, SearchSettingsEntity settings)
 	{
 		LinkedHashMap<SearchSettingsColumn, SearchSettingsColumn> allSearchColumns = getSettingsColumns(searchQuery);
 		
@@ -151,10 +157,8 @@ public class SearchSettingsService extends BaseCrudService<SearchSettingsEntity,
 			
 			if(existingColumn == null)
 			{
-				throw new InvalidArgumentException("Specified field '{}' does not exist in search query - {}", column.getName(), searchQuery);
+				throw new InvalidArgumentException("Specified field '{}' does not exist in search query - {}", column.getLabel(), searchQuery);
 			}
-			
-			column.setFields(existingColumn.getFields());
 		}
 	}
 
@@ -183,6 +187,7 @@ public class SearchSettingsService extends BaseCrudService<SearchSettingsEntity,
 				//populate valid fields
 				column.setFields(actualColumn.getFields());
 				column.setRequired(actualColumn.isRequired());
+				column.setExtended(actualColumn.isExtended());
 				
 				filteredColumns.add(column);
 			}
@@ -190,8 +195,11 @@ public class SearchSettingsService extends BaseCrudService<SearchSettingsEntity,
 			//ignore fields which is not part all search columns
 		}
 		
-		filteredColumns.addAll(allSearchColumns.keySet());
-
+		for(SearchSettingsColumn column : allSearchColumns.keySet())
+		{
+			filteredColumns.add(new SearchSettingsColumn(column.getLabel(), false));
+		}
+		
 		settings.setSearchColumns(filteredColumns);
 	}
 
@@ -203,7 +211,7 @@ public class SearchSettingsService extends BaseCrudService<SearchSettingsEntity,
 		//ensure the settings is saved for current user.
 		entity.setUser(new UserEntity(currentUserId));
 		
-		validateAndSetRequired(entity.getSearchQueryName(), entity);
+		validateColumns(entity.getSearchQueryName(), entity);
 		
 		super.save(entity, model);
 	}
@@ -221,7 +229,7 @@ public class SearchSettingsService extends BaseCrudService<SearchSettingsEntity,
 			
 			userService.populateTrackingFieldForUpdate(entity);
 
-			validateAndSetRequired(entity.getSearchQueryName(), entity);
+			validateColumns(entity.getSearchQueryName(), entity);
 			
 			boolean res = repository.updateForUser(entity, currentUserId);
 			
@@ -276,6 +284,16 @@ public class SearchSettingsService extends BaseCrudService<SearchSettingsEntity,
 		}
 
 		return entity;
+	}
+	
+	/**
+	 * Deletes search query settings of specified query.
+	 * @param queryName Query settings to be deleted.
+	 */
+	public void deleteByName(String queryName)
+	{
+		long currentUserId = currentUserService.getCurrentUserDetails().getUserId();
+		super.repository.deleteByName(currentUserId, queryName);		
 	}
 
 	/**

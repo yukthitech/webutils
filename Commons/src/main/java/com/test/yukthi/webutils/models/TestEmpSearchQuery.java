@@ -26,22 +26,32 @@ package com.test.yukthi.webutils.models;
 import com.yukthi.persistence.repository.annotations.Condition;
 import com.yukthi.persistence.repository.annotations.Operator;
 import com.yukthi.validation.annotations.Required;
+import com.yukthi.webutils.common.annotations.Label;
 import com.yukthi.webutils.common.annotations.Model;
 
 /**
  * Emp search query
+ * 
  * @author akiran
  */
 @Model
 public class TestEmpSearchQuery
 {
 	/**
+	 * Id of the employee.
+	 */
+	@Required
+	@Label("Id")
+	private long id;
+
+	/**
 	 * Employee search name pattern
 	 */
 	@Required
 	@Condition(value = "name", op = Operator.LIKE)
+	@Label("Name")
 	private String name;
-	
+
 	/**
 	 * Instantiates a new emp search query.
 	 */
@@ -51,11 +61,32 @@ public class TestEmpSearchQuery
 	/**
 	 * Instantiates a new emp search query.
 	 *
-	 * @param name the name
+	 * @param name
+	 *            the name
 	 */
 	public TestEmpSearchQuery(String name)
 	{
 		this.name = name;
+	}
+
+	/**
+	 * Gets the id.
+	 *
+	 * @return the id
+	 */
+	public long getId()
+	{
+		return id;
+	}
+
+	/**
+	 * Sets the id.
+	 *
+	 * @param id the new id
+	 */
+	public void setId(long id)
+	{
+		this.id = id;
 	}
 
 	/**
@@ -71,7 +102,8 @@ public class TestEmpSearchQuery
 	/**
 	 * Sets the employee search name pattern.
 	 *
-	 * @param name the new employee search name pattern
+	 * @param name
+	 *            the new employee search name pattern
 	 */
 	public void setName(String name)
 	{

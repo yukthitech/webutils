@@ -541,7 +541,7 @@ function parseExpressions(template, params, throwError){
 		return "";
 	}
 	
-	var fullPattern = /^\$\{([\w\-\.\(\)\,\'\"\$\[\]]+)\}$/;
+	var fullPattern = /^\${1,2}\{([\w\-\.\(\)\,\'\"\$\[\]]+)\}$/;
 	var res = null;
 
 	//Define parse function
@@ -576,14 +576,25 @@ function parseExpressions(template, params, throwError){
 	//check if full string is an expression
 	if((res = fullPattern.exec(template)))
 	{
+		//if multiple dollar signs are used, escape the expression
+		if(res[0].indexOf("$$") == 0)
+		{
+			return res[0].substr(1);
+		}
+		
 		params[PARSE_RESULT] = PARSE_RESULT_FULL_OBJECT;
 		return parseExpresion(res[1]);
 	}
 	
 	params[PARSE_RESULT] = PARSE_RESULT_STRING;
 	
-	var pattern = /\$\{([\w\-\.\[\]\(\)\,\/\"\'\<\>\$\[\]]+)\}/g;
+	var pattern = /\${1,2}\{([\w\-\.\[\]\(\)\,\/\"\'\<\>\$\[\]]+)\}/g;
 	res = template.replace(pattern, function(match, p1){
+		if(match.indexOf("$$") == 0)
+	    {
+			return match.substr(1);
+	    }
+
 		var val = parseExpresion(p1);
 		
 		if(!val && throwError)

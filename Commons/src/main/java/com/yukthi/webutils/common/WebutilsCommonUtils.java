@@ -25,6 +25,11 @@ public class WebutilsCommonUtils
 		{
 			for(Class<?> ptype : paramTypes)
 			{
+				if(ptype.getName().contains("MultipartHttpServletRequest"))
+				{
+					ptype = Object.class;
+				}
+				
 				builder.append(ptype.getName()).append(",");
 			}
 			

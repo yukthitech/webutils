@@ -467,11 +467,52 @@
 					</if>
 				</div>
 				<!-- End of popup actions -->
+				
+				<yk-dialog id="${attr('id')}_search_settings" title="${attr('title')} Settings">
+					<content>
+						<span  class="yk-field-label">Page Size:</span> 
+						<input type="int" ng-model="searchSettings.pageSize" min="1" max="100" style="min-width: 4em; width: 4em;"/>
+						<BR/><BR/>
+						 
+						<table style="width: 100%;" class="table table-striped table-bordered table-hover">
+							<tr>
+								<th colspan="3">Columns</th>
+							</tr>
+							<tr ng-repeat="column in searchSettings.searchColumns" grid-row="{{$index}}">
+							
+								<td style="padding: 0px; vertical-align: middle; text-align: left; width: 0.2em; padding-right: 1em; padding-left: 1em;">
+									<input type="checkbox" ng-model="column.displayed" ng-true-value="true" ng-false-value="false" style="min-width: 1em;"/>
+								</td>
+								<td style="padding: 0px; vertical-align: middle; text-align: left; width: 0.2em; padding-right: 1em; padding-left: 1em; white-space: nowrap;" class="yk-field-label">
+									{{column.label}}
+								</td>
+								<td style="padding: 0px; vertical-align: middle; text-align: left; width: 0.2em; padding-right: 1em; padding-left: 1em; white-space: nowrap;">
+									<yk-icon-link id="${attr('id')}_set_act_${index}" icon="glyphicon glyphicon-arrow-up" ng-click="moveColumnUp($event)" color="blue" label="Up" size="0.8em"></yk-icon-link>
+									<yk-icon-link id="${attr('id')}_set_act_${index}" icon="glyphicon glyphicon-open" ng-click="moveColumnToTop($event)" color="blue" label="Top" size="0.8em"></yk-icon-link>
+									
+									<yk-icon-link id="${attr('id')}_set_act_${index}" icon="glyphicon glyphicon-arrow-down" ng-click="moveColumnDown($event)" color="blue" label="Down" size="0.8em"></yk-icon-link>
+									<yk-icon-link id="${attr('id')}_set_act_${index}" icon="glyphicon glyphicon-save" ng-click="moveColumnToBottom($event)" color="blue" label="Bottom" size="0.8em"></yk-icon-link>
+								</td>
+							</tr>
+						</table>
+					</content>
+					<footer>
+						<button type="button" class="btn btn-primary action-button" ng-click="saveSettings()">Save</button>
+						<button type="button" class="btn btn-danger cancel-button" data-dismiss="modal">Cancel</button>
+					</footer>
+				</yk-dialog>
 
 				<if test="!context.resultCustomizer">
 					<div id="${attr('id')}_search_results" class="panel panel-default" data-toggle="context" data-target="#${attr('id')}_context_menu">
 						<div class="panel-heading" style="padding: 0.3em 1em; font-weight: bold;">
-							${attr('title')} - Results
+							<table style="width: 100%;">
+								<tr>
+									<td>${attr('title')} - Results</td>
+									<td style="text-align: right;">
+										<yk-icon-link id="${attr('id')}_settings" icon="glyphicon glyphicon-cog" ng-click="customizeSettings()" color="blue" label="Settings"></yk-icon-link>
+									</td>
+								</tr>
+							</table>
 						</div>
 		
 						<div class="panel-body table-responsive"  yk-model="${searchModel.name}" style="padding: 0px;">

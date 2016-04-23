@@ -17,9 +17,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class SearchSettingsColumn
 {
 	/**
-	 * Name of the column.
+	 * Label of the column.
 	 */
-	private String name;
+	private String label;
 	
 	/**
 	 * Flag indicating whether column should be displayed or not.
@@ -40,18 +40,21 @@ public class SearchSettingsColumn
 	 * Indicates if this is required field or not.
 	 */
 	private boolean required;
+	
+	public SearchSettingsColumn()
+	{}
 
 	/**
 	 * Instantiates a new search settings column full.
 	 *
-	 * @param name the name
+	 * @param label the name
 	 * @param displayed the displayed
 	 * @param extended the extended
 	 * @param fields the fields
 	 */
-	public SearchSettingsColumn(String name, boolean displayed, boolean extended, List<SearchField> fields)
+	public SearchSettingsColumn(String label, boolean displayed, boolean extended, List<SearchField> fields)
 	{
-		this.name = name;
+		this.label = label;
 		this.displayed = displayed;
 		this.extended = extended;
 		this.fields = fields;
@@ -86,6 +89,7 @@ public class SearchSettingsColumn
 	 *
 	 * @return the entity fields that needs to be used to fetch value for this column
 	 */
+	@JsonIgnore
 	public List<SearchField> getFields()
 	{
 		return fields;
@@ -102,23 +106,23 @@ public class SearchSettingsColumn
 	}
 	
 	/**
-	 * Gets the name of the column.
+	 * Gets the label of the column.
 	 *
-	 * @return the name of the column
+	 * @return the label of the column
 	 */
-	public String getName()
+	public String getLabel()
 	{
-		return name;
+		return label;
 	}
 
 	/**
-	 * Sets the name of the column.
+	 * Sets the label of the column.
 	 *
-	 * @param name the new name of the column
+	 * @param label the new label of the column
 	 */
-	public void setName(String name)
+	public void setLabel(String label)
 	{
-		this.name = name;
+		this.label = label;
 	}
 
 	/**
@@ -146,6 +150,7 @@ public class SearchSettingsColumn
 	 *
 	 * @return the specifies whether this is an extended field
 	 */
+	@JsonIgnore
 	public boolean isExtended()
 	{
 		return extended;
@@ -190,6 +195,12 @@ public class SearchSettingsColumn
 	public String getFieldName()
 	{
 		return fields.get(0).getField();
+	}
+	
+	@JsonIgnore
+	public String getPropertyName()
+	{
+		return fields.get(0).getPropertyName();
 	}
 	
 	/**
@@ -238,7 +249,7 @@ public class SearchSettingsColumn
 		}
 
 		SearchSettingsColumn other = (SearchSettingsColumn) obj;
-		return name.equals(other.name) && (extended == other.extended);
+		return label.equals(other.label) && (extended == other.extended);
 	}
 
 	/**
@@ -252,6 +263,6 @@ public class SearchSettingsColumn
 	@Override
 	public int hashCode()
 	{
-		return name.hashCode() + (extended ? 1 : 0);
+		return label.hashCode() + (extended ? 1 : 0);
 	}
 }

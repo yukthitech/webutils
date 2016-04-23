@@ -24,6 +24,7 @@
 package com.test.yukthi.webutils.models;
 
 import com.yukthi.persistence.repository.annotations.Field;
+import com.yukthi.validation.annotations.Required;
 import com.yukthi.webutils.common.AbstractExtendedSearchResult;
 import com.yukthi.webutils.common.annotations.Model;
 
@@ -35,21 +36,22 @@ import com.yukthi.webutils.common.annotations.Model;
 @Model
 public class TestEmpSearchResult extends AbstractExtendedSearchResult
 {
+	@Required
 	@Field(value = "id")
-	private long id;
+	private Long id;
 
 	@Field(value = "name")
 	private String name;
 
 	@Field(value = "salary")
-	private long salary;
+	private Long salary;
 	
-	public long getId()
+	public Long getId()
 	{
 		return id;
 	}
 
-	public void setId(long id)
+	public void setId(Long id)
 	{
 		this.id = id;
 	}
@@ -64,12 +66,12 @@ public class TestEmpSearchResult extends AbstractExtendedSearchResult
 		this.name = name;
 	}
 
-	public long getSalary()
+	public Long getSalary()
 	{
 		return salary;
 	}
 
-	public void setSalary(long salary)
+	public void setSalary(Long salary)
 	{
 		this.salary = salary;
 	}

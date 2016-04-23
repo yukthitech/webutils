@@ -20,6 +20,8 @@ $.application.controller('searchQueryController', ["$scope", "actionHelper", "lo
 	
 	$scope.defaultValues = {};
 	
+	$scope.searchSettings = {};
+	
 	$scope.init = function(){
 		for(var fld in $scope.defaultValues)
 		{
@@ -298,4 +300,196 @@ $.application.controller('searchQueryController', ["$scope", "actionHelper", "lo
 		   "searchQueryName": $scope.searchQueryName
 		  });		
 	};
+	
+	$scope.customizeSettings = function() {
+		var id = $scope.searchQueryId;
+		var queryName = $scope.searchQueryName;
+		
+		actionHelper.invokeAction("searchSettings.read", null, {"queryName": $scope.searchQueryName}, $.proxy(function(result, respConfig){
+			var settings = result.model;
+			
+			if(!settings)
+			{
+				console.log("No settings found to customize.");
+				return;
+			}
+			
+			this.$scope.searchSettings = settings;
+
+			try
+			{
+				$scope.$digest();
+			}catch(ex)
+			{}
+
+			utils.openModal(id + "_search_settings", {
+				context: {"$scope": this.$scope}
+			});
+			
+		}, {"$scope": $scope}));
+		
+	};
+	
+	/**
+	 * Called by column up action of result-customize-dialog.
+	 */
+	$scope.moveColumnUp = function(event) {
+		var targetElement = event.target;
+		var rowElem = $(targetElement).parents("[grid-row]");
+		
+		var idx = parseInt(rowElem.attr("grid-row"));
+		
+		//ignore call from top row
+		if(idx == 0)
+		{
+			console.log("Ignoring top row...");
+			return;
+		}
+		
+		var columns = $scope.searchSettings.searchColumns;
+		var tmp = columns[idx - 1];
+		columns[idx - 1] = columns[idx];
+		columns[idx] = tmp;
+		
+		try
+		{
+			$scope.$digest();
+		}catch(ex)
+		{}
+	};
+	
+	$scope.moveColumnToTop = function(event) {
+		var targetElement = event.target;
+		var rowElem = $(targetElement).parents("[grid-row]");
+		
+		var idx = parseInt(rowElem.attr("grid-row"));
+		
+		if(idx == 0)
+		{
+			console.log("Ignoring top row...");
+			return;
+		}
+		
+		var columns = $scope.searchSettings.searchColumns;
+		var tmp = columns[idx];
+		
+		//remove element at current index
+		columns.splice(idx, 1);
+		
+		//add remove element at top
+		columns.splice(0, 0, tmp);
+		
+		try
+		{
+			$scope.$digest();
+		}catch(ex)
+		{}
+	};
+
+	/**
+	 * Called by column down action of result-customize-dialog.
+	 */
+	$scope.moveColumnDown = function(event) {
+		var targetElement = event.target;
+		var rowElem = $(targetElement).parents("[grid-row]");
+		
+		var idx = parseInt(rowElem.attr("grid-row"));
+
+		var columns = $scope.searchSettings.searchColumns;
+
+		//ignore call from top row
+		if(idx == columns.length - 1)
+		{
+			console.log("Ignoring bottom row..");
+			return;
+		}
+		
+		var tmp = columns[idx + 1];
+		columns[idx + 1] = columns[idx];
+		columns[idx] = tmp;
+		
+		try
+		{
+			$scope.$digest();
+		}catch(ex)
+		{}
+	};
+	
+	$scope.moveColumnToBottom = function(event) {
+		var targetElement = event.target;
+		var rowElem = $(targetElement).parents("[grid-row]");
+		
+		var idx = parseInt(rowElem.attr("grid-row"));
+		
+		var columns = $scope.searchSettings.searchColumns;
+
+		//ignore call from top row
+		if(idx == columns.length - 1)
+		{
+			console.log("Ignoring bottom row..");
+			return;
+		}
+		
+		var tmp = columns[idx];
+		
+		//remove element at current index
+		columns.splice(idx, 1);
+		
+		//add removed element at bottom
+		columns.splice(columns.length, 0, tmp);
+		
+		try
+		{
+			$scope.$digest();
+		}catch(ex)
+		{}
+	};
+	
+	$scope.saveSettings = function() {
+		console.log("Save is invoked..");
+		
+		if(!$scope.searchSettings)
+		{
+			return;
+		}
+		
+		var id = $scope.searchQueryId;
+		var queryName = $scope.searchQueryName;
+		var modalId = id + "_search_settings";
+		var saveOp = $scope.searchSettings.id ? false : true;
+
+		$('#' + modalId).modal('hide');
+		
+		var saveCallback = $.proxy(function(response, respConfig) {
+
+			if(response.code == 0)
+			{
+				this.logger.trace("Settings are updated successfully!!");
+				this.utils.info(["Settings are updated successfully!!"]);
+			}
+			else
+			{
+				var op = this.saveOp ? "Save" : "Update";
+				
+				this.logger.error("Failed to {} changes.<BR/>ServerError: {}", op, response.message);
+				this.utils.alert(["Failed to {} changes.<BR/>ServerError: {}", op, response.message], $.proxy(function(){
+					$('#' + this.modalId).modal('show');
+				}, this));
+			}
+			
+		}, {"$scope": $scope, "logger": logger, "utils": utils, "modalId": id + "_search_settings", "saveOp": saveOp});
+		
+		$scope.searchSettings.searchQueryName = queryName;
+		
+		if(saveOp)
+		{
+			actionHelper.invokeAction("searchSettings.save", $scope.searchSettings, null, saveCallback);
+		}
+		else
+		{
+			actionHelper.invokeAction("searchSettings.update", $scope.searchSettings, null, saveCallback);
+		}
+		
+	};
+	
 }]);

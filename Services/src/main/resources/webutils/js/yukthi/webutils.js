@@ -57,7 +57,7 @@ $.modalManager = {
 	"openModal": function(id, config) {
 		var dlg = $("#" + id);
 		
-		if(dlg.length < 0)
+		if(dlg.length <= 0)
 		{
 			throw "No modal found with specified id - " + id;
 		}

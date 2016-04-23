@@ -26,6 +26,7 @@ package com.yukthi.webutils.controllers;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -48,7 +49,7 @@ import com.yukthi.webutils.services.SearchSettingsService;
  * @author akiran
  */
 @RestController
-@RequestMapping("/search-settings")
+@RequestMapping("/searchSettings")
 @ActionName("searchSettings")
 public class SearchSettingsController extends BaseController implements ISearchSettingsController
 {
@@ -109,8 +110,11 @@ public class SearchSettingsController extends BaseController implements ISearchS
 	/* (non-Javadoc)
 	 * @see com.yukthi.webutils.common.controllers.ISearchSettingsController#fetch(java.lang.String)
 	 */
+	@ResponseBody
+	@RequestMapping(value = "/read/{queryName}", method = RequestMethod.GET)
+	@ActionName("read")
 	@Override
-	public BasicReadResponse<SearchSettingsModel> fetch(String searchQueryName)
+	public BasicReadResponse<SearchSettingsModel> fetch(@PathVariable("queryName") String searchQueryName)
 	{
 		return new BasicReadResponse<SearchSettingsModel>(service.fetch(searchQueryName));
 	}
@@ -118,16 +122,22 @@ public class SearchSettingsController extends BaseController implements ISearchS
 	/* (non-Javadoc)
 	 * @see com.yukthi.webutils.common.controllers.ISearchSettingsController#delete(long)
 	 */
+	@ResponseBody
+	@RequestMapping(value = "/delete/{queryName}", method = RequestMethod.DELETE)
+	@ActionName("delete")
 	@Override
-	public BaseResponse delete(long id)
+	public BaseResponse delete(@PathVariable("queryName") String searchQueryName)
 	{
-		service.deleteById(id);
+		service.deleteByName(searchQueryName);
 		return new BaseResponse();
 	}
 
 	/* (non-Javadoc)
 	 * @see com.yukthi.webutils.common.controllers.ISearchSettingsController#deleteAll()
 	 */
+	@ResponseBody
+	@RequestMapping(value = "/deleteAll", method = RequestMethod.DELETE)
+	@ActionName("deleteAll")
 	@Override
 	public BaseResponse deleteAll()
 	{

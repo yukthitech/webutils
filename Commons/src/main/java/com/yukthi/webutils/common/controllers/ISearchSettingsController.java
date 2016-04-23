@@ -36,10 +36,10 @@ public interface ISearchSettingsController extends IClientController<ISearchSett
 
 	/**
 	 * Deletes the settings specified id.
-	 * @param id Setting id to be deleted.
+	 * @param searchQueryName Name of the query to be deleted.
 	 * @return Delete response.
 	 */
-	BaseResponse delete(long id);
+	BaseResponse delete(String searchQueryName);
 
 	/**
 	 * Deletes all search query settings. For testing purpose only.

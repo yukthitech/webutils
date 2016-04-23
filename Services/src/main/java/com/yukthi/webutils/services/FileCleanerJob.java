@@ -43,7 +43,7 @@ import com.yukthi.webutils.services.job.IJob;
  * Job to delete temporaty files. Expected to run once every day.
  * @author akiran
  */
-@CronJob(name = "Temp File Cleaner", cronExpression = "* * 23 * * ?")
+@CronJob(name = "Temp File Cleaner", cronExpression = "0 0 23 * * ?")
 public class FileCleanerJob implements IJob
 {
 	private static Logger logger = LogManager.getLogger(FileCleanerJob.class);

@@ -150,9 +150,9 @@ public class ImageService
 	 * @param entityType Entity type whose ownership should be used.
 	 * @param ownerId Entity id to be used.
 	 */
-	public void readImagesForModel(Object model, Class<?> entityType, long ownerId)
+	public void readImagesForModel(Object model, Class<?> entityType, Long ownerId)
 	{
-		if(model == null)
+		if(model == null || ownerId == null)
 		{
 			return;
 		}

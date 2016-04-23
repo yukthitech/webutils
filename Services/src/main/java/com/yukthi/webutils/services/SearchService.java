@@ -492,11 +492,11 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 			{
 				if(column.isExtended())
 				{
-					response.addSearchColumn(new SearchColumn("Ext_" + column.getName().replaceAll("\\s+", "_"), column.getName(), column.isDisplayed(), FieldType.STRING));
+					response.addSearchColumn(new SearchColumn("Ext_" + column.getLabel().replaceAll("\\s+", "_"), column.getLabel(), column.isDisplayed(), FieldType.STRING));
 				}
 				else
 				{
-					response.addSearchColumn(new SearchColumn(column.getFieldName(), column.getName(), column.isDisplayed(), FieldType.STRING));
+					response.addSearchColumn(new SearchColumn(column.getPropertyName(), column.getLabel(), column.isDisplayed(), FieldType.STRING));
 				}
 			}
 		}
@@ -550,7 +550,7 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 				//if column belong to static field
 				else
 				{
-					value = PropertyUtils.getProperty(result, column.getFieldName());
+					value = PropertyUtils.getProperty(result, column.getPropertyName());
 				}
 
 				if(value == null)

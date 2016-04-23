@@ -1,5 +1,6 @@
 package com.yukthi.webutils.common.models;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.validation.constraints.Max;
@@ -17,6 +18,16 @@ import com.yukthi.webutils.common.models.search.SearchSettingsColumn;
 @Model
 public class SearchSettingsModel
 {
+	/**
+	 * Id of search settings if already exists.
+	 */
+	private Long id;
+	
+	/**
+	 * Version of the settings;
+	 */
+	private Integer version;
+	
 	/**
 	 * Search query name for which setting is being maintained.
 	 */
@@ -45,6 +56,46 @@ public class SearchSettingsModel
 	{
 	}
 	
+	/**
+	 * Gets the id of search settings if already exists.
+	 *
+	 * @return the id of search settings if already exists
+	 */
+	public Long getId()
+	{
+		return id;
+	}
+
+	/**
+	 * Sets the id of search settings if already exists.
+	 *
+	 * @param id the new id of search settings if already exists
+	 */
+	public void setId(Long id)
+	{
+		this.id = id;
+	}
+	
+	/**
+	 * Gets the version of the settings;.
+	 *
+	 * @return the version of the settings;
+	 */
+	public Integer getVersion()
+	{
+		return version;
+	}
+
+	/**
+	 * Sets the version of the settings;.
+	 *
+	 * @param version the new version of the settings;
+	 */
+	public void setVersion(Integer version)
+	{
+		this.version = version;
+	}
+
 	/**
 	 * Gets the search query name for which setting is being maintained.
 	 *
@@ -83,6 +134,20 @@ public class SearchSettingsModel
 	public void setSearchColumns(List<SearchSettingsColumn> searchColumns)
 	{
 		this.searchColumns = searchColumns;
+	}
+	
+	/**
+	 * Adds specified search column details to current settings.
+	 * @param column Column to add.
+	 */
+	public void addSearchColumn(SearchSettingsColumn column)
+	{
+		if(this.searchColumns == null)
+		{
+			this.searchColumns = new ArrayList<>();
+		}
+		
+		this.searchColumns.add(column);
 	}
 
 	/**

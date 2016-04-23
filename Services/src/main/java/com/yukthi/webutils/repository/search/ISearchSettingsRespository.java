@@ -25,6 +25,15 @@ public interface ISearchSettingsRespository extends IWebutilsRepository<SearchSe
 	 */
 	public SearchSettingsEntity fetchByName(@Condition("user.id") long userId, @Condition("searchQueryName") String searchQueryName);
 	
+	
+	/**
+	 * Deletes the search query settings of specified name.
+	 * @param userId User id
+	 * @param searchQueryName Search query name
+	 * @return Success/failure
+	 */
+	public boolean deleteByName(@Condition("user.id") long userId, @Condition("searchQueryName") String searchQueryName);
+	
 	/**
 	 * Deletes all settings.
 	 */

@@ -318,9 +318,9 @@ public class FileService
 	 * @param ownerId Owner id
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public void readFilesForModel(Object model, Class<?> entityType, long ownerId)
+	public void readFilesForModel(Object model, Class<?> entityType, Long ownerId)
 	{
-		if(model == null)
+		if(model == null || ownerId == null)
 		{
 			return;
 		}
