@@ -147,7 +147,7 @@ public class SearchController extends BaseController implements ISearchControlle
 		
 		validationService.validate(query);
 		
-		return searchService.executeSearch(queryName, query, searchExecutionModel.getPageNumber(), searchExecutionModel.getPageSize());
+		return searchService.executeSearch(queryName, query, searchExecutionModel);
 	}
 
 	/* (non-Javadoc)
@@ -178,7 +178,7 @@ public class SearchController extends BaseController implements ISearchControlle
 		validationService.validate(query);
 		
 		ModelDef searchResultDef = searchService.getSearhResultDefinition(queryName);
-		ExecuteSearchResponse results = searchService.executeSearch(queryName, query, 0, -1);
+		ExecuteSearchResponse results = searchService.executeSearch(queryName, query, new SearchExecutionModel(1, false, true));
 
 		SearchExcelDataReport searchExcelDataReport = new SearchExcelDataReport("Results", results);
 		File tempFile = File.createTempFile(queryName, ".xls");

@@ -21,6 +21,8 @@ $.application.controller('searchQueryController', ["$scope", "actionHelper", "lo
 	$scope.defaultValues = {};
 	
 	$scope.searchSettings = {};
+	$scope.currentPageNo = 1;
+	$scope.pageCount = 1;
 	
 	$scope.init = function(){
 		for(var fld in $scope.defaultValues)
@@ -56,7 +58,7 @@ $.application.controller('searchQueryController', ["$scope", "actionHelper", "lo
 		}
 	};
 
-	$scope.performSearch = function(e) {
+	$scope.performSearch = function(searchCriteria) {
 		logger.trace("Search is triggered for query - " + $scope.searchQueryName);
 		
 		//TODO: Move init errors to post rendering
@@ -68,11 +70,21 @@ $.application.controller('searchQueryController', ["$scope", "actionHelper", "lo
 			return;
 		}
 		
+		if(!searchCriteria)
+		{
+			searchCriteria = {
+				"pageNumber": 1,
+				"fetchCount": true
+			};
+			
+		}
+		
 		var stepExecContext = {
 			"actionHelper": actionHelper,
 			"$scope": $scope,
 			"logger": logger,
-			"utils": utils
+			"utils": utils,
+			"searchCriteria": searchCriteria
 		};
 		
 		utils.executeAsyncSteps(stepExecContext, [
@@ -82,9 +94,13 @@ $.application.controller('searchQueryController', ["$scope", "actionHelper", "lo
 				var queryJson = JSON.stringify(this.$scope.searchQuery);
 				var request = {
 					"queryModelJson" : 	queryJson,
-					"pageSize": -1,
-					"name": this.$scope.searchQueryName
+					"pageNumber": this.searchCriteria.pageNumber,
+					"name": this.$scope.searchQueryName,
+					"fetchCount": this.searchCriteria.fetchCount
 				};
+				
+				console.log(request);
+				console.log(this.searchCriteria);
 				
 				this.actionHelper.invokeAction("search.execute", null, request, callback);
 			},

@@ -504,7 +504,7 @@ public class ExtensionService
 		//set data mapping name to value
 		for(ExtensionFieldEntity field : fields)
 		{
-			modelExtFieldData.put(field.getName(), extFieldData.get(field.getColumnName()));
+			modelExtFieldData.put(field.getName(), extFieldData.get(IWebUtilsInternalConstants.EXTENSIONS_FIELD_NAME + "." + field.getColumnName()));
 		}
 		
 		model.setExtendedFields(modelExtFieldData);

@@ -52,7 +52,7 @@ public class ExecuteSearchResponse extends BaseResponse
 	/**
 	 * Total number of records.
 	 */
-	private int totalCount;
+	private long totalCount;
 	
 	/**
 	 * Instantiates a new execute search response.
@@ -153,7 +153,7 @@ public class ExecuteSearchResponse extends BaseResponse
 	 *
 	 * @return the total number of records
 	 */
-	public int getTotalCount()
+	public long getTotalCount()
 	{
 		return totalCount;
 	}
@@ -163,7 +163,7 @@ public class ExecuteSearchResponse extends BaseResponse
 	 *
 	 * @param totalCount the new total number of records
 	 */
-	public void setTotalCount(int totalCount)
+	public void setTotalCount(long totalCount)
 	{
 		this.totalCount = totalCount;
 	}

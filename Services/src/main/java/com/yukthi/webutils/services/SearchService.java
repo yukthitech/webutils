@@ -57,6 +57,7 @@ import com.yukthi.webutils.WebutilsConfiguration;
 import com.yukthi.webutils.WebutilsContext;
 import com.yukthi.webutils.annotations.SearchQueryMethod;
 import com.yukthi.webutils.common.IExtendedSearchResult;
+import com.yukthi.webutils.common.SearchExecutionModel;
 import com.yukthi.webutils.common.annotations.ContextAttribute;
 import com.yukthi.webutils.common.annotations.Model;
 import com.yukthi.webutils.common.models.def.FieldType;
@@ -318,12 +319,11 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 	 * will be limited to "resultLimit".
 	 * @param searchQueryName Search query name to execute
 	 * @param query Query object containing conditions
-	 * @param pageNo Page number to fetch
-	 * @param pageSize page size
+	 * @param searchExecutionModel Search execution params
 	 * @return Results of search query execution
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public ExecuteSearchResponse executeSearch(String searchQueryName, Object query, int pageNo, int pageSize)
+	public ExecuteSearchResponse executeSearch(String searchQueryName, Object query, SearchExecutionModel searchExecutionModel)
 	{
 		//validate inputs
 		SearchQueryDetails searchQueryDetails = nameToSearchMet.get(searchQueryName);
@@ -427,10 +427,6 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 		//set ordering
 		repoSearchQuery.setOrderByFields(Arrays.asList(searchQueryDetails.orderByFields));
 		
-		//set limit on repo search query
-		repoSearchQuery.setResultsOffset(pageNo * pageSize);
-		repoSearchQuery.setResultsLimit(pageSize);
-		
 		///////////////////////////////////////////////////////////
 		//Add result fields
 		SearchSettingsEntity searchSettings = searchSettingsService.fetchSettings(searchQueryName);
@@ -461,12 +457,26 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 			}
 		}
 		
+		//set limit on repo search query
+		int pageSize = searchExecutionModel.isFetchAll() ? -1 : searchSettings.getPageSize();
+		int pageNo = searchExecutionModel.getPageNumber();
+		
+		repoSearchQuery.setResultsOffset((pageNo - 1) * pageSize);
+		repoSearchQuery.setResultsLimit(pageSize);
+
 		//execute search and return results
 		try
 		{
 			List<Object> results = (List) searchQueryDetails.method.invoke(searchQueryDetails.repository, repoSearchQuery);
+			long count = 0;
 			
-			return toResponse(searchQueryName, results, searchSettings);
+			//if fetch count is enabled
+			if(searchExecutionModel.isFetchCount())
+			{
+				count = searchQueryDetails.repository.searchCount(repoSearchQuery);
+			}
+
+			return toResponse(searchQueryName, results, searchSettings, searchExecutionModel, count);
 		}catch(Exception ex)
 		{
 			throw new InvalidStateException(ex, "An error occurred while executing search query - {}", searchQueryName);
@@ -478,11 +488,15 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 	 * @param searchQueryName Search query for which conversion should be done.
 	 * @param results Search results to be converted.
 	 * @param searchSettings Search settings to be used
+	 * @param searchExecutionModel Search execution params
 	 * @return Converted response. 
 	 */
-	private ExecuteSearchResponse toResponse(String searchQueryName, List<Object> results, SearchSettingsEntity searchSettings) throws Exception
+	private ExecuteSearchResponse toResponse(String searchQueryName, List<Object> results, SearchSettingsEntity searchSettings, SearchExecutionModel searchExecutionModel, long count) throws Exception
 	{
 		ExecuteSearchResponse response = new ExecuteSearchResponse();
+		response.setPageNumber(searchExecutionModel.getPageNumber());
+		
+		response.setTotalCount(count);
 
 		//add search result headers
 		for(SearchSettingsColumn column : searchSettings.getSearchColumns())

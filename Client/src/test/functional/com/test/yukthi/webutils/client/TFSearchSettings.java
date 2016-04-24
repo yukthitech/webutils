@@ -61,7 +61,7 @@ public class TFSearchSettings extends TFBase
 		SearchSettingsModel model = new SearchSettingsModel();
 		model.setSearchQueryName("empSearch");
 		model.setPageSize(20);
-		model.addSearchColumn(new SearchSettingsColumn("Name", true));
+		model.addSearchColumn(new SearchSettingsColumn("Name", true, false));
 		
 		BasicSaveResponse response = searchSettingsController.save(model);
 		

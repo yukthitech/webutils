@@ -23,6 +23,9 @@
 
 package com.yukthi.webutils.common;
 
+import javax.validation.constraints.Min;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.yukthi.webutils.common.annotations.Model;
 
 /**
@@ -38,14 +41,40 @@ public class SearchExecutionModel
 	private String queryModelJson;
 	
 	/**
-	 * Results page size.
-	 */
-	private int pageSize = -1;
-	
-	/**
 	 * Page to be fetched.
 	 */
-	private int pageNumber = 0;
+	@Min(1)
+	private int pageNumber = 1;
+	
+	/**
+	 * If true, along with search results (paged), the total number of records will be fetched.
+	 */
+	private boolean fetchCount = false;
+	
+	/**
+	 * For internal use. Indicates all records needs to be fetched (used by export).
+	 */
+	private boolean fetchAll = false;
+	
+	/**
+	 * Instantiates a new search execution model.
+	 */
+	public SearchExecutionModel()
+	{}
+
+	/**
+	 * Instantiates a new search execution model.
+	 *
+	 * @param pageNumber the page number
+	 * @param fetchCount the fetch count
+	 * @param fetchAll the fetch all
+	 */
+	public SearchExecutionModel(int pageNumber, boolean fetchCount, boolean fetchAll)
+	{
+		this.pageNumber = pageNumber;
+		this.fetchCount = fetchCount;
+		this.fetchAll = fetchAll;
+	}
 
 	/**
 	 * Gets the query object json.
@@ -68,26 +97,6 @@ public class SearchExecutionModel
 	}
 
 	/**
-	 * Gets the results page size.
-	 *
-	 * @return the results page size
-	 */
-	public int getPageSize()
-	{
-		return pageSize;
-	}
-
-	/**
-	 * Sets the results page size.
-	 *
-	 * @param pageSize the new results page size
-	 */
-	public void setPageSize(int pageSize)
-	{
-		this.pageSize = pageSize;
-	}
-
-	/**
 	 * Gets the page to be fetched.
 	 *
 	 * @return the page to be fetched
@@ -105,5 +114,46 @@ public class SearchExecutionModel
 	public void setPageNumber(int pageNumber)
 	{
 		this.pageNumber = pageNumber;
+	}
+
+	/**
+	 * Checks if is if true, along with search results (paged), the total number of records will be fetched.
+	 *
+	 * @return the if true, along with search results (paged), the total number of records will be fetched
+	 */
+	public boolean isFetchCount()
+	{
+		return fetchCount;
+	}
+
+	/**
+	 * Sets the if true, along with search results (paged), the total number of records will be fetched.
+	 *
+	 * @param fetchCount the new if true, along with search results (paged), the total number of records will be fetched
+	 */
+	public void setFetchCount(boolean fetchCount)
+	{
+		this.fetchCount = fetchCount;
+	}
+
+	/**
+	 * Checks if is for internal use. Indicates all records needs to be fetched (used by export).
+	 *
+	 * @return the for internal use
+	 */
+	@JsonIgnore
+	public boolean isFetchAll()
+	{
+		return fetchAll;
+	}
+
+	/**
+	 * Sets the for internal use. Indicates all records needs to be fetched (used by export).
+	 *
+	 * @param fetchAll the new for internal use
+	 */
+	public void setFetchAll(boolean fetchAll)
+	{
+		this.fetchAll = fetchAll;
 	}
 }

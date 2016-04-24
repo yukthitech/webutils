@@ -393,7 +393,7 @@
 									 -->
 									<input type="submit" value="Search" style="display: none;" ng-click="performSearch($event)"/>
 									
-									<a id="${attr('id')}_searchBut" class="btn btn-primary" role="button" ng-click="performSearch($event)" style="margin: 0.5em; margin-right: 0px;">
+									<a id="${attr('id')}_searchBut" class="btn btn-primary" role="button" ng-click="performSearch()" style="margin: 0.5em; margin-right: 0px;">
 										<i class="glyphicon glyphicon-search"></i>
 										Search
 									</a>
@@ -509,7 +509,7 @@
 								<tr>
 									<td>${attr('title')} - Results</td>
 									<td style="text-align: right;">
-										<yk-icon-link id="${attr('id')}_settings" icon="glyphicon glyphicon-cog" ng-click="customizeSettings()" color="blue" label="Settings"></yk-icon-link>
+										<yk-icon-link id="${attr('id')}_settings" icon="glyphicon glyphicon-cog" ng-click="customizeSettings()" color="blue" label="Settings" size="1.2em"></yk-icon-link>
 									</td>
 								</tr>
 							</table>
@@ -534,6 +534,15 @@
 										<div ng-if="!getResultFieldCustomizer()[field.name]" style="display: inline">
 											{{result[field.name]}}
 										</div>
+									</td>
+								</tr>
+							</table>
+							<table style="width: 100%;" class="table" ng-if="searchExecuted &amp;&amp; searchResults.length &gt; 0">
+								<tr>
+									<td style="text-align: right; padding: 0px; padding-right: 2em;">
+										<yk-icon-link id="${attr('id')}_prev_page" icon="glyphicon glyphicon-arrow-left" ng-click="gotoPage(-1)" color="blue" label="Previous Page" size="1.5em" ng-if="currentPageNo &gt; 1"></yk-icon-link>
+										<span class="yk-field-label">Page: {{currentPageNo}} / {{pageCount}}</span>
+										<yk-icon-link id="${attr('id')}_prev_page" icon="glyphicon glyphicon-arrow-right" ng-click="gotoPage(1)" color="blue" label="Next Page" size="1.5em"  ng-if="currentPageNo &lt; pageCount"></yk-icon-link>
 									</td>
 								</tr>
 							</table>

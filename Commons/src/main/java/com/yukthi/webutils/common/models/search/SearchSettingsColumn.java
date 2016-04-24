@@ -78,10 +78,11 @@ public class SearchSettingsColumn
 	 *
 	 * @param name the name
 	 * @param displayed the displayed
+	 * @param extended extended flag
 	 */
-	public SearchSettingsColumn(String name, boolean displayed)
+	public SearchSettingsColumn(String name, boolean displayed, boolean extended)
 	{
-		this(name, displayed, false, (List<SearchField>) null);
+		this(name, displayed, extended, (List<SearchField>) null);
 	}
 
 	/**
@@ -150,7 +151,6 @@ public class SearchSettingsColumn
 	 *
 	 * @return the specifies whether this is an extended field
 	 */
-	@JsonIgnore
 	public boolean isExtended()
 	{
 		return extended;
@@ -265,4 +265,22 @@ public class SearchSettingsColumn
 	{
 		return label.hashCode() + (extended ? 1 : 0);
 	}
+	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString()
+	{
+		StringBuilder builder = new StringBuilder(super.toString());
+		builder.append("[");
+
+		builder.append("Label: ").append(label);
+		builder.append(",").append("Extended: ").append(extended);
+		builder.append(",").append("Displayed: ").append(displayed);
+
+		builder.append("]");
+		return builder.toString();
+	}
+
 }

@@ -230,7 +230,7 @@ public abstract class BaseCrudService<E extends WebutilsEntity, R extends IWebut
 				extensionService.mapExtendedFieldsToEntity( (IExtendableModel) model, (WebutilsExtendableEntity) entity );
 			}
 
-			boolean res = repository.updateByUserSpace(entity, securityService.getUserSpaceIdentity());
+			boolean res = repository.updateByUserSpace(entity, getUserSpace(entity, model));
 			
 			if(!res)
 			{

@@ -62,4 +62,9 @@ public interface IWebUtilsInternalConstants
 	 * Number of extension fields per entity.
 	 */
 	public int EXT_FIELD_COUNT = 100;
+	
+	/**
+	 * Extension value holder entity field name.
+	 */
+	public String EXTENSIONS_FIELD_NAME = "extendedFields";
 }

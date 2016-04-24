@@ -64,7 +64,6 @@ public class SearchHelper
 	{
 		//Build model object
 		SearchExecutionModel searchExecutionModel = new SearchExecutionModel();
-		searchExecutionModel.setPageSize(pageSize);
 		
 		try
 		{

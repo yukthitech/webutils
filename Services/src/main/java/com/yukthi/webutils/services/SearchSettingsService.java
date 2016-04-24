@@ -197,7 +197,7 @@ public class SearchSettingsService extends BaseCrudService<SearchSettingsEntity,
 		
 		for(SearchSettingsColumn column : allSearchColumns.keySet())
 		{
-			filteredColumns.add(new SearchSettingsColumn(column.getLabel(), false));
+			filteredColumns.add(new SearchSettingsColumn(column.getLabel(), false, column.isExtended()));
 		}
 		
 		settings.setSearchColumns(filteredColumns);
