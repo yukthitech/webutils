@@ -539,7 +539,10 @@
 							</table>
 							<table style="width: 100%;" class="table" ng-if="searchExecuted &amp;&amp; searchResults.length &gt; 0">
 								<tr>
-									<td style="text-align: right; padding: 0px; padding-right: 2em;">
+									<td style="text-align: left; padding: 0px; padding-left: 1em;">
+										<span class="yk-field-label">Matching records: {{recordCount}}</span>
+									</td>
+									<td style="text-align: right; padding: 0px; padding-right: 1em;">
 										<yk-icon-link id="${attr('id')}_prev_page" icon="glyphicon glyphicon-arrow-left" ng-click="gotoPage(-1)" color="blue" label="Previous Page" size="1.5em" ng-if="currentPageNo &gt; 1"></yk-icon-link>
 										<span class="yk-field-label">Page: {{currentPageNo}} / {{pageCount}}</span>
 										<yk-icon-link id="${attr('id')}_prev_page" icon="glyphicon glyphicon-arrow-right" ng-click="gotoPage(1)" color="blue" label="Next Page" size="1.5em"  ng-if="currentPageNo &lt; pageCount"></yk-icon-link>

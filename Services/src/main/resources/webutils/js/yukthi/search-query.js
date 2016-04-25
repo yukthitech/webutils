@@ -23,6 +23,7 @@ $.application.controller('searchQueryController', ["$scope", "actionHelper", "lo
 	$scope.searchSettings = {};
 	$scope.currentPageNo = 1;
 	$scope.pageCount = 1;
+	$scope.recordCount = -1;
 	
 	$scope.init = function(){
 		for(var fld in $scope.defaultValues)
@@ -76,7 +77,6 @@ $.application.controller('searchQueryController', ["$scope", "actionHelper", "lo
 				"pageNumber": 1,
 				"fetchCount": true
 			};
-			
 		}
 		
 		var stepExecContext = {
@@ -99,9 +99,6 @@ $.application.controller('searchQueryController', ["$scope", "actionHelper", "lo
 					"fetchCount": this.searchCriteria.fetchCount
 				};
 				
-				console.log(request);
-				console.log(this.searchCriteria);
-				
 				this.actionHelper.invokeAction("search.execute", null, request, callback);
 			},
 			
@@ -119,6 +116,11 @@ $.application.controller('searchQueryController', ["$scope", "actionHelper", "lo
 				var searchResultDef = {"fields": []};
 				this.$scope.searchResults = [];
 				this.$scope.searchResultDef = searchResultDef;
+				
+				if(this.searchCriteria.fetchCount)
+				{
+					this.$scope.recordCount = result.totalCount;
+				}
 				
 				if(result.searchResults.length > 0)
 				{
@@ -256,7 +258,10 @@ $.application.controller('searchQueryController', ["$scope", "actionHelper", "lo
 			return;
 		}
 		
-		$scope.performSearch();
+		$scope.performSearch({
+			"pageNumber": $scope.currentPageNo,
+			"fetchCount": true
+		});
 	});
 
 	$scope.$on('invokeSearch', function(event, data){
@@ -265,7 +270,10 @@ $.application.controller('searchQueryController', ["$scope", "actionHelper", "lo
 			$scope.searchQuery = data.searchQuery; 
 		}
 
-		$scope.performSearch();
+		$scope.performSearch({
+			"pageNumber": $scope.currentPageNo,
+			"fetchCount": false
+		});
 	});
 
 	$scope.validateField = function(name, modelPrefix) {
@@ -305,6 +313,11 @@ $.application.controller('searchQueryController', ["$scope", "actionHelper", "lo
 			$scope.errors[modelPrefix].extendedFields[name] = ex;
 		}
 	};
+	
+	
+	
+	//////////////////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////////////
 	
 	$scope.changeRowSelection = function(index) {
 		$scope.selectedIndex = index;
