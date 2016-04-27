@@ -22,6 +22,8 @@
  */
 package com.yukthi.webutils.common.extensions;
 
+import java.util.Date;
+
 import com.yukthi.webutils.common.IWebUtilsCommonConstants;
 
 /**
@@ -33,7 +35,7 @@ public enum ExtensionFieldType
 	/**
 	 * Simple string field
 	 */
-	STRING
+	STRING(String.class)
 	{
 		@Override
 		public boolean validateValue(String value, FieldConfiguration fieldConfiguration)
@@ -45,7 +47,7 @@ public enum ExtensionFieldType
 	/**
 	 * Multi lined string.
 	 */
-	MULTI_LINE_STRING
+	MULTI_LINE_STRING(String.class)
 	{
 		@Override
 		public boolean validateValue(String value, FieldConfiguration fieldConfiguration)
@@ -54,7 +56,8 @@ public enum ExtensionFieldType
 		}
 	},
 	
-	INTEGER
+	/** The integer. */
+	INTEGER(Integer.class)
 	{
 		@Override
 		public boolean validateValue(String value, FieldConfiguration fieldConfiguration)
@@ -63,7 +66,8 @@ public enum ExtensionFieldType
 		}
 	},
 	
-	DECIMAL
+	/** The decimal. */
+	DECIMAL(Double.class)
 	{
 		@Override
 		public boolean validateValue(String value, FieldConfiguration fieldConfiguration)
@@ -73,7 +77,8 @@ public enum ExtensionFieldType
 		}
 	},
 	
-	BOOLEAN
+	/** The boolean. */
+	BOOLEAN(Boolean.class)
 	{
 		@Override
 		public boolean validateValue(String value, FieldConfiguration fieldConfiguration)
@@ -82,7 +87,8 @@ public enum ExtensionFieldType
 		}
 	},
 	
-	DATE
+	/** The date. */
+	DATE(Date.class)
 	{
 		@Override
 		public boolean validateValue(String value, FieldConfiguration fieldConfiguration)
@@ -98,7 +104,8 @@ public enum ExtensionFieldType
 		}
 	},
 	
-	LIST_OF_VALUES
+	/** The list of values. */
+	LIST_OF_VALUES(String.class)
 	{
 		@Override
 		public boolean validateValue(String value, FieldConfiguration fieldConfiguration)
@@ -107,5 +114,37 @@ public enum ExtensionFieldType
 		}
 	};
 	
+	/**
+	 * Mapping java type for current extension type.
+	 */
+	private Class<?> javaType;
+	
+	/**
+	 * Instantiates a new extension field type.
+	 *
+	 * @param javaType the java type
+	 */
+	private ExtensionFieldType(Class<?> javaType)
+	{
+		this.javaType = javaType;
+	}
+	
+	/**
+	 * Gets the mapping java type for current extension type.
+	 *
+	 * @return the mapping java type for current extension type
+	 */
+	public Class<?> getJavaType()
+	{
+		return javaType;
+	}
+
+	/**
+	 * Validate value.
+	 *
+	 * @param value the value
+	 * @param fieldConfiguration the field configuration
+	 * @return true, if successful
+	 */
 	public abstract boolean validateValue(String value, FieldConfiguration fieldConfiguration);
 }
