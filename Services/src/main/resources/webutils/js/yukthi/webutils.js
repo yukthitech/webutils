@@ -57,7 +57,7 @@ $.modalManager = {
 	"openModal": function(id, config) {
 		var dlg = $("#" + id);
 		
-		if(dlg.length <= 0)
+		if(dlg.length < 0)
 		{
 			throw "No modal found with specified id - " + id;
 		}
@@ -1149,22 +1149,100 @@ $.application.factory('modelDefService', ["actionHelper", function(actionHelper)
 		"modelDefMap" : {},
 		"searchQueryDefMap" : {},
 
-		"getModelDef": function(name, callback) {
-			if(this.modelDefMap[name])
+		"getModelDef": function(name, callback, extension) {
+			var key = extension ? name + "+" + extension : name;
+			
+			if(this.modelDefMap[key])
 			{
-				callback({"modelDef": this.modelDefMap[name]}, {"success": true, "error": false});
+				callback({"modelDef": this.modelDefMap[key]}, {"success": true, "error": false});
 				return;
 			}
 			
+			var modelDef = this.modelDefMap[name];
+			
+			var extensionCallbackContext = {"modelDefService": this, "callback": callback, "modelName": name};
+			
+			var extensionCallback = $.proxy(function(extensionFldRes, responseConfig){
+				
+				if(!responseConfig.success)
+				{
+					throw "An error occurred while fetching extesnsion fields for model - " + modelDef.name;
+				}
+				
+				var extensionFields = [];
+
+				if(extensionFldRes.extensionFields && extensionFldRes.extensionFields.length >= 0)
+				{
+					extensionFields = extensionFldRes.extensionFields;
+				}
+				
+				var modelDef =  null;
+				
+				if(this.defaultExtension)
+				{
+					modelDef = this.modelDef;
+				}
+				else
+				{
+					var modelDefJson = JSON.stringify(this.modelDef);
+					modelDef = JSON.parse(modelDefJson);
+				}
+
+				for(var i = 0; i < extensionFields.length; i++)
+				{
+					extensionFields[i].fieldType = extensionFields[i].type;
+					modelDef.extensionFieldMap[ extensionFields[i].name ] = extensionFields[i];
+				}
+				
+				modelDef.extensionFields = extensionFields;
+				
+				this.modelDefService.modelDefMap[this.modelName + "+" + this.extensionName] = modelDef;
+				this.modelDefResp.modelDef = modelDef;
+				
+				this.callback(this.modelDefResp, this.respConfig);
+			}, extensionCallbackContext );
+
 			actionHelper.invokeAction('modelDef.fetch', null, {"name": name}, $.proxy(function(modelDefResp, respConfig){
 				if(!modelDefResp.modelDef)
 				{
 					throw "Failed to fetch model def with name - " + this.modelName;
 				}
 				
+				var extension = this.extension? this.extension : modelDef.extensionName;
+				
+				var modelDef = modelDefResp.modelDef;
+				modelDef.fieldMap = {};
+				modelDef.extensionFieldMap = {};
+				modelDef.extensionFields = [];
+
+				for(var i = 0; i < modelDef.fields.length; i++)
+				{
+					modelDef.fieldMap[ modelDef.fields[i].name ] = modelDef.fields[i];
+				}
+				
 				this.modelDefService.modelDefMap[this.modelName] = modelDefResp.modelDef;
-				this.callback(modelDefResp, respConfig);
-			}, {"modelDefService": this, "callback": callback, "modelName": name} ));
+				
+				if(extension)
+				{
+					extensionCallbackContext["modelDefResp"] = modelDefResp;
+					extensionCallbackContext["respConfig"] = respConfig;
+					extensionCallbackContext["defaultExtension"] = this.extension ? false : true;
+					extensionCallbackContext["modelDef"] = modelDef;
+					extensionCallbackContext["extensionName"] = extension;
+					
+					this.actionHelper.invokeAction('extensions.fetch', null, 
+							{"name": extension}, 
+							extensionCallback);
+				}
+				else
+				{
+					this.callback(modelDefResp, respConfig);
+				}
+			}, {"modelDefService": this, "callback": callback, 
+				"extensionCallback": extensionCallback, 
+				"modelName": name, "extension": extension,
+				"actionHelper": actionHelper,
+				"extensionCallbackContext": extensionCallbackContext} ));
 		},
 
 		"getSearchQueryDef": function(name, callback) {
@@ -1189,5 +1267,3 @@ $.application.factory('modelDefService', ["actionHelper", function(actionHelper)
 	
 	return modelDefService;
 }]);
-
-

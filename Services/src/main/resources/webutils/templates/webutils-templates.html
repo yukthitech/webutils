@@ -681,8 +681,11 @@
 				//invokes action to fetch model form def			
 				function(callback) {
 					//invoke the action and fetch model definition
-					var modelName = context.attr('name');
-					context.modelDefService.getModelDef(modelName, callback);
+					var modelName = this.context.attr('name');
+					var extension = this.context.attr("extension");
+					extension = (extension &amp;&amp; extension.length &gt; 0) ? extension : null;
+					
+					context.modelDefService.getModelDef(modelName, callback, extension);
 				},
 			
 				//validates and sets the model def on context. And invokes action to fetch extension
@@ -697,7 +700,7 @@
 		
 					var modelDef = modelDefResponse.modelDef;
 					this.context["modelDef"] = modelDef;
-							
+					
 					var extension = this.context.attr("extension");
 					extension = (extension &amp;&amp; extension.length &gt; 0) ? extension : modelDef.extensionName;
 
@@ -705,43 +708,10 @@
 					if(extension)
 					{
 						this.context["extension"] = extension;
-						this.context.invokeAction('extensions.fetch', null, {"name": extension}, callback);
-					}
-					else
-					{
-						callback();
-					}
-				},
-				
-				//validates and sets the extesnsions fields on context. And proceeds with template processing
-				function(callback, extensionFldRes, responseConfig) {
-					var modelDef = this.context.modelDef;
-					
-					//if extension name is specified, expect extension field details
-					if(this.context["extension"])
-					{
-						if(!responseConfig.success)
-						{
-							throw "An error occurred while fetching extesnsion fields for model - " + modelDef.name;
-						}
-
-						if(extensionFldRes.extensionFields &amp;&amp; extensionFldRes.extensionFields.length &gt;= 0)
-						{
-							this.context["extensionFields"] = extensionFldRes.extensionFields;
-						}
-						else
-						{
-							this.context["extensionFields"] = [];
-						}						
-					}
-					else
-					{
-						this.context["extensionFields"] = [];
 					}
 					
-					//proceed with template processing				
 					this.processTemplate();
-				},	
+				},
 				
 			]);
 		</pre-process>
@@ -749,8 +719,6 @@
 		<content>
 			<exe-script var="_tmp">
 				var modelDef = context["modelDef"];
-				modelDef.fieldMap = {};
-				modelDef.extensionFieldMap = {};
 	
 				//caluculate the size for label and field in the search query ui
 				var labelSize = 0, fldLblLength = 0;
@@ -759,11 +727,18 @@
 				{
 					fldLblLength = $.fontWidth('bold 14px "Times New Roman", Times, serif', modelDef.fields[i].label + "MMM");
 					labelSize = (labelSize &gt; fldLblLength) ? labelSize : fldLblLength;
-					
-					modelDef.fieldMap[ modelDef.fields[i].name ] = modelDef.fields[i];
 				}
 				
-				var extendedFields = context["extensionFields"];
+				var extendedFields = modelDef.extensionFields;
+				
+				if(!extendedFields)
+				{
+					extendedFields = [];
+				}
+				else
+				{
+					context["extensionFields"] = extendedFields;
+				}
 				
 				//if model is extendable, fetch extension field details
 				for(var i = 0; i &lt; extendedFields.length; i++)
@@ -772,7 +747,6 @@
 					labelSize = (labelSize &gt; fldLblLength) ? labelSize : fldLblLength;
 
 					extendedFields[i].fieldType = extendedFields[i].type;
-					modelDef.extensionFieldMap[ extendedFields[i].name ] = extendedFields[i];
 				}
 				
 				context["labelSize"] = labelSize;

@@ -51,6 +51,7 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 			$scope.defaultValues = {};
 			
 			$scope.invalidateModelDef = false;
+			$scope.extension = null;
 
 			$scope.$watch(function(){
 				
@@ -295,7 +296,7 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 					{
 						modelDefService.getModelDef($scope.modelName, $.proxy(function(modelDefResp){
 							this.$scope.modelDef = modelDefResp.modelDef;
-						}, {"$scope": $scope}));
+						}, {"$scope": $scope}), $scope.extension);
 					}
 					
 					$scope.invalidateModelDef = false;
