@@ -74,6 +74,7 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 				
 				$scope.searchQuery = data.searchQuery;
 				$scope.selectedRow = data.selectedRow ? data.selectedRow : null;
+				$scope.selectedIndex = data.index;
 				
 				logger.trace("Row selection changed. Selected id - {}", $scope.selectedId);
 			});
@@ -110,7 +111,7 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 			
 				//initialize errors along with model-def
 				$scope.initErrors("model", true);
-				
+				console.log("edit modit" + model);
 				if($scope.crudConfig.onBeforeShow)
 				{
 					$scope.crudConfig.onBeforeShow(false, $scope);
