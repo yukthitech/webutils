@@ -1208,11 +1208,9 @@ $.application.factory('modelDefService', ["actionHelper", function(actionHelper)
 					throw "Failed to fetch model def with name - " + this.modelName;
 				}
 				
-				
-				var modelDef = modelDefResp.modelDef;
-				
 				var extension = this.extension? this.extension : modelDef.extensionName;
 				
+				var modelDef = modelDefResp.modelDef;
 				modelDef.fieldMap = {};
 				modelDef.extensionFieldMap = {};
 				modelDef.extensionFields = [];
