@@ -39,7 +39,6 @@ import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -98,9 +97,10 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 		private String queryTypeModelName;
 
 		private OrderByField orderByFields[];
-		private Class<? extends ISearchResultCustomizer<T>> customizerType;
 
-		public SearchQueryDetails(Method method, ICrudRepository<?> repository, Class<?> resultType, Class<?> queryType, OrderByField orderByFields[], Class<? extends ISearchResultCustomizer<T>> customizerType)
+		private Class<? extends ISearchResultCustomizer<?>> customizerType;
+
+		public SearchQueryDetails(Method method, ICrudRepository<?> repository, Class<?> resultType, Class<?> queryType, OrderByField orderByFields[], Class<? extends ISearchResultCustomizer<?>> customizerType)
 		{
 			this.method = method;
 			this.repository = repository;
@@ -167,7 +167,7 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 	 * com.yukthi.webutils.IRepositoryMethodRegistry#registerRepositoryMethod(
 	 * java.lang.reflect.Method, java.lang.annotation.Annotation)
 	 */
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public void registerRepositoryMethod(Method method, SearchQueryMethod annotation, ICrudRepository<?> repository)
 	{
@@ -176,7 +176,7 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 
 		if(!(returnType instanceof ParameterizedType))
 		{
-			throw new IllegalStateException("Invalid return type specified for search method - " + method);
+			throw new IllegalStateException("Invalid return  type specified for search method - " + method);
 		}
 
 		ParameterizedType parameterizedType = (ParameterizedType) returnType;
@@ -256,10 +256,11 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 		}
 
 		// customizer
-		Class customizer = annotation.customizer();
 
-		// register the model
-		nameToSearchMet.put(annotation.name(), new SearchQueryDetails(method, repository, returnModelType, queryModelType, orderByFields, customizer));
+		Class<? extends ISearchResultCustomizer> customizer = annotation.customizer();
+
+		// register the annotation
+		nameToSearchMet.put(annotation.name(), new SearchQueryDetails(method, repository, returnModelType, queryModelType, orderByFields, (Class) customizer));
 	}
 
 	/*
@@ -493,7 +494,7 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 		// execute search and return results
 		try
 		{
-			List<T> results = (List) searchQueryDetails.method.invoke(searchQueryDetails.repository, repoSearchQuery);
+			List<Object> results = (List) searchQueryDetails.method.invoke(searchQueryDetails.repository, repoSearchQuery);
 			long count = 0;
 
 			// if fetch count is enabled
@@ -501,9 +502,13 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 			{
 				count = searchQueryDetails.repository.searchCount(repoSearchQuery);
 			}
-			//instance of customizer
-			ISearchResultCustomizer customizerResult = searchQueryDetails.customizerType.newInstance();
-			customizerResult.customizer(results);
+			
+			// instance of customizer
+			if(!ISearchResultCustomizer.class.equals(searchQueryDetails.customizerType))
+			{
+				ISearchResultCustomizer customizerResult = searchQueryDetails.customizerType.newInstance();
+				results = customizerResult.customize(results);
+			}
 			
 			return toResponse(searchQueryName, results, searchSettings, searchExecutionModel, count);
 		} catch(Exception ex)
@@ -525,7 +530,7 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 	 *            Search execution params
 	 * @return Converted response.
 	 */
-	private ExecuteSearchResponse toResponse(String searchQueryName, List<T> results, SearchSettingsEntity searchSettings, SearchExecutionModel searchExecutionModel, long count) throws Exception
+	private ExecuteSearchResponse toResponse(String searchQueryName, List<Object> results, SearchSettingsEntity searchSettings, SearchExecutionModel searchExecutionModel, long count) throws Exception
 	{
 		ExecuteSearchResponse response = new ExecuteSearchResponse();
 		response.setPageNumber(searchExecutionModel.getPageNumber());
@@ -641,5 +646,4 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 
 		return searchQueryDetails.repository.getEntityDetails().getEntityType();
 	}
-
 }

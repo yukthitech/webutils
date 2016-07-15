@@ -16,5 +16,5 @@ public interface ISearchResultCustomizer<T>
 	 * @param results the results
 	 * @return the list
 	 */
-	public List<T> customizer(List<T> results);
+	public List<T> customize(List<T> results);
 }
