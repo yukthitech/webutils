@@ -65,7 +65,9 @@ public enum FieldType
 	/**
 	 * Represent image type file data. 
 	 */
-	IMAGE("image", ImageInfo.class)
+	IMAGE("image", ImageInfo.class),
+	
+	COLOR("color")
 	;
 	
 	/**
