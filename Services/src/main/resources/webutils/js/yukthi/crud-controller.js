@@ -74,6 +74,7 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 				
 				$scope.searchQuery = data.searchQuery;
 				$scope.selectedRow = data.selectedRow ? data.selectedRow : null;
+				$scope.selectedIndex = data.index;
 				
 				logger.trace("Row selection changed. Selected id - {}", $scope.selectedId);
 			});
