@@ -38,6 +38,7 @@ import org.springframework.stereotype.Component;
 import com.yukthi.utils.exceptions.InvalidConfigurationException;
 import com.yukthi.utils.exceptions.InvalidStateException;
 import com.yukthi.webutils.common.LovType;
+import com.yukthi.webutils.common.annotations.Color;
 import com.yukthi.webutils.common.annotations.DefaultValue;
 import com.yukthi.webutils.common.annotations.LOV;
 import com.yukthi.webutils.common.annotations.MultilineText;
@@ -246,6 +247,10 @@ public class FieldDefBuilder
 				else if(field.getAnnotation(Password.class) != null)
 				{
 					fieldDef.setFieldType(FieldType.PASSWORD);
+				}
+				else if(field.getAnnotation(Color.class) != null)
+				{
+					fieldDef.setFieldType(FieldType.COLOR);
 				}
 				else
 				{
