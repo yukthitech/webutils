@@ -932,7 +932,7 @@
 										ng-model="${modelField}" yk-read-only="${fieldDef.readOnly}" ng-change="${validateFunc}"></input>
 								</if>
 								<else-if test="context.fieldDef.fieldType == 'COLOR'">
-									<yk-color-field name="${fieldDef.name}" label="color" ng-model="${modelField}" placeholder="${fieldDef.label}"
+									<yk-color-field name="${fieldDef.name}" label="${modelDef.label}" ng-model="${modelField}" placeholder="${fieldDef.label}"
 										yk-read-only="${fieldDef.readOnly}" ng-change="${validateFunc}"/>
 								</else-if>
 								<else-if test="context.fieldDef.fieldType == 'MULTI_LINE_STRING'">
@@ -1410,21 +1410,20 @@
 			<!-- watch function -->
 			var watchFun = $.proxy(function(){
 			
-				var strModel = this.field.split(".");
-				var model;
-				eval("model=this.$scope." + strModel[0]);
+				var strModel = this.field;
 				var field;
 				
-				var colorVal =  $(this.element.find("input")).val();
-				
-				if(model)
+				<!-- var colorVal =  $(this.element.find("input")).val();  -->
+				try
 				{
-					eval("field=this.$scope.model." + strModel[1]);
-					
-					if(!field)
-					{
-						this.element.colorpicker("setValue", false);
-					}
+					eval("field=this.$scope.model." + strModel);
+				}catch(ex)
+				{}
+				
+				
+				if(!field)
+				{
+					this.element.colorpicker("setValue", false);
 				}
 				
 				return field;
@@ -1437,13 +1436,14 @@
 			<!-- Response function -->
 			var respFun = $.proxy(function(newVal, oldVal){
 			
-				var strModel = this.field.split(".");
-				var model;
-				eval("model=this.$scope." + strModel[0]);
+				var strModel = this.field;
 				
 				var colorVal =  $(this.element.find("input")).val();
 				
-				if(!model)
+				try
+				{
+					eval("field=this.$scope.model." + strModel);
+				}catch(ex)
 				{
 					return;
 				}
@@ -1764,7 +1764,7 @@
 			var element = context.element;
 			
 			$(element).off("dragstart").on("dragstart", $.proxy(function(event){
-				var methodName = eval("this.$scope." + this.funName);
+				eval("this.$scope." + this.funName);
 				
 			},{"$scope" : context.$scope, "funName" : funName}));
 		</script>
@@ -1777,7 +1777,7 @@
 			var element = context.element;
 			
 			$(element).off("drop").on("drop", $.proxy(function(event){
-				var methodName = eval("this.$scope." + this.funName);
+				eval("this.$scope." + this.funName);
 				
 			},{"$scope" : context.$scope, "funName" : funName}));
 		</script>
@@ -1790,13 +1790,12 @@
 			var element = context.element;
 			
 			$(element).off("dragover").on("dragover", $.proxy(function(event){
-				var methodName = eval("this.$scope." + this.funName);
+				eval("this.$scope." + this.funName);
 				
 			},{"$scope" : context.$scope, "funName" : funName}));
 		</script>
 	</attr-directive>
-		
-
+	
 	<attr-directive name="ykFullHeight">
 		<script>
 		
