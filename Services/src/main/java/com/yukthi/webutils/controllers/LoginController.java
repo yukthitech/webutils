@@ -104,7 +104,7 @@ public class LoginController extends BaseController implements ILoginController
 		
 		logger.debug("Authentication successful");
 		userDetails.setSessionStartTime(WebUtils.currentTimeInMin());
-		return new LoginResponse(securityEncryptionService.encrypt(userDetails));
+		return new LoginResponse(securityEncryptionService.encrypt(userDetails), userDetails.getUserId());
 	}
 
 	/**
