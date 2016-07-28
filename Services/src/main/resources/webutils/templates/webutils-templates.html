@@ -932,7 +932,7 @@
 										ng-model="${modelField}" yk-read-only="${fieldDef.readOnly}" ng-change="${validateFunc}"></input>
 								</if>
 								<else-if test="context.fieldDef.fieldType == 'COLOR'">
-									<yk-color-field name="${fieldDef.name}" label="${modelDef.label}" ng-model="${modelField}" placeholder="${fieldDef.label}"
+									<yk-color-field name="${fieldDef.name}" ng-model="${modelField}" placeholder="${fieldDef.label}"
 										yk-read-only="${fieldDef.readOnly}" ng-change="${validateFunc}"/>
 								</else-if>
 								<else-if test="context.fieldDef.fieldType == 'MULTI_LINE_STRING'">
@@ -1392,7 +1392,12 @@
 			var eventHandler = $.proxy(function(event){	
 			
 				var colorVal =  $(this.element.find("input")).val();
-				eval("this.$scope." + this.field + "=colorVal");
+				
+				try
+				{
+					eval("this.$scope." + this.field + "=colorVal");
+				}catch(ex)
+				{}
 				
 			}, {"element": element, 
 				"$scope" : context.$scope, 
@@ -1411,15 +1416,13 @@
 			var watchFun = $.proxy(function(){
 			
 				var strModel = this.field;
-				var field;
+				var field = null;
 				
-				<!-- var colorVal =  $(this.element.find("input")).val();  -->
 				try
 				{
-					eval("field=this.$scope.model." + strModel);
+					eval("field=this.$scope."+ strModel);
 				}catch(ex)
 				{}
-				
 				
 				if(!field)
 				{
@@ -1437,12 +1440,11 @@
 			var respFun = $.proxy(function(newVal, oldVal){
 			
 				var strModel = this.field;
-				
 				var colorVal =  $(this.element.find("input")).val();
 				
 				try
 				{
-					eval("field=this.$scope.model." + strModel);
+					eval("field=this.$scope." + strModel);
 				}catch(ex)
 				{
 					return;
