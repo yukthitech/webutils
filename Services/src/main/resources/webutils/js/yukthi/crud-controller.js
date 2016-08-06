@@ -26,6 +26,12 @@
  * 					field - Name of the field
  * 					message - Error message for the field.
  * 
+ * postSaveOp(model, $scope) -
+ * 				Optional. If specified this function will be invoked after save or update.
+ * 
+ * postDeleteOp(selectedId, $scope) -
+ * 				Optional. If specified this function will be invoked after delete.
+ * 
  * onChange(field, isExtendedField, model, $scope) - 
  * 				Event method. If specified, this method will be called whenever a field value is changed. This can be
  * 				used to control the ui on value change events.
@@ -244,6 +250,12 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 						
 						this.logger.trace("Successfully deleted {} '{}'", this.$scope.crudConfig.name, this.selectedName);
 						this.utils.info(["Successfully deleted {} '{}'", this.$scope.crudConfig.name, this.selectedName]);
+						
+						if(this.$scope.crudConfig.postDeleteOp)
+						{
+							this.$scope.crudConfig.postDeleteOp(this.selectedId, this.$scope);
+						}
+						
 					}, {"$scope": this.$scope, "selectedName": this.$scope.selectedName, 
 						"selectedId": this.$scope.selectedId, "logger": this.logger, "utils": this.utils});
 					
@@ -378,6 +390,11 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 							this.logger.trace("{} is updated successfully!!", this.$scope.crudConfig.name);
 							this.utils.info(["{} is updated successfully!!", this.$scope.crudConfig.name]);
 						}
+						
+						if(this.$scope.crudConfig.postSaveOp)
+						{
+							this.$scope.crudConfig.postSaveOp(this.model, this.$scope);
+						}
 					}
 					else
 					{
@@ -389,7 +406,7 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 						}, this));
 					}
 					
-				}, {"$scope": $scope, "logger": logger, "utils": utils});
+				}, {"$scope": $scope, "logger": logger, "utils": utils, "model": $scope.model});
 				
 				if($scope[$scope.dlgModeField])
 				{

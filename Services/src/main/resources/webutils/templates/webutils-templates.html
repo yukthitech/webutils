@@ -931,6 +931,10 @@
 									<input type="text" name="${fieldDef.name}" placeholder="${fieldDef.label}" 
 										ng-model="${modelField}" yk-read-only="${fieldDef.readOnly}" ng-change="${validateFunc}"></input>
 								</if>
+								<else-if test="context.fieldDef.fieldType == 'COLOR'">
+									<yk-color-field name="${fieldDef.name}" ng-model="${modelField}" placeholder="${fieldDef.label}"
+										yk-read-only="${fieldDef.readOnly}" ng-change="${validateFunc}"/>
+								</else-if>
 								<else-if test="context.fieldDef.fieldType == 'MULTI_LINE_STRING'">
 									<textarea name="${fieldDef.name}" placeholder="${fieldDef.label}" ng-model="${modelField}" 
 											yk-read-only="${fieldDef.readOnly}" style="height: 4em;" ng-change="${validateFunc}"></textarea>
@@ -1358,7 +1362,106 @@
 			}, {"element": element, "$scope" : context.$scope}));
 		</post-script>
 	</directive>
+	
+	<directive name="ykColorField" required-attr="name, ng-model">
+		<content>
+			<set-var name="_readOnly" 
+				expr="context.attr('yk-read-only')? context.attr('yk-read-only') : 'false'"/>
+			<set-var name="_onChange" 
+				expr="context.attr('ng-change')? context.attr('ng-change') : ''"/>
+			<set-var name="_placeholder" 
+				expr="context.attr('placeholder')? context.attr('placeholder') : ''"/>
 
+			<div class="form-group" style="margin-bottom: 0px;">
+				<div class="input-group colorpicker-component" style="width: 10em;">
+					<input readonly="readonly" type="text" class="form-control" name="${attr('name')}" placeholder="${_placeholder}" 
+						ng-model="${attr('ng-model')}" yk-read-only="${_readOnly}" ng-change="${_onChange}">
+					</input>
+					<span class="input-group-addon"><i></i></span>
+				</div>
+			</div>
+		</content>
+
+		<post-script>
+			var element = $(context.$result).find("div.colorpicker-component");
+			element = $(element);
+			
+			element.colorpicker({format: 'hex'});
+			
+			<!-- event handler for color change -->
+			var eventHandler = $.proxy(function(event){	
+			
+				var colorVal =  $(this.element.find("input")).val();
+				
+				try
+				{
+					eval("this.$scope." + this.field + "=colorVal");
+				}catch(ex)
+				{}
+				
+			}, {"element": element, 
+				"$scope" : context.$scope, 
+				"field": context.attr('ng-model')
+			});
+			
+			element.on('changeColor', eventHandler);
+			
+			<!-- disable the color picker -->
+			if(context.attr('yk-read-only') == 'true')
+			{
+				element.colorpicker('disable');
+			}
+			
+			<!-- watch function -->
+			var watchFun = $.proxy(function(){
+			
+				var strModel = this.field;
+				var field = null;
+				
+				try
+				{
+					eval("field=this.$scope."+ strModel);
+				}catch(ex)
+				{}
+				
+				if(!field)
+				{
+					this.element.colorpicker("setValue", false);
+				}
+				
+				return field;
+				
+			},{"element" : element,
+				"$scope" : context.$scope,
+				"field"	 : context.attr('ng-model')
+			});
+			
+			<!-- Response function -->
+			var respFun = $.proxy(function(newVal, oldVal){
+			
+				var strModel = this.field;
+				var colorVal =  $(this.element.find("input")).val();
+				
+				try
+				{
+					eval("field=this.$scope." + strModel);
+				}catch(ex)
+				{
+					return;
+				}
+				
+				this.element.colorpicker("setValue", colorVal);
+				
+			},{"element" : element,
+				"$scope" : context.$scope,
+				"field"  : context.attr('ng-model')
+			});
+			
+			context.$scope.$watch(watchFun, respFun);
+			
+		</post-script>
+	</directive>
+	
 	<directive name="ykMarquee" required-attr="id, width, height">
 		<content>
 			<set-var name="_content" expr="context.bodyAsHtml()"/>
@@ -1655,7 +1758,46 @@
 			}, {"element": fileLink, "$scope" : context.$scope, "actionHelper" : context.actionHelper, "modelName": modelName}));
 		</script>
 	</attr-directive>
-
+	
+	<attr-directive name="ykOnDrag">
+		<script>
+			var funName = context.attributeValue;
+			
+			var element = context.element;
+			
+			$(element).off("dragstart").on("dragstart", $.proxy(function(event){
+				eval("this.$scope." + this.funName);
+				
+			},{"$scope" : context.$scope, "funName" : funName}));
+		</script>
+	</attr-directive>
+	
+	<attr-directive name="ykOnDrop">
+		<script>
+			var funName = context.attributeValue;
+			
+			var element = context.element;
+			
+			$(element).off("drop").on("drop", $.proxy(function(event){
+				eval("this.$scope." + this.funName);
+				
+			},{"$scope" : context.$scope, "funName" : funName}));
+		</script>
+	</attr-directive>
+	
+	<attr-directive name="ykOnDragOver">
+		<script>
+			var funName = context.attributeValue;
+			
+			var element = context.element;
+			
+			$(element).off("dragover").on("dragover", $.proxy(function(event){
+				eval("this.$scope." + this.funName);
+				
+			},{"$scope" : context.$scope, "funName" : funName}));
+		</script>
+	</attr-directive>
+	
 	<attr-directive name="ykFullHeight">
 		<script>
 		

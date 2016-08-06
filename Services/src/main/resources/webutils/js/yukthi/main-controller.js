@@ -20,6 +20,13 @@ $.application.controller('mainController', ["$scope", "$rootScope", "logger", "a
 		
 		$(".preProcessHidden").removeClass("preProcessHidden");
 		
+		// Active user is ready fetch the projects
+		if(this.$scope.activeUser.userId > 1)
+		{
+			$scope.$broadcast("activeUserIsReady");
+		}
+		
+		
 	}, {"$scope": $scope}));
 	
 	$rootScope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState, fromParams)
