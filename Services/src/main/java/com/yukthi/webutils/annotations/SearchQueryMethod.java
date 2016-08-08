@@ -30,6 +30,7 @@ import java.lang.annotation.Target;
 
 import com.yukthi.persistence.repository.annotations.SearchFunction;
 import com.yukthi.persistence.repository.annotations.SearchResult;
+import com.yukthi.webutils.repository.search.ISearchResultCustomizer;
 import com.yukthi.webutils.services.SearchService;
 
 /**
@@ -55,4 +56,13 @@ public @interface SearchQueryMethod
 	 * @return Search query model type
 	 */
 	public Class<?> queryModel();
+	
+	/**
+	 * Customizer is used for searchResult to customized.
+	 *
+	 * @return customized searchResults
+	 */
+	@SuppressWarnings("rawtypes")
+	public Class<? extends ISearchResultCustomizer> customizer() default ISearchResultCustomizer.class;
 }
+
