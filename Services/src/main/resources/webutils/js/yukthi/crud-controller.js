@@ -32,6 +32,9 @@
  * postDeleteOp(selectedId, $scope) -
  * 				Optional. If specified this function will be invoked after delete.
  * 
+ * onDisplay(model)-
+ * 				Optional. If specified this function will be invoked for edit and add new record.
+ * 
  * onChange(field, isExtendedField, model, $scope) - 
  * 				Event method. If specified, this method will be called whenever a field value is changed. This can be
  * 				used to control the ui on value change events.
@@ -108,6 +111,12 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 					
 					"onShow": function(){
 						$("#" + this.$scope.crudConfig.modelDailogId +" input").first().focus();
+						
+						// on display model dialog
+						if(this.$scope.crudConfig.onDisplay)
+						{
+							this.$scope.crudConfig.onDisplay(this.$scope.model);
+						}
 					}
 				});
 			};
@@ -202,6 +211,13 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 							console.log("During Edit Display....");
 							console.log(this.$scope.name);
 							console.log(this.$scope.model);
+							
+							// on display model dialog
+							if(this.$scope.crudConfig.onDisplay)
+							{
+								this.$scope.crudConfig.onDisplay(this.$scope.model);
+							}
+							
 						}
 					});
 				}, {"$scope": $scope, "logger": logger, "utils": utils});
