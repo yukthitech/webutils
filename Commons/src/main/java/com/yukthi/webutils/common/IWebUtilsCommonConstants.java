@@ -118,4 +118,8 @@ public interface IWebUtilsCommonConstants
 	 */
 	public String PATTERN_EMAIL = "[\\w\\.\\-]+\\@[\\w\\.\\-]+\\.[\\w]+";
 	
+	/** 
+	 * The pattern url link. 
+	 **/
+	public String PATTERN_URL_LINK = "http://www.bing.com/";
 }
