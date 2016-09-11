@@ -121,5 +121,5 @@ public interface IWebUtilsCommonConstants
 	/** 
 	 * The pattern url link. 
 	 **/
-	public String PATTERN_URL_LINK = "http://www.bing.com/";
+	public String PATTERN_URL_LINK = "(https?://.+)?";
 }
