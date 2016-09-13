@@ -35,6 +35,9 @@
  * onDisplay(model)-
  * 				Optional. If specified this function will be invoked for edit and add new record.
  * 
+ * onHide()-
+ * 			Optional. If specified this function will be invoked after the dailoge is hidden either by success save edit or cancel.
+ * 
  * onChange(field, isExtendedField, model, $scope) - 
  * 				Event method. If specified, this method will be called whenever a field value is changed. This can be
  * 				used to control the ui on value change events.
@@ -116,6 +119,15 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 						if(this.$scope.crudConfig.onDisplay)
 						{
 							this.$scope.crudConfig.onDisplay(this.$scope.model);
+						}
+					},
+					
+					"onHide": function(){
+						
+						// on hide model dialog
+						if(this.$scope.crudConfig.onHide)
+						{
+							this.$scope.crudConfig.onHide();
 						}
 					}
 				});
@@ -218,6 +230,15 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 								this.$scope.crudConfig.onDisplay(this.$scope.model);
 							}
 							
+						},
+						
+						"onHide": function(){
+							
+							// on hide model dialog
+							if(this.$scope.crudConfig.onHide)
+							{
+								this.$scope.crudConfig.onHide();
+							}
 						}
 					});
 				}, {"$scope": $scope, "logger": logger, "utils": utils});
