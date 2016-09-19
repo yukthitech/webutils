@@ -40,6 +40,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import com.yukthi.persistence.ICrudRepository;
@@ -160,6 +161,10 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 	@Autowired
 	private IExtensionContextProvider extensionContextProvider;
 
+	
+	@Autowired
+	private ApplicationContext applicationContext;
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -507,6 +512,9 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 			if(!ISearchResultCustomizer.class.equals(searchQueryDetails.customizerType))
 			{
 				ISearchResultCustomizer customizerResult = searchQueryDetails.customizerType.newInstance();
+				applicationContext.getAutowireCapableBeanFactory().autowireBean(customizerResult);
+				applicationContext.getAutowireCapableBeanFactory().applyBeanPostProcessorsAfterInitialization(customizerResult, "");
+				
 				results = customizerResult.customize(results);
 			}
 			

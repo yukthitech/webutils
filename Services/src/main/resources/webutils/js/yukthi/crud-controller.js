@@ -222,7 +222,7 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 
 			$scope.deleteEntry = function(e) {
 				logger.trace("Delete {} is triggered: {}", $scope.crudConfig.name,  $scope.selectedId);
-				
+			
 				var deleteOp = $.proxy(function(confirmed) {
 					
 					if(!confirmed)

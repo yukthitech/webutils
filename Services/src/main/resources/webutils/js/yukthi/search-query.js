@@ -65,6 +65,14 @@ $.application.controller('searchQueryController', ["$scope", "actionHelper", "lo
 		//TODO: Move init errors to post rendering
 		$scope.initErrors("searchQuery");
 		
+		try
+		{
+			$scope.customizeSearchQuery($scope.searchQuery);
+		}catch(ex)
+		{
+			//ignore customization 
+		}
+		
 		if(!validator.validateModel($scope.searchQuery, $scope.modelDef, $scope.errors.searchQuery))
 		{
 			utils.alert("Please correct the errors and then try!");
@@ -180,6 +188,14 @@ $.application.controller('searchQueryController', ["$scope", "actionHelper", "lo
 		
 		$scope.initErrors("searchQuery");
 		
+		try
+		{
+			$scope.customizeSearchQuery($scope.searchQuery);
+		}catch(ex)
+		{
+			//ignore customization 
+		}
+
 		if(!validator.validateModel($scope.searchQuery, $scope.modelDef, $scope.errors.searchQuery))
 		{
 			utils.alert("Please correct the errors and then try!");
