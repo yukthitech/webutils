@@ -119,7 +119,7 @@ public interface IWebUtilsCommonConstants
 	public String PATTERN_EMAIL = "[\\w\\.\\-]+\\@[\\w\\.\\-]+\\.[\\w]+";
 	
 	/** 
-	 * The pattern url link. 
+	 * The pattern url link to save the documents link. 
 	 **/
-	public String PATTERN_URL_LINK = "\\w+\\:W.+";
+	public String PATTERN_URL_LINK = "\\w+\\:.+";
 }
