@@ -1,4 +1,5 @@
-$.application.controller('mainController', ["$scope", "$rootScope", "logger", "actionHelper", function($scope, $rootScope, logger, actionHelper) {
+$.application.controller('mainController', ["$scope", "$rootScope", "logger", "actionHelper", "$state", 
+                                            function($scope, $rootScope, logger, actionHelper, $state) {
 	
 	$scope.activeUser = null;
 	
@@ -31,8 +32,21 @@ $.application.controller('mainController', ["$scope", "$rootScope", "logger", "a
 	
 	$rootScope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState, fromParams)
 	{
-		console.log('Moved to state - ' + toState.name + ". Activating tab - " + toState.tab);
 		$("#" + toState.tab + "_tab").tab("show");
+		
+		if($state.current.leftMenu)
+			{
+				$("#appLeftMenu").css("display", "block");
+				$("#mainContentContainer").removeClass("col-md-12");
+				$("#mainContentContainer").addClass("col-md-10 col-md-offset-2");
+			} 
+			else
+			{
+				$("#appLeftMenu").css("display", "none");
+				$("#mainContentContainer").removeClass("col-md-10 col-md-offset-2");
+				$("#mainContentContainer").addClass("col-md-12");
+			}
+		
 	});
 	
 	$scope.hasRole = function(roleName) {
