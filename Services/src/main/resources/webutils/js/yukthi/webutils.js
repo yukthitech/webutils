@@ -474,8 +474,8 @@ $.application.factory('clientContext', ['logger', 'utils', function(logger, util
 			return (this.authToken != null);
 		},
 		
-		"invokeApi" : function(url, data, config, callback) {
-
+		"invokeApi" : function(url, data, config, callback, hideInProgress) {
+			
 			var methodType = (config && config.methodType)? config.methodType: "POST";
 			var contentType = (config && config.contentType)? config.contentType : 'application/x-www-form-urlencoded; charset=UTF-8';
 			var processData = undefined;
@@ -507,9 +507,16 @@ $.application.factory('clientContext', ['logger', 'utils', function(logger, util
 				"callback": callback,
 				
 				"utils": utils,
+				"hideInProgress": hideInProgress
 			};
 			
-			utils.displayInProgress();
+			// in all case hideInProgress is undefined so by default it will display,
+			// if hideInProgress is true then condition is false and it will not display
+			if(!hideInProgress)
+			{
+				utils.displayInProgress();
+			}
+			
 			
 			$.ajax({
 				  type: methodType,
@@ -523,7 +530,12 @@ $.application.factory('clientContext', ['logger', 'utils', function(logger, util
 				  "headers": headers,
 				  
 				  success: $.proxy(function(resData, textStatus, jqXHR){
-					  	utils.hideInProgress();
+					  
+					  	// in all case hideInProgress is undefined so by default it will hide display after success
+					  	if(!result.hideInProgress)
+					  	{
+					  		utils.hideInProgress();
+					  	}
 					  
 						//if this is a normal api (not part of background api), then only
 					  		//save updated auth header
@@ -612,7 +624,8 @@ $.application.factory('clientContext', ['logger', 'utils', function(logger, util
 					"methodType": "GET", 
 					"async": (config && (config.async == false)) ? false : true
 				},
-				callback
+				callback,
+				config
 			);
 					
 			return apiRes;
@@ -632,7 +645,8 @@ $.application.factory('clientContext', ['logger', 'utils', function(logger, util
 					"methodType": "DELETE", 
 					"async": (config && (config.async == false)) ? false : true
 				},
-				callback
+				callback,
+				config
 			);
 					
 			return apiRes;
@@ -655,7 +669,8 @@ $.application.factory('clientContext', ['logger', 'utils', function(logger, util
 					"contentType" : "application/json", 
 					"async": (config && (config.async == false)) ? false : true
 				},
-				callback
+				callback,
+				config
 			);
 					
 			return apiRes;
@@ -822,7 +837,7 @@ $.application.factory('actionHelper', ['clientContext', function(clientContext){
 		 * Invokes specified action with specified entity and params. For actions based on
 		 * GET requestEntity will not be considered
 		 */
-		"invokeAction" : function(actionName, requestEntity, params, callback) {
+		"invokeAction" : function(actionName, requestEntity, params, callback, config) {
 			var action = this.clientContext.getAction(actionName);
 			
 			if(!action)
@@ -975,17 +990,17 @@ $.application.factory('actionHelper', ['clientContext', function(clientContext){
 			//invoke the target api url based on action method
 			if(action.method == 'GET')
 			{
-				return this.clientContext.invokeGetApi(actionUrl, params, callback);
+				return this.clientContext.invokeGetApi(actionUrl, params, callback, config);
 			}
 			else if(action.method == 'DELETE')
 			{
-				return this.clientContext.invokeDeleteApi(actionUrl, params, callback);
+				return this.clientContext.invokeDeleteApi(actionUrl, params, callback, config);
 			}
 			else
 			{
 				if(!action.attachmentsExpected)
 				{
-					return this.clientContext.invokePostApi(actionUrl, requestEntity, callback);
+					return this.clientContext.invokePostApi(actionUrl, requestEntity, callback, config);
 				}
 				
 				var files = [];
@@ -1062,7 +1077,8 @@ $.application.factory('actionHelper', ['clientContext', function(clientContext){
 					actionUrl, 
 					request, 
 					{"methodType": "POST", "multipart" : true},
-					callback
+					callback,
+					config
 				);
 				
 				return apiRes;

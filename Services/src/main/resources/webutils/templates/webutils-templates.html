@@ -1782,6 +1782,11 @@
 				eval("this.$scope." + this.funName);
 				
 			},{"$scope" : context.$scope, "funName" : funName}));
+
+			$(element).off("dragover").on("dragover", $.proxy(function(event){
+			   event.preventDefault();
+				
+			},{"$scope" : context.$scope, "funName" : funName}));
 		</script>
 	</attr-directive>
 	
