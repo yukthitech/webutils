@@ -121,5 +121,5 @@ public interface IWebUtilsCommonConstants
 	/** 
 	 * The pattern url link. 
 	 **/
-	public String PATTERN_URL_LINK = "(https?://.+)?";
+	public String PATTERN_URL_LINK = "\\w+\\:W.+";
 }

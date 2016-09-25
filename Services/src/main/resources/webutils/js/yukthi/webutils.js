@@ -840,8 +840,6 @@ $.application.factory('actionHelper', ['clientContext', function(clientContext){
 		"invokeAction" : function(actionName, requestEntity, params, callback, config) {
 			var action = this.clientContext.getAction(actionName);
 			
-			console.log("line 829" + actionName + " = " + !config);
-			
 			if(!action)
 			{
 				throw "Invalid action name specified - " + actionName;
