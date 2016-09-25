@@ -17,6 +17,17 @@
 		</content>
 	</directive>
 	
+	<directive name="ykTabButton" required-attr="id, label, icon">
+		<content>
+			<set-var name="_forRole" expr="context.attr('yk-for-role', null) ? context.attr('yk-for-role', null) : ''"/>
+			
+			<a id="${attr('id','')}"  class="yk-tab-button" style="color: ${attr('color','')}; text-decoration: none;" yk-for-role="${_forRole}" ui-sref="${attr('state')}">
+				<i class="${attr('icon','')}" style="color: ${attr('icon-color','')};" aria-hidden="true"></i>
+				${attributes.label}
+			</a>
+		</content>
+	</directive>
+
 	<directive name="ykImageSlider" required-attr="id, dataattr, width, height">
 		<content>
 			<set-var name="_idAttr" expr="context.attributes.id"/>
@@ -1845,7 +1856,11 @@
 				currentStyle = "";
 			}
 			
-			context.element.attr("style",  currentStyle + "height : " + (docHeight - top) + "px;");
+			var marginHeight = context.attr("yk-height-margin", 0);
+			
+			var targetHeight = docHeight - top - marginHeight;
+			
+			context.element.attr("style",  currentStyle + "height : " + targetHeight + "px;");
 		</script>
 	</attr-directive>
 
