@@ -13,6 +13,7 @@ $.application.controller('mainController', ["$scope", "$rootScope", "logger", "a
 		
 		this.$scope.activeUser = activeUserResp.model;
 		
+		
 		try
 		{
 			this.$scope.$digest();
