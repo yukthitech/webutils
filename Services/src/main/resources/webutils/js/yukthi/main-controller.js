@@ -38,12 +38,12 @@ $.application.controller('mainController', ["$scope", "$rootScope", "logger", "a
 			{
 				$("#appLeftMenu").css("display", "block");
 				$("#mainContentContainer").removeClass("col-md-12");
-				$("#mainContentContainer").addClass("col-md-10 col-md-offset-2");
+				$("#mainContentContainer").addClass("col-md-10");
 			} 
 			else
 			{
 				$("#appLeftMenu").css("display", "none");
-				$("#mainContentContainer").removeClass("col-md-10 col-md-offset-2");
+				$("#mainContentContainer").removeClass("col-md-10");
 				$("#mainContentContainer").addClass("col-md-12");
 			}
 		
