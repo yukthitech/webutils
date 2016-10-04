@@ -38,7 +38,7 @@ import com.yukthi.webutils.repository.UserEntity;
 import com.yukthi.webutils.security.UserDetails;
 
 /**
- * Context user related services
+ * Context user related services.
  * @author akiran
  */
 @Service
@@ -46,21 +46,43 @@ public class CurrentUserService
 {
 	private static Logger logger = LogManager.getLogger(CurrentUserService.class);
 	
+	/**
+	 * Autowired current request object.
+	 */
 	@Autowired
 	private HttpServletRequest request;
 	
 	/**
-	 * Fetches current user details from the request
+	 * Internal active user to be used for populating tracking fields when request is not available.
+	 */
+	private UserDetails internalActiveUser;
+	
+	/**
+	 * Used to set active user. Expected to be used for internal services like bootstrap loader.
+	 * @param userDetails User details to be set.
+	 */
+	public void setInternalCurrentUser(UserDetails userDetails)
+	{
+		this.internalActiveUser = userDetails;
+	}
+	
+	/**
+	 * Fetches current user details from the request.
 	 * @return Current user details
 	 */
 	public UserDetails getCurrentUserDetails()
 	{
 		try
 		{
-			return (UserDetails)request.getAttribute(IWebUtilsInternalConstants.REQ_ATTR_USER_DETAILS);
+			return (UserDetails) request.getAttribute(IWebUtilsInternalConstants.REQ_ATTR_USER_DETAILS);
 		}catch(Exception ex)
 		{
-			logger.info("An error occurred while fetching user details from request", ex);
+			if(internalActiveUser != null)
+			{
+				return internalActiveUser;
+			}
+			
+			logger.info("An error occurred while fetching user details from request - " + ex);
 			return null;
 		}
 	}

@@ -21,7 +21,7 @@
 		<content>
 			<set-var name="_forRole" expr="context.attr('yk-for-role', null) ? context.attr('yk-for-role', null) : ''"/>
 			
-			<a id="${attr('id','')}"  class="yk-tab-button" style="color: ${attr('color','')}; text-decoration: none;" yk-for-role="${_forRole}" ui-sref="${attr('state')}">
+			<a id="${attr('id','')}"  class="yk-tab-button" style="white-space: nowrap; color: ${attr('color','')}; text-decoration: none;" yk-for-role="${_forRole}" ui-sref="${attr('state')}">
 				<i class="${attr('icon','')}" style="color: ${attr('icon-color','')};" aria-hidden="true"></i>
 				${attributes.label}
 			</a>
