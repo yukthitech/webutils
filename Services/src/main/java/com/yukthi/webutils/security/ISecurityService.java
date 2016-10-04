@@ -28,6 +28,7 @@ import java.util.Map;
 
 import com.yukthi.webutils.common.models.ActiveUserModel;
 import com.yukthi.webutils.extensions.ExtensionEntityDetails;
+import com.yukthi.webutils.repository.UserEntity;
 import com.yukthi.webutils.repository.file.FileEntity;
 
 /**
@@ -39,13 +40,20 @@ public interface ISecurityService
 {
 	/**
 	 * Authenticates the specified user name and password and returns user details, if inputs
-	 * are value
+	 * are value.
 	 * @param userName User name
 	 * @param password password
 	 * @param attributes Extra attributes from client for custom login
 	 * @return User details if authentication is successful, otherwise null
 	 */
 	public UserDetails authenticate(String userName, String password, Map<String, String> attributes);
+	
+	/**
+	 * Builds and returns the user details based on specified user entity.
+	 * @param userEntity User entity for which user details needs to be built.
+	 * @return Built user details.
+	 */
+	public UserDetails getUserDetailsFor(UserEntity userEntity);
 	
 	/**
 	 * Should return user details and configurations of the current user. 
