@@ -38,8 +38,10 @@ import com.test.yukthi.webutils.TestUserDetails;
 import com.yukthi.utils.CommonUtils;
 import com.yukthi.webutils.common.models.ActiveUserModel;
 import com.yukthi.webutils.extensions.ExtensionEntityDetails;
+import com.yukthi.webutils.repository.UserEntity;
 import com.yukthi.webutils.repository.file.FileEntity;
 import com.yukthi.webutils.security.ISecurityService;
+import com.yukthi.webutils.security.UserDetails;
 import com.yukthi.webutils.services.CurrentUserService;
 
 /**
@@ -143,5 +145,11 @@ public class TestAuthenticationService implements ISecurityService
 	{
 		String custId = request.getHeader("customerId");
 		return (custId != null && custId.trim().length() > 0) ? "Cust-" + custId : "admin";
+	}
+
+	@Override
+	public UserDetails getUserDetailsFor(UserEntity userEntity)
+	{
+		return null;
 	}
 }
