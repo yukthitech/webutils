@@ -19,8 +19,6 @@ public interface ITestController
 
 	BaseResponse secured2(TestBean testBean);
 
-	BaseResponse sendMail(TestMailModel model);
-
-	BaseResponse sendMailByTemplate(TestMailBean model);
+	BaseResponse sendMail(TestMailModel model) throws Exception;
 
 }

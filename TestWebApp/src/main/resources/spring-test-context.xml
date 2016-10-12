@@ -27,6 +27,17 @@
 		<property name="url" value="jdbc:derby:c:/db/testDB;create=true" />
 	</bean>
 
+	<bean id="emailServerSettings" class="com.yukthi.webutils.common.models.mails.EmailServerSettings">
+		<property name="smtpHost" value="smtp.gmail.com" />
+		<property name="smtpPort" value="587" />
+		<property name="useAuthentication" value="true" />
+		<property name="userName" value="yukthitestmail@gmail.com" />
+		<property name="password" value="yukthi@home" />
+		<property name="enableTtls" value="true" />
+		<property name="readProtocol" value="IMAPS" />
+		<property name="readHost" value="imap.gmail.com" />
+	</bean>
+
 	<bean id="repositoryFactory" class="com.yukthi.persistence.repository.RepositoryFactory">
 		<property name="createTables" value="true" />
 		

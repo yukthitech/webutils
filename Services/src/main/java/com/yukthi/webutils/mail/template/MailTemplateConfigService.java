@@ -1,10 +1,13 @@
 package com.yukthi.webutils.mail.template;
 
+import java.awt.Image;
+import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -32,7 +35,12 @@ public class MailTemplateConfigService
 	private TreeMap<String, MailTemplateConfiguration> nameToConfig = new TreeMap<>();
 	
 	/**
-	 * Class scan service, to scan mail template configuraions.
+	 * Maintains configuration mapping from type to configuration.
+	 */
+	private Map<Class<?>, MailTemplateConfiguration> typeToConfig = new HashMap<>();
+	
+	/**
+	 * Class scan service, to scan mail template configurations.
 	 */
 	@Autowired
 	private ClassScannerService classScannerService;
@@ -67,15 +75,8 @@ public class MailTemplateConfigService
 			
 			loadFields(type, "", newConfig);
 			
-			if(mailTemplateConfig.attachments().length > 0)
-			{
-				for(AttachmentConfig attachment : mailTemplateConfig.attachments())
-				{
-					newConfig.addAttachment(new MailTemplateConfiguration.Attachment(attachment.name(), attachment.description(), attachment.image()));
-				}
-			}
-			
 			nameToConfig.put(newConfig.getName(), newConfig);
+			typeToConfig.put(type, newConfig);
 		}
 	}
 	
@@ -100,6 +101,16 @@ public class MailTemplateConfigService
 	}
 	
 	/**
+	 * Returns true, if specified type value can be sent as attachment.
+	 * @param type Type of field to check.
+	 * @return True if type can be supported as attachment.
+	 */
+	private boolean isSupportedAttachmentType(Class<?> type)
+	{
+		return String.class.equals(type) || byte[].class.equals(type) || File.class.equals(type) || Image.class.equals(type);
+	}
+	
+	/**
 	 * Loads the field details from specified type into specified configuration.
 	 * @param type Type to load from.
 	 * @param prefix Prefix to be used on fields (used in recursion)
@@ -109,6 +120,7 @@ public class MailTemplateConfigService
 	{
 		Field fields[] = type.getDeclaredFields();
 		MailConfigField mailConfigField = null;
+		MailAttachment mailAttachment = null;
 		
 		Class<?> fieldType = null, fieldCollectionType = null;
 		String fieldName = null;
@@ -116,15 +128,32 @@ public class MailTemplateConfigService
 		for(Field field : fields)
 		{
 			mailConfigField = field.getAnnotation(MailConfigField.class);
+			mailAttachment = field.getAnnotation(MailAttachment.class);
 			
-			if(mailConfigField == null)
+			if(mailConfigField == null && mailAttachment == null)
 			{
 				continue;
 			}
 			
 			fieldName = field.getName();
 			fieldType = field.getType();
-			
+
+			if(mailAttachment != null)
+			{
+				if(!isSupportedAttachmentType(fieldType))
+				{
+					throw new InvalidStateException("Field {}.{} is marked as attachment. Type {} is not supported as attachment field.", type.getName(), fieldName, fieldType.getName());
+				}
+				
+				newConfig.addAttachment(new MailTemplateConfiguration.Attachment(mailAttachment.name(), (prefix + fieldName).replace(".", "_"), 
+					mailAttachment.description(), 
+					Image.class.equals(fieldType) || mailAttachment.image(),
+					prefix + fieldName
+				));
+				
+				continue;
+			}
+
 			if(Collection.class.isAssignableFrom(fieldType))
 			{
 				fieldCollectionType = (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
@@ -170,5 +199,15 @@ public class MailTemplateConfigService
 	public MailTemplateConfiguration getMailTemplateConfiguration(String name)
 	{
 		return nameToConfig.get(name);
+	}
+	
+	/**
+	 * Fetches mail template configuration based on specified type.
+	 * @param type Type for which configuration needs to be fetched.
+	 * @return Matching configuration.
+	 */
+	public MailTemplateConfiguration getMailTemplateConfiguration(Class<?> type)
+	{
+		return typeToConfig.get(type);
 	}
 }

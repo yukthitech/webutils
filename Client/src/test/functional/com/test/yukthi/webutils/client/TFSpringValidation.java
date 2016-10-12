@@ -22,23 +22,18 @@
  */
 package com.test.yukthi.webutils.client;
 
-import java.io.File;
-
-import org.apache.commons.io.FileUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.test.yukthi.webutils.models.ITestController;
 import com.test.yukthi.webutils.models.TestBean;
-import com.test.yukthi.webutils.models.TestMailBean;
-import com.test.yukthi.webutils.models.TestMailModel;
 import com.yukthi.webutils.client.RestException;
 import com.yukthi.webutils.common.IWebUtilsCommonConstants;
 import com.yukthi.webutils.common.models.BaseResponse;
 
 /**
- * Ensures spring validation is enabled using test controller and test bean
+ * Ensures spring validation is enabled using test controller and test bean.
  * @author akiran
  */
 public class TFSpringValidation extends TFBase
@@ -92,35 +87,5 @@ public class TFSpringValidation extends TFBase
 		
 		//test for positive test case where validation succeeds
 		test(new TestBean("name", 25, "test", "test"), IWebUtilsCommonConstants.RESPONSE_CODE_SUCCESS, "name");
-	}
-
-	@Test
-	public void testSendMail() throws Exception
-	{
-		File file1 = File.createTempFile("Test", ".txt");
-		FileUtils.writeStringToFile(file1, "Some test attachment content 1");
-		
-		File file2 = File.createTempFile("Test", ".txt");
-		FileUtils.writeStringToFile(file2, "Some test attachment content 2");
-		
-		//check for negative test case, where validation fails
-		TestMailModel mailModel = new TestMailModel();
-		mailModel.setSubject("Test subject");
-		mailModel.setContent("Some test content for <B>mail</B> testing.");
-		mailModel.setToId("akranthikiran@gmail.com");
-		mailModel.setFromId("dev@yukthi-tech.co.in");
-		mailModel.setAttachments(new String[] {file1.getPath(), file2.getPath()});
-		
-		BaseResponse response = testController.sendMail(mailModel);
-		Assert.assertEquals(response.getCode(), 0);
-	}
-
-	@Test
-	public void testSendMailByTemplate() throws Exception
-	{
-		TestMailBean bean = new TestMailBean("Test1234", 34, "akranthikiran@gmail.com");
-		
-		BaseResponse response = testController.sendMailByTemplate(bean);
-		Assert.assertEquals(response.getCode(), 0);
 	}
 }

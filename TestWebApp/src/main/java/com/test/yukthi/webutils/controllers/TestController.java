@@ -26,6 +26,7 @@ import java.io.File;
 
 import javax.validation.Valid;
 
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,17 +36,16 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.test.yukthi.webutils.Authorization;
 import com.test.yukthi.webutils.SecurityRole;
+import com.test.yukthi.webutils.mail.TestMailConfig1;
 import com.test.yukthi.webutils.models.ITestController;
 import com.test.yukthi.webutils.models.TestBean;
-import com.test.yukthi.webutils.models.TestMailBean;
 import com.test.yukthi.webutils.models.TestMailModel;
 import com.yukthi.webutils.annotations.ActionName;
 import com.yukthi.webutils.common.models.BaseResponse;
+import com.yukthi.webutils.common.models.mails.EmailServerSettings;
 import com.yukthi.webutils.controllers.BaseController;
 import com.yukthi.webutils.mail.EmailData;
 import com.yukthi.webutils.mail.EmailService;
-import com.yukthi.webutils.mail.EmailTemplateService;
-import com.yukthi.webutils.mail.FileAttachment;
 
 /**
  * Test controller to test spring validation enablement
@@ -60,7 +60,7 @@ public class TestController extends BaseController implements ITestController
 	private EmailService emailService;
 	
 	@Autowired
-	private EmailTemplateService emailTemplateService;
+	private EmailServerSettings emailServerSettings;
 	
 	/* (non-Javadoc)
 	 * @see com.test.yukthi.webutils.controllers.ITestController#test(com.test.yukthi.webutils.models.TestBean)
@@ -107,45 +107,28 @@ public class TestController extends BaseController implements ITestController
 	@ResponseBody
 	@RequestMapping(value = "/sendMail", method = RequestMethod.POST)
 	@ActionName("sendMail")
-	public BaseResponse sendMail(@RequestBody TestMailModel model)
+	public BaseResponse sendMail(@RequestBody TestMailModel model) throws Exception
 	{
 		EmailData email = new EmailData();
-		email.setSubject(model.getSubject());
-		email.setContent(model.getContent());
-		email.setFromId(model.getFromId());
+		email.setSubjectTemplate(model.getSubject());
+		email.setContentTemplate(model.getContent());
 		email.setToList(new String[]{model.getToId()});
 		
-		if(model.getAttachments() != null)
-		{
-			int idx = 0;
-			FileAttachment mailAttachments[] = new FileAttachment[model.getAttachments().length];
-			
-			for(String attachFile : model.getAttachments())
-			{
-				mailAttachments[idx] = new FileAttachment(new File(attachFile), "Test" + idx + ".txt"); 
-				idx++;
-			}
-			
-			email.setAttachments(mailAttachments);
-		}
+		TestMailConfig1 config = new TestMailConfig1();
+		config.setName("Tname");
+		config.setAge(16);
 		
-		emailService.sendEmail(email);
-		return new BaseResponse(0, "Success");
-	}
-	
-	/* (non-Javadoc)
-	 * @see com.test.yukthi.webutils.controllers.ITestController#sendMailByTemplate(com.test.yukthi.webutils.models.TestMailBean)
-	 */
-	@Override
-	@ResponseBody
-	@RequestMapping(value = "/sendMailByTemplate", method = RequestMethod.POST)
-	@ActionName("sendMailByTemplate")
-	public BaseResponse sendMailByTemplate(@RequestBody TestMailBean model)
-	{
-		EmailData email = emailTemplateService.getEmailTemplate("test").toEmailData(model);
-		email.setToList(new String[]{model.getToMailId()});
-		
-		emailService.sendEmail(email);
+		File file1 = File.createTempFile("test", ".txt");
+		FileUtils.write(file1, model.getAttachment1());
+		config.setAttachment1(file1);
+
+		File file2 = File.createTempFile("test", ".txt");
+		FileUtils.write(file1, model.getAttachment2());
+		config.setAttachment2(file2);
+
+		config.setAttachment3(model.getAttachment3());
+
+		emailService.sendEmail(emailServerSettings, email, config);
 		return new BaseResponse(0, "Success");
 	}
 }

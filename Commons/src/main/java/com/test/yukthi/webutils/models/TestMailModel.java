@@ -37,12 +37,15 @@ public class TestMailModel
 	
 	private String content;
 	
-	@IgnoreField
-	private String attachments[];
-	
 	private String fromId;
 	
 	private String toId;
+	
+	private String attachment1;
+	
+	private String attachment2;
+	
+	private String attachment3;
 	
 	public TestMailModel()
 	{}
@@ -67,16 +70,6 @@ public class TestMailModel
 		this.content = content;
 	}
 
-	public String[] getAttachments()
-	{
-		return attachments;
-	}
-
-	public void setAttachments(String[] attachments)
-	{
-		this.attachments = attachments;
-	}
-
 	public String getFromId()
 	{
 		return fromId;
@@ -96,6 +89,34 @@ public class TestMailModel
 	{
 		this.toId = toId;
 	}
-	
-	
+
+	public String getAttachment1()
+	{
+		return attachment1;
+	}
+
+	public void setAttachment1(String attachment1)
+	{
+		this.attachment1 = attachment1;
+	}
+
+	public String getAttachment2()
+	{
+		return attachment2;
+	}
+
+	public void setAttachment2(String attachment2)
+	{
+		this.attachment2 = attachment2;
+	}
+
+	public String getAttachment3()
+	{
+		return attachment3;
+	}
+
+	public void setAttachment3(String attachment3)
+	{
+		this.attachment3 = attachment3;
+	}
 }
