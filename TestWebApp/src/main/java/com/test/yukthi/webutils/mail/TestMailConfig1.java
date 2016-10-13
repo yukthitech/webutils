@@ -1,8 +1,9 @@
 package com.test.yukthi.webutils.mail;
 
+import java.io.File;
 import java.util.List;
 
-import com.yukthi.webutils.mail.template.AttachmentConfig;
+import com.yukthi.webutils.mail.template.MailAttachment;
 import com.yukthi.webutils.mail.template.MailConfigField;
 import com.yukthi.webutils.mail.template.MailTemplateConfig;
 
@@ -10,10 +11,7 @@ import com.yukthi.webutils.mail.template.MailTemplateConfig;
  * Test mail configuration.
  * @author akiran
  */
-@MailTemplateConfig(name = "TestMail1", description = "Test mail description", 
-	attachments = { 
-		@AttachmentConfig(name = "image1", description = "Image config", image = true)
-	})
+@MailTemplateConfig(name = "TestMail1", description = "Test mail description")
 public class TestMailConfig1
 {
 	/**
@@ -131,6 +129,24 @@ public class TestMailConfig1
 	 */
 	@MailConfigField(description = "Departments")
 	private List<Department> departments;
+	
+	/**
+	 * Attachment 1.
+	 */
+	@MailAttachment(name = "Attach1", description = "attachment1")
+	private File attachment1;
+	
+	/**
+	 * Attachment 2.
+	 */
+	@MailAttachment(name = "Attach2", description = "attachment2")
+	private File attachment2;
+	
+	/** 
+	 * The attachment3.
+	 */
+	@MailAttachment(name = "Attach3", description = "attachment3")
+	private String attachment3;
 
 	/**
 	 * Gets the name.
@@ -210,5 +226,65 @@ public class TestMailConfig1
 	public void setDepartments(List<Department> departments)
 	{
 		this.departments = departments;
+	}
+
+	/**
+	 * Gets the attachment 1.
+	 *
+	 * @return the attachment 1
+	 */
+	public File getAttachment1()
+	{
+		return attachment1;
+	}
+
+	/**
+	 * Sets the attachment 1.
+	 *
+	 * @param attachment1 the new attachment 1
+	 */
+	public void setAttachment1(File attachment1)
+	{
+		this.attachment1 = attachment1;
+	}
+
+	/**
+	 * Gets the attachment 2.
+	 *
+	 * @return the attachment 2
+	 */
+	public File getAttachment2()
+	{
+		return attachment2;
+	}
+
+	/**
+	 * Sets the attachment 2.
+	 *
+	 * @param attachment2 the new attachment 2
+	 */
+	public void setAttachment2(File attachment2)
+	{
+		this.attachment2 = attachment2;
+	}
+
+	/**
+	 * Gets the attachment3.
+	 *
+	 * @return the attachment3
+	 */
+	public String getAttachment3()
+	{
+		return attachment3;
+	}
+
+	/**
+	 * Sets the attachment3.
+	 *
+	 * @param attachment3 the new attachment3
+	 */
+	public void setAttachment3(String attachment3)
+	{
+		this.attachment3 = attachment3;
 	}
 }

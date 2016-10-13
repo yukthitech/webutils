@@ -99,7 +99,7 @@
 			
 			<div>
 				<!-- Nav tabs -->
-				<ul class="nav nav-tabs" role="tablist" style="min-width: 1000em;">
+				<ul class="nav nav-tabs" role="tablist">
 					<for-each data="${_tabs}" loop-var="tab" index-var="tabIdx">
 						<set-var name="_tab" expr="$(context.tab)"/>
 						<set-var name="_tabId" expr="context._tab.attr('id')"/>
@@ -108,7 +108,7 @@
 						<set-var name="_forRole" expr="context.attr('yk-for-role', null, context._tab) ? context.attr('yk-for-role', null, context._tab) : ''"/>
 						
 						<li role="presentation" class="${_tabActive}" ng-show="${_tabShowExpr}" yk-for-role="${_forRole}" style="cursor: pointer;">
-							<a id="${_tabId}_tab" ui-sref="${_tab.attr('state')}" onfocus="blur()" data-target="#${_tabId}" data-toggle="tab">
+							<a id="${_tabId}_tab" ui-sref="${_tab.attr('state')}" onfocus="blur()" data-target="#${_tabId}" data-toggle="tab" target-tab="${_tabId}">
 								<if test="context.attr('icon', null, context._tab)">
 									<i class="glyphicon ${_tab.attr('icon')}" 
 										style="color: ${attr('icon-color', '', context._tab)};font-weight: bold;" aria-hidden="true"></i>
@@ -129,7 +129,8 @@
 							<set-var name="_tabShowExpr" expr="context.attr('ng-show', null, context._tab) ? context.attr('ng-show', null, context._tab) : 'true'"/>
 							<set-var name="_forRole" expr="context.attr('yk-for-role', null, context._tab) ? context.attr('yk-for-role', null, context._tab) : ''"/>
 							
-							<div role="tabpanel" class="tab-pane ${_tabActive}" id="${_tab.attr('id')}" ui-view="${_tab.attr('view')}" style="padding: 0.5em;" ng-show="${_tabShowExpr}"  yk-for-role="${_forRole}">
+							<div role="tabpanel" class="tab-pane ${_tabActive}" id="${_tab.attr('id')}" ui-view="${_tab.attr('view')}" style="padding: 0.5em;" 
+								ng-show="${_tabShowExpr}"  yk-for-role="${_forRole}">
 								${_tabContent}
 							</div>
 	
@@ -146,6 +147,19 @@
 				$(this).removeAttr("ui-sref");
 			});
 		</pre-compile-script>
+
+		<post-script>
+			var modelAttr = context.attr('ng-model');
+			
+			if(modelAttr &amp;&amp; modelAttr.length &gt; 0)
+			{
+				context.$result.find("a[target-tab]").on('shown.bs.tab', $.proxy(function(event){
+					var link = $(event.target);
+					this.$scope[this.modelAttr] = link.attr('target-tab');
+					this.$scope.$digest();
+				}, {"$scope": context.$scope, "modelAttr": modelAttr}));
+			}
+		</post-script>
 	</directive>
 
 	<directive name="ykVerticalTabs" required-attr="id, height">
@@ -589,8 +603,10 @@
 			<set-var name="_content" expr="context.element.find('content').html()"/>
 			<set-var name="_footer" expr="context.element.find('footer').html()"/>
 			
+			<set-var name="_widthStyle" expr="context.attr('width') ? ('width:' + context.attr('width') + ';') : ''"/>
+			
 			<div class="modal fade" id="${attr('id')}" tabindex="-1" role="dialog" data-backdrop="static">
-				<div class="modal-dialog ${_size}" role="document">
+				<div class="modal-dialog ${_size}" role="document" style="${_widthStyle}">
 					<div class="modal-content">
 						<if test="context.attr('hide-header') != 'true'">
 							<!-- Header -->
@@ -648,9 +664,10 @@
 			</exe-script>
 		
 			<set-var name="_size" expr="(context.attr('size') == 'small') ? 'modal-sm' : 'modal-lg'"/>
+			<set-var name="_widthStyle" expr="context.attr('width') ? ('width:' + context.attr('width') + ';') : ''"/>
 			
 			<div class="modal fade" id="${attr('id')}" tabindex="-1" role="dialog" data-backdrop="static">
-				<div class="modal-dialog ${_size}" role="document">
+				<div class="modal-dialog ${_size}" role="document" style="${_widthStyle}">
 					<div class="modal-content">
 						<!-- Header -->
 						<div class="modal-header app-dlg-header">

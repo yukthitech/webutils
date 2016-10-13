@@ -139,6 +139,11 @@ public class MailTemplateConfiguration
 		 * Name of the attachment.
 		 */
 		private String name;
+		
+		/**
+		 * Content id for the attachment. Will be useful to add inline images.
+		 */
+		private String contentId;
 
 		/**
 		 * Description of the attachment.
@@ -151,6 +156,11 @@ public class MailTemplateConfiguration
 		private boolean image;
 		
 		/**
+		 * Field (or nested field) name defined as this attachment.
+		 */
+		private String field;
+		
+		/**
 		 * Instantiates a new attachment.
 		 */
 		public Attachment()
@@ -160,14 +170,18 @@ public class MailTemplateConfiguration
 		 * Instantiates a new attachment.
 		 *
 		 * @param name the name
+		 * @param contentId Content id to be used for attachment.
 		 * @param description the description
 		 * @param image the image
+		 * @param field Field name
 		 */
-		public Attachment(String name, String description, boolean image)
+		public Attachment(String name, String contentId, String description, boolean image, String field)
 		{
 			this.name = name;
+			this.contentId = contentId;
 			this.description = description;
 			this.image = image;
+			this.field = field;
 		}
 
 		/**
@@ -189,6 +203,26 @@ public class MailTemplateConfiguration
 		public void setName(String name)
 		{
 			this.name = name;
+		}
+
+		/**
+		 * Gets the content id for the attachment. Will be useful to add inline images.
+		 *
+		 * @return the content id for the attachment
+		 */
+		public String getContentId()
+		{
+			return contentId;
+		}
+
+		/**
+		 * Sets the content id for the attachment. Will be useful to add inline images.
+		 *
+		 * @param contentId the new content id for the attachment
+		 */
+		public void setContentId(String contentId)
+		{
+			this.contentId = contentId;
 		}
 
 		/**
@@ -231,6 +265,26 @@ public class MailTemplateConfiguration
 		public void setImage(boolean image)
 		{
 			this.image = image;
+		}
+		
+		/**
+		 * Gets the field (or nested field) name defined as this attachment.
+		 *
+		 * @return the field (or nested field) name defined as this attachment
+		 */
+		public String getField()
+		{
+			return field;
+		}
+
+		/**
+		 * Sets the field (or nested field) name defined as this attachment.
+		 *
+		 * @param field the new field (or nested field) name defined as this attachment
+		 */
+		public void setField(String field)
+		{
+			this.field = field;
 		}
 
 		/*

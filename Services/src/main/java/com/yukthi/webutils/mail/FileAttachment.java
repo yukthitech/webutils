@@ -26,18 +26,18 @@ package com.yukthi.webutils.mail;
 import java.io.File;
 
 /**
- * Represents email file attachment
+ * Represents email file attachment.
  * @author akiran
  */
 public class FileAttachment
 {
 	/**
-	 * File to be attachment
+	 * File to be attachment.
 	 */
 	private File file;
 	
 	/**
-	 * Name of the file in email
+	 * Name of the file in email.
 	 */
 	private String fileName;
 
@@ -95,5 +95,4 @@ public class FileAttachment
 	{
 		return fileName;
 	}
-	
 }

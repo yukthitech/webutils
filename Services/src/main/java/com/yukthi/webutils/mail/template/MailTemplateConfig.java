@@ -26,10 +26,4 @@ public @interface MailTemplateConfig
 	 * @return Description of the template.
 	 */
 	public String description();
-	
-	/**
-	 * Details of attachments that are going to be part of the mail.
-	 * @return attachment details.
-	 */
-	public AttachmentConfig[] attachments() default {};
 }

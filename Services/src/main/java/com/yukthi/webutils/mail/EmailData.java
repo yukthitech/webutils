@@ -24,47 +24,69 @@
 package com.yukthi.webutils.mail;
 
 import java.util.Arrays;
+import java.util.Collection;
 
 /**
- * Represents data of the mail to be sent
+ * Represents data of the mail to be sent.
+ * 
  * @author akiran
  */
 public class EmailData
 {
 	/**
-	 * To list of the mail
+	 * Name of template used for building this data object.
+	 */
+	private String templateName;
+	
+	/**
+	 * To list of the mail.
 	 */
 	private String toList[];
-	
+
 	/**
-	 * CC list of the mail
+	 * CC list of the mail.
 	 */
 	private String ccList[];
-	
+
 	/**
-	 * BCC list of the mail
+	 * BCC list of the mail.
 	 */
 	private String bccList[];
-	
+
 	/**
-	 * From address of the mail
+	 * Subject template of the mail.
 	 */
-	private String fromId;
-	
+	private String subjectTemplate;
+
 	/**
-	 * Subject of the mail
+	 * Content template of the mail.
 	 */
-	private String subject;
-	
+	private String contentTemplate;
+
 	/**
-	 * Content of the mail
+	 * Attachments to be sent.
 	 */
-	private String content;
-	
+	private Collection<FileAttachment> attachments;
+
 	/**
-	 * Attachments to be sent
+	 * Gets the name of template used for building this data object.
+	 *
+	 * @return the name of template used for building this data object
 	 */
-	private FileAttachment attachments[];
+	public String getTemplateName()
+	{
+		return templateName;
+	}
+
+	/**
+	 * Sets the name of template used for building this data object.
+	 *
+	 * @param templateName the new name of template used for building this data object
+	 */
+	public void setTemplateName(String templateName)
+	{
+		this.templateName = templateName;
+	}
 
 	/**
 	 * Gets the to list of the mail.
@@ -127,63 +149,43 @@ public class EmailData
 	}
 
 	/**
-	 * Gets the from address of the mail.
+	 * Gets the subject template of the mail.
 	 *
-	 * @return the from address of the mail
+	 * @return the subject template of the mail
 	 */
-	public String getFromId()
+	public String getSubjectTemplate()
 	{
-		return fromId;
+		return subjectTemplate;
 	}
 
 	/**
-	 * Sets the from address of the mail.
+	 * Sets the subject template of the mail.
 	 *
-	 * @param fromId the new from address of the mail
+	 * @param subjectTemplate the new subject template of the mail
 	 */
-	public void setFromId(String fromId)
+	public void setSubjectTemplate(String subjectTemplate)
 	{
-		this.fromId = fromId;
+		this.subjectTemplate = subjectTemplate;
 	}
 
 	/**
-	 * Gets the subject of the mail.
+	 * Gets the content template of the mail.
 	 *
-	 * @return the subject of the mail
+	 * @return the content template of the mail
 	 */
-	public String getSubject()
+	public String getContentTemplate()
 	{
-		return subject;
+		return contentTemplate;
 	}
 
 	/**
-	 * Sets the subject of the mail.
+	 * Sets the content template of the mail.
 	 *
-	 * @param subject the new subject of the mail
+	 * @param contentTemplate the new content template of the mail
 	 */
-	public void setSubject(String subject)
+	public void setContentTemplate(String contentTemplate)
 	{
-		this.subject = subject;
-	}
-
-	/**
-	 * Gets the content of the mail.
-	 *
-	 * @return the content of the mail
-	 */
-	public String getContent()
-	{
-		return content;
-	}
-
-	/**
-	 * Sets the content of the mail.
-	 *
-	 * @param content the new content of the mail
-	 */
-	public void setContent(String content)
-	{
-		this.content = content;
+		this.contentTemplate = contentTemplate;
 	}
 
 	/**
@@ -191,7 +193,7 @@ public class EmailData
 	 *
 	 * @return the attachments to be sent
 	 */
-	public FileAttachment[] getAttachments()
+	public Collection<FileAttachment> getAttachments()
 	{
 		return attachments;
 	}
@@ -201,12 +203,14 @@ public class EmailData
 	 *
 	 * @param attachments the new attachments to be sent
 	 */
-	public void setAttachments(FileAttachment... attachments)
+	public void setAttachments(Collection<FileAttachment> attachments)
 	{
 		this.attachments = attachments;
 	}
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
@@ -215,9 +219,8 @@ public class EmailData
 		StringBuilder builder = new StringBuilder(super.toString());
 		builder.append("[");
 
-		builder.append("From: ").append(fromId);
-		builder.append(",").append("Subject: ").append(subject);
-		
+		builder.append("Subject: ").append(subjectTemplate);
+
 		if(toList != null)
 		{
 			builder.append(",").append("To: ").append(Arrays.toString(toList));
@@ -236,6 +239,4 @@ public class EmailData
 		builder.append("]");
 		return builder.toString();
 	}
-
 }
-

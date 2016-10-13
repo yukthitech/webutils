@@ -20,9 +20,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.yukthi.webutils.mail;
 
-import java.util.Collections;
+package com.yukthi.webutils.common.models.mails;
+
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
@@ -31,57 +32,76 @@ import javax.annotation.PostConstruct;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * Configuration required by Email Service
+ * Settings or information required for sending and reading the mails.
  * @author akiran
  */
-public class EmailServiceConfiguration
+public class EmailServerSettings
 {
-	
-	/** The Constant PROP_SMTP_HOST. */
+	/**
+	 * Property name for setting smtp host.
+	 */
 	public static final String PROP_SMTP_HOST = "mail.smtp.host";
 	
-	/** The Constant PROP_SMTP_PORT. */
+	/**
+	 * Property for setting smtp port.
+	 */
 	public static final String PROP_SMTP_PORT = "mail.smtp.port";
 	
-	/** The Constant PROP_USE_AUTH. */
+	/**
+	 * Property indicating if auth is enabled or not.
+	 */
 	public static final String PROP_USE_AUTH = "mail.smtp.auth";
 	
-	/** The Constant PROP_ENABLE_TTLS. */
+	/**
+	 * Property indicating if TTLS should be used.
+	 */
 	public static final String PROP_ENABLE_TTLS = "mail.smtp.starttls.enable";
 
 	/**
-	* Smtp host  
+	* Smtp host.
 	*/
 	private String smtpHost;
 	
 	/**
-	 * Smtp port
+	 * Smtp port.
 	 */
 	private Integer smtpPort;
 
 	/**
-	 * Flag to indicate whether authentication to be used
+	 * Flag to indicate whether authentication to be used.
 	 */
 	private boolean useAuthentication = false;
 	
 	/**
-	 * User name for authentication
+	 * User name for authentication.
 	 */
 	private String userName;
 	
 	/**
-	 * Password for authentication
+	 * Password for authentication.
 	 */
 	private String password;
 
-	/** The enable ttls. */
+	/**
+	 * Flag indicating if ttls should be enabled.
+	 */
 	private boolean enableTtls = false;
 	
 	/**
-	* Template resources which gives templates for email service
-	*/
-	private List<String> templateResources;
-
+	 * Protocol to be used for reading mails.
+	 */
+	private MailReadProtocol readProtocol;
+	
+	/**
+	 * Host address from where mail can be read or deleted.
+	 */
+	private String readHost;
+	
+	/**
+	 * Folders from which mails needs to be accessed.
+	 */
+	private List<String> folderNames = Arrays.asList("INBOX");
+	
 	/**
 	 * Gets the smtp host.
 	 *
@@ -183,9 +203,9 @@ public class EmailServiceConfiguration
 	}
 
 	/**
-	 * Checks if is enable ttls.
+	 * Checks if is flag indicating if ttls should be enabled.
 	 *
-	 * @return true, if is enable ttls
+	 * @return the flag indicating if ttls should be enabled
 	 */
 	public boolean isEnableTtls()
 	{
@@ -193,9 +213,9 @@ public class EmailServiceConfiguration
 	}
 
 	/**
-	 * Sets the enable ttls.
+	 * Sets the flag indicating if ttls should be enabled.
 	 *
-	 * @param enableTtls the new enable ttls
+	 * @param enableTtls the new flag indicating if ttls should be enabled
 	 */
 	public void setEnableTtls(boolean enableTtls)
 	{
@@ -203,32 +223,67 @@ public class EmailServiceConfiguration
 	}
 	
 	/**
-	 * Gets the template resources which gives templates for email service.
+	 * Gets the protocol to be used for reading mails.
 	 *
-	 * @return the template resources which gives templates for email service
+	 * @return the protocol to be used for reading mails
 	 */
-	public List<String> getTemplateResources()
+	public MailReadProtocol getReadProtocol()
 	{
-		if(templateResources == null)
-		{
-			return Collections.emptyList();
-		}
-		
-		return templateResources;
+		return readProtocol;
 	}
 
 	/**
-	 * Sets the template resources which gives templates for email service.
+	 * Sets the protocol to be used for reading mails.
 	 *
-	 * @param templateResources the new template resources which gives templates for email service
+	 * @param readProtocol the new protocol to be used for reading mails
 	 */
-	public void setTemplateResources(List<String> templateResources)
+	public void setReadProtocol(MailReadProtocol readProtocol)
 	{
-		this.templateResources = templateResources;
+		this.readProtocol = readProtocol;
 	}
 
 	/**
-	* Validates required configuration params are provided
+	 * Gets the host address from where mail can be read or deleted.
+	 *
+	 * @return the host address from where mail can be read or deleted
+	 */
+	public String getReadHost()
+	{
+		return readHost;
+	}
+
+	/**
+	 * Sets the host address from where mail can be read or deleted.
+	 *
+	 * @param readHost the new host address from where mail can be read or deleted
+	 */
+	public void setReadHost(String readHost)
+	{
+		this.readHost = readHost;
+	}
+
+	/**
+	 * Gets the folders from which mails needs to be accessed.
+	 *
+	 * @return the folders from which mails needs to be accessed
+	 */
+	public List<String> getFolderNames()
+	{
+		return folderNames;
+	}
+
+	/**
+	 * Sets the folders from which mails needs to be accessed.
+	 *
+	 * @param folderNames the new folders from which mails needs to be accessed
+	 */
+	public void setFolderNames(List<String> folderNames)
+	{
+		this.folderNames = folderNames;
+	}
+
+	/**
+	* Validates required configuration params are provided.
 	*/
 	@PostConstruct
 	private void validate()
@@ -248,9 +303,9 @@ public class EmailServiceConfiguration
 	}
 
 	/**
-	* Converts this configuration into properties compatible with java-mail
+	* Converts this configuration into properties compatible with java-mail.
 	*
-	* @return
+	* @return Java mail compatible properties.
 	*/
 	public Properties toProperties()
 	{
