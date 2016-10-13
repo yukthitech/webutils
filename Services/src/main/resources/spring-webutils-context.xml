@@ -73,6 +73,7 @@
 	
 	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver" />
 
+	<!-- 
 	<bean id="emailServiceConfig" class="com.yukthi.webutils.mail.EmailServiceConfiguration">
 		<property name="smtpHost" value="${webutils.mail.smtp.host}"/>
 		<property name="smtpPort" value="${webutils.mail.smtp.port}"/>
@@ -81,6 +82,7 @@
 		<property name="password" value="${webutils.mail.smtp.password}"/>
 		<property name="enableTtls" value="${webutils.mail.smtp.enableTtls:false}"/>
 	</bean>
+	 -->
 
 	<mvc:annotation-driven>
 		<mvc:message-converters register-defaults="true">
