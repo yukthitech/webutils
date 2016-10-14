@@ -1,0 +1,59 @@
+Caching
+	for extensions
+	for lov
+	
+	cache interceptor to handle dynamic caches
+	
+Data Layer
+	Add/Delete operation for relations
+	save or update operation
+	Query
+		IN, NOT in
+		functions
+		Group by 
+
+Controller
+	
+	
+	With auth service in webapp, LoginController is throwing dependency error
+		Dependency should be optional. As this is optional feature.
+		Dependency Check can be done when api's are invoked.
+		
+	Search
+		Should support hiding of fields
+		Should have authorization support
+	Extension fields
+		Delete when owner is deleted using listeners
+		**As part of extended date field def, date-format should go to client
+	
+	Auth 
+		Should have session expiry time
+	
+	Take care of caching	
+	
+	Notifications
+		Event generation & handlers
+		handlers
+			web hooks
+			mail hooks
+			alerts
+		Event struct should be visible
+		
+	supervise other user
+		Log actual user and supervised user details as user name
+			
+Docs
+	DAO
+	Auth	
+
+Client
+	Sending files using java client with test case
+		
+Web
+	JS
+		functions support inside expressions
+
+
+Auto backup of server
+
+
