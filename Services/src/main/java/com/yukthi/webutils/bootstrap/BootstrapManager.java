@@ -5,6 +5,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -12,6 +13,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -35,11 +37,21 @@ import com.yukthi.webutils.repository.WebutilsEntity;
 import com.yukthi.webutils.security.ISecurityService;
 import com.yukthi.webutils.security.UserDetails;
 import com.yukthi.webutils.services.CurrentUserService;
+import com.yukthi.webutils.services.FreeMarkerService;
 import com.yukthi.webutils.services.UserService;
 import com.yukthi.webutils.utils.WebUtils;
 
 /**
- * Bootstrap manage to load bootstrap data into db.
+ * Bootstrap manage to load bootstrap data into db. This service load method does the following:
+ * 	1) Gets the files defined by application property "app.bootstrap.files" which should be comma separated file list. The files will be loaded in same order.
+ *  2) A context map will be maintained, which would contain all loaded beans grouped by their entity group name.
+ *  	This will help in getting properties from old files.
+ *  	Also helps in creating multiple entities using loops.
+ *  3) Each file will be processed using below steps.
+ *  3) The file will be processed first time using context map. This will be first time parse.
+ *  4) Then the result json will be loaded using jackson.
+ *  5) Then each entity group will be loaded in same order. For each entity properties the freemarker expressions will be reparsed. This will help in getting properties from previous entity groups.
+ *  
  * @author akiran
  */
 @Service
@@ -91,12 +103,7 @@ public class BootstrapManager
 	}
 
 	/**
-	 * Pattern for expressions in bootstrap values.
-	 */
-	private static final Pattern EXPR_PATTERN = Pattern.compile("\\$\\$?\\{([\\w\\.\\(\\)\\'\\ ]+)\\}");
-	
-	/**
-	 * Service mthos pattern.
+	 * Service method pattern.
 	 */
 	private static final Pattern SERVICE_METHOD_PATTERN = Pattern.compile("([\\w\\.]+)\\.(\\w+)\\(([\\w\\.]+)\\)");
 
@@ -128,11 +135,6 @@ public class BootstrapManager
 	private RepositoryFactory repositoryFactory;
 
 	/**
-	 * Context to keep track of loaded beans.
-	 */
-	private BootstrapLoadContext context = new BootstrapLoadContext();
-
-	/**
 	 * Object mapper to parse json data.
 	 */
 	private ObjectMapper objectMapper = new ObjectMapper();
@@ -160,6 +162,12 @@ public class BootstrapManager
 	 */
 	@Autowired
 	private ISecurityService securityService;
+	
+	/**
+	 * Free marker service to process templates.
+	 */
+	@Autowired
+	private FreeMarkerService freeMarkerService;
 
 	/**
 	 * Setter for setting bootstrap file.
@@ -170,32 +178,6 @@ public class BootstrapManager
 		this.bootstrapDataFile = bootstrapDataFile;
 	}
 
-	/**
-	 * Replaces expressions in given string.
-	 * @param str String to parse.
-	 * @return Parsed string after replacing expressions.
-	 */
-	private String replaceExpressions(String str) throws Exception
-	{
-		Matcher matcher = EXPR_PATTERN.matcher(str);
-
-		StringBuffer buffer = new StringBuffer();
-
-		while(matcher.find())
-		{
-			if(matcher.group().startsWith("$$"))
-			{
-				matcher.appendReplacement(buffer, Matcher.quoteReplacement(matcher.group().substring(1))) ;
-				continue;
-			}
-			
-			matcher.appendReplacement(buffer, "" + PropertyUtils.getProperty(context, matcher.group(1)));
-		}
-
-		matcher.appendTail(buffer);
-		return buffer.toString();
-	}
-	
 	/**
 	 * Parse service method string into object that can be used for invocation of save method. 
 	 * @param modelType Model type for which service method was specified.
@@ -346,11 +328,13 @@ public class BootstrapManager
 
 	/**
 	 * Loads entity groups and saves entities specified in it.
+	 * @param fileName Name of file from which data is getting loaded.
 	 * @param entityGroup Entity group to load.
 	 * @param defaultUserName Default user to be used for tracking fields.
+	 * @param contextMap Context map to be used for parsing expressions.
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private void loadEntityGroup(BootstrapData.EntityGroup entityGroup, String defaultUserName) throws Exception
+	private void loadEntityGroup(String fileName, BootstrapData.EntityGroup entityGroup, String defaultUserName, Map<String, Object> contextMap) throws Exception
 	{
 		logger.debug("Loading entity group - {} with indentity field - {}. Default user - {}", entityGroup.getName(), entityGroup.getIdentityField(), defaultUserName);
 
@@ -394,7 +378,7 @@ public class BootstrapManager
 			identity = (String) entityMap.remove("#identity");
 
 			entityJson = objectMapper.writeValueAsString(entityMap);
-			entityJson = replaceExpressions(entityJson);
+			entityJson = freeMarkerService.processTemplate(fileName + "::" + entityGroup.getName(), entityJson, contextMap);
 
 			logger.debug("Saving with model json - {}", entityJson);
 
@@ -449,26 +433,56 @@ public class BootstrapManager
 				//check if any identity field is specified on entity and use it
 				if(entityGroup.getIdentityField() != null)
 				{
-					context.addedEntity(entityGroup.getName(), "" + PropertyUtils.getProperty(entity, entityGroup.getIdentityField()), entity);
+					addEntityToContext(entityGroup.getName(), "" + PropertyUtils.getProperty(entity, entityGroup.getIdentityField()), entity, contextMap);
 				}
 			}
 			//if static id value is specified, use it directly
 			else
 			{
-				context.addedEntity(entityGroup.getName(), "" + identity, entity);
+				addEntityToContext(entityGroup.getName(), "" + identity, entity, contextMap);
 			}
 		}
 		
 		//reset default user, in case it is set
 		currentUserService.setInternalCurrentUser(null);
 	}
+	
+	/**
+	 * Adds specified entity to specified context map under specified group.
+	 * @param groupName Group name under which entity should be added.
+	 * @param identity Entity identity string.
+	 * @param entity Entity to add.
+	 * @param contextMap Context map on which entity should be added.
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private void addEntityToContext(String groupName, String identity, Object entity, Map<String, Object> contextMap)
+	{
+		Map<String, Object> entityMap = (Map) contextMap.get("entity");
+		
+		if(entityMap == null)
+		{
+			entityMap = new HashMap<>();
+			contextMap.put("entity", entityMap);
+		}
+		
+		Map<String, Object> groupMap = (Map) entityMap.get(groupName);
+		
+		if(groupMap == null)
+		{
+			groupMap = new HashMap<>();
+			entityMap.put(groupName, groupMap);
+		}
+
+		groupMap.put(identity, entity);
+	}
 
 	/**
 	 * Loads the specified bootstrap file.
 	 * @param bootstrapDataFile Bootstrap file to load
+	 * @param contextMap Context map for free marker expression evaluation.
 	 * @return true if bootstrap file is loaded.
 	 */
-	private boolean loadBootstrapData(String bootstrapDataFile) throws Exception
+	private boolean loadBootstrapData(String bootstrapDataFile, Map<String, Object> contextMap) throws Exception
 	{
 		File dataFile = new File(bootstrapDataFile);
 
@@ -489,13 +503,17 @@ public class BootstrapManager
 
 		// load the data file
 		logger.debug("Loading data file - {}", bootstrapDataFile);
+		
+		//load the file and process it as free marker template (first level)
+		String fileContent = FileUtils.readFileToString(dataFile);
+		fileContent = freeMarkerService.processTemplate("file: " + dataFile.getName(), fileContent, contextMap);
 
 		ObjectMapper objectMapper = new ObjectMapper();
-		BootstrapData bootstrapData = objectMapper.readValue(dataFile, BootstrapData.class);
+		BootstrapData bootstrapData = objectMapper.readValue(fileContent, BootstrapData.class);
 
 		for(BootstrapData.EntityGroup entityGroup : bootstrapData.getEntityGroups())
 		{
-			loadEntityGroup(entityGroup, bootstrapData.getDefaultUserName());
+			loadEntityGroup(dataFile.getName(), entityGroup, bootstrapData.getDefaultUserName(), contextMap);
 		}
 
 		if(!loadedFile.exists())
@@ -521,12 +539,14 @@ public class BootstrapManager
 		String files[] = bootstrapDataFile.split("\\s*\\,\\s*");
 		
 		logger.debug("Loading bootstrap files - {}", Arrays.toString(files));
+		
+		Map<String, Object> contextMap = new HashMap<>();
 
 		for(String file : files)
 		{
 			try
 			{
-				loadBootstrapData(file);
+				loadBootstrapData(file, contextMap);
 			}catch(Exception ex)
 			{
 				throw new IllegalStateException("An error occurred while loading the bootstrap files", ex);
