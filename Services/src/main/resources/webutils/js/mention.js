@@ -1,2 +1,166 @@
+/*jslint forin: true */
 
-!function(a,b){"use strict";var c=function(a,c){this.editor=a,this.options=b.extend({},{source:[],delay:500,queryBy:"name",items:10},c),this.matcher=this.options.matcher||this.matcher,this.renderDropdown=this.options.renderDropdown||this.renderDropdown,this.render=this.options.render||this.render,this.insert=this.options.insert||this.insert,this.highlighter=this.options.highlighter||this.highlighter,this.query="",this.hasFocus=!0,this.renderInput(),this.bindEvents()};c.prototype={constructor:c,renderInput:function(){var a='<span id="autocomplete"><span id="autocomplete-delimiter">'+this.options.delimiter+"</span>"+'<span id="autocomplete-searchtext"><span class="dummy">\ufeff</span></span>'+"</span>";this.editor.execCommand("mceInsertContent",!1,a),this.editor.focus(),this.editor.selection.select(this.editor.selection.dom.select("span#autocomplete-searchtext span")[0]),this.editor.selection.collapse(0)},bindEvents:function(){this.editor.on("keyup",this.editorKeyUpProxy=b.proxy(this.rteKeyUp,this)),this.editor.on("keydown",this.editorKeyDownProxy=b.proxy(this.rteKeyDown,this)),this.editor.on("click",this.editorClickProxy=b.proxy(this.rteClicked,this));var a=this.editor.__bindings.keydown.pop();this.editor.__bindings.keydown.unshift(a),b(this.editor.getWin()).on("scroll",this.rteScroll=b.proxy(function(){this.cleanUp(!0)},this)),b("body").on("click",this.bodyClickProxy=b.proxy(this.rteLostFocus,this))},unbindEvents:function(){this.editor.off("keyup",this.editorKeyUpProxy),this.editor.off("keydown",this.editorKeyDownProxy),this.editor.on("click",this.editorClickProxy),b(this.editor.getWin()).off("scroll",this.rteScroll),b("body").off("click",this.bodyClickProxy)},rteKeyUp:function(a){switch(a.which||a.keyCode){case 40:case 38:case 16:case 17:case 18:break;case 8:""===this.query?this.cleanUp(!0):this.lookup();break;case 9:case 13:var b=void 0!==this.$dropdown?this.$dropdown.find("li.active"):[];b.length?(this.select(b.data()),this.cleanUp(!1)):this.cleanUp(!0);break;case 27:this.cleanUp(!0);break;default:this.lookup()}},rteKeyDown:function(a){switch(a.which||a.keyCode){case 9:case 13:case 27:a.preventDefault();break;case 38:a.preventDefault(),void 0!==this.$dropdown&&this.highlightPreviousResult();break;case 40:a.preventDefault(),void 0!==this.$dropdown&&this.highlightNextResult()}a.stopPropagation()},rteClicked:function(a){var c=b(a.target);this.hasFocus&&"autocomplete-searchtext"!==c.parent().attr("id")&&this.cleanUp(!0)},rteLostFocus:function(){this.hasFocus&&this.cleanUp(!0)},lookup:function(){this.query=b.trim(b(this.editor.getBody()).find("#autocomplete-searchtext").text()).replace("\ufeff",""),clearTimeout(this.searchTimeout),this.searchTimeout=setTimeout(b.proxy(function(){var a=b.isFunction(this.options.source)?this.options.source(this.query,b.proxy(this.process,this)):this.options.source;a&&this.process(a)},this),this.options.delay)},matcher:function(a){return~a[this.options.queryBy].toLowerCase().indexOf(this.query.toLowerCase())},sorter:function(a){for(var e,b=[],c=[],d=[];void 0!==(e=a.shift());)e[this.options.queryBy].toLowerCase().indexOf(this.query.toLowerCase())?~e[this.options.queryBy].indexOf(this.query)?c.push(e):d.push(e):b.push(e);return b.concat(c,d)},highlighter:function(a){return a.replace(new RegExp("("+this.query+")","ig"),function(a,b){return"<strong>"+b+"</strong>"})},show:function(){var a=b(this.editor.getContainer()).offset(),c=b(this.editor.getContentAreaContainer()).position(),d=b(this.editor.dom.select("span#autocomplete")).position(),e=a.top+c.top+d.top+b(this.editor.selection.getNode()).innerHeight()-b(this.editor.getDoc()).scrollTop()+5,f=a.left+c.left+d.left;this.$dropdown=b(this.renderDropdown()).css({top:e,left:f}),b("body").append(this.$dropdown),this.$dropdown.on("click",b.proxy(this.autoCompleteClick,this))},process:function(a){if(this.hasFocus){void 0===this.$dropdown&&this.show();var c=this,d=[],e=b.grep(a,function(a){return c.matcher(a)});e=c.sorter(e),e=e.slice(0,this.options.items),b.each(e,function(a,f){var g=b(c.render(f));g.html(g.html().replace(g.text(),c.highlighter(g.text()))),b.each(e[a],function(a,b){g.attr("data-"+a,b)}),d.push(g[0].outerHTML)}),d.length?this.$dropdown.html(d.join("")).show():this.$dropdown.hide()}},renderDropdown:function(){return'<ul class="rte-autocomplete dropdown-menu"></ul>'},render:function(a){return'<li><a href="javascript:;"><span>'+a.name+"</span></a>"+"</li>"},autoCompleteClick:function(a){var c=b(a.target).closest("li").data();b.isEmptyObject(c)||(this.select(c),this.cleanUp(!1)),a.stopPropagation(),a.preventDefault()},highlightPreviousResult:function(){var a=this.$dropdown.find("li.active").index(),b=0===a?this.$dropdown.find("li").length-1:a-=1;this.$dropdown.find("li").removeClass("active").eq(b).addClass("active")},highlightNextResult:function(){var a=this.$dropdown.find("li.active").index(),b=a===this.$dropdown.find("li").length-1?0:a+=1;this.$dropdown.find("li").removeClass("active").eq(b).addClass("active")},select:function(a){var b=this.editor.dom.select("span#autocomplete")[0];this.editor.dom.remove(b),this.editor.execCommand("mceInsertContent",!1,this.insert(a)+"&nbsp;")},insert:function(a){return"<span>"+a.name+"</span>"},cleanUp:function(a){if(this.unbindEvents(),this.hasFocus=!1,void 0!==this.$dropdown&&(this.$dropdown.remove(),delete this.$dropdown),a){var c=this.query,d=b(this.editor.dom.select("span#autocomplete")),e=b("<p>"+this.options.delimiter+c+"</p>")[0].firstChild,f=b(this.editor.selection.getNode()).offset().top===d.offset().top+(d.outerHeight()-d.height())/2;this.editor.dom.replace(e,d[0]),f&&(this.editor.selection.select(e),this.editor.selection.collapse())}}},a.create("tinymce.plugins.Mention",{init:function(a){function g(){var c=b(a.selection.getNode().outerHTML),d=c.text(),e=d.substr(d.length-1,1);return b.trim(e).length?!1:!0}var e,f=a.getParam("mentions");f.delimiter=f.delimiter||"@",a.on("keypress",function(b){String.fromCharCode(b.which||b.keyCode)===f.delimiter&&g()&&(void 0===e||void 0!==e.hasFocus&&!e.hasFocus)&&(b.preventDefault(),e=new c(a,f))})},getInfo:function(){return{longname:"mention",author:"Steven Devooght",version:a.majorVersion+"."+a.minorVersion}}}),a.PluginManager.add("mention",a.plugins.Mention)}(tinymce,jQuery);
+;(function($) {
+    $.fn.extend({
+        mention: function(options) {
+            this.opts = {
+                users: [],
+                delimiter: '@',
+                sensitive: true,
+                emptyQuery: false,
+                queryBy: ['name', 'username'],
+                typeaheadOpts: {}
+            };
+
+            var settings = $.extend({}, this.opts, options),
+                _checkDependencies = function() {
+                    if (typeof $ == 'undefined') {
+                        throw new Error("jQuery is Required");
+                    }
+                    else {
+                        if (typeof $.fn.typeahead == 'undefined') {
+                            throw new Error("Typeahead is Required");
+                        }
+                    }
+                    return true;
+                },
+                _extractCurrentQuery = function(query, caratPos) {
+                    var i;
+                    for (i = caratPos; i >= 0; i--) {
+                        if (query[i] == settings.delimiter) {
+                            break;
+                        }
+                    }
+                    return query.substring(i, caratPos);
+                },
+                _matcher = function(itemProps) {
+                    var i;
+                    
+                    if(settings.emptyQuery){
+	                    var q = (this.query.toLowerCase()),
+	                    	caratPos = this.$element[0].selectionStart,
+	                    	lastChar = q.slice(caratPos-1,caratPos);
+	                    if(lastChar==settings.delimiter){
+		                    return true;
+	                    }
+                    }
+                    
+                    for (i in settings.queryBy) {
+                        if (itemProps[settings.queryBy[i]]) {
+                            var item = itemProps[settings.queryBy[i]].toLowerCase(),
+                                usernames = (this.query.toLowerCase()).match(new RegExp(settings.delimiter + '\\w+', "g")),
+                                j;
+                            if ( !! usernames) {
+                                for (j = 0; j < usernames.length; j++) {
+                                    var username = (usernames[j].substring(1)).toLowerCase(),
+                                        re = new RegExp(settings.delimiter + item, "g"),
+                                        used = ((this.query.toLowerCase()).match(re));
+
+                                    if (item.indexOf(username) != -1 && used === null) {
+                                        return true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                _updater = function(item) {
+                    var data = this.query,
+                        caratPos = this.$element[0].selectionStart,
+                        i;
+                    
+                    for (i = caratPos; i >= 0; i--) {
+                        if (data[i] == settings.delimiter) {
+                            break;
+                        }
+                    }
+                    var replace = data.substring(i, caratPos),
+                    	textBefore = data.substring(0, i),
+                    	textAfter = data.substring(caratPos),
+                    	data = textBefore + settings.delimiter + item + textAfter;
+                    	
+                    this.tempQuery = data;
+
+                    return data;
+                },
+                _sorter = function(items) {
+                    if (items.length && settings.sensitive) {
+                        var currentUser = _extractCurrentQuery(this.query, this.$element[0].selectionStart).substring(1),
+                            i, len = items.length,
+                            priorities = {
+                                highest: [],
+                                high: [],
+                                med: [],
+                                low: []
+                            }, finals = [];
+                        if (currentUser.length == 1) {
+                            for (i = 0; i < len; i++) {
+                                var currentRes = items[i];
+
+                                if ((currentRes.username[0] == currentUser)) {
+                                    priorities.highest.push(currentRes);
+                                }
+                                else if ((currentRes.username[0].toLowerCase() == currentUser.toLowerCase())) {
+                                    priorities.high.push(currentRes);
+                                }
+                                else if (currentRes.username.indexOf(currentUser) != -1) {
+                                    priorities.med.push(currentRes);
+                                }
+                                else {
+                                    priorities.low.push(currentRes);
+                                }
+                            }
+                            for (i in priorities) {
+                                var j;
+                                for (j in priorities[i]) {
+                                    finals.push(priorities[i][j]);
+                                }
+                            }
+                            return finals;
+                        }
+                    }
+                    return items;
+                },
+                _render = function(items) {
+                    var that = this;
+                    items = $(items).map(function(i, item) {
+
+                        i = $(that.options.item).attr('data-value', item.username);
+
+                        var _linkHtml = $('<div />');
+
+                        if (item.image) {
+                            _linkHtml.append('<img class="mention_image" src="' + item.image + '">');
+                        }
+                        if (item.name) {
+                            _linkHtml.append('<b class="mention_name">' + item.name + '</b>');
+                        }
+                        if (item.username) {
+                            _linkHtml.append('<span class="mention_username"> ' + settings.delimiter + item.username + '</span>');
+                        }
+
+                        i.find('a').html(that.highlighter(_linkHtml.html()));
+                        return i[0];
+                    });
+
+                    items.first().addClass('active');
+                    this.$menu.html(items);
+                    return this;
+                };
+
+            $.fn.typeahead.Constructor.prototype.render = _render;
+
+            return this.each(function() {
+                var _this = $(this);
+                if (_checkDependencies()) {
+                    _this.typeahead($.extend({
+                        source: settings.users,
+                        matcher: _matcher,
+                        updater: _updater,
+                        sorter: _sorter
+                    }, settings.typeaheadOpts));
+                }
+            });
+        }
+    });
+})(jQuery);
