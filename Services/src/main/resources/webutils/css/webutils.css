@@ -4,6 +4,31 @@ body
 	letter-spacing: 0.5px;
 }
 
+.fullPage
+{
+	position: absolute;
+	top: 0px;
+	bottom: 0px;
+	left: 0px;
+	right: 0px;
+}
+
+.flexVertical
+{
+	display: -webkit-flex; /* Safari */
+	display: flex;
+	-webkit-flex-direction: column; /* Safari */
+	flex-direction:         column;
+}
+
+.flexHorizontal
+{
+	display: -webkit-flex; /* Safari */
+	display: flex;
+	-webkit-flex-direction: row; /* Safari */
+	flex-direction:         row;
+}
+
 .preProcessHidden
 {
 	display: none;
