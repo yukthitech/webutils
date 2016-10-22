@@ -412,7 +412,7 @@
 									</for-each>
 								</div>
 								
-								<div class="row" style="text-align: right; padding-right: 2em;">
+								<div style="text-align: right; padding-right: 2em;">
 									<!-- Submit button is added to support enter key in search form. This will be hidden.
 										Instead iconic link button will be used for click 
 									 -->
@@ -428,7 +428,7 @@
 					</div>
 				</if>
 				
-				<div class="row">
+				<div>
 					<form name="exportForm" style="diplay: none;">
 						<input type="hidden" name="queryModelJson"/>
 						<input type="hidden" name="pageSize" value="-1"/>
@@ -436,7 +436,7 @@
 					</form>
 				
 					<if test="context.actions">
-						<div class="col-xs-12" style="text-align: right; padding-bottom: 0.4em;">
+						<div style="text-align: right; padding-bottom: 0.4em;">
 							<if test="context['export-action']">
 								<yk-icon-link icon="fa fa-building" ng-click="exportResults()" 
 										color="green" label="Export Excel" ng-show="searchResults.length != 0"></yk-icon-link>
