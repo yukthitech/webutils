@@ -34,21 +34,7 @@ $.application.controller('mainController', ["$scope", "$rootScope", "logger", "a
 	{
 		$("#" + toState.tab + "_tab").tab("show");
 		
-		if($state.current.leftMenu)
-		{
-			$("#appLeftMenu").css("display", "block");
-			$("#mainContentContainer").removeClass("col-md-12");
-			$("#mainContentContainer").addClass("col-md-10");
-		} 
-		else
-		{
-			$("#appLeftMenu").css("display", "none");
-			$("#mainContentContainer").removeClass("col-md-10");
-			$("#mainContentContainer").addClass("col-md-12");
-		}
-		
 		$scope.currentState = $state.current;
-		
 	});
 	
 	$scope.hasRole = function(roleName) {
