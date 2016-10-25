@@ -474,7 +474,7 @@ $.application.factory('clientContext', ['logger', 'utils', function(logger, util
 			return (this.authToken != null);
 		},
 		
-		"invokeApi" : function(url, data, config, callback, hideInProgress) {
+		"invokeApi" : function(url, data, config, callback, actionConfig) {
 			
 			var methodType = (config && config.methodType)? config.methodType: "POST";
 			var contentType = (config && config.contentType)? config.contentType : 'application/x-www-form-urlencoded; charset=UTF-8';
@@ -507,12 +507,18 @@ $.application.factory('clientContext', ['logger', 'utils', function(logger, util
 				"callback": callback,
 				
 				"utils": utils,
-				"hideInProgress": hideInProgress
+				"hideInProgress": actionConfig ? actionConfig.hideInProgress : actionConfig
 			};
 			
 			// in all case hideInProgress is undefined so by default it will display,
 			// if hideInProgress is true then condition is false and it will not display
-			if(!hideInProgress)
+			if(actionConfig)
+			{
+				if(!actionConfig.hideInProgress)
+				{
+					utils.displayInProgress();
+				}
+			}else
 			{
 				utils.displayInProgress();
 			}
@@ -616,16 +622,16 @@ $.application.factory('clientContext', ['logger', 'utils', function(logger, util
 		 * @param url Url to be invoked
 		 * @param paramsObj params for invocation
 		 */
-		"invokeGetApi" : function(url, paramsObj, callback, config) {
+		"invokeGetApi" : function(url, paramsObj, callback, actionConfig) {
 			var apiRes = this.invokeApi(
 				url, 
 				paramsObj, 
 				{
 					"methodType": "GET", 
-					"async": (config && (config.async == false)) ? false : true
+					"async": (actionConfig && (actionConfig.async == false)) ? false : true
 				},
 				callback,
-				config
+				actionConfig
 			);
 					
 			return apiRes;
@@ -637,16 +643,16 @@ $.application.factory('clientContext', ['logger', 'utils', function(logger, util
 		 * @param url Url to be invoked
 		 * @param paramsObj params for invocation
 		 */
-		"invokeDeleteApi" : function(url, paramsObj, callback, config) {
+		"invokeDeleteApi" : function(url, paramsObj, callback, actionConfig) {
 			var apiRes = this.invokeApi(
 				url, 
 				paramsObj, 
 				{
 					"methodType": "DELETE", 
-					"async": (config && (config.async == false)) ? false : true
+					"async": (actionConfig && (actionConfig.async == false)) ? false : true
 				},
 				callback,
-				config
+				actionConfig
 			);
 					
 			return apiRes;
@@ -658,7 +664,7 @@ $.application.factory('clientContext', ['logger', 'utils', function(logger, util
 		 * @param url url to be invoked
 		 * @param requestObj Request to be sent
 		 */
-		"invokePostApi" : function(url, requestObj, callback, config) {
+		"invokePostApi" : function(url, requestObj, callback, actionConfig) {
 			var requestBody = requestObj ? JSON.stringify(requestObj) : null;
 			
 			var apiRes = this.invokeApi(
@@ -667,10 +673,10 @@ $.application.factory('clientContext', ['logger', 'utils', function(logger, util
 				{
 					"methodType": "POST", 
 					"contentType" : "application/json", 
-					"async": (config && (config.async == false)) ? false : true
+					"async": (actionConfig && (actionConfig.async == false)) ? false : true
 				},
 				callback,
-				config
+				actionConfig
 			);
 					
 			return apiRes;
