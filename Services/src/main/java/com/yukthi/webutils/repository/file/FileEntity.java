@@ -47,58 +47,58 @@ import com.yukthi.webutils.repository.WebutilsEntity;
 public class FileEntity extends WebutilsEntity
 {
 	/**
-	 * Name of the file
+	 * Name of the file.
 	 */
 	@Column(name = "FILE_NAME", nullable = false, length = 500)
 	private String fileName;
 
 	/**
-	 * File content
+	 * File content.
 	 */
 	@DataTypeMapping(type = DataType.BLOB)
 	@Column(name = "FILE", nullable = false)
 	private File file;
 	
 	/**
-	 * Size of the file in MB
+	 * Size of the file in MB.
 	 */
 	@Column(name = "SIZE_IN_MB", nullable = false)
 	private long sizeInMb;
 	
 	/**
-	 * Content type of the file
+	 * Content type of the file.
 	 */
 	@Column(name = "CONTENT_TYPE", length = 200)
 	private String contentType;
 	
 	/**
-	 * Owner entity type
+	 * Owner entity type.
 	 */
 	@Column(name = "OWNER_ENTITY_TYPE", length = 250, nullable = false)
 	private String ownerEntityType;
 
 	/**
-	 * Owner entity field name
+	 * Owner entity field name.
 	 */
 	@Column(name = "OWNER_ENTITY_FIELD", length = 200, nullable = false)
 	private String ownerEntityField;
 	
 	/**
-	 * Owner entity id
+	 * Owner entity id.
 	 */
 	@Column(name = "OWNER_ENTITY_ID", nullable = false)
 	private Long ownerEntityId;
 
 	/**
 	 * Custom attribute that can be used by applications to set application
-	 * specific custom data
+	 * specific custom data.
 	 */
 	@Indexed
 	@Column(name = "CUSTOM_ATT1", length = 100)
 	private String customAttribute1;
 	
 	/**
-	 * Custom attribute that can be used by applications to set application
+	 * Custom attribute that can be used by applications to set application.
 	 * specific custom data
 	 */
 	@Indexed
@@ -107,7 +107,7 @@ public class FileEntity extends WebutilsEntity
 	
 	/**
 	 * Custom attribute that can be used by applications to set application
-	 * specific custom data
+	 * specific custom data.
 	 */
 	@Indexed
 	@Column(name = "CUSTOM_ATT3", length = 100)
@@ -115,14 +115,14 @@ public class FileEntity extends WebutilsEntity
 	
 	/**
 	 * Custom attribute that can be used by applications to set application
-	 * specific custom data
+	 * specific custom data.
 	 */
 	@Column(name = "CUSTOM_ATT4", length = 100)
 	private String customAttribute4;
 	
 	/**
 	 * Custom attribute that can be used by applications to set application
-	 * specific custom data
+	 * specific custom data.
 	 */
 	@Column(name = "CUSTOM_ATT5", length = 100)
 	private String customAttribute5;

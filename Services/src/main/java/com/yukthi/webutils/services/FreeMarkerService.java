@@ -66,6 +66,11 @@ public class FreeMarkerService
 	 */
 	public String processTemplate(String name, String templateString, Object context)
 	{
+		if(templateString == null)
+		{
+			return null;
+		}
+		
 		try
 		{
 			Template template = new Template(name, templateString, getConfiguration());

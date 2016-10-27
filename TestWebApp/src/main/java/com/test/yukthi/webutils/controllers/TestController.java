@@ -44,8 +44,8 @@ import com.yukthi.webutils.annotations.ActionName;
 import com.yukthi.webutils.common.models.BaseResponse;
 import com.yukthi.webutils.common.models.mails.EmailServerSettings;
 import com.yukthi.webutils.controllers.BaseController;
-import com.yukthi.webutils.mail.EmailData;
 import com.yukthi.webutils.mail.EmailService;
+import com.yukthi.webutils.mail.template.MailTemplateEntity;
 
 /**
  * Test controller to test spring validation enablement
@@ -109,10 +109,10 @@ public class TestController extends BaseController implements ITestController
 	@ActionName("sendMail")
 	public BaseResponse sendMail(@RequestBody TestMailModel model) throws Exception
 	{
-		EmailData email = new EmailData();
+		MailTemplateEntity email = new MailTemplateEntity();
 		email.setSubjectTemplate(model.getSubject());
 		email.setContentTemplate(model.getContent());
-		email.setToList(new String[]{model.getToId()});
+		email.setToListTemplate(model.getToId());
 		
 		TestMailConfig1 config = new TestMailConfig1();
 		config.setName("Tname");

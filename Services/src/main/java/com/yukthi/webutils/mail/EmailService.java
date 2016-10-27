@@ -43,6 +43,7 @@ import com.yukthi.utils.exceptions.InvalidStateException;
 import com.yukthi.webutils.common.models.mails.EmailServerSettings;
 import com.yukthi.webutils.common.models.mails.MailTemplateConfiguration;
 import com.yukthi.webutils.mail.template.MailTemplateConfigService;
+import com.yukthi.webutils.mail.template.MailTemplateEntity;
 import com.yukthi.webutils.services.FreeMarkerService;
 
 /**
@@ -231,6 +232,22 @@ public class EmailService
 			multiPart.addBodyPart(fileBodyPart);
 		}
 	}
+	
+	/**
+	 * Splits the specified string using comma as delimiter and returns the resulted string list.
+	 * @param str String to be converted.
+	 * @return Converted list.
+	 */
+	private String[] toList(String str)
+	{
+		if(str == null || str.trim().length() == 0)
+		{
+			return null;
+		}
+		
+		String arr[] = str.trim().split("\\s*\\,\\s*");
+		return arr;
+	}
 
 	/**
 	 * Builds the mail message from specified email data.
@@ -239,9 +256,18 @@ public class EmailService
 	 * @param context Context to be used for freemarker expressions parsing.
 	 * @return Converted message.
 	 */
-	private Message buildMessage(EmailServerSettings settings, EmailData emailData, Object context) throws AddressException, MessagingException
+	private Message buildMessage(EmailServerSettings settings, MailTemplateEntity emailData, Object context) throws AddressException, MessagingException
 	{
-		if(isEmpty(emailData.getToList()) && isEmpty(emailData.getCcList()) && isEmpty(emailData.getBccList()))
+		//get the list of mail recipients
+		String toStr = freeMarkerService.processTemplate(emailData.getTemplateName() + ".to", emailData.getToListTemplate(), context);
+		String ccStr = freeMarkerService.processTemplate(emailData.getTemplateName() + ".cc", emailData.getCcListTemplate(), context);
+		String bccStr = freeMarkerService.processTemplate(emailData.getTemplateName() + ".cc", emailData.getBccListTemplate(), context);
+		
+		String toLst[] = toList(toStr);
+		String ccLst[] = toList(ccStr);
+		String bccLst[] = toList(bccStr);
+		
+		if(isEmpty(toLst) && isEmpty(ccLst) && isEmpty(bccLst))
 		{
 			throw new InvalidArgumentException("No recipient email id specified in any of the email list");
 		}
@@ -261,19 +287,19 @@ public class EmailService
 		}
 
 		//set recipients mail lists
-		if(!isEmpty(emailData.getToList()))
+		if(!isEmpty(toLst))
 		{
-			message.setRecipients(Message.RecipientType.TO, convertToInternetAddress("To", emailData.getToList()));
+			message.setRecipients(Message.RecipientType.TO, convertToInternetAddress("To", toLst));
 		}
 
-		if(!isEmpty(emailData.getCcList()))
+		if(!isEmpty(ccLst))
 		{
-			message.setRecipients(Message.RecipientType.CC, convertToInternetAddress("CC", emailData.getCcList()));
+			message.setRecipients(Message.RecipientType.CC, convertToInternetAddress("CC", ccLst));
 		}
 
-		if(!isEmpty(emailData.getBccList()))
+		if(!isEmpty(bccLst))
 		{
-			message.setRecipients(Message.RecipientType.BCC, convertToInternetAddress("BCC", emailData.getBccList()));
+			message.setRecipients(Message.RecipientType.BCC, convertToInternetAddress("BCC", bccLst));
 		}
 
 		//set the subject
@@ -313,7 +339,7 @@ public class EmailService
 	 * @param email Email data to be used.
 	 * @param context Context to be used for processing.
 	 */
-	public void sendEmail(EmailServerSettings settings, EmailData email, Object context)
+	public void sendEmail(EmailServerSettings settings, MailTemplateEntity email, Object context)
 	{
 		try
 		{

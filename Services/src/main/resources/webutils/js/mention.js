@@ -1,2 +1,408 @@
+/*global tinymce, module, require, define, global, self */
 
-!function(a,b){"use strict";var c=function(a,c){this.editor=a,this.options=b.extend({},{source:[],delay:500,queryBy:"name",items:10},c),this.matcher=this.options.matcher||this.matcher,this.renderDropdown=this.options.renderDropdown||this.renderDropdown,this.render=this.options.render||this.render,this.insert=this.options.insert||this.insert,this.highlighter=this.options.highlighter||this.highlighter,this.query="",this.hasFocus=!0,this.renderInput(),this.bindEvents()};c.prototype={constructor:c,renderInput:function(){var a='<span id="autocomplete"><span id="autocomplete-delimiter">'+this.options.delimiter+"</span>"+'<span id="autocomplete-searchtext"><span class="dummy">\ufeff</span></span>'+"</span>";this.editor.execCommand("mceInsertContent",!1,a),this.editor.focus(),this.editor.selection.select(this.editor.selection.dom.select("span#autocomplete-searchtext span")[0]),this.editor.selection.collapse(0)},bindEvents:function(){this.editor.on("keyup",this.editorKeyUpProxy=b.proxy(this.rteKeyUp,this)),this.editor.on("keydown",this.editorKeyDownProxy=b.proxy(this.rteKeyDown,this)),this.editor.on("click",this.editorClickProxy=b.proxy(this.rteClicked,this));var a=this.editor.__bindings.keydown.pop();this.editor.__bindings.keydown.unshift(a),b(this.editor.getWin()).on("scroll",this.rteScroll=b.proxy(function(){this.cleanUp(!0)},this)),b("body").on("click",this.bodyClickProxy=b.proxy(this.rteLostFocus,this))},unbindEvents:function(){this.editor.off("keyup",this.editorKeyUpProxy),this.editor.off("keydown",this.editorKeyDownProxy),this.editor.on("click",this.editorClickProxy),b(this.editor.getWin()).off("scroll",this.rteScroll),b("body").off("click",this.bodyClickProxy)},rteKeyUp:function(a){switch(a.which||a.keyCode){case 40:case 38:case 16:case 17:case 18:break;case 8:""===this.query?this.cleanUp(!0):this.lookup();break;case 9:case 13:var b=void 0!==this.$dropdown?this.$dropdown.find("li.active"):[];b.length?(this.select(b.data()),this.cleanUp(!1)):this.cleanUp(!0);break;case 27:this.cleanUp(!0);break;default:this.lookup()}},rteKeyDown:function(a){switch(a.which||a.keyCode){case 9:case 13:case 27:a.preventDefault();break;case 38:a.preventDefault(),void 0!==this.$dropdown&&this.highlightPreviousResult();break;case 40:a.preventDefault(),void 0!==this.$dropdown&&this.highlightNextResult()}a.stopPropagation()},rteClicked:function(a){var c=b(a.target);this.hasFocus&&"autocomplete-searchtext"!==c.parent().attr("id")&&this.cleanUp(!0)},rteLostFocus:function(){this.hasFocus&&this.cleanUp(!0)},lookup:function(){this.query=b.trim(b(this.editor.getBody()).find("#autocomplete-searchtext").text()).replace("\ufeff",""),clearTimeout(this.searchTimeout),this.searchTimeout=setTimeout(b.proxy(function(){var a=b.isFunction(this.options.source)?this.options.source(this.query,b.proxy(this.process,this)):this.options.source;a&&this.process(a)},this),this.options.delay)},matcher:function(a){return~a[this.options.queryBy].toLowerCase().indexOf(this.query.toLowerCase())},sorter:function(a){for(var e,b=[],c=[],d=[];void 0!==(e=a.shift());)e[this.options.queryBy].toLowerCase().indexOf(this.query.toLowerCase())?~e[this.options.queryBy].indexOf(this.query)?c.push(e):d.push(e):b.push(e);return b.concat(c,d)},highlighter:function(a){return a.replace(new RegExp("("+this.query+")","ig"),function(a,b){return"<strong>"+b+"</strong>"})},show:function(){var a=b(this.editor.getContainer()).offset(),c=b(this.editor.getContentAreaContainer()).position(),d=b(this.editor.dom.select("span#autocomplete")).position(),e=a.top+c.top+d.top+b(this.editor.selection.getNode()).innerHeight()-b(this.editor.getDoc()).scrollTop()+5,f=a.left+c.left+d.left;this.$dropdown=b(this.renderDropdown()).css({top:e,left:f}),b("body").append(this.$dropdown),this.$dropdown.on("click",b.proxy(this.autoCompleteClick,this))},process:function(a){if(this.hasFocus){void 0===this.$dropdown&&this.show();var c=this,d=[],e=b.grep(a,function(a){return c.matcher(a)});e=c.sorter(e),e=e.slice(0,this.options.items),b.each(e,function(a,f){var g=b(c.render(f));g.html(g.html().replace(g.text(),c.highlighter(g.text()))),b.each(e[a],function(a,b){g.attr("data-"+a,b)}),d.push(g[0].outerHTML)}),d.length?this.$dropdown.html(d.join("")).show():this.$dropdown.hide()}},renderDropdown:function(){return'<ul class="rte-autocomplete dropdown-menu"></ul>'},render:function(a){return'<li><a href="javascript:;"><span>'+a.name+"</span></a>"+"</li>"},autoCompleteClick:function(a){var c=b(a.target).closest("li").data();b.isEmptyObject(c)||(this.select(c),this.cleanUp(!1)),a.stopPropagation(),a.preventDefault()},highlightPreviousResult:function(){var a=this.$dropdown.find("li.active").index(),b=0===a?this.$dropdown.find("li").length-1:a-=1;this.$dropdown.find("li").removeClass("active").eq(b).addClass("active")},highlightNextResult:function(){var a=this.$dropdown.find("li.active").index(),b=a===this.$dropdown.find("li").length-1?0:a+=1;this.$dropdown.find("li").removeClass("active").eq(b).addClass("active")},select:function(a){var b=this.editor.dom.select("span#autocomplete")[0];this.editor.dom.remove(b),this.editor.execCommand("mceInsertContent",!1,this.insert(a)+"&nbsp;")},insert:function(a){return"<span>"+a.name+"</span>"},cleanUp:function(a){if(this.unbindEvents(),this.hasFocus=!1,void 0!==this.$dropdown&&(this.$dropdown.remove(),delete this.$dropdown),a){var c=this.query,d=b(this.editor.dom.select("span#autocomplete")),e=b("<p>"+this.options.delimiter+c+"</p>")[0].firstChild,f=b(this.editor.selection.getNode()).offset().top===d.offset().top+(d.outerHeight()-d.height())/2;this.editor.dom.replace(e,d[0]),f&&(this.editor.selection.select(e),this.editor.selection.collapse())}}},a.create("tinymce.plugins.Mention",{init:function(a){function g(){var c=b(a.selection.getNode().outerHTML),d=c.text(),e=d.substr(d.length-1,1);return b.trim(e).length?!1:!0}var e,f=a.getParam("mentions");f.delimiter=f.delimiter||"@",a.on("keypress",function(b){String.fromCharCode(b.which||b.keyCode)===f.delimiter&&g()&&(void 0===e||void 0!==e.hasFocus&&!e.hasFocus)&&(b.preventDefault(),e=new c(a,f))})},getInfo:function(){return{longname:"mention",author:"Steven Devooght",version:a.majorVersion+"."+a.minorVersion}}}),a.PluginManager.add("mention",a.plugins.Mention)}(tinymce,jQuery);
+;(function (f) {
+  'use strict';
+
+  // CommonJS
+  if (typeof exports === 'object' && typeof module !== 'undefined') {
+    module.exports = f(require('jquery'));
+
+  // RequireJS
+  } else if (typeof define === 'function'  && define.amd) {
+    define(['jquery'], f);
+
+  // <script>
+  } else {
+    var g;
+    if (typeof window !== 'undefined') {
+      g = window;
+    } else if (typeof global !== 'undefined') {
+      g = global;
+    } else if (typeof self !== 'undefined') {
+      g = self;
+    } else {
+      g = this;
+    }
+    
+    f(g.jQuery);
+  }
+
+})(function ($) {
+    'use strict';
+
+    var AutoComplete = function (ed, options) {
+        this.editor = ed;
+
+        this.options = $.extend({}, {
+            source: [],
+            delay: 500,
+            queryBy: 'name',
+            items: 10
+        }, options);
+
+        this.matcher = this.options.matcher || this.matcher;
+        this.renderDropdown = this.options.renderDropdown || this.renderDropdown;
+        this.render = this.options.render || this.render;
+        this.insert = this.options.insert || this.insert;
+        this.highlighter = this.options.highlighter || this.highlighter;
+
+        this.query = '';
+        this.hasFocus = true;
+
+        this.renderInput();
+
+        this.bindEvents();
+    };
+
+    AutoComplete.prototype = {
+
+        constructor: AutoComplete,
+
+        renderInput: function () {
+            var rawHtml =  '<span id="autocomplete">' +
+                                '<span id="autocomplete-delimiter">' + this.options.delimiter + '</span>' +
+                                '<span id="autocomplete-searchtext"><span class="dummy">\uFEFF</span></span>' +
+                            '</span>';
+
+            this.editor.execCommand('mceInsertContent', false, rawHtml);
+            this.editor.focus();
+            this.editor.selection.select(this.editor.selection.dom.select('span#autocomplete-searchtext span')[0]);
+            this.editor.selection.collapse(0);
+        },
+
+        bindEvents: function () {
+            this.editor.on('keyup', this.editorKeyUpProxy = $.proxy(this.rteKeyUp, this));
+            this.editor.on('keydown', this.editorKeyDownProxy = $.proxy(this.rteKeyDown, this), true);
+            this.editor.on('click', this.editorClickProxy = $.proxy(this.rteClicked, this));
+
+            $('body').on('click', this.bodyClickProxy = $.proxy(this.rteLostFocus, this));
+
+            $(this.editor.getWin()).on('scroll', this.rteScroll = $.proxy(function () { this.cleanUp(true); }, this));
+        },
+
+        unbindEvents: function () {
+            this.editor.off('keyup', this.editorKeyUpProxy);
+            this.editor.off('keydown', this.editorKeyDownProxy);
+            this.editor.off('click', this.editorClickProxy);
+
+            $('body').off('click', this.bodyClickProxy);
+
+            $(this.editor.getWin()).off('scroll', this.rteScroll);
+        },
+
+        rteKeyUp: function (e) {
+            switch (e.which || e.keyCode) {
+            //DOWN ARROW
+            case 40:
+            //UP ARROW
+            case 38:
+            //SHIFT
+            case 16:
+            //CTRL
+            case 17:
+            //ALT
+            case 18:
+                break;
+
+            //BACKSPACE
+            case 8:
+                if (this.query === '') {
+                    this.cleanUp(true);
+                } else {
+                    this.lookup();
+                }
+                break;
+
+            //TAB
+            case 9:
+            //ENTER
+            case 13:
+                var item = (this.$dropdown !== undefined) ? this.$dropdown.find('li.active') : [];
+                if (item.length) {
+                    this.select(item.data());
+                    this.cleanUp(false);
+                } else {
+                    this.cleanUp(true);
+                }
+                break;
+
+            //ESC
+            case 27:
+                this.cleanUp(true);
+                break;
+
+            default:
+                this.lookup();
+            }
+        },
+
+        rteKeyDown: function (e) {
+            switch (e.which || e.keyCode) {
+             //TAB
+            case 9:
+            //ENTER
+            case 13:
+            //ESC
+            case 27:
+                e.preventDefault();
+                break;
+
+            //UP ARROW
+            case 38:
+                e.preventDefault();
+                if (this.$dropdown !== undefined) {
+                    this.highlightPreviousResult();
+                }
+                break;
+            //DOWN ARROW
+            case 40:
+                e.preventDefault();
+                if (this.$dropdown !== undefined) {
+                    this.highlightNextResult();
+                }
+                break;
+            }
+
+            e.stopPropagation();
+        },
+
+        rteClicked: function (e) {
+            var $target = $(e.target);
+
+            if (this.hasFocus && $target.parent().attr('id') !== 'autocomplete-searchtext') {
+                this.cleanUp(true);
+            }
+        },
+
+        rteLostFocus: function () {
+            if (this.hasFocus) {
+                this.cleanUp(true);
+            }
+        },
+
+        lookup: function () {
+            this.query = $.trim($(this.editor.getBody()).find('#autocomplete-searchtext').text()).replace('\ufeff', '');
+
+            if (this.$dropdown === undefined) {
+                this.show();
+            }
+
+            clearTimeout(this.searchTimeout);
+            this.searchTimeout = setTimeout($.proxy(function () {
+                // Added delimiter parameter as last argument for backwards compatibility.
+                var items = $.isFunction(this.options.source) ? this.options.source(this.query, $.proxy(this.process, this), this.options.delimiter) : this.options.source;
+                if (items) {
+                    this.process(items);
+                }
+            }, this), this.options.delay);
+        },
+
+        matcher: function (item) {
+            return ~item[this.options.queryBy].toLowerCase().indexOf(this.query.toLowerCase());
+        },
+
+        sorter: function (items) {
+            var beginswith = [],
+                caseSensitive = [],
+                caseInsensitive = [],
+                item;
+
+            while ((item = items.shift()) !== undefined) {
+                if (!item[this.options.queryBy].toLowerCase().indexOf(this.query.toLowerCase())) {
+                    beginswith.push(item);
+                } else if (~item[this.options.queryBy].indexOf(this.query)) {
+                    caseSensitive.push(item);
+                } else {
+                    caseInsensitive.push(item);
+                }
+            }
+
+            return beginswith.concat(caseSensitive, caseInsensitive);
+        },
+
+        highlighter: function (text) {
+            return text.replace(new RegExp('(' + this.query.replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1') + ')', 'ig'), function ($1, match) {
+                return '<strong>' + match + '</strong>';
+            });
+        },
+
+        show: function () {
+            var offset = this.editor.inline ? this.offsetInline() : this.offset();
+
+            this.$dropdown = $(this.renderDropdown())
+                                .css({ 'top': offset.top, 'left': offset.left });
+
+            $('body').append(this.$dropdown);
+
+            this.$dropdown.on('click', $.proxy(this.autoCompleteClick, this));
+        },
+
+        process: function (data) {
+            if (!this.hasFocus) {
+                return;
+            }
+
+            var _this = this,
+                result = [],
+                items = $.grep(data, function (item) {
+                    return _this.matcher(item);
+                });
+
+            items = _this.sorter(items);
+
+            items = items.slice(0, this.options.items);
+
+            $.each(items, function (i, item) {
+                var $element = $(_this.render(item));
+
+                $element.html($element.html().replace($element.text(), _this.highlighter($element.text())));
+
+                $.each(items[i], function (key, val) {
+                    $element.attr('data-' + key, val);
+                });
+
+                result.push($element[0].outerHTML);
+            });
+
+            if (result.length) {
+                this.$dropdown.html(result.join('')).show();
+            } else {
+                this.$dropdown.hide();
+            }
+        },
+
+        renderDropdown: function () {
+            return '<ul class="rte-autocomplete dropdown-menu"><li class="loading"></li></ul>';
+        },
+
+        render: function (item) {
+            return '<li>' +
+                        '<a href="javascript:;"><span>' + item[this.options.queryBy] + '</span></a>' +
+                    '</li>';
+        },
+
+        autoCompleteClick: function (e) {
+            var item = $(e.target).closest('li').data();
+            if (!$.isEmptyObject(item)) {
+                this.select(item);
+                this.cleanUp(false);
+            }
+            e.stopPropagation();
+            e.preventDefault();
+        },
+
+        highlightPreviousResult: function () {
+            var currentIndex = this.$dropdown.find('li.active').index(),
+                index = (currentIndex === 0) ? this.$dropdown.find('li').length - 1 : --currentIndex;
+
+            this.$dropdown.find('li').removeClass('active').eq(index).addClass('active');
+        },
+
+        highlightNextResult: function () {
+            var currentIndex = this.$dropdown.find('li.active').index(),
+                index = (currentIndex === this.$dropdown.find('li').length - 1) ? 0 : ++currentIndex;
+
+            this.$dropdown.find('li').removeClass('active').eq(index).addClass('active');
+        },
+
+        select: function (item) {
+            this.editor.focus();
+            var selection = this.editor.dom.select('span#autocomplete')[0];
+            this.editor.dom.remove(selection);
+            this.editor.execCommand('mceInsertContent', false, this.insert(item));
+        },
+
+        insert: function (item) {
+            return '<span>' + item[this.options.queryBy] + '</span>&nbsp;';
+        },
+
+        cleanUp: function (rollback) {
+            this.unbindEvents();
+            this.hasFocus = false;
+
+            if (this.$dropdown !== undefined) {
+                this.$dropdown.remove();
+                delete this.$dropdown;
+            }
+
+            if (rollback) {
+                var text = this.query,
+                    $selection = $(this.editor.dom.select('span#autocomplete')),
+                    replacement = $('<p>' + this.options.delimiter + text + '</p>')[0].firstChild,
+                    focus = $(this.editor.selection.getNode()).offset().top === ($selection.offset().top + (($selection.outerHeight() - $selection.height()) / 2));
+
+                this.editor.dom.replace(replacement, $selection[0]);
+
+                if (focus) {
+                    this.editor.selection.select(replacement);
+                    this.editor.selection.collapse();
+                }
+            }
+        },
+
+        offset: function () {
+            var rtePosition = $(this.editor.getContainer()).offset(),
+                contentAreaPosition = $(this.editor.getContentAreaContainer()).position(),
+                nodePosition = $(this.editor.dom.select('span#autocomplete')).position();
+
+            return {
+                top: rtePosition.top + contentAreaPosition.top + nodePosition.top + $(this.editor.selection.getNode()).innerHeight() - $(this.editor.getDoc()).scrollTop() + 5,
+                left: rtePosition.left + contentAreaPosition.left + nodePosition.left
+            };
+        },
+
+        offsetInline: function () {
+            var nodePosition = $(this.editor.dom.select('span#autocomplete')).offset();
+
+            return {
+                top: nodePosition.top + $(this.editor.selection.getNode()).innerHeight() + 5,
+                left: nodePosition.left
+            };
+        }
+
+    };
+
+    tinymce.create('tinymce.plugins.Mention', {
+
+        init: function (ed) {
+
+            var autoComplete,
+                autoCompleteData = ed.getParam('mentions');
+
+            // If the delimiter is undefined set default value to ['@'].
+            // If the delimiter is a string value convert it to an array. (backwards compatibility)
+            autoCompleteData.delimiter = (autoCompleteData.delimiter !== undefined) ? !$.isArray(autoCompleteData.delimiter) ? [autoCompleteData.delimiter] : autoCompleteData.delimiter : ['@'];
+
+            function prevCharIsSpace() {
+                var start = ed.selection.getRng(true).startOffset,
+                      text = ed.selection.getRng(true).startContainer.data || '',
+                      charachter = text.substr(start - 1, 1);
+
+                return (!!$.trim(charachter).length) ? false : true;
+            }
+
+            ed.on('keypress', function (e) {
+                var delimiterIndex = $.inArray(String.fromCharCode(e.which || e.keyCode), autoCompleteData.delimiter);
+                if (delimiterIndex > -1 && prevCharIsSpace()) {
+                    if (autoComplete === undefined || (autoComplete.hasFocus !== undefined && !autoComplete.hasFocus)) {
+                        e.preventDefault();
+                        // Clone options object and set the used delimiter.
+                        autoComplete = new AutoComplete(ed, $.extend({}, autoCompleteData, { delimiter: autoCompleteData.delimiter[delimiterIndex] }));
+                    }
+                }
+            });
+
+        },
+
+        getInfo: function () {
+            return {
+                longname: 'mention',
+                author: 'Steven Devooght',
+                version: tinymce.majorVersion + '.' + tinymce.minorVersion
+            };
+        }
+    });
+
+    tinymce.PluginManager.add('mention', tinymce.plugins.Mention);
+  
+});

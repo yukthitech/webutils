@@ -21,52 +21,76 @@
  * SOFTWARE.
  */
 
-package com.yukthi.webutils.mail;
+package com.yukthi.webutils.common.models.mails;
 
-import java.util.Arrays;
-import java.util.Collection;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
+import com.yukthi.webutils.common.annotations.NonDisplayable;
 
 /**
  * Represents data of the mail to be sent.
  * 
  * @author akiran
  */
-public class EmailData
+public class MailTemplateModel
 {
+	/**
+	 * Id of the mail template.
+	 */
+	@NonDisplayable
+	private Long id;
+	
+	/**
+	 * Version of mail tample entity.
+	 */
+	@NonDisplayable
+	private Integer version;
+	
 	/**
 	 * Name of template used for building this data object.
 	 */
+	@NotNull
+	@Size(min = 1, max = 100)
 	private String templateName;
-	
-	/**
-	 * To list of the mail.
-	 */
-	private String toList[];
 
 	/**
-	 * CC list of the mail.
+	 * To list template of the mail.
 	 */
-	private String ccList[];
+	@Size(max = 1000)
+	private String toListTemplate;
 
 	/**
-	 * BCC list of the mail.
+	 * CC list template of the mail.
 	 */
-	private String bccList[];
+	@Size(max = 1000)
+	private String ccListTemplate;
+
+	/**
+	 * BCC list template of the mail.
+	 */
+	@Size(max = 1000)
+	private String bccListTemplate;
 
 	/**
 	 * Subject template of the mail.
 	 */
+	@NotNull
+	@Size(min = 1, max = 1000)
 	private String subjectTemplate;
 
 	/**
 	 * Content template of the mail.
 	 */
+	@NotNull
+	@Size(min = 1)
 	private String contentTemplate;
 
 	/**
-	 * Attachments to be sent.
+	 * Customization object that can be use by application to set customization
+	 * parameters that will be used for template processing.
 	 */
-	private Collection<FileAttachment> attachments;
+	private Object customization;
 
 	/**
 	 * Gets the name of template used for building this data object.
@@ -89,63 +113,63 @@ public class EmailData
 	}
 
 	/**
-	 * Gets the to list of the mail.
+	 * Gets the to list template of the mail.
 	 *
-	 * @return the to list of the mail
+	 * @return the to list template of the mail
 	 */
-	public String[] getToList()
+	public String getToListTemplate()
 	{
-		return toList;
+		return toListTemplate;
 	}
 
 	/**
-	 * Sets the to list of the mail.
+	 * Sets the to list template of the mail.
 	 *
-	 * @param toList the new to list of the mail
+	 * @param toListTemplate the new to list template of the mail
 	 */
-	public void setToList(String[] toList)
+	public void setToListTemplate(String toListTemplate)
 	{
-		this.toList = toList;
+		this.toListTemplate = toListTemplate;
 	}
 
 	/**
-	 * Gets the cC list of the mail.
+	 * Gets the cC list template of the mail.
 	 *
-	 * @return the cC list of the mail
+	 * @return the cC list template of the mail
 	 */
-	public String[] getCcList()
+	public String getCcListTemplate()
 	{
-		return ccList;
+		return ccListTemplate;
 	}
 
 	/**
-	 * Sets the cC list of the mail.
+	 * Sets the cC list template of the mail.
 	 *
-	 * @param ccList the new cC list of the mail
+	 * @param ccListTemplate the new cC list template of the mail
 	 */
-	public void setCcList(String[] ccList)
+	public void setCcListTemplate(String ccListTemplate)
 	{
-		this.ccList = ccList;
+		this.ccListTemplate = ccListTemplate;
 	}
 
 	/**
-	 * Gets the bCC list of the mail.
+	 * Gets the bCC list template of the mail.
 	 *
-	 * @return the bCC list of the mail
+	 * @return the bCC list template of the mail
 	 */
-	public String[] getBccList()
+	public String getBccListTemplate()
 	{
-		return bccList;
+		return bccListTemplate;
 	}
 
 	/**
-	 * Sets the bCC list of the mail.
+	 * Sets the bCC list template of the mail.
 	 *
-	 * @param bccList the new bCC list of the mail
+	 * @param bccListTemplate the new bCC list template of the mail
 	 */
-	public void setBccList(String[] bccList)
+	public void setBccListTemplate(String bccListTemplate)
 	{
-		this.bccList = bccList;
+		this.bccListTemplate = bccListTemplate;
 	}
 
 	/**
@@ -189,23 +213,23 @@ public class EmailData
 	}
 
 	/**
-	 * Gets the attachments to be sent.
+	 * Gets the customization object that can be use by application to set customization parameters that will be used for template processing.
 	 *
-	 * @return the attachments to be sent
+	 * @return the customization object that can be use by application to set customization parameters that will be used for template processing
 	 */
-	public Collection<FileAttachment> getAttachments()
+	public Object getCustomization()
 	{
-		return attachments;
+		return customization;
 	}
 
 	/**
-	 * Sets the attachments to be sent.
+	 * Sets the customization object that can be use by application to set customization parameters that will be used for template processing.
 	 *
-	 * @param attachments the new attachments to be sent
+	 * @param customization the new customization object that can be use by application to set customization parameters that will be used for template processing
 	 */
-	public void setAttachments(Collection<FileAttachment> attachments)
+	public void setCustomization(Object customization)
 	{
-		this.attachments = attachments;
+		this.customization = customization;
 	}
 
 	/*
@@ -221,19 +245,19 @@ public class EmailData
 
 		builder.append("Subject: ").append(subjectTemplate);
 
-		if(toList != null)
+		if(toListTemplate != null)
 		{
-			builder.append(",").append("To: ").append(Arrays.toString(toList));
+			builder.append(",").append("To: ").append(toListTemplate);
 		}
 
-		if(ccList != null)
+		if(ccListTemplate != null)
 		{
-			builder.append(",").append("CC: ").append(Arrays.toString(ccList));
+			builder.append(",").append("CC: ").append(ccListTemplate);
 		}
 
-		if(bccList != null)
+		if(bccListTemplate != null)
 		{
-			builder.append(",").append("BCC: ").append(Arrays.toString(bccList));
+			builder.append(",").append("BCC: ").append(bccListTemplate);
 		}
 
 		builder.append("]");
