@@ -6,7 +6,9 @@ import java.awt.image.RenderedImage;
 import java.awt.image.renderable.RenderableImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
@@ -132,12 +134,12 @@ public class EmailService
 	/**
 	* Checks if provided string array is null or empty.
 	*
-	* @param str String array to check.
+	* @param strLst String array to check.
 	* @return True if null or empty.
 	*/
-	private boolean isEmpty(String str[])
+	private boolean isEmpty(List<String> strLst)
 	{
-		return(str == null || str.length == 0);
+		return(strLst == null || strLst.isEmpty());
 	}
 	
 	/**
@@ -238,7 +240,7 @@ public class EmailService
 	 * @param str String to be converted.
 	 * @return Converted list.
 	 */
-	private String[] toList(String str)
+	private List<String> toList(String str)
 	{
 		if(str == null || str.trim().length() == 0)
 		{
@@ -246,7 +248,7 @@ public class EmailService
 		}
 		
 		String arr[] = str.trim().split("\\s*\\,\\s*");
-		return arr;
+		return Arrays.asList(arr);
 	}
 
 	/**
@@ -263,11 +265,22 @@ public class EmailService
 		String ccStr = freeMarkerService.processTemplate(emailData.getTemplateName() + ".cc", emailData.getCcListTemplate(), context);
 		String bccStr = freeMarkerService.processTemplate(emailData.getTemplateName() + ".cc", emailData.getBccListTemplate(), context);
 		
-		String toLst[] = toList(toStr);
-		String ccLst[] = toList(ccStr);
-		String bccLst[] = toList(bccStr);
+		String subject = freeMarkerService.processTemplate(emailData.getTemplateName() + ".subject", emailData.getSubjectTemplate(), context);
+		String content = freeMarkerService.processTemplate(emailData.getTemplateName() + ".content", emailData.getContentTemplate(), context);
+
+		MailMessage mailMessage = new MailMessage();
+		mailMessage.setToList( toList(toStr) );
+		mailMessage.setCcList( toList(ccStr) );
+		mailMessage.setBccList( toList(bccStr) );
+		mailMessage.setSubject(subject);
+		mailMessage.setBody(content);
 		
-		if(isEmpty(toLst) && isEmpty(ccLst) && isEmpty(bccLst))
+		if(context instanceof IMailProcessor)
+		{
+			((IMailCustomizer) context).customize(mailMessage);
+		}
+		
+		if(isEmpty(mailMessage.getToList()) && isEmpty(mailMessage.getCcList()) && isEmpty(mailMessage.getBccList()))
 		{
 			throw new InvalidArgumentException("No recipient email id specified in any of the email list");
 		}
@@ -287,24 +300,23 @@ public class EmailService
 		}
 
 		//set recipients mail lists
-		if(!isEmpty(toLst))
+		if(!isEmpty(mailMessage.getToList()))
 		{
-			message.setRecipients(Message.RecipientType.TO, convertToInternetAddress("To", toLst));
+			message.setRecipients(Message.RecipientType.TO, convertToInternetAddress( "To", mailMessage.getToList().toArray(new String[0]) ));
 		}
 
-		if(!isEmpty(ccLst))
+		if(!isEmpty(mailMessage.getCcList()))
 		{
-			message.setRecipients(Message.RecipientType.CC, convertToInternetAddress("CC", ccLst));
+			message.setRecipients(Message.RecipientType.CC, convertToInternetAddress("CC", mailMessage.getCcList().toArray(new String[0]) ));
 		}
 
-		if(!isEmpty(bccLst))
+		if(!isEmpty(mailMessage.getBccList()))
 		{
-			message.setRecipients(Message.RecipientType.BCC, convertToInternetAddress("BCC", bccLst));
+			message.setRecipients(Message.RecipientType.BCC, convertToInternetAddress("BCC", mailMessage.getBccList().toArray(new String[0]) ));
 		}
 
 		//set the subject
-		String subject = freeMarkerService.processTemplate(emailData.getTemplateName() + ".subject", emailData.getSubjectTemplate(), context);
-		message.setSubject(subject);
+		message.setSubject(mailMessage.getSubject());
 		message.setSentDate(new Date());
 		
 		//create multi part message
@@ -312,8 +324,7 @@ public class EmailService
 		
 		//add body to multi part
 		BodyPart messageBodyPart = new MimeBodyPart();
-		String content = freeMarkerService.processTemplate(emailData.getTemplateName() + ".content", emailData.getContentTemplate(), context);
-		messageBodyPart.setContent(content, "text/html");
+		messageBodyPart.setContent(mailMessage.getBody(), "text/html");
 		messageBodyPart.addHeader(HEADER_NAME_WEBUTILS, "true");
 		
 		multiPart.addBodyPart(messageBodyPart);
@@ -360,11 +371,11 @@ public class EmailService
 	 * @param content Content to be parsed into mail message.
 	 * @param contentType Content type.
 	 */
-	private void extractMailContent(MailMessage mailMessage, Object content, String contentType) throws MessagingException, IOException
+	private void extractMailContent(ReceivedMailMessage mailMessage, Object content, String contentType) throws MessagingException, IOException
 	{
 		if("multipart".equals(contentType))
 		{
-			mailMessage.addMessagePart(new MailMessage.MessagePart(content.toString(), null));
+			mailMessage.addMessagePart(new ReceivedMailMessage.MessagePart(content.toString(), null));
 			return;
 		}
 		
@@ -382,12 +393,12 @@ public class EmailService
 				attachmentFile = File.createTempFile(part.getFileName(), ".attachment");
 				((MimeBodyPart) part).saveFile(attachmentFile);
 				
-				mailMessage.addAttachment(new MailMessage.Attachment(attachmentFile, part.getFileName()));
+				mailMessage.addAttachment(new ReceivedMailMessage.Attachment(attachmentFile, part.getFileName()));
 			}
 			else
 			{
 				//part.getAllHeaders().nextElement()
-				mailMessage.addMessagePart(new MailMessage.MessagePart(part.getContent().toString(), null));
+				mailMessage.addMessagePart(new ReceivedMailMessage.MessagePart(part.getContent().toString(), null));
 			}
 		}
 	}
@@ -413,7 +424,7 @@ public class EmailService
 			String nameMailId = message.getFrom()[0].toString(); 
 			String frmMailId = nameMailId.substring(nameMailId.indexOf("<") + 1 , nameMailId.indexOf(">")).trim();
 
-			MailMessage mailMessage = new MailMessage(frmMailId, subject);
+			ReceivedMailMessage mailMessage = new ReceivedMailMessage(frmMailId, subject);
 			extractMailContent(mailMessage, message.getContent(), message.getContentType());
 			
 			if(mailProcessor.processAndDelete(mailMessage))

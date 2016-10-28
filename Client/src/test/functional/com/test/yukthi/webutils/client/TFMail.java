@@ -10,6 +10,7 @@ import org.testng.annotations.Test;
 import com.test.yukthi.webutils.models.ITestController;
 import com.test.yukthi.webutils.models.TestMailModel;
 import com.yukthi.webutils.common.models.BaseResponse;
+import com.yukthi.webutils.common.models.BasicReadListResponse;
 
 /**
  * Test cases related to mails.
@@ -46,5 +47,25 @@ public class TFMail extends TFBase
 		
 		BaseResponse response = testController.sendMail(mailModel);
 		Assert.assertEquals(response.getCode(), 0);
+	}
+	
+	@Test
+	public void readMails() throws Exception
+	{
+		BasicReadListResponse<TestMailModel> mails = testController.readMails();
+		
+		if(mails.getValues().isEmpty())
+		{
+			System.out.println("No mails found in inbox.");
+			return;
+		}
+		
+		for(TestMailModel mail : mails.getValues())
+		{
+			System.out.println("\n\n*******************************************");
+			System.out.println("\nFrom: " + mail.getFromId());
+			System.out.println("\nSubject: " + mail.getSubject());
+			System.out.println("\nContent: " + mail.getContent());
+		}
 	}
 }

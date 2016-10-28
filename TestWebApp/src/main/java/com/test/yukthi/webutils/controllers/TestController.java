@@ -23,6 +23,8 @@
 package com.test.yukthi.webutils.controllers;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.validation.Valid;
 
@@ -42,9 +44,12 @@ import com.test.yukthi.webutils.models.TestBean;
 import com.test.yukthi.webutils.models.TestMailModel;
 import com.yukthi.webutils.annotations.ActionName;
 import com.yukthi.webutils.common.models.BaseResponse;
+import com.yukthi.webutils.common.models.BasicReadListResponse;
 import com.yukthi.webutils.common.models.mails.EmailServerSettings;
 import com.yukthi.webutils.controllers.BaseController;
 import com.yukthi.webutils.mail.EmailService;
+import com.yukthi.webutils.mail.IMailProcessor;
+import com.yukthi.webutils.mail.ReceivedMailMessage;
 import com.yukthi.webutils.mail.template.MailTemplateEntity;
 
 /**
@@ -110,6 +115,8 @@ public class TestController extends BaseController implements ITestController
 	public BaseResponse sendMail(@RequestBody TestMailModel model) throws Exception
 	{
 		MailTemplateEntity email = new MailTemplateEntity();
+		
+		email.setTemplateName("Test");
 		email.setSubjectTemplate(model.getSubject());
 		email.setContentTemplate(model.getContent());
 		email.setToListTemplate(model.getToId());
@@ -130,5 +137,31 @@ public class TestController extends BaseController implements ITestController
 
 		emailService.sendEmail(emailServerSettings, email, config);
 		return new BaseResponse(0, "Success");
+	}
+
+	/* (non-Javadoc)
+	 * @see com.test.yukthi.webutils.models.ITestController#readMails()
+	 */
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/readMails", method = RequestMethod.GET)
+	@ActionName("readMails")
+	public BasicReadListResponse<TestMailModel> readMails() throws Exception
+	{
+		List<TestMailModel> mails = new ArrayList<>();
+		
+		IMailProcessor processor = new IMailProcessor()
+		{
+			@Override
+			public boolean processAndDelete(ReceivedMailMessage mailMessage)
+			{
+				mails.add(new TestMailModel(mailMessage.getSubject(), mailMessage.getMessageParts().get(0).getContent(), mailMessage.getFromMailId()));
+				return true;
+			}
+		};
+		
+		emailService.readMails(emailServerSettings, processor);
+		
+		return new BasicReadListResponse<TestMailModel>(mails);
 	}
 }

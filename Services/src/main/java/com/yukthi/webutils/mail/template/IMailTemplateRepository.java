@@ -39,7 +39,7 @@ public interface IMailTemplateRepository extends IWebutilsRepository<MailTemplat
 	 * @param ownerEntityId Owner entity id.
 	 * @return Matching mail template.
 	 */
-	public MailTemplateEntity fetchByOwner(String templateName, @Condition("ownerEntityType") String ownerEntityType, 
+	public MailTemplateEntity fetchByOwner(@Condition("templateName") String templateName, @Condition("ownerEntityType") String ownerEntityType, 
 			@Condition("ownerEntityId") Long ownerEntityId);
 
 	/**

@@ -11,5 +11,5 @@ public interface IMailProcessor
 	 * @param mailMessage Mail to be processed.
 	 * @return true if mail has to be deleted.
 	 */
-	public boolean processAndDelete(MailMessage mailMessage);
+	public boolean processAndDelete(ReceivedMailMessage mailMessage);
 }

@@ -49,6 +49,13 @@ public class TestMailModel
 	
 	public TestMailModel()
 	{}
+	
+	public TestMailModel(String subject, String content, String fromId)
+	{
+		this.subject = subject;
+		this.content = content;
+		this.fromId = fromId;
+	}
 
 	public String getSubject()
 	{

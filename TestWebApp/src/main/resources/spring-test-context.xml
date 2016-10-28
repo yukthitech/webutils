@@ -34,6 +34,7 @@
 		<property name="userName" value="yukthitestmail@gmail.com" />
 		<property name="password" value="yukthi@home" />
 		<property name="enableTtls" value="true" />
+		
 		<property name="readProtocol" value="IMAPS" />
 		<property name="readHost" value="imap.gmail.com" />
 	</bean>
@@ -47,14 +48,6 @@
 				
 				<property name="dataSource" ref="dataSource"/>
 			</bean>
-		</property>
-	</bean>
-
-	<bean class="com.yukthi.webutils.mail.EmailTemplateService">
-		<property name="templateResources">
-			<list>
-				<value>/testEmailTemmplates.xml</value>
-			</list>
 		</property>
 	</bean>
 

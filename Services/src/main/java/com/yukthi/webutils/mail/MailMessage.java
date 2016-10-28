@@ -1,186 +1,43 @@
 package com.yukthi.webutils.mail;
 
-import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
- * Represents Mail message received. 
+ * Represents mail message being sent by the application.
  * @author akiran
  */
 public class MailMessage
 {
 	/**
-	 * Represent mail attachment in received mail.
-	 * @author akiran
+	 * To list.
 	 */
-	public static class Attachment
-	{
-		/**
-		 * Attachment content in temp file.
-		 */
-		private File file;
-		
-		/**
-		 * Name of the attachment.
-		 */
-		private String name;
-		
-		/**
-		 * Instantiates a new attachment.
-		 */
-		public Attachment()
-		{}
-
-		/**
-		 * Instantiates a new attachment.
-		 *
-		 * @param file the file
-		 * @param name the name
-		 */
-		public Attachment(File file, String name)
-		{
-			this.file = file;
-			this.name = name;
-		}
-
-		/**
-		 * Gets the attachment content in temp file.
-		 *
-		 * @return the attachment content in temp file
-		 */
-		public File getFile()
-		{
-			return file;
-		}
-
-		/**
-		 * Sets the attachment content in temp file.
-		 *
-		 * @param file the new attachment content in temp file
-		 */
-		public void setFile(File file)
-		{
-			this.file = file;
-		}
-
-		/**
-		 * Gets the name of the attachment.
-		 *
-		 * @return the name of the attachment
-		 */
-		public String getName()
-		{
-			return name;
-		}
-
-		/**
-		 * Sets the name of the attachment.
-		 *
-		 * @param name the new name of the attachment
-		 */
-		public void setName(String name)
-		{
-			this.name = name;
-		}
-	}
+	private List<String> toList;
 	
 	/**
-	 * Message part of the mail.
-	 * 
-	 * @author akiran
+	 * CC List.
 	 */
-	public static class MessagePart
-	{
-		/**
-		 * Content of the message part.
-		 */
-		private String content;
-		
-		/**
-		 * Headers of mail part.
-		 */
-		private Map<String, String> headers;
-
-		/**
-		 * Instantiates a new message part.
-		 */
-		public MessagePart()
-		{}
-		
-		/**
-		 * Instantiates a new message part.
-		 *
-		 * @param content the content
-		 * @param headers the headers
-		 */
-		public MessagePart(String content, Map<String, String> headers)
-		{
-			this.content = content;
-			this.headers = headers;
-		}
-
-		/**
-		 * Gets the content of the message part.
-		 *
-		 * @return the content of the message part
-		 */
-		public String getContent()
-		{
-			return content;
-		}
-
-		/**
-		 * Sets the content of the message part.
-		 *
-		 * @param content the new content of the message part
-		 */
-		public void setContent(String content)
-		{
-			this.content = content;
-		}
-
-		/**
-		 * Gets the headers of mail part.
-		 *
-		 * @return the headers of mail part
-		 */
-		public Map<String, String> getHeaders()
-		{
-			return headers;
-		}
-
-		/**
-		 * Sets the headers of mail part.
-		 *
-		 * @param headers the new headers of mail part
-		 */
-		public void setHeaders(Map<String, String> headers)
-		{
-			this.headers = headers;
-		}
-	}
+	private List<String> ccList;
 	
 	/**
-	 * Mail id from which mail is received.
+	 * BCC List.
 	 */
-	private String fromMailId;
+	private List<String> bccList;
 	
 	/**
-	 * Mail message subject.
+	 * Subject of the mail being sent.
 	 */
 	private String subject;
 	
 	/**
-	 * Attachments received in mail.
+	 * Body of the mail being sent.
 	 */
-	private List<Attachment> attachments;
+	private String body;
 	
 	/**
-	 * Parts of the mail message with headers.
+	 * In cases the mail being sent is reply to received mail, this field will be populated
+	 * with received mail object.
 	 */
-	private List<MessagePart> messageParts;
+	private ReceivedMailMessage receivedMailMessage;
 	
 	/**
 	 * Instantiates a new mail message.
@@ -189,41 +46,69 @@ public class MailMessage
 	{}
 
 	/**
-	 * Instantiates a new mail message.
+	 * Gets the to list.
 	 *
-	 * @param fromMailId the from mail id
-	 * @param subject the subject
+	 * @return the to list
 	 */
-	public MailMessage(String fromMailId, String subject)
+	public List<String> getToList()
 	{
-		this.fromMailId = fromMailId;
-		this.subject = subject;
+		return toList;
 	}
 
 	/**
-	 * Gets the mail id from which mail is received.
+	 * Sets the to list.
 	 *
-	 * @return the mail id from which mail is received
+	 * @param toList the new to list
 	 */
-	public String getFromMailId()
+	public void setToList(List<String> toList)
 	{
-		return fromMailId;
+		this.toList = toList;
 	}
 
 	/**
-	 * Sets the mail id from which mail is received.
+	 * Gets the cC List.
 	 *
-	 * @param fromMailId the new mail id from which mail is received
+	 * @return the cC List
 	 */
-	public void setFromMailId(String fromMailId)
+	public List<String> getCcList()
 	{
-		this.fromMailId = fromMailId;
+		return ccList;
 	}
 
 	/**
-	 * Gets the mail message subject.
+	 * Sets the cC List.
 	 *
-	 * @return the mail message subject
+	 * @param ccList the new cC List
+	 */
+	public void setCcList(List<String> ccList)
+	{
+		this.ccList = ccList;
+	}
+
+	/**
+	 * Gets the bCC List.
+	 *
+	 * @return the bCC List
+	 */
+	public List<String> getBccList()
+	{
+		return bccList;
+	}
+
+	/**
+	 * Sets the bCC List.
+	 *
+	 * @param bccList the new bCC List
+	 */
+	public void setBccList(List<String> bccList)
+	{
+		this.bccList = bccList;
+	}
+
+	/**
+	 * Gets the subject of the mail being sent.
+	 *
+	 * @return the subject of the mail being sent
 	 */
 	public String getSubject()
 	{
@@ -231,9 +116,9 @@ public class MailMessage
 	}
 
 	/**
-	 * Sets the mail message subject.
+	 * Sets the subject of the mail being sent.
 	 *
-	 * @param subject the new mail message subject
+	 * @param subject the new subject of the mail being sent
 	 */
 	public void setSubject(String subject)
 	{
@@ -241,70 +126,42 @@ public class MailMessage
 	}
 
 	/**
-	 * Gets the attachments received in mail.
+	 * Gets the body of the mail being sent.
 	 *
-	 * @return the attachments received in mail
+	 * @return the body of the mail being sent
 	 */
-	public List<Attachment> getAttachments()
+	public String getBody()
 	{
-		return attachments;
+		return body;
 	}
 
 	/**
-	 * Sets the attachments received in mail.
+	 * Sets the body of the mail being sent.
 	 *
-	 * @param attachments the new attachments received in mail
+	 * @param body the new body of the mail being sent
 	 */
-	public void setAttachments(List<Attachment> attachments)
+	public void setBody(String body)
 	{
-		this.attachments = attachments;
-	}
-	
-	/**
-	 * Adds specified attachment to this mail.
-	 * @param attachment Attachment to be added.
-	 */
-	public void addAttachment(Attachment attachment)
-	{
-		if(this.attachments == null)
-		{
-			this.attachments = new ArrayList<>();
-		}
-		
-		this.attachments.add(attachment);
+		this.body = body;
 	}
 
 	/**
-	 * Gets the parts of the mail message with headers.
+	 * Gets the in cases the mail being sent is reply to received mail, this field will be populated with received mail object.
 	 *
-	 * @return the parts of the mail message with headers
+	 * @return the in cases the mail being sent is reply to received mail, this field will be populated with received mail object
 	 */
-	public List<MessagePart> getMessageParts()
+	public ReceivedMailMessage getReceivedMailMessage()
 	{
-		return messageParts;
+		return receivedMailMessage;
 	}
 
 	/**
-	 * Sets the parts of the mail message with headers.
+	 * Sets the in cases the mail being sent is reply to received mail, this field will be populated with received mail object.
 	 *
-	 * @param messageParts the new parts of the mail message with headers
+	 * @param receivedMailMessage the new in cases the mail being sent is reply to received mail, this field will be populated with received mail object
 	 */
-	public void setMessageParts(List<MessagePart> messageParts)
+	public void setReceivedMailMessage(ReceivedMailMessage receivedMailMessage)
 	{
-		this.messageParts = messageParts;
-	}
-
-	/**
-	 * Adds specified part to this message.
-	 * @param part Part to be added.
-	 */
-	public void addMessagePart(MessagePart part)
-	{
-		if(this.messageParts == null)
-		{
-			this.messageParts = new ArrayList<>();
-		}
-		
-		this.messageParts.add(part);
+		this.receivedMailMessage = receivedMailMessage;
 	}
 }

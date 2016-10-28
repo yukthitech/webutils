@@ -2,6 +2,7 @@ package com.test.yukthi.webutils.models;
 
 import com.yukthi.webutils.common.RemoteService;
 import com.yukthi.webutils.common.models.BaseResponse;
+import com.yukthi.webutils.common.models.BasicReadListResponse;
 
 @RemoteService
 public interface ITestController
@@ -20,5 +21,7 @@ public interface ITestController
 	BaseResponse secured2(TestBean testBean);
 
 	BaseResponse sendMail(TestMailModel model) throws Exception;
+	
+	BasicReadListResponse<TestMailModel> readMails() throws Exception;
 
 }
