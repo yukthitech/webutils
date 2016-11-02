@@ -1,6 +1,7 @@
 package com.yukthi.webutils.bootstrap;
 
 import java.io.File;
+import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -13,7 +14,6 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -21,6 +21,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -106,213 +107,6 @@ public class BootstrapManager
 		}
 	}
 	
-	/**
-	 * Abstraction of resources that can be loaded by bootstrap manager.
-	 * @author akiran
-	 */
-	private static interface IResource
-	{
-		/**
-		 * Checks if resource is value.
-		 * @return true if resource is avaialble.
-		 */
-		public boolean isValid();
-		
-		/**
-		 * Loads the resource.
-		 * @return Stream to read resource.
-		 */
-		public String load() throws Exception;
-
-		/**
-		 * Marks the resource as loaded. By creating .loaded file.
-		 */
-		public void setLoaded();
-		
-		/**
-		 * Checks if the resource is already loaded.
-		 * @return true if already loaded.
-		 */
-		public boolean isLoaded();
-	}
-	
-	/**
-	 * Represents file resource.
-	 * @author akiran
-	 */
-	private static class FileResource implements IResource
-	{
-		/**
-		 * File path.
-		 */
-		private String path;
-		
-		/**
-		 * Loaded file.
-		 */
-		private File loadedFile;
-		
-		/**
-		 * Instantiates a new file resource.
-		 *
-		 * @param path the path
-		 */
-		public FileResource(String path)
-		{
-			this.path = path;
-			
-			this.loadedFile = new File(path + ".loaded");
-		}
-
-		/**
-		 * Checks if is valid.
-		 *
-		 * @return true, if is valid
-		 */
-		/* (non-Javadoc)
-		 * @see com.yukthi.webutils.bootstrap.BootstrapManager.IResource#isValid()
-		 */
-		@Override
-		public boolean isValid()
-		{
-			return new File(path).exists();
-		}
-
-		/**
-		 * Load.
-		 *
-		 * @return the string
-		 * @throws Exception the exception
-		 */
-		/* (non-Javadoc)
-		 * @see com.yukthi.webutils.bootstrap.BootstrapManager.IResource#load()
-		 */
-		@Override
-		public String load() throws Exception
-		{
-			return FileUtils.readFileToString(new File(path));
-		}
-
-		/**
-		 * Sets the loaded.
-		 */
-		@Override
-		public void setLoaded()
-		{
-			try
-			{
-				loadedFile.createNewFile();
-			}catch(Exception ex)
-			{
-				throw new IllegalStateException("Failed to create loaded file: " + loadedFile.exists());
-			}
-		}
-
-		/**
-		 * Checks if is loaded.
-		 *
-		 * @return true, if is loaded
-		 */
-		@Override
-		public boolean isLoaded()
-		{
-			return loadedFile.exists();
-		}
-	}
-	
-	/**
-	 * Class path resource.
-	 * @author akiran
-	 */
-	private static class ClasspathResource implements IResource
-	{
-		/**
-		 * resource path.
-		 */
-		private String path;
-		
-		/**
-		 * File used to mark resource as loaded.
-		 */
-		private File loadedFile;
-		
-		/**
-		 * Instantiates a new classpath resource.
-		 *
-		 * @param path the path
-		 * @param workDir the work dir
-		 */
-		public ClasspathResource(String path, String workDir)
-		{
-			this.path = path;
-			
-			path = path.replace("/", "_");
-			path = path.replace("\\", "_");
-			
-			loadedFile = new File(new File(workDir), path + ".loaded");
-		}
-
-		/**
-		 * Checks if is valid.
-		 *
-		 * @return true, if is valid
-		 */
-		/* (non-Javadoc)
-		 * @see com.yukthi.webutils.bootstrap.BootstrapManager.IResource#isValid()
-		 */
-		@Override
-		public boolean isValid()
-		{
-			return BootstrapManager.class.getResourceAsStream(path) != null;
-		}
-
-		/**
-		 * Load.
-		 *
-		 * @return the string
-		 * @throws Exception the exception
-		 */
-		/* (non-Javadoc)
-		 * @see com.yukthi.webutils.bootstrap.BootstrapManager.IResource#load()
-		 */
-		@Override
-		public String load() throws Exception
-		{
-			return IOUtils.toString( BootstrapManager.class.getResourceAsStream(path) );
-		}
-
-		/**
-		 * Sets the loaded.
-		 */
-		@Override
-		public void setLoaded()
-		{
-			try
-			{
-				loadedFile.createNewFile();
-			}catch(Exception ex)
-			{
-				throw new IllegalStateException("Failed to create loaded file: " + loadedFile.getPath());
-			}
-		}
-
-		/**
-		 * Checks if is loaded.
-		 *
-		 * @return true, if is loaded
-		 */
-		@Override
-		public boolean isLoaded()
-		{
-			return loadedFile.exists();
-		}
-	}
-	
-	/**
-	 * Pattern to determine resource types.
-	 */
-	private static final Pattern RESOURCE_PATH_PATTERN = Pattern.compile("(\\w+)\\:(.+)");
-
 	/**
 	 * Service method pattern.
 	 */
@@ -701,38 +495,27 @@ public class BootstrapManager
 	 */
 	private boolean loadBootstrapData(String bootstrapDataFile, Map<String, Object> contextMap) throws Exception
 	{
-		IResource resource = null;
-		Matcher matcher = RESOURCE_PATH_PATTERN.matcher(bootstrapDataFile); 
+		//load the input resource
+		Resource resource = applicationContext.getResource(bootstrapDataFile);
 		
-		//load the input resource based on prefix if any
-		if(matcher.matches())
-		{
-			String resourceType = matcher.group(1);
-			String resourcePath = matcher.group(2);
-			
-			if("classpath".equals(resourceType))
-			{
-				resource = new ClasspathResource(resourcePath, workDir);
-			}
-			else
-			{
-				resource = new FileResource(resourcePath);
-			}
-		}
-		//if no prefix is specified, consider it as file resource
-		else
-		{
-			resource = new FileResource(bootstrapDataFile);
-		}
-		
-		if(!resource.isValid())
+		if(!resource.exists())
 		{
 			logger.warn("Configured bootstrap data file does not exist - " + bootstrapDataFile);
 			return false;
 		}
+		
+		//load and create work directory
+		File workDirFile = new File(workDir);
+		
+		if(workDirFile.exists())
+		{
+			workDirFile.mkdirs();
+		}
+		
+		File loadedFile = new File(workDirFile, resource.getFilename());
 
 		// check if the data file is modified from last load
-		if(resource.isLoaded())
+		if(loadedFile.exists())
 		{
 			logger.warn("Found bootstrap file '{}' is already loaded. Hence skipping data load.", bootstrapDataFile);
 			return false;
@@ -742,7 +525,18 @@ public class BootstrapManager
 		logger.debug("Loading data file - {}", bootstrapDataFile);
 		
 		//load the file and process it as free marker template (first level)
-		String fileContent = resource.load();
+		String fileContent = null;
+		
+		try
+		{
+			InputStream is = resource.getInputStream();
+			fileContent = IOUtils.toString(is);
+			is.close();
+		}catch(Exception ex)
+		{
+			throw new InvalidArgumentException(ex, "An error occurred while loading bootstrap resource - {}", bootstrapDataFile);
+		}
+		
 		fileContent = freeMarkerService.processTemplate(bootstrapDataFile, fileContent, contextMap);
 
 		ObjectMapper objectMapper = new ObjectMapper();
@@ -753,8 +547,8 @@ public class BootstrapManager
 			loadEntityGroup(bootstrapDataFile, entityGroup, bootstrapData.getDefaultUserName(), contextMap);
 		}
 		
-		resource.setLoaded();
-
+		loadedFile.createNewFile();
+		
 		return true;
 	}
 
