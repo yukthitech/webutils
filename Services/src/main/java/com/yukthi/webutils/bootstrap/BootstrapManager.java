@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -59,6 +60,9 @@ public class BootstrapManager
 {
 	private static Logger logger = LogManager.getLogger(BootstrapManager.class);
 	
+	/**
+	 * The Class ServiceMethod.
+	 */
 	private static class ServiceMethod
 	{
 		/**
@@ -101,6 +105,213 @@ public class BootstrapManager
 			}
 		}
 	}
+	
+	/**
+	 * Abstraction of resources that can be loaded by bootstrap manager.
+	 * @author akiran
+	 */
+	private static interface IResource
+	{
+		/**
+		 * Checks if resource is value.
+		 * @return true if resource is avaialble.
+		 */
+		public boolean isValid();
+		
+		/**
+		 * Loads the resource.
+		 * @return Stream to read resource.
+		 */
+		public String load() throws Exception;
+
+		/**
+		 * Marks the resource as loaded. By creating .loaded file.
+		 */
+		public void setLoaded();
+		
+		/**
+		 * Checks if the resource is already loaded.
+		 * @return true if already loaded.
+		 */
+		public boolean isLoaded();
+	}
+	
+	/**
+	 * Represents file resource.
+	 * @author akiran
+	 */
+	private static class FileResource implements IResource
+	{
+		/**
+		 * File path.
+		 */
+		private String path;
+		
+		/**
+		 * Loaded file.
+		 */
+		private File loadedFile;
+		
+		/**
+		 * Instantiates a new file resource.
+		 *
+		 * @param path the path
+		 */
+		public FileResource(String path)
+		{
+			this.path = path;
+			
+			this.loadedFile = new File(path + ".loaded");
+		}
+
+		/**
+		 * Checks if is valid.
+		 *
+		 * @return true, if is valid
+		 */
+		/* (non-Javadoc)
+		 * @see com.yukthi.webutils.bootstrap.BootstrapManager.IResource#isValid()
+		 */
+		@Override
+		public boolean isValid()
+		{
+			return new File(path).exists();
+		}
+
+		/**
+		 * Load.
+		 *
+		 * @return the string
+		 * @throws Exception the exception
+		 */
+		/* (non-Javadoc)
+		 * @see com.yukthi.webutils.bootstrap.BootstrapManager.IResource#load()
+		 */
+		@Override
+		public String load() throws Exception
+		{
+			return FileUtils.readFileToString(new File(path));
+		}
+
+		/**
+		 * Sets the loaded.
+		 */
+		@Override
+		public void setLoaded()
+		{
+			try
+			{
+				loadedFile.createNewFile();
+			}catch(Exception ex)
+			{
+				throw new IllegalStateException("Failed to create loaded file: " + loadedFile.exists());
+			}
+		}
+
+		/**
+		 * Checks if is loaded.
+		 *
+		 * @return true, if is loaded
+		 */
+		@Override
+		public boolean isLoaded()
+		{
+			return loadedFile.exists();
+		}
+	}
+	
+	/**
+	 * Class path resource.
+	 * @author akiran
+	 */
+	private static class ClasspathResource implements IResource
+	{
+		/**
+		 * resource path.
+		 */
+		private String path;
+		
+		/**
+		 * File used to mark resource as loaded.
+		 */
+		private File loadedFile;
+		
+		/**
+		 * Instantiates a new classpath resource.
+		 *
+		 * @param path the path
+		 * @param workDir the work dir
+		 */
+		public ClasspathResource(String path, String workDir)
+		{
+			this.path = path;
+			
+			path = path.replace("/", "_");
+			path = path.replace("\\", "_");
+			
+			loadedFile = new File(new File(workDir), path + ".loaded");
+		}
+
+		/**
+		 * Checks if is valid.
+		 *
+		 * @return true, if is valid
+		 */
+		/* (non-Javadoc)
+		 * @see com.yukthi.webutils.bootstrap.BootstrapManager.IResource#isValid()
+		 */
+		@Override
+		public boolean isValid()
+		{
+			return BootstrapManager.class.getResourceAsStream(path) != null;
+		}
+
+		/**
+		 * Load.
+		 *
+		 * @return the string
+		 * @throws Exception the exception
+		 */
+		/* (non-Javadoc)
+		 * @see com.yukthi.webutils.bootstrap.BootstrapManager.IResource#load()
+		 */
+		@Override
+		public String load() throws Exception
+		{
+			return IOUtils.toString( BootstrapManager.class.getResourceAsStream(path) );
+		}
+
+		/**
+		 * Sets the loaded.
+		 */
+		@Override
+		public void setLoaded()
+		{
+			try
+			{
+				loadedFile.createNewFile();
+			}catch(Exception ex)
+			{
+				throw new IllegalStateException("Failed to create loaded file: " + loadedFile.getPath());
+			}
+		}
+
+		/**
+		 * Checks if is loaded.
+		 *
+		 * @return true, if is loaded
+		 */
+		@Override
+		public boolean isLoaded()
+		{
+			return loadedFile.exists();
+		}
+	}
+	
+	/**
+	 * Pattern to determine resource types.
+	 */
+	private static final Pattern RESOURCE_PATH_PATTERN = Pattern.compile("(\\w+)\\:(.+)");
 
 	/**
 	 * Service method pattern.
@@ -126,7 +337,13 @@ public class BootstrapManager
 	 * File bootstrap data can be found.
 	 */
 	@Value("${app.bootstrap.files}")
-	private String bootstrapDataFile;
+	private String bootstrapDataFiles;
+	
+	/**
+	 * Directory to keep working files.
+	 */
+	@Value("${app.work.dir}")
+	private String workDir;
 
 	/**
 	 * Repository factories to save and fetch entities.
@@ -175,7 +392,7 @@ public class BootstrapManager
 	 */
 	public void setBootstrapDataFile(String bootstrapDataFile)
 	{
-		this.bootstrapDataFile = bootstrapDataFile;
+		this.bootstrapDataFiles = bootstrapDataFile;
 	}
 
 	/**
@@ -484,18 +701,38 @@ public class BootstrapManager
 	 */
 	private boolean loadBootstrapData(String bootstrapDataFile, Map<String, Object> contextMap) throws Exception
 	{
-		File dataFile = new File(bootstrapDataFile);
-
-		if(!dataFile.exists())
+		IResource resource = null;
+		Matcher matcher = RESOURCE_PATH_PATTERN.matcher(bootstrapDataFile); 
+		
+		//load the input resource based on prefix if any
+		if(matcher.matches())
+		{
+			String resourceType = matcher.group(1);
+			String resourcePath = matcher.group(2);
+			
+			if("classpath".equals(resourceType))
+			{
+				resource = new ClasspathResource(resourcePath, workDir);
+			}
+			else
+			{
+				resource = new FileResource(resourcePath);
+			}
+		}
+		//if no prefix is specified, consider it as file resource
+		else
+		{
+			resource = new FileResource(bootstrapDataFile);
+		}
+		
+		if(!resource.isValid())
 		{
 			logger.warn("Configured bootstrap data file does not exist - " + bootstrapDataFile);
 			return false;
 		}
 
 		// check if the data file is modified from last load
-		File loadedFile = new File(bootstrapDataFile + ".loaded");
-
-		if(loadedFile.exists())
+		if(resource.isLoaded())
 		{
 			logger.warn("Found bootstrap file '{}' is already loaded. Hence skipping data load.", bootstrapDataFile);
 			return false;
@@ -505,21 +742,18 @@ public class BootstrapManager
 		logger.debug("Loading data file - {}", bootstrapDataFile);
 		
 		//load the file and process it as free marker template (first level)
-		String fileContent = FileUtils.readFileToString(dataFile);
-		fileContent = freeMarkerService.processTemplate("file: " + dataFile.getName(), fileContent, contextMap);
+		String fileContent = resource.load();
+		fileContent = freeMarkerService.processTemplate(bootstrapDataFile, fileContent, contextMap);
 
 		ObjectMapper objectMapper = new ObjectMapper();
 		BootstrapData bootstrapData = objectMapper.readValue(fileContent, BootstrapData.class);
 
 		for(BootstrapData.EntityGroup entityGroup : bootstrapData.getEntityGroups())
 		{
-			loadEntityGroup(dataFile.getName(), entityGroup, bootstrapData.getDefaultUserName(), contextMap);
+			loadEntityGroup(bootstrapDataFile, entityGroup, bootstrapData.getDefaultUserName(), contextMap);
 		}
-
-		if(!loadedFile.exists())
-		{
-			loadedFile.createNewFile();
-		}
+		
+		resource.setLoaded();
 
 		return true;
 	}
@@ -530,13 +764,13 @@ public class BootstrapManager
 	public void load()
 	{
 		// check if the data file is configured and available
-		if(StringUtils.isBlank(bootstrapDataFile))
+		if(StringUtils.isBlank(bootstrapDataFiles))
 		{
 			logger.debug("No bootstrap file(s) configured. Skipping bootstrap data load.");
 			return;
 		}
 		
-		String files[] = bootstrapDataFile.split("\\s*\\,\\s*");
+		String files[] = bootstrapDataFiles.split("\\s*\\,\\s*");
 		
 		logger.debug("Loading bootstrap files - {}", Arrays.toString(files));
 		

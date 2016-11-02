@@ -2,6 +2,7 @@ package com.yukthi.webutils.mail;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -159,6 +160,21 @@ public class ReceivedMailMessage
 		public void setHeaders(Map<String, String> headers)
 		{
 			this.headers = headers;
+		}
+		
+		/**
+		 * Sets the specified header on this part.
+		 * @param name Name of the header.
+		 * @param value Header value.
+		 */
+		public void setHeader(String name, String value)
+		{
+			if(this.headers == null)
+			{
+				this.headers = new HashMap<>();
+			}
+			
+			this.headers.put(name, value);
 		}
 	}
 	

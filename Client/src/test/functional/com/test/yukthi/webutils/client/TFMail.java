@@ -39,7 +39,7 @@ public class TFMail extends TFBase
 		TestMailModel mailModel = new TestMailModel();
 		mailModel.setSubject("Test subject");
 		mailModel.setContent("Some test content for <B>mail</B> testing.");
-		mailModel.setToId("akranthikiran@gmail.com");
+		mailModel.setToId("akiran@yodlee.com");
 		mailModel.setFromId("dev@yukthi-tech.co.in");
 		mailModel.setAttachment1("Some content for attachment1");
 		mailModel.setAttachment2("Some content for attachment2");

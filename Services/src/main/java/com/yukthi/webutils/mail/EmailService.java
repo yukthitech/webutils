@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -19,6 +20,7 @@ import javax.mail.Authenticator;
 import javax.mail.BodyPart;
 import javax.mail.Flags;
 import javax.mail.Folder;
+import javax.mail.Header;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
@@ -34,6 +36,7 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -371,9 +374,10 @@ public class EmailService
 	 * @param content Content to be parsed into mail message.
 	 * @param contentType Content type.
 	 */
+	@SuppressWarnings("unchecked")
 	private void extractMailContent(ReceivedMailMessage mailMessage, Object content, String contentType) throws MessagingException, IOException
 	{
-		if("multipart".equals(contentType))
+		if(!contentType.toLowerCase().contains("multipart"))
 		{
 			mailMessage.addMessagePart(new ReceivedMailMessage.MessagePart(content.toString(), null));
 			return;
@@ -383,10 +387,16 @@ public class EmailService
 		int count = multipart.getCount();
 		BodyPart part = null;
 		File attachmentFile = null;
+		Enumeration<Header> headerEnum = null;
+		Header header = null;
+		
+		ReceivedMailMessage.MessagePart messagePart = null;
 		
 		for(int i = 0; i < count; i++)
 		{
 			part = multipart.getBodyPart(i);
+			
+			System.out.println(part.getContentType());
 			
 			if(Part.ATTACHMENT.equalsIgnoreCase(part.getDisposition()))
 			{
@@ -395,10 +405,22 @@ public class EmailService
 				
 				mailMessage.addAttachment(new ReceivedMailMessage.Attachment(attachmentFile, part.getFileName()));
 			}
-			else
+			else if(part.getContentType().toLowerCase().contains("text/html"))
 			{
+				String contentStr = IOUtils.toString(part.getInputStream());
+				
+				System.out.println("Got content as: " + contentStr);
 				//part.getAllHeaders().nextElement()
-				mailMessage.addMessagePart(new ReceivedMailMessage.MessagePart(part.getContent().toString(), null));
+				messagePart = new ReceivedMailMessage.MessagePart(contentStr, null);
+				mailMessage.addMessagePart(messagePart);
+				
+				headerEnum = part.getAllHeaders();
+				
+				while(headerEnum.hasMoreElements())
+				{
+					header = headerEnum.nextElement();
+					messagePart.setHeader(header.getName(), header.getValue());
+				}
 			}
 		}
 	}
