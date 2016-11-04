@@ -28,13 +28,19 @@ import java.util.List;
 import java.util.Properties;
 
 import javax.annotation.PostConstruct;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import org.apache.commons.lang3.StringUtils;
+
+import com.yukthi.validation.annotations.NotEmpty;
+import com.yukthi.webutils.common.annotations.Model;
 
 /**
  * Settings or information required for sending and reading the mails.
  * @author akiran
  */
+@Model
 public class EmailServerSettings
 {
 	/**
@@ -60,11 +66,14 @@ public class EmailServerSettings
 	/**
 	* Smtp host.
 	*/
+	@NotNull
+	@Size(min = 3)
 	private String smtpHost;
 	
 	/**
 	 * Smtp port.
 	 */
+	@NotNull
 	private Integer smtpPort;
 
 	/**
@@ -75,11 +84,15 @@ public class EmailServerSettings
 	/**
 	 * User name for authentication.
 	 */
+	@NotNull
+	@Size(min = 3)
 	private String userName;
 	
 	/**
 	 * Password for authentication.
 	 */
+	@NotNull
+	@Size(min = 3)
 	private String password;
 
 	/**
@@ -90,16 +103,20 @@ public class EmailServerSettings
 	/**
 	 * Protocol to be used for reading mails.
 	 */
+	@NotNull
 	private MailReadProtocol readProtocol;
 	
 	/**
 	 * Host address from where mail can be read or deleted.
 	 */
+	@NotNull
+	@Size(min = 3)
 	private String readHost;
 	
 	/**
 	 * Folders from which mails needs to be accessed.
 	 */
+	@NotEmpty
 	private List<String> folderNames = Arrays.asList("INBOX");
 	
 	/**
