@@ -507,12 +507,12 @@ public class BootstrapManager
 		//load and create work directory
 		File workDirFile = new File(workDir);
 		
-		if(workDirFile.exists())
+		if(!workDirFile.exists())
 		{
 			workDirFile.mkdirs();
 		}
 		
-		File loadedFile = new File(workDirFile, resource.getFilename());
+		File loadedFile = new File(workDirFile, resource.getFilename() + ".loaded");
 
 		// check if the data file is modified from last load
 		if(loadedFile.exists())

@@ -18,4 +18,10 @@ public @interface MailConfigField
 	 * @return Description of the field.
 	 */
 	public String description();
+	
+	/**
+	 * Sample value for the field which will be used for preview generation.
+	 * @return Sample value.
+	 */
+	public String sampleValue() default "";
 }

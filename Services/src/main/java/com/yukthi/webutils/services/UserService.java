@@ -65,20 +65,6 @@ public class UserService extends BaseCrudService<UserEntity, IUserRepository>
 	}
 
 	/**
-	 * Fetch user by user name.
-	 *
-	 * @param customerId
-	 *            the customer id
-	 * @param userName
-	 *            the user name
-	 * @return the user entity
-	 */
-	public UserEntity fetchUserByUserName(Long customerId, String userName)
-	{
-		return super.repository.fetchUserByUserName(customerId, userName);
-	}
-
-	/**
 	 * Fetches user based on base entity details.
 	 * 
 	 * @param baseEntityType
@@ -112,9 +98,9 @@ public class UserService extends BaseCrudService<UserEntity, IUserRepository>
 	 * 
 	 * @param userSpace
 	 *            User Space
-	 * @param userName
-	 * @param password
-	 * @return
+	 * @param userName User name of target user.
+	 * @param password Password of target user.
+	 * @return True if successfully updated
 	 */
 	public boolean updatePassword(String userSpace, String userName, String password)
 	{

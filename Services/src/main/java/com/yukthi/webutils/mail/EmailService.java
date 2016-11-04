@@ -278,7 +278,7 @@ public class EmailService
 		mailMessage.setSubject(subject);
 		mailMessage.setBody(content);
 		
-		if(context instanceof IMailProcessor)
+		if(context instanceof IMailCustomizer)
 		{
 			((IMailCustomizer) context).customize(mailMessage);
 		}

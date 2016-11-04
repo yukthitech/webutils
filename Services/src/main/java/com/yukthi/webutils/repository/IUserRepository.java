@@ -6,7 +6,6 @@ import com.yukthi.persistence.repository.annotations.DefaultCondition;
 import com.yukthi.persistence.repository.annotations.Field;
 import com.yukthi.persistence.repository.annotations.MethodConditions;
 import com.yukthi.persistence.repository.annotations.UpdateFunction;
-import com.yukthi.webutils.annotations.RestrictBySpace;
 
 /**
  * Repository for user authentication details.
@@ -52,17 +51,6 @@ public interface IUserRepository extends IWebutilsRepository<UserEntity>
 	 */
 	@MethodConditions(conditions = { @DefaultCondition(field = "deleted", value = "false") })
 	public UserEntity fetchUser(@Condition("userName") String userName, @Condition("spaceIdentity") String userSpace);
-
-	/**
-	 * Fetch user by user name.
-	 *
-	 * @param customerId
-	 *            the customer id
-	 * @param userName
-	 *            the user name
-	 * @return the user entity
-	 */
-	public UserEntity fetchUserByUserName(@Condition("baseEntityId") Long customerId, @Condition("userName") String userName);
 
 	/**
 	 * Used to mark an user as deleted.
