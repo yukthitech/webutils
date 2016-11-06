@@ -8,8 +8,8 @@ public interface IMailProcessor
 {
 	/**
 	 * Called to process mails. 
+	 * @param context Context for mail processing.
 	 * @param mailMessage Mail to be processed.
-	 * @return true if mail has to be deleted.
 	 */
-	public boolean processAndDelete(ReceivedMailMessage mailMessage);
+	public void process(IMailProcessingContext context, ReceivedMailMessage mailMessage);
 }

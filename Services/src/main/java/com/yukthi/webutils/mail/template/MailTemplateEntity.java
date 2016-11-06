@@ -91,13 +91,13 @@ public class MailTemplateEntity extends WebutilsEntity
 	/**
 	 * Owner entity type.
 	 */
-	@Column(name = "OWNER_ENTITY_TYPE", length = 250)
+	@Column(name = "OWNER_ENTITY_TYPE", length = 250, nullable = false)
 	private String ownerEntityType;
 
 	/**
 	 * Owner entity id.
 	 */
-	@Column(name = "OWNER_ENTITY_ID")
+	@Column(name = "OWNER_ENTITY_ID", nullable = false)
 	private Long ownerEntityId;
 
 	/**

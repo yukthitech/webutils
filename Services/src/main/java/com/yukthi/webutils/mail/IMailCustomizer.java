@@ -11,6 +11,7 @@ public interface IMailCustomizer
 	/**
 	 * Implementation can customize the provided mail message before sending. 
 	 * @param mailMessage Mail message being sent.
+	 * @param templateCustomization Customization data set on mail template.
 	 */
-	public void customize(MailMessage mailMessage);
+	public void customize(MailMessage mailMessage, Object templateCustomization);
 }

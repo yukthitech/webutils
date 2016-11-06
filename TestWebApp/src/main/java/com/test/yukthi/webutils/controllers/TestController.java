@@ -48,6 +48,7 @@ import com.yukthi.webutils.common.models.BasicReadListResponse;
 import com.yukthi.webutils.common.models.mails.EmailServerSettings;
 import com.yukthi.webutils.controllers.BaseController;
 import com.yukthi.webutils.mail.EmailService;
+import com.yukthi.webutils.mail.IMailProcessingContext;
 import com.yukthi.webutils.mail.IMailProcessor;
 import com.yukthi.webutils.mail.ReceivedMailMessage;
 import com.yukthi.webutils.mail.template.MailTemplateEntity;
@@ -153,10 +154,10 @@ public class TestController extends BaseController implements ITestController
 		IMailProcessor processor = new IMailProcessor()
 		{
 			@Override
-			public boolean processAndDelete(ReceivedMailMessage mailMessage)
+			public void process(IMailProcessingContext context, ReceivedMailMessage mailMessage)
 			{
 				mails.add(new TestMailModel(mailMessage.getSubject(), mailMessage.getMessageParts().get(0).getContent(), mailMessage.getFromMailId()));
-				return true;
+				context.delete();
 			}
 		};
 		

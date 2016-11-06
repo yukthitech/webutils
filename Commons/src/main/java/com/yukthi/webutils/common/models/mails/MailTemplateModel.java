@@ -26,6 +26,8 @@ package com.yukthi.webutils.common.models.mails;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import com.yukthi.webutils.common.annotations.IgnoreField;
+import com.yukthi.webutils.common.annotations.Model;
 import com.yukthi.webutils.common.annotations.NonDisplayable;
 
 /**
@@ -33,6 +35,7 @@ import com.yukthi.webutils.common.annotations.NonDisplayable;
  * 
  * @author akiran
  */
+@Model
 public class MailTemplateModel
 {
 	/**
@@ -90,6 +93,7 @@ public class MailTemplateModel
 	 * Customization object that can be use by application to set customization
 	 * parameters that will be used for template processing.
 	 */
+	@IgnoreField
 	private Object customization;
 
 	/**
