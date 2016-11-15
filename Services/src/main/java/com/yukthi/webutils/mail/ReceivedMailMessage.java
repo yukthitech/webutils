@@ -2,9 +2,12 @@ package com.yukthi.webutils.mail;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 /**
  * Represents Mail message received. 
@@ -88,97 +91,6 @@ public class ReceivedMailMessage
 	}
 	
 	/**
-	 * Message part of the mail.
-	 * 
-	 * @author akiran
-	 */
-	public static class MessagePart
-	{
-		/**
-		 * Content of the message part.
-		 */
-		private String content;
-		
-		/**
-		 * Headers of mail part.
-		 */
-		private Map<String, String> headers;
-
-		/**
-		 * Instantiates a new message part.
-		 */
-		public MessagePart()
-		{}
-		
-		/**
-		 * Instantiates a new message part.
-		 *
-		 * @param content the content
-		 * @param headers the headers
-		 */
-		public MessagePart(String content, Map<String, String> headers)
-		{
-			this.content = content;
-			this.headers = headers;
-		}
-
-		/**
-		 * Gets the content of the message part.
-		 *
-		 * @return the content of the message part
-		 */
-		public String getContent()
-		{
-			return content;
-		}
-
-		/**
-		 * Sets the content of the message part.
-		 *
-		 * @param content the new content of the message part
-		 */
-		public void setContent(String content)
-		{
-			this.content = content;
-		}
-
-		/**
-		 * Gets the headers of mail part.
-		 *
-		 * @return the headers of mail part
-		 */
-		public Map<String, String> getHeaders()
-		{
-			return headers;
-		}
-
-		/**
-		 * Sets the headers of mail part.
-		 *
-		 * @param headers the new headers of mail part
-		 */
-		public void setHeaders(Map<String, String> headers)
-		{
-			this.headers = headers;
-		}
-		
-		/**
-		 * Sets the specified header on this part.
-		 * @param name Name of the header.
-		 * @param value Header value.
-		 */
-		public void setHeader(String name, String value)
-		{
-			if(this.headers == null)
-			{
-				this.headers = new HashMap<>();
-			}
-			
-			this.headers.put(name, value);
-		}
-	}
-	
-	/**
 	 * Mail id from which mail is received.
 	 */
 	private String fromMailId;
@@ -194,9 +106,19 @@ public class ReceivedMailMessage
 	private List<Attachment> attachments;
 	
 	/**
-	 * Parts of the mail message with headers.
+	 * Main content of the mail.
 	 */
-	private List<MessagePart> messageParts;
+	private String content;
+	
+	/**
+	 * Context of the mail in textual format.
+	 */
+	private String textContent;
+	
+	/**
+	 * Document representation of content for easy searching.
+	 */
+	private Document contentDocument;
 	
 	/**
 	 * Instantiates a new mail message.
@@ -291,36 +213,253 @@ public class ReceivedMailMessage
 	}
 
 	/**
-	 * Gets the parts of the mail message with headers.
+	 * Gets the main content of the mail.
 	 *
-	 * @return the parts of the mail message with headers
+	 * @return the main content of the mail
 	 */
-	public List<MessagePart> getMessageParts()
+	public String getContent()
 	{
-		return messageParts;
+		return content;
 	}
 
 	/**
-	 * Sets the parts of the mail message with headers.
+	 * Sets the main content of the mail.
 	 *
-	 * @param messageParts the new parts of the mail message with headers
+	 * @param content the new main content of the mail
 	 */
-	public void setMessageParts(List<MessagePart> messageParts)
+	public void setContent(String content)
 	{
-		this.messageParts = messageParts;
+		this.content = content;
+		this.contentDocument = null;
+	}
+	
+	/**
+	 * Checks if the content is set on this mail.
+	 * @return true if content is present.
+	 */
+	public boolean hasContent()
+	{
+		return content != null;
 	}
 
 	/**
-	 * Adds specified part to this message.
-	 * @param part Part to be added.
+	 * Gets the context of the mail in textual format.
+	 *
+	 * @return the context of the mail in textual format
 	 */
-	public void addMessagePart(MessagePart part)
+	public String getTextContent()
 	{
-		if(this.messageParts == null)
+		return textContent;
+	}
+
+	/**
+	 * Sets the context of the mail in textual format.
+	 *
+	 * @param textContent the new context of the mail in textual format
+	 */
+	public void setTextContent(String textContent)
+	{
+		this.textContent = textContent;
+	}
+	
+	/**
+	 * Adds the specified text content to existing content.
+	 * @param textContent text content to be added.
+	 */
+	public void addTextContent(String textContent)
+	{
+		if(this.textContent != null)
 		{
-			this.messageParts = new ArrayList<>();
+			this.textContent += textContent;
 		}
 		
-		this.messageParts.add(part);
+		this.textContent = textContent;
+	}
+
+	/**
+	 * Builds the document from content if it is not present already.
+	 */
+	private void buildDocument() throws MailProcessingException
+	{
+		if(this.contentDocument != null)
+		{
+			return;
+		}
+		
+		if(content == null)
+		{
+			throw new MailProcessingException("HTML content methods are invoked on non-html based emails");
+		}
+		
+		this.contentDocument = Jsoup.parse(content);
+	}
+	
+	/**
+	 * Gets the document representation of content for easy searching.
+	 *
+	 * @return the document representation of content for easy searching
+	 */
+	public Document getContentDocument() throws MailProcessingException
+	{
+		buildDocument();
+		return contentDocument;
+	}
+
+	/**
+	 * Gets the html of the element with specified id.
+	 * @param id Id of the element to be queried.
+	 * @return Matching element html
+	 */
+	public String getHtmlById(String id) throws MailProcessingException
+	{
+		buildDocument();
+		
+		Element element = contentDocument.getElementById(id);
+		
+		if(element == null)
+		{
+			return null;
+		}
+		
+		return element.html();
+	}
+
+	/**
+	 * Gets the text of the element with specified id.
+	 * @param id Id of the element to be queried.
+	 * @return Matching element text
+	 */
+	public String getTextById(String id) throws MailProcessingException
+	{
+		buildDocument();
+		
+		Element element = contentDocument.getElementById(id);
+		
+		if(element == null)
+		{
+			return null;
+		}
+		
+		return element.html();
+	}
+
+	/**
+	 * Gets the html of the first element with specified class.
+	 * @param cssClass CSS Class of the element to be queried.
+	 * @return Matching element html
+	 */
+	public String getHtmlByClass(String cssClass) throws MailProcessingException
+	{
+		buildDocument();
+		
+		Elements elements = contentDocument.getElementsByClass(cssClass);
+		
+		if(elements == null || elements.size() <= 0)
+		{
+			return null;
+		}
+		
+		Element element = elements.first();
+		return element.html();
+	}
+
+	/**
+	 * Gets the text of the first element with specified class.
+	 * @param cssClass Id of the element to be queried.
+	 * @return Matching element text
+	 */
+	public String getTextByClass(String cssClass) throws MailProcessingException
+	{
+		buildDocument();
+		
+		Elements elements = contentDocument.getElementsByClass(cssClass);
+		
+		if(elements == null || elements.size() <= 0)
+		{
+			return null;
+		}
+		
+		Element element = elements.first();
+		return element.text();
+	}
+
+	/**
+	 * Gets the html of the first element with specified selector.
+	 * @param cssSelector CSS selector of the element to be queried.
+	 * @return Matching element html
+	 */
+	public String getHtmlBySelector(String cssSelector) throws MailProcessingException
+	{
+		buildDocument();
+		
+		Elements elements = contentDocument.select(cssSelector);
+		
+		if(elements == null || elements.size() <= 0)
+		{
+			return null;
+		}
+		
+		Element element = elements.first();
+		return element.html();
+	}
+
+	/**
+	 * Gets the text of the first element with specified selector.
+	 * @param cssSelector CSS selector of the element to be queried.
+	 * @return Matching element text
+	 */
+	public String getTextBySelector(String cssSelector) throws MailProcessingException
+	{
+		buildDocument();
+		
+		Elements elements = contentDocument.select(cssSelector);
+		
+		if(elements == null || elements.size() <= 0)
+		{
+			return null;
+		}
+		
+		Element element = elements.first();
+		return element.text();
+	}
+
+	/**
+	 * Gets the html of the first element with specified name.
+	 * @param name Name of the element to be queried.
+	 * @return Matching element html
+	 */
+	public String getHtmlByName(String name) throws MailProcessingException
+	{
+		buildDocument();
+		
+		Elements elements = contentDocument.getElementsByAttributeValue("name", name);
+		
+		if(elements == null || elements.size() <= 0)
+		{
+			return null;
+		}
+		
+		Element element = elements.first();
+		return element.html();
+	}
+
+	/**
+	 * Gets the text of the first element with specified name.
+	 * @param name Name of the element to be queried.
+	 * @return Matching element text
+	 */
+	public String getTextByName(String name) throws MailProcessingException
+	{
+		buildDocument();
+		
+		Elements elements = contentDocument.getElementsByAttributeValue("name", name);
+		
+		if(elements == null || elements.size() <= 0)
+		{
+			return null;
+		}
+		
+		Element element = elements.first();
+		return element.text();
 	}
 }

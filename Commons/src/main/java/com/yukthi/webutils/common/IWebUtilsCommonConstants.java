@@ -73,7 +73,16 @@ public interface IWebUtilsCommonConstants
 	public String MULTIPART_DEFAULT_PART = "default";
 	
 	public String AUTH_GROUP_URI = "/auth";
+	
+	/**
+	 * Login api path.
+	 */
 	public String LOGIN_URI_PATH = "/login";
+	
+	/**
+	 * Logout api path.
+	 */
+	public String LOGOUT_URI_PATH = "/logout";
 	
 	/**
 	 * Path for fetching active user details

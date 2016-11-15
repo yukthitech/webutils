@@ -26,6 +26,7 @@ package com.yukthi.webutils.security;
 import java.io.OutputStream;
 
 import javax.annotation.PostConstruct;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -48,24 +49,39 @@ import com.yukthi.webutils.common.IWebUtilsCommonConstants;
 import com.yukthi.webutils.common.models.BaseResponse;
 
 /**
- * Spring interceptor to control authorization  based on token passed as part of request
+ * Spring interceptor to control authorization  based on token passed as part of request.
  * @author akiran
  */
 public class SecurityInterceptor extends HandlerInterceptorAdapter
 {
 	private static Logger logger = LogManager.getLogger(SecurityInterceptor.class);
 
-	@Autowired
-	private SecurityEncryptionService securityEncryptionService;
-	
+	/**
+	 * Configuration to get basic details.
+	 */
 	@Autowired
 	private WebutilsConfiguration configuration;
 	
+	/**
+	 * Application specific security service.
+	 */
 	@Autowired(required = false)
 	private ISecurityService securityService;
 	
+	/**
+	 * Object mapper to convert beans to/from json.
+	 */
 	private ObjectMapper objectMapper = new ObjectMapper();
 	
+	/**
+	 * Service to manage sessions.
+	 */
+	@Autowired
+	private SessionManagementService sessionManagementService;
+	
+	/**
+	 * Post construct method to validate configuration.
+	 */
 	@PostConstruct
 	private void init()
 	{
@@ -76,10 +92,10 @@ public class SecurityInterceptor extends HandlerInterceptorAdapter
 	}
 
 	/**
-	 * Sends error to client
-	 * @param response
-	 * @param code
-	 * @param message
+	 * Sends error to client.
+	 * @param response Response on which error needs to be sent.
+	 * @param code Error code
+	 * @param message Error message.
 	 */
 	private void sendError(HttpServletResponse response, int code, String message)
 	{
@@ -100,22 +116,55 @@ public class SecurityInterceptor extends HandlerInterceptorAdapter
 	}
 	
 	/**
-	 * Checks if required auth details token is provided and manages expiry of token
+	 * Fetches auth token from cookie.
+	 * @param request Request from which auth token needs to be fetched.
+	 * @return Auth token from cookies, if any
+	 */
+	private String getAuthTokenFromCookie(HttpServletRequest request)
+	{
+		Cookie cookies[] = request.getCookies();
+		
+		if(cookies == null)
+		{
+			return null;
+		}
+		
+		for(Cookie cookie : cookies)
+		{
+			if(!IWebUtilsCommonConstants.HEADER_AUTHORIZATION_TOKEN.equals(cookie.getName()))
+			{
+				continue;
+			}
+			
+			return cookie.getValue();
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * Checks if required auth details token is provided and manages expiry of token.
 	 * @param request Request
 	 * @param response Response
 	 * @return User details who is trying to invoke the action
 	 */
 	private UserDetails checkAuthenticationToken(HttpServletRequest request, HttpServletResponse response)
 	{
-		String authorizationToken = request.getHeader(IWebUtilsCommonConstants.HEADER_AUTHORIZATION_TOKEN);
+		String sessionToken = request.getHeader(IWebUtilsCommonConstants.HEADER_AUTHORIZATION_TOKEN);
 
 		//if authorization token header is not present
-		if(StringUtils.isBlank(authorizationToken))
+		if(StringUtils.isBlank(sessionToken))
 		{
 			//check if auth token is provided as request parameter (needed to support hyper links - download urls)
-			authorizationToken = request.getParameter("AUTH_TOKEN");
+			sessionToken = request.getParameter(IWebUtilsCommonConstants.HEADER_AUTHORIZATION_TOKEN);
 			
-			if(StringUtils.isBlank(authorizationToken))
+			//if auth token is not provided as request parameter also, check in cookie
+			if(StringUtils.isBlank(sessionToken))
+			{
+				sessionToken = getAuthTokenFromCookie(request);
+			}
+			
+			if(StringUtils.isBlank(sessionToken))
 			{
 				logger.debug("No auth token provided in request header");
 				sendError(response, IWebUtilsCommonConstants.RESPONSE_CODE_AUTHENTICATION_ERROR, "Authorization failed. No authorization token provided");
@@ -123,13 +172,19 @@ public class SecurityInterceptor extends HandlerInterceptorAdapter
 			}
 		}
 
-		
 		try
 		{
-			//decrypt user details
-			UserDetails userDetails = securityEncryptionService.decrypt(authorizationToken);
+			//fetch user details
+			UserDetails userDetails = sessionManagementService.getUserDetails(sessionToken);
+			
+			if(userDetails == null)
+			{
+				throw new SecurityException(IWebUtilsCommonConstants.RESPONSE_CODE_SESSION_TIMEOUT_ERROR, "Session timed out or is invalid");
+			}
 			
 			request.setAttribute(IWebUtilsInternalConstants.REQ_ATTR_USER_DETAILS, userDetails);
+			request.setAttribute(IWebUtilsInternalConstants.REQ_ATTR_SESSION_TOKEN, sessionToken);
+			
 			response.setHeader(IWebUtilsCommonConstants.HEADER_AUTHORIZATION_TOKEN, userDetails.getAuthToken());
 			
 			//set user details on context
@@ -146,7 +201,7 @@ public class SecurityInterceptor extends HandlerInterceptorAdapter
 	}
 	
 	/**
-	 * Fetches authorization annotation from handler method and checks if the user has sufficient roles to invoke the method
+	 * Fetches authorization annotation from handler method and checks if the user has sufficient roles to invoke the method.
 	 * @param userDetails User details who is trying to invoke the action
 	 * @param handlerMethod Action method being invoked
 	 * @param response Response
@@ -164,17 +219,16 @@ public class SecurityInterceptor extends HandlerInterceptorAdapter
 	}
 
 	/**
-	 * Spring prehandle method, which is used to check authorization
+	 * Spring prehandle method, which is used to check authorization.
 	 * @param request Request
 	 * @param response Response
 	 * @param handler Handler method
 	 * @return true, if authorized
-	 * @throws Exception
 	 */
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception
 	{
-		 HandlerMethod handlerMethod = (HandlerMethod)handler;
+		HandlerMethod handlerMethod = (HandlerMethod) handler;
 		 
 		//if the api call is for authentication, dont perform any authorization check
 		if(handlerMethod.getMethodAnnotation(NoAuthentication.class) != null)
@@ -204,5 +258,4 @@ public class SecurityInterceptor extends HandlerInterceptorAdapter
 		
 		return true;
 	}
-
 }

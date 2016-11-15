@@ -2,9 +2,14 @@ package com.yukthi.webutils.common.controllers;
 
 import com.yukthi.webutils.common.IWebUtilsCommonConstants;
 import com.yukthi.webutils.common.RemoteService;
+import com.yukthi.webutils.common.models.BaseResponse;
 import com.yukthi.webutils.common.models.LoginCredentials;
 import com.yukthi.webutils.common.models.LoginResponse;
 
+/**
+ * Controller interface for login and logout.
+ * @author akiran
+ */
 @RemoteService
 public interface ILoginController extends IClientController<ILoginController>
 {
@@ -16,6 +21,11 @@ public interface ILoginController extends IClientController<ILoginController>
 	 * @param credentials Credentials to be used for login
 	 * @return On success, returns auth token as part of response
 	 */
-	LoginResponse performLogin(LoginCredentials credentials);
+	public LoginResponse performLogin(LoginCredentials credentials);
 
+	/**
+	 * Logs out or invalidates the current session.
+	 * @return Success/failure response.
+	 */
+	public BaseResponse peroformLogout();
 }

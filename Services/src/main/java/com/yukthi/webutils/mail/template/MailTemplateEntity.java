@@ -98,7 +98,7 @@ public class MailTemplateEntity extends WebutilsEntity
 	 * Owner entity id.
 	 */
 	@Column(name = "OWNER_ENTITY_ID", nullable = false)
-	private Long ownerEntityId;
+	private Long ownerEntityId = 0L;
 
 	/**
 	 * Gets the name of template used for building this data object.

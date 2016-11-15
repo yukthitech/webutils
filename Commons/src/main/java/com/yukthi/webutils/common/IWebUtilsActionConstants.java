@@ -94,6 +94,11 @@ public interface IWebUtilsActionConstants
 	 * Action be be used for login operation.
 	 */
 	public String ACTION_TYPE_LOGIN = "login";
+	
+	/**
+	 * Action for log out.
+	 */
+	public String ACTION_TYPE_LOGOUT = "logout";
 
 	/**
 	 * Insecure prefix or postfix.

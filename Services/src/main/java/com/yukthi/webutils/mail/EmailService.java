@@ -10,7 +10,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -23,7 +22,6 @@ import javax.mail.Authenticator;
 import javax.mail.BodyPart;
 import javax.mail.Flags;
 import javax.mail.Folder;
-import javax.mail.Header;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
@@ -401,12 +399,11 @@ public class EmailService
 	 * @param contentType
 	 *            Content type.
 	 */
-	@SuppressWarnings("unchecked")
 	private void extractMailContent(ReceivedMailMessage mailMessage, Object content, String contentType) throws MessagingException, IOException
 	{
 		if(!contentType.toLowerCase().contains("multipart"))
 		{
-			mailMessage.addMessagePart(new ReceivedMailMessage.MessagePart(content.toString(), null));
+			mailMessage.addTextContent(content.toString());
 			return;
 		}
 
@@ -414,10 +411,6 @@ public class EmailService
 		int count = multipart.getCount();
 		BodyPart part = null;
 		File attachmentFile = null;
-		Enumeration<Header> headerEnum = null;
-		Header header = null;
-
-		ReceivedMailMessage.MessagePart messagePart = null;
 
 		for(int i = 0; i < count; i++)
 		{
@@ -430,20 +423,15 @@ public class EmailService
 
 				mailMessage.addAttachment(new ReceivedMailMessage.Attachment(attachmentFile, part.getFileName()));
 			}
-			else if(part.getContentType().toLowerCase().contains("text/html"))
+			else if(part.getContentType().toLowerCase().contains("text/html") && !mailMessage.hasContent())
 			{
 				String contentStr = IOUtils.toString(part.getInputStream());
-
-				messagePart = new ReceivedMailMessage.MessagePart(contentStr, null);
-				mailMessage.addMessagePart(messagePart);
-
-				headerEnum = part.getAllHeaders();
-
-				while(headerEnum.hasMoreElements())
-				{
-					header = headerEnum.nextElement();
-					messagePart.setHeader(header.getName(), header.getValue());
-				}
+				mailMessage.setContent(contentStr);
+			}
+			else if(part.getContentType().toLowerCase().contains("text"))
+			{
+				String contentStr = IOUtils.toString(part.getInputStream());
+				mailMessage.addTextContent(contentStr);
 			}
 		}
 	}

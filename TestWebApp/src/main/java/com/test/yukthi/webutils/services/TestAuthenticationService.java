@@ -40,6 +40,7 @@ import com.yukthi.webutils.common.models.ActiveUserModel;
 import com.yukthi.webutils.extensions.ExtensionEntityDetails;
 import com.yukthi.webutils.repository.UserEntity;
 import com.yukthi.webutils.repository.file.FileEntity;
+import com.yukthi.webutils.security.IAuthenticationService;
 import com.yukthi.webutils.security.ISecurityService;
 import com.yukthi.webutils.security.UserDetails;
 import com.yukthi.webutils.services.CurrentUserService;
@@ -49,7 +50,7 @@ import com.yukthi.webutils.services.CurrentUserService;
  *
  */
 @Service
-public class TestAuthenticationService implements ISecurityService
+public class TestAuthenticationService implements ISecurityService, IAuthenticationService
 {
 	/** The user service. */
 	@Autowired

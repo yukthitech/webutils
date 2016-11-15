@@ -21,12 +21,14 @@
  * SOFTWARE.
  */
 
-package com.yukthi.webutils.controllers;
+package com.yukthi.webutils.security;
 
 import static com.yukthi.webutils.common.IWebUtilsActionConstants.ACTION_TYPE_ACTIVE_USER;
 import static com.yukthi.webutils.common.IWebUtilsActionConstants.ACTION_TYPE_AUTH;
 import static com.yukthi.webutils.common.IWebUtilsActionConstants.ACTION_TYPE_LOGIN;
+import static com.yukthi.webutils.common.IWebUtilsActionConstants.ACTION_TYPE_LOGOUT;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
@@ -39,21 +41,20 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.yukthi.webutils.IWebUtilsInternalConstants;
 import com.yukthi.webutils.annotations.ActionName;
 import com.yukthi.webutils.annotations.NoAuthentication;
 import com.yukthi.webutils.common.IWebUtilsCommonConstants;
 import com.yukthi.webutils.common.controllers.ILoginController;
 import com.yukthi.webutils.common.models.ActiveUserModel;
+import com.yukthi.webutils.common.models.BaseResponse;
 import com.yukthi.webutils.common.models.BasicReadResponse;
 import com.yukthi.webutils.common.models.LoginCredentials;
 import com.yukthi.webutils.common.models.LoginResponse;
-import com.yukthi.webutils.security.ISecurityService;
-import com.yukthi.webutils.security.SecurityEncryptionService;
-import com.yukthi.webutils.security.UserDetails;
-import com.yukthi.webutils.utils.WebUtils;
+import com.yukthi.webutils.controllers.BaseController;
 
 /**
- * Controller to perform login operation
+ * Controller to perform login operation.
  * @author akiran
  */
 @RestController
@@ -64,22 +65,34 @@ public class LoginController extends BaseController implements ILoginController
 	private static Logger logger = LogManager.getLogger(LoginController.class);
 	
 	/**
-	 * Webapp specific authentication service
+	 * Webapp specific authentication service.
 	 */
 	@Autowired
-	private ISecurityService authenticationService;
-
-	/**
-	 * Encryption service to generate auth token
-	 */
-	@Autowired
-	private SecurityEncryptionService securityEncryptionService;
+	private IAuthenticationService authenticationService;
 	
+	/**
+	 * Security service to get active user.
+	 */
+	@Autowired
+	private ISecurityService securityService;
+
 	/**
 	 * Current http response.
 	 */
 	@Autowired
 	private HttpServletResponse response;
+	
+	/**
+	 * Current http request.
+	 */
+	@Autowired
+	private HttpServletRequest request;
+	
+	/**
+	 * To manage sessions.
+	 */
+	@Autowired
+	private SessionManagementService sessionManagementService;
 	
 	/* (non-Javadoc)
 	 * @see com.yukthi.webutils.controllers.ILoginController#performLogin(com.yukthi.webutils.common.models.LoginCredentials)
@@ -91,20 +104,22 @@ public class LoginController extends BaseController implements ILoginController
 	@RequestMapping(value = IWebUtilsCommonConstants.LOGIN_URI_PATH, method = RequestMethod.POST)
 	public LoginResponse performLogin(@RequestBody @Valid LoginCredentials credentials)
 	{
-		logger.debug("Trying to peform login operation for user - {}", credentials.getUserName());
+		logger.trace("Trying to peform login operation for user - {}", credentials.getUserName());
 		
 		UserDetails userDetails = authenticationService.authenticate(credentials.getUserName(), credentials.getPassword(), credentials.getAttributes());
 		
 		if(userDetails == null)
 		{
-			logger.error("Authentication failed");
+			logger.error("Authentication failed for user: - {}", credentials.getUserName());
+			
 			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			return new LoginResponse(IWebUtilsCommonConstants.RESPONSE_CODE_AUTHENTICATION_ERROR, "Authentication failed!");
 		}
 		
-		logger.debug("Authentication successful");
-		userDetails.setSessionStartTime(WebUtils.currentTimeInMin());
-		return new LoginResponse(securityEncryptionService.encrypt(userDetails), userDetails.getUserId());
+		logger.trace("Authentication successful");
+		
+		String sessionToken = sessionManagementService.startSession(userDetails);
+		return new LoginResponse(sessionToken, userDetails.getUserId());
 	}
 
 	/**
@@ -116,8 +131,26 @@ public class LoginController extends BaseController implements ILoginController
 	@RequestMapping(value = IWebUtilsCommonConstants.FETCH_USER_PATH, method = RequestMethod.GET)
 	public BasicReadResponse<ActiveUserModel> activeUser()
 	{
-		logger.debug("Trying to fetch active user details");
+		logger.trace("Trying to fetch active user details");
 		
-		return new BasicReadResponse<>(authenticationService.getActiverUser());
+		return new BasicReadResponse<>(securityService.getActiverUser());
+	}
+
+	@Override
+	@ResponseBody
+	@ActionName(ACTION_TYPE_LOGOUT)
+	@RequestMapping(value = IWebUtilsCommonConstants.LOGOUT_URI_PATH, method = RequestMethod.POST)
+	public BaseResponse peroformLogout()
+	{
+		String currentSessionToken = (String) request.getAttribute(IWebUtilsInternalConstants.REQ_ATTR_SESSION_TOKEN);
+		
+		if(currentSessionToken == null)
+		{
+			logger.warn("No session token found on request during logout. Ignoring logout call and returning success.");
+			return new BaseResponse();
+		}
+		
+		sessionManagementService.clearSession(currentSessionToken);
+		return new BaseResponse();
 	}
 }

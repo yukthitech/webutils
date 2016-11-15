@@ -20,9 +20,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package com.yukthi.webutils.services.job;
 
 import java.text.ParseException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.PostConstruct;
@@ -33,6 +36,7 @@ import org.quartz.CronScheduleBuilder;
 import org.quartz.JobBuilder;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
+import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
@@ -72,6 +76,12 @@ public class JobService
 	
 	@Autowired
 	private ClassScannerService classScannerService;
+	
+	/**
+	 * The job name job detail, contains all the job name and job details for
+	 * scheduling the job.
+	 */
+	private Map<String, JobKey> nameToKey = new HashMap<>();	
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@PostConstruct
@@ -161,9 +171,34 @@ public class JobService
 		try
 		{
 			scheduler.scheduleJob(job, trigger);
+			nameToKey.put(jobDetails.getName(), job.getKey());
 		}catch(Exception ex)
 		{
 			throw new InvalidStateException(ex, "An error occurred while scheduling job - {}", jobDetails);
+		}
+	}
+	
+	/**
+	 * Executes the specified job on demand.
+	 *
+	 * @param jobName Name of the job to execute.
+	 */
+	public void executeJob(String jobName)
+	{
+		JobKey jobKey = nameToKey.get(jobName);
+
+		if(jobKey == null)
+		{
+			throw new InvalidArgumentException("An error occured while executing job - {},  JobKey is null", jobName);
+		}
+
+		//trigger the job immediately
+		try
+		{
+			scheduler.triggerJob(jobKey);
+		} catch(Exception ex)
+		{
+			throw new InvalidStateException(ex, "An error occurred while scheduling job - {}", jobName);
 		}
 	}
 }

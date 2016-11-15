@@ -43,6 +43,7 @@ import com.yukthi.webutils.IWebUtilsInternalConstants;
 import com.yukthi.webutils.WebutilsConfiguration;
 import com.yukthi.webutils.annotations.RegistryMethod;
 import com.yukthi.webutils.repository.WebutilsEntity;
+import com.yukthi.webutils.security.ISessionRepository;
 import com.yukthi.webutils.repository.IWebutilsRepository;
 import com.yukthi.webutils.repository.RepositoryContext;
 import com.yukthi.webutils.services.dynamic.DynamicMethod;
@@ -129,6 +130,13 @@ public class RepositoryLoader
 			
 			if( !IWebutilsRepository.class.isAssignableFrom(type) )
 			{
+				if(ISessionRepository.class.equals(type))
+				{
+					repository = repositoryFactory.getRepository((Class) type);
+					repository.setExecutionContext(repositoryContext);
+					continue;
+				}
+				
 				throw new InvalidStateException("Found repository which is of non webutils repository type - {}", type.getName());
 			}
 			

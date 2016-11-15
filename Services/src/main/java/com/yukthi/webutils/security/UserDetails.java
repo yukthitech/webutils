@@ -27,32 +27,22 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * User details representing current user, which is used by security services
+ * User details representing current user, which is used by security services.
  * 
  * @author akiran
  */
 public class UserDetails
 {
 	/**
-	 * Unique user id
+	 * Unique user id.
 	 */
 	private long userId;
 
 	/**
-	 * Encrypted authentication/authorization token
+	 * Encrypted authentication/authorization token.
 	 */
 	private String authToken;
 	
-	/**
-	 * Time when session is started
-	 */
-	private long sessionStartTime;
-	
-	/**
-	 * Time stamp when current token is created in minutes
-	 */
-	private long timeStamp;
-
 	/**
 	 * Instantiates a new user details.
 	 */
@@ -92,7 +82,7 @@ public class UserDetails
 		this.userId = userId;
 	}
 
-/**
+	/**
 	 * Gets the encrypted authentication/authorization token.
 	 *
 	 * @return the encrypted authentication/authorization token
@@ -112,47 +102,5 @@ public class UserDetails
 	public void setAuthToken(String authToken)
 	{
 		this.authToken = authToken;
-	}
-
-	/**
-	 * Gets the time when session is started.
-	 *
-	 * @return the time when session is started
-	 */
-	@JsonProperty("st")
-	public long getSessionStartTime()
-	{
-		return sessionStartTime;
-	}
-
-	/**
-	 * Sets the time when session is started.
-	 *
-	 * @param sessionStartTime the new time when session is started
-	 */
-	public void setSessionStartTime(long sessionStartTime)
-	{
-		this.sessionStartTime = sessionStartTime;
-	}
-
-	/**
-	 * Gets the time stamp when current token is created in minutes.
-	 *
-	 * @return the time stamp when current token is created in minutes
-	 */
-	@JsonProperty("t")
-	public long getTimeStamp()
-	{
-		return timeStamp;
-	}
-
-	/**
-	 * Sets the time stamp when current token is created in minutes.
-	 *
-	 * @param timeStamp the new time stamp when current token is created in minutes
-	 */
-	public void setTimeStamp(long timeStamp)
-	{
-		this.timeStamp = timeStamp;
 	}
 }

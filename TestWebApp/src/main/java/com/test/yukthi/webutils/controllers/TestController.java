@@ -156,7 +156,7 @@ public class TestController extends BaseController implements ITestController
 			@Override
 			public void process(IMailProcessingContext context, ReceivedMailMessage mailMessage)
 			{
-				mails.add(new TestMailModel(mailMessage.getSubject(), mailMessage.getMessageParts().get(0).getContent(), mailMessage.getFromMailId()));
+				mails.add(new TestMailModel(mailMessage.getSubject(), mailMessage.getContent(), mailMessage.getFromMailId()));
 				context.delete();
 			}
 		};

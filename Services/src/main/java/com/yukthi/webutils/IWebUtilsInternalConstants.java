@@ -24,7 +24,7 @@
 package com.yukthi.webutils;
 
 /**
- * Constants used by webutils internally
+ * Constants used by webutils internally.
  * @author akiran
  */
 public interface IWebUtilsInternalConstants
@@ -37,9 +37,14 @@ public interface IWebUtilsInternalConstants
 	public String EXTENSIONS_REPO_BASE_PACKAGE = "com.yukthi.webutils.repository.extensions";
 	
 	/**
-	 * Request attribute to maintian current user details
+	 * Request attribute to maintain current user details.
 	 */
 	public String REQ_ATTR_USER_DETAILS = "request.userDetails";
+	
+	/**
+	 * Request attribute name to maintain current session token.
+	 */
+	public String REQ_ATTR_SESSION_TOKEN = "request.sessionToken";
 	
 	public String CONTEXT_ATTR_CURRENT_USER = "currentUser";
 	

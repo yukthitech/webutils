@@ -20,6 +20,8 @@ import org.springframework.stereotype.Service;
 import com.yukthi.utils.CommonUtils;
 import com.yukthi.utils.exceptions.InvalidStateException;
 import com.yukthi.webutils.common.models.mails.MailTemplateConfiguration;
+import com.yukthi.webutils.notification.NotificationService;
+import com.yukthi.webutils.notification.NotificationType;
 import com.yukthi.webutils.services.ClassScannerService;
 
 /**
@@ -44,6 +46,12 @@ public class MailTemplateConfigService
 	 */
 	@Autowired
 	private ClassScannerService classScannerService;
+	
+	/**
+	 * notification service to register mail configuration of notification types.
+	 */
+	@Autowired
+	private NotificationService notificationService;
 	
 	/**
 	 * Post construct method used to load configurations.
@@ -77,6 +85,13 @@ public class MailTemplateConfigService
 			
 			nameToConfig.put(newConfig.getName(), newConfig);
 			typeToConfig.put(type, newConfig);
+			
+			//if mail config represents notification
+			if(mailTemplateConfig.notification())
+			{
+				notificationService.registerNotficationType(new NotificationType(newConfig.getName(), newConfig.getDescription(), 
+					mailTemplateConfig.optional(), mailTemplateConfig.enabledByDefault()));
+			}
 		}
 	}
 	
