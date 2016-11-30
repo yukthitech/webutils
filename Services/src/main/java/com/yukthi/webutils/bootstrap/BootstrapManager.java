@@ -39,8 +39,8 @@ import com.yukthi.webutils.repository.WebutilsEntity;
 import com.yukthi.webutils.security.ISecurityService;
 import com.yukthi.webutils.security.UserDetails;
 import com.yukthi.webutils.services.CurrentUserService;
-import com.yukthi.webutils.services.FreeMarkerService;
 import com.yukthi.webutils.services.UserService;
+import com.yukthi.webutils.services.freemarker.FreeMarkerService;
 import com.yukthi.webutils.utils.WebUtils;
 
 /**

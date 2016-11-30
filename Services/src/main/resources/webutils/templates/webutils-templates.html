@@ -1358,39 +1358,6 @@
 		</content>
 	</directive>
 
-	<directive name="ykDateField" required-attr="name, label, ng-model">
-		<content>
-			<set-var name="_readOnly" 
-				expr="context.attr('yk-read-only')? context.attr('yk-read-only') : 'false'"/>
-			<set-var name="_onChange" 
-				expr="context.attr('ng-change')? context.attr('ng-change') : ''"/>
-
-			<div class="form-group" style="margin-bottom: 0px;">
-				<div class="model-form-date input-group date">
-					<input type="text" class="form-control" name="${attr('name')}" placeholder="${attr('label')}" 
-						ng-model="${attr('ng-model')}" yk-read-only="${_readOnly}" ng-change="${_onChange}"></input>
-					<span class="input-group-addon">
-						<span class="glyphicon glyphicon-calendar"></span>
-					</span>
-				</div>
-			</div>								
-		</content>
-
-		<post-script>
-			var dateFormat = context.$scope.activeUser.jsDateFormat;
-			var element = $(context.$result).find("div.date");
-			element = $(element);
-			
-			element.datetimepicker({
-				"format" : dateFormat
-			});
-			
-			element.off("dp.change").on("dp.change", $.proxy(function(event){
-				this.element.find("input").trigger("change");
-			}, {"element": element, "$scope" : context.$scope}));
-		</post-script>
-	</directive>
-	
 	<directive name="ykColorField" required-attr="name, ng-model">
 		<content>
 			<set-var name="_readOnly" 
@@ -1567,60 +1534,6 @@
 		</script>
 	</attr-directive>
 
-	<!--
-		Adds ng-repeat with same expression as this attribute value. In some cases ng-repeat may get compiled into a comment which 
-		may get removed during directive processing. In order to retain ng-repeat this attribute directive can be used  
-	 -->
-	 <!--  
-	<attr-directive name="ykRepeat">
-		<script>
-			var repeatExpr = context.attributeValue;
-			context.element.attr("ng-repeat", repeatExpr);
-		</script>
-	</attr-directive>
-
-	<attr-directive name="ykRepeatStart">
-		<script>
-			var repeatExpr = context.attributeValue;
-			context.element.attr("ng-repeat-start", repeatExpr);
-		</script>
-	</attr-directive>
-
-	<attr-directive name="ykIf">
-		<script>
-			var repeatExpr = context.attributeValue;
-			context.element.attr("ng-if", repeatExpr);
-		</script>
-	</attr-directive>
-
-	<attr-directive name="ykClick">
-		<script>
-			var repeatExpr = context.attributeValue;
-			context.element.attr("ng-click", repeatExpr);
-		</script>
-	</attr-directive>
-
-	<attr-directive name="ykRepeatEnd">
-		<script>
-			var repeatExpr = context.attributeValue;
-			context.element.attr("ng-repeat-end", "");
-		</script>
-	</attr-directive>
-
-	<attr-directive name="ykShow">
-		<script>
-			var showExpr = context.attributeValue;
-			context.element.attr("ng-show", showExpr);
-		</script>
-	</attr-directive>
-
-	<attr-directive name="ykBind">
-		<script>
-			var bindExpr = context.attributeValue;
-			context.element.attr("ng-bind", bindExpr);
-		</script>
-	</attr-directive>
-	-->
 	
 	<!--
 		Used to inject dynamic html 
@@ -1896,6 +1809,48 @@
 				var $event = e;
 				eval("this.$scope." + expr);
 			}, {"element": targetElem, "$scope" : context.$scope, "actionHelper" : context.actionHelper}));
+		</script>
+	</attr-directive>
+
+	<!--
+		Used to dynamic expression for max height. The attribute value can have ${} expressions which will be evaluated dynamically.
+		After replacing the expressions, end result will be encapsulated in calc() css expression and will be added to element.
+		The expressions will be evaluated every time document resize occurs.
+		Following are the list of variables available in expressions
+		
+		"$this" 	Represents current element in jquery form.
+	 -->
+	<attr-directive name="ykMaxHeight">
+		<script>
+			var eventDataObj = {"element": context.element, "expression": context.attributeValue};
+			
+			var eventHandler = function(eventData){
+				var $this = eventData.element;
+				
+				var pattern = /\${1,2}\{(.+)\}/g;
+				
+				console.log("Event data: ", eventData);
+				
+				var res = eventData.expression.replace(pattern, function(match, p1){
+					if(match.indexOf("$$") == 0)
+				    {
+						return match.substr(1);
+				    }
+
+					var val = eval(p1);
+					
+					return val;
+				});
+				
+				console.log("Got result as: " + res);
+				$this.css("max-height", "calc(" + res + ")");
+			};
+			
+			//register event handler on window resize
+			$(window).resize(eventDataObj, eventHandler);
+
+			//call event handler explicitly, so that for default height max-height is set
+			eventHandler(eventDataObj);
 		</script>
 	</attr-directive>
 

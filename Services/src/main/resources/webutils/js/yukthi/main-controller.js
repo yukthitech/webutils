@@ -48,8 +48,11 @@ $.application.controller('mainController', ["$scope", "$rootScope", "logger", "a
 		}
 		
 		$scope.currentState = $state.current;
-		
 	});
+	
+	$scope.getCurrentState = function() {
+		return $scope.currentState;
+	};
 	
 	$scope.hasRole = function(roleName) {
 		if(!$scope.activeUser)

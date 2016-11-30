@@ -1,4 +1,4 @@
-$.application = angular.module("application", ["ngSanitize", "ui.router"]);
+$.application = angular.module("application", ["ngSanitize", "ui.router", "ngCookies"]);
 $.application["directiveTemplateEngine"] = new TemplateEngine();
 
 $.application.filter('unsafe', ["$sce", function($sce) { 

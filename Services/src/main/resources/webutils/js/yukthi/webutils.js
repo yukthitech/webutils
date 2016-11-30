@@ -443,7 +443,7 @@ $.application.factory('logger', ["utils", function(utils){
  * This service provides context behaviour for APIs. Maintains the context
  * across the api calls on client side.
  */
-$.application.factory('clientContext', ['logger', 'utils', function(logger, utils) {
+$.application.factory('clientContext', ['logger', 'utils', '$cookies', function(logger, utils, $cookies) {
 	var clientContext = {
 		/**
 		 * Maintains the auth token that needs to be sent to server
@@ -688,6 +688,11 @@ $.application.factory('clientContext', ['logger', 'utils', function(logger, util
 			this.authAttributes[name] = value;
 		},
 		
+		"clearSession" : function() {
+			$cookies.remove("AUTH_TOKEN");
+			localStorage.removeItem("AUTH_TOKEN");
+		},
+		
 		/**
 		 * Tries to authenticate the context with specified 
 		 * user name and password. On error, exception will be thrown
@@ -732,6 +737,8 @@ $.application.factory('clientContext', ['logger', 'utils', function(logger, util
 	    			//store the auth token in local storage, so that token is available
 					// across page refreshes
 					localStorage.setItem("authToken", resData.authToken);
+					$cookies.put("AUTH_TOKEN", resData.authToken, {"path": "/"});
+					
 					clientContext.authToken = authResponse.authToken;
 				},
 				

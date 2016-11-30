@@ -23,8 +23,8 @@
 
 package com.yukthi.webutils.repository;
 
+import com.yukthi.persistence.repository.annotations.AggregateFunction;
 import com.yukthi.persistence.repository.annotations.Condition;
-import com.yukthi.persistence.repository.annotations.CountFunction;
 import com.yukthi.persistence.repository.annotations.Field;
 import com.yukthi.webutils.annotations.RestrictBySpace;
 
@@ -57,7 +57,7 @@ public interface IExtensionRepository extends IWebutilsRepository<ExtensionEntit
 	 * @param name Name to be checked.
 	 * @return True if its valid extension.
 	 */
-	@CountFunction
+	@AggregateFunction
 	@RestrictBySpace
 	public boolean isValidExtension(@Condition("name") String name);
 	

@@ -1,7 +1,7 @@
 package com.yukthi.webutils.repository;
 
+import com.yukthi.persistence.repository.annotations.AggregateFunction;
 import com.yukthi.persistence.repository.annotations.Condition;
-import com.yukthi.persistence.repository.annotations.CountFunction;
 import com.yukthi.persistence.repository.annotations.DefaultCondition;
 import com.yukthi.persistence.repository.annotations.Field;
 import com.yukthi.persistence.repository.annotations.MethodConditions;
@@ -24,7 +24,7 @@ public interface IUserRepository extends IWebutilsRepository<UserEntity>
 	 * @return 0 if user is not present otherwise 1
 	 */
 	@MethodConditions(conditions = { @DefaultCondition(field = "deleted", value = "false") })
-	@CountFunction
+	@AggregateFunction
 	public int checkForUser(@Condition("userName") String userName, @Condition("spaceIdentity") String userSpace);
 
 	/**

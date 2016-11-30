@@ -51,7 +51,7 @@ import com.yukthi.webutils.common.models.mails.EmailServerSettings;
 import com.yukthi.webutils.common.models.mails.MailTemplateConfiguration;
 import com.yukthi.webutils.mail.template.MailTemplateConfigService;
 import com.yukthi.webutils.mail.template.MailTemplateEntity;
-import com.yukthi.webutils.services.FreeMarkerService;
+import com.yukthi.webutils.services.freemarker.FreeMarkerService;
 
 /**
  * Service to send and receive mails.

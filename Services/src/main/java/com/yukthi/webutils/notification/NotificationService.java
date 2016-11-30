@@ -34,23 +34,23 @@ import com.yukthi.webutils.repository.UserEntity;
 public class NotificationService
 {
 	private static Logger logger = LogManager.getLogger(NotificationService.class);
-	
+
 	/**
 	 * Repository factory to fetch repository.
 	 */
 	@Autowired
 	private RepositoryFactory repositoryFactory;
-	
+
 	/**
 	 * User notification repository.
 	 */
 	private IUserNotificationRepository userNotificationRepository;
-	
+
 	/**
 	 * Map maintaining notification types.
 	 */
 	private Map<String, NotificationType> nameToType = new HashMap<>();
-	
+
 	/**
 	 * Post construct method to initialize repository.
 	 */
@@ -59,20 +59,30 @@ public class NotificationService
 	{
 		userNotificationRepository = repositoryFactory.getRepository(IUserNotificationRepository.class);
 	}
-	
+
 	/**
 	 * Registers specified notification type.
-	 * @param notificationType Type to register.
+	 * 
+	 * @param notificationType
+	 *            Type to register.
 	 */
 	public void registerNotficationType(NotificationType notificationType)
 	{
+		if(!notificationType.isOptional())
+		{
+			notificationType.setDefaultEnabled(true);
+		}
+
 		nameToType.put(notificationType.getName(), notificationType);
 	}
-	
+
 	/**
 	 * Sets the specified notification types for specified user.
-	 * @param userId User for which notifications has to be set.
-	 * @param notifications Notifications to be set.
+	 * 
+	 * @param userId
+	 *            User for which notifications has to be set.
+	 * @param notifications
+	 *            Notifications to be set.
 	 */
 	public void setUserPrefereneces(long userId, List<NotificationSetting> notifications)
 	{
@@ -80,60 +90,65 @@ public class NotificationService
 		{
 			UserEntity userEntity = new UserEntity(userId);
 			NotificationType notificationType = null;
-			
-			//add new preferences
+
+			// add new preferences
 			for(NotificationSetting setting : notifications)
 			{
 				notificationType = nameToType.get(setting.getNotificationType());
-				
+
 				if(!notificationType.isOptional())
 				{
 					continue;
 				}
-				
+
 				if(!userNotificationRepository.updateUserPreference(setting.getNotificationType(), userId, setting.isEnabled()))
 				{
-					if(!userNotificationRepository.save( new UserNotificationEntity(userEntity, setting.getNotificationType(), setting.isEnabled()) ))
+					if(!userNotificationRepository.save(new UserNotificationEntity(userEntity, setting.getNotificationType(), setting.isEnabled())))
 					{
 						throw new InvalidStateException("Failed to set notification setting for type '{}' for user with id - {}", setting.getNotificationType(), userId);
 					}
 				}
 			}
-		}catch(TransactionException ex)
+			
+			transaction.commit();
+		} catch(TransactionException ex)
 		{
 			logger.error("An error occurred while setting user preferences for notification", ex);
 			throw new InvalidStateException(ex, "An error occurred while setting user preferences");
 		}
 	}
-	
+
 	/**
-	 * Fetches user preferences for notifications filling gaps for missing notifications with default enablement.
-	 * @param userId User id for which settings needs to be fetched.
+	 * Fetches user preferences for notifications filling gaps for missing
+	 * notifications with default enablement.
+	 * 
+	 * @param userId
+	 *            User id for which settings needs to be fetched.
 	 * @return Matching notification settings.
 	 */
 	public List<NotificationModel> getUserPreferences(long userId)
 	{
 		List<NotificationModel> settings = userNotificationRepository.fetchNotificationsForUser(userId);
-		
+
 		if(settings == null)
 		{
 			settings = Collections.emptyList();
 		}
-		
+
 		Map<String, NotificationModel> typeToModel = settings.stream()
-			.collect(Collectors.<NotificationModel, String, NotificationModel>toMap(model -> model.getNotificationType(), model -> model));
-		
+				.collect(Collectors.<NotificationModel, String, NotificationModel>toMap(model -> model.getNotificationType(), model -> model));
+
 		NotificationType notificationType = null;
 		NotificationModel notificationModel = null;
-		
+
 		for(String type : nameToType.keySet())
 		{
 			notificationType = nameToType.get(type);
 			notificationModel = typeToModel.get(type);
-			
+
 			if(notificationModel == null)
 			{
-				typeToModel.put( type, new NotificationModel(type, notificationType.isDefaultEnabled(), notificationType.isOptional(), notificationType.getDescription()) );
+				typeToModel.put(type, new NotificationModel(type, notificationType.isDefaultEnabled(), notificationType.isOptional(), notificationType.getDescription()));
 			}
 			else
 			{
@@ -141,51 +156,54 @@ public class NotificationService
 				notificationModel.setOptional(notificationType.isOptional());
 			}
 		}
-		
+
 		return new ArrayList<>(typeToModel.values());
 	}
-	
+
 	/**
 	 * Filters users for specified notification type.
-	 * @param notificationTypeName Type for which filtering needs to be done.
-	 * @param userIds User ids for which notification can be sent.
+	 * 
+	 * @param notificationTypeName
+	 *            Type for which filtering needs to be done.
+	 * @param userIds
+	 *            User ids for which notification can be sent.
 	 * @return Filtered user ids based on user preferences.
 	 */
 	public Set<Long> filterUsersForNotification(String notificationTypeName, Collection<Long> userIds)
 	{
 		List<NotificationSettingResult> filteredUsers = userNotificationRepository.fetchFilterUsers(notificationTypeName, userIds);
-		
-		//if no user customizations found in db for this notification type 
+
+		// if no user customizations found in db for this notification type
 		if(filteredUsers == null || filteredUsers.isEmpty())
 		{
 			filteredUsers = Collections.emptyList();
 		}
-		
-		Map<Long, NotificationSettingResult> resMap = filteredUsers.stream().collect(
-				Collectors.<NotificationSettingResult, Long, NotificationSettingResult>toMap(setting -> setting.getUserId(), setting -> setting));
-		
+
+		Map<Long, NotificationSettingResult> resMap = filteredUsers.stream()
+			.collect(Collectors.<NotificationSettingResult, Long, NotificationSettingResult>toMap(setting -> setting.getUserId(), setting -> setting));
+
 		Set<Long> filteredUserIds = new HashSet<>();
 		NotificationType notificationType = nameToType.get(notificationTypeName);
-		
+
 		for(Long userId : userIds)
 		{
-			//if user does not have setting for this notification
+			// if user does not have setting for this notification
 			if(!resMap.containsKey(userId))
 			{
 				if(notificationType.isDefaultEnabled() || !notificationType.isOptional())
 				{
 					filteredUserIds.add(userId);
 				}
-				
+
 				continue;
 			}
-			
+
 			if(resMap.get(userId).isEnabled())
 			{
 				filteredUserIds.add(userId);
 			}
 		}
-		
+
 		return filteredUserIds;
 	}
 }
