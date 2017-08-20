@@ -37,6 +37,11 @@ public class UserDetails
 	 * Unique user id.
 	 */
 	private long userId;
+	
+	/**
+	 * Type of the user.
+	 */
+	private String userType;
 
 	/**
 	 * Encrypted authentication/authorization token.
@@ -102,5 +107,25 @@ public class UserDetails
 	public void setAuthToken(String authToken)
 	{
 		this.authToken = authToken;
+	}
+
+	/**
+	 * Gets the type of the user.
+	 *
+	 * @return the type of the user
+	 */
+	public String getUserType()
+	{
+		return userType;
+	}
+
+	/**
+	 * Sets the type of the user.
+	 *
+	 * @param userType the new type of the user
+	 */
+	public void setUserType(String userType)
+	{
+		this.userType = userType;
 	}
 }

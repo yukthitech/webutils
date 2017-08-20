@@ -79,6 +79,20 @@ public class UserEntity extends WebutilsEntity
 	private Long baseEntityId;
 	
 	/**
+	 * Owner entity type under which this user is getting created.
+	 */
+	@NotUpdateable
+	@Column(name = "OWNER_ENT_TYPE", length = 200)
+	private String  ownerEntityType;
+	
+	/**
+	 * Owner entity id under which this user is getting created.
+	 */
+	@NotUpdateable
+	@Column(name = "OWNER_ENT_ID")
+	private Long ownerEntityId;
+
+	/**
 	 * Flag indicating if this user is deleting.
 	 */
 	@Column(name = "DELETED")
@@ -232,5 +246,45 @@ public class UserEntity extends WebutilsEntity
 	public void setDeleted(boolean deleted)
 	{
 		this.deleted = deleted;
+	}
+
+	/**
+	 * Gets the owner entity type under which this user is getting created.
+	 *
+	 * @return the owner entity type under which this user is getting created
+	 */
+	public String getOwnerEntityType()
+	{
+		return ownerEntityType;
+	}
+
+	/**
+	 * Sets the owner entity type under which this user is getting created.
+	 *
+	 * @param ownerEntityType the new owner entity type under which this user is getting created
+	 */
+	public void setOwnerEntityType(String ownerEntityType)
+	{
+		this.ownerEntityType = ownerEntityType;
+	}
+
+	/**
+	 * Gets the owner entity id under which this user is getting created.
+	 *
+	 * @return the owner entity id under which this user is getting created
+	 */
+	public Long getOwnerEntityId()
+	{
+		return ownerEntityId;
+	}
+
+	/**
+	 * Sets the owner entity id under which this user is getting created.
+	 *
+	 * @param ownerEntityId the new owner entity id under which this user is getting created
+	 */
+	public void setOwnerEntityId(Long ownerEntityId)
+	{
+		this.ownerEntityId = ownerEntityId;
 	}
 }

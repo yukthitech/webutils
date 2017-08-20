@@ -32,26 +32,27 @@ import java.util.Set;
  */
 public class ActiveUserModel
 {
+	
 	/**
-	 * Current user id
+	 * Current user id.
 	 */
 	private long userId;
 
 	/**
-	 * Display name of current user
+	 * Display name of current user.
 	 */
 	private String displayName;
 
 	/**
-	 * Preferred date format of the user
+	 * Preferred date format of the user.
 	 */
 	private String jsDateFormat;
 
 	/**
-	 * High level roles of the user
+	 * High level roles of the user.
 	 */
 	private Set<? extends Enum<?>> roles;
-
+	
 	/**
 	 * Gets the current user id.
 	 *
@@ -135,5 +136,4 @@ public class ActiveUserModel
 	{
 		this.roles = roles;
 	}
-
 }
