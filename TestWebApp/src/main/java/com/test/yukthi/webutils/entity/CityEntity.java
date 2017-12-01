@@ -4,7 +4,7 @@ import javax.persistence.Column;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import com.yukthi.webutils.repository.WebutilsEntity;
+import com.yukthitech.webutils.repository.WebutilsEntity;
 
 /**
  * The Class CityEntity.

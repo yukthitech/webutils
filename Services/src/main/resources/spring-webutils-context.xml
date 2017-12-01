@@ -25,10 +25,10 @@
 	</mvc:annotation-driven>
 
 	<context:annotation-config/>
-	<context:component-scan base-package="com.yukthi" />
+	<context:component-scan base-package="com.yukthitech" />
 
 	<mvc:interceptors>
-		<bean class="com.yukthi.webutils.security.SecurityInterceptor">
+		<bean class="com.yukthitech.webutils.security.SecurityInterceptor">
 		</bean>
 	</mvc:interceptors>
 	
@@ -40,7 +40,7 @@
 		class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
 		<property name="basenames">
 			<value>classpath:labels-*</value>
-		</property>
+		</property>	
 	</bean>
 
 	<bean id="validatorMessageSource"
@@ -82,7 +82,7 @@
 	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver" />
 
 	<!--  
-	<bean id="emailServiceConfig" class="com.yukthi.webutils.mail.EmailServiceConfiguration">
+	<bean id="emailServiceConfig" class="com.yukthitech.webutils.mail.EmailServiceConfiguration">
 		<property name="smtpHost" value="${webutils.mail.smtp.host}"/>
 		<property name="smtpPort" value="${webutils.mail.smtp.port}"/>
 		<property name="useAuthentication" value="${webutils.mail.smtp.useAuth:true}"/>
@@ -91,7 +91,6 @@
 		<property name="enableTtls" value="${webutils.mail.smtp.enableTtls:false}"/>
 	</bean>
 	-->
-
 
 	<aop:aspectj-autoproxy/>
 

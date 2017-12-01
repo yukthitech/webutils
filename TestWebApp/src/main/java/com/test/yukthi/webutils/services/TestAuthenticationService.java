@@ -35,15 +35,15 @@ import org.springframework.stereotype.Service;
 import com.test.yukthi.webutils.Authorization;
 import com.test.yukthi.webutils.SecurityRole;
 import com.test.yukthi.webutils.TestUserDetails;
-import com.yukthi.utils.CommonUtils;
-import com.yukthi.webutils.common.models.ActiveUserModel;
-import com.yukthi.webutils.extensions.ExtensionEntityDetails;
-import com.yukthi.webutils.repository.UserEntity;
-import com.yukthi.webutils.repository.file.FileEntity;
-import com.yukthi.webutils.security.IAuthenticationService;
-import com.yukthi.webutils.security.ISecurityService;
-import com.yukthi.webutils.security.UserDetails;
-import com.yukthi.webutils.services.CurrentUserService;
+import com.yukthitech.utils.CommonUtils;
+import com.yukthitech.webutils.common.models.ActiveUserModel;
+import com.yukthitech.webutils.extensions.ExtensionEntityDetails;
+import com.yukthitech.webutils.repository.UserEntity;
+import com.yukthitech.webutils.repository.file.FileEntity;
+import com.yukthitech.webutils.security.IAuthenticationService;
+import com.yukthitech.webutils.security.ISecurityService;
+import com.yukthitech.webutils.security.UserDetails;
+import com.yukthitech.webutils.services.CurrentUserService;
 
 /**
  * @author akiran
@@ -63,9 +63,6 @@ public class TestAuthenticationService implements ISecurityService, IAuthenticat
 	@Autowired
 	private HttpServletRequest request;
 	
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.security.ISecurityService#authenticate(java.lang.String, java.lang.String, java.util.Map)
-	 */
 	@Override
 	public TestUserDetails authenticate(String userName, String password, Map<String, String> attrMap)
 	{
@@ -77,9 +74,6 @@ public class TestAuthenticationService implements ISecurityService, IAuthenticat
 		return new TestUserDetails(userService.getUserId(), CommonUtils.toSet(SecurityRole.ADMIN, SecurityRole.CLIENT_ADMIN), 4321L);
 	}
 
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.security.ISecurityService#isAuthorized(com.yukthi.webutils.security.UserDetails, java.lang.reflect.Method)
-	 */
 	@Override
 	public boolean isAuthorized(Method method)
 	{
@@ -106,35 +100,23 @@ public class TestAuthenticationService implements ISecurityService, IAuthenticat
 		return false;
 	}
 
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.security.ISecurityService#isExtensionAuthorized(com.yukthi.webutils.security.UserDetails, com.yukthi.webutils.extensions.ExtensionPointDetails)
-	 */
 	@Override
 	public boolean isExtensionAuthorized(ExtensionEntityDetails extensionPoint)
 	{
 		return true;
 	}
 
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.security.ISecurityService#addSecurityCustomization(com.yukthi.webutils.repository.file.FileEntity)
-	 */
 	@Override
 	public void addSecurityCustomization(FileEntity fileEntity)
 	{
 	}
 
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.security.ISecurityService#isAuthorized(com.yukthi.webutils.repository.file.FileEntity)
-	 */
 	@Override
 	public boolean isAuthorized(FileEntity fileEntity)
 	{
 		return true;
 	}
 
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.security.ISecurityService#getActiverUser()
-	 */
 	@Override
 	public ActiveUserModel getActiverUser()
 	{

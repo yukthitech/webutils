@@ -9,7 +9,7 @@ import com.test.yukthi.webutils.entity.CityEntity;
 import com.test.yukthi.webutils.entity.ICityRepository;
 import com.test.yukthi.webutils.entity.IStateRepository;
 import com.test.yukthi.webutils.entity.StateEntity;
-import com.yukthi.persistence.repository.RepositoryFactory;
+import com.yukthitech.persistence.repository.RepositoryFactory;
 
 @Service
 public class StateCityService

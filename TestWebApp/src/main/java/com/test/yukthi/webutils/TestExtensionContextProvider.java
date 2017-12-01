@@ -29,9 +29,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.test.yukthi.webutils.entity.CustomerEntity;
-import com.yukthi.webutils.controllers.IExtensionContextProvider;
-import com.yukthi.webutils.extensions.ExtensionDetails;
-import com.yukthi.webutils.extensions.ExtensionEntityDetails;
+import com.yukthitech.webutils.controllers.IExtensionContextProvider;
+import com.yukthitech.webutils.extensions.ExtensionDetails;
+import com.yukthitech.webutils.extensions.ExtensionEntityDetails;
 
 /**
  * @author akiran
@@ -43,9 +43,6 @@ public class TestExtensionContextProvider implements IExtensionContextProvider
 	@Autowired
 	private HttpServletRequest request;
 
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.controllers.IExtensionContextProvider#getExtension(com.yukthi.webutils.extensions.ExtensionPointDetails, com.yukthi.webutils.controllers.HttpServletRequest)
-	 */
 	@Override
 	public ExtensionDetails getExtensionDetails(String extensionName, ExtensionEntityDetails extensionPointDetails)
 	{

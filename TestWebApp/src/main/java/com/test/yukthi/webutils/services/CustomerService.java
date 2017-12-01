@@ -30,7 +30,7 @@ import org.springframework.stereotype.Service;
 
 import com.test.yukthi.webutils.entity.CustomerEntity;
 import com.test.yukthi.webutils.entity.ICustomerRepository;
-import com.yukthi.persistence.repository.RepositoryFactory;
+import com.yukthitech.persistence.repository.RepositoryFactory;
 
 /**
  * @author akiran

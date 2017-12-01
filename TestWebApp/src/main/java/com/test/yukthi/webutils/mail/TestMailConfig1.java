@@ -3,9 +3,9 @@ package com.test.yukthi.webutils.mail;
 import java.io.File;
 import java.util.List;
 
-import com.yukthi.webutils.mail.template.MailAttachment;
-import com.yukthi.webutils.mail.template.MailConfigField;
-import com.yukthi.webutils.mail.template.MailTemplateConfig;
+import com.yukthitech.webutils.mail.template.MailAttachment;
+import com.yukthitech.webutils.mail.template.MailConfigField;
+import com.yukthitech.webutils.mail.template.MailTemplateConfig;
 
 /**
  * Test mail configuration.

@@ -28,9 +28,9 @@ import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.yukthi.persistence.repository.RepositoryFactory;
-import com.yukthi.webutils.repository.IUserRepository;
-import com.yukthi.webutils.repository.UserEntity;
+import com.yukthitech.persistence.repository.RepositoryFactory;
+import com.yukthitech.webutils.repository.IUserRepository;
+import com.yukthitech.webutils.repository.UserEntity;
 
 /**
  * @author akiran

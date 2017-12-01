@@ -23,15 +23,15 @@
 
 package com.test.yukthi.webutils.entity;
 
-import static com.yukthi.webutils.IWebUtilsInternalConstants.CONTEXT_ATTR_LOV_DEPENDENCY_VAL;
+import static com.yukthitech.webutils.IWebUtilsInternalConstants.CONTEXT_ATTR_LOV_DEPENDENCY_VAL;
 
 import java.util.List;
 
-import com.yukthi.persistence.repository.annotations.Condition;
-import com.yukthi.webutils.annotations.LovQuery;
-import com.yukthi.webutils.common.annotations.ContextAttribute;
-import com.yukthi.webutils.common.models.ValueLabel;
-import com.yukthi.webutils.repository.IWebutilsRepository;
+import com.yukthitech.persistence.repository.annotations.Condition;
+import com.yukthitech.webutils.annotations.LovQuery;
+import com.yukthitech.webutils.common.annotations.ContextAttribute;
+import com.yukthitech.webutils.common.models.ValueLabel;
+import com.yukthitech.webutils.repository.IWebutilsRepository;
 
 /**
  * @author akiran

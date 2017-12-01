@@ -26,11 +26,10 @@ package com.test.yukthi.webutils.entity;
 import javax.persistence.Column;
 import javax.persistence.Table;
 
-import com.yukthi.persistence.annotations.UniqueConstraint;
-import com.yukthi.persistence.annotations.UniqueConstraints;
-import com.yukthi.webutils.annotations.ExtendableEntity;
-import com.yukthi.webutils.repository.WebutilsEntity;
-import com.yukthi.webutils.repository.WebutilsExtendableEntity;
+import com.yukthitech.persistence.annotations.UniqueConstraint;
+import com.yukthitech.persistence.annotations.UniqueConstraints;
+import com.yukthitech.webutils.annotations.ExtendableEntity;
+import com.yukthitech.webutils.repository.WebutilsExtendableEntity;
 
 /**
  * Test entity

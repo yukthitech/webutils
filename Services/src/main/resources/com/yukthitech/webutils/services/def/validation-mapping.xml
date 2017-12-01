@@ -1,0 +1,37 @@
+<validationConfigs>
+
+	<!-- ======================================================================================== -->
+	<!-- String related validations -->
+	<validationConfig type="com.yukthitech.validation.annotations.MaxLen" targetType="java.lang.String" name="maxLength" attributes="value"/>
+	<validationConfig type="com.yukthitech.validation.annotations.MinLen" targetType="java.lang.String" name="minLength" attributes="value"/>
+	<validationConfig type="javax.validation.constraints.Pattern" targetType="java.lang.String" name="pattern" attributes="regexp"/>
+	<validationConfig type="com.yukthitech.validation.annotations.Mispattern" targetType="java.lang.String" name="mispattern" attributes="regexp"/>
+	<validationConfig type="com.yukthitech.validation.annotations.NotEmpty" targetType="java.lang.String" name="required"/>
+
+
+	<!-- ======================================================================================== -->
+	<!-- Date related validations -->
+	<validationConfig type="com.yukthitech.validation.annotations.FutureOrToday" targetType="java.util.Date" name="futureOrToday"/>
+	<validationConfig type="com.yukthitech.validation.annotations.GreaterThan" targetType="java.util.Date" name="greaterThanDateField" attributes="field"/>
+	<validationConfig type="com.yukthitech.validation.annotations.GreaterThanEquals" targetType="java.util.Date" name="greaterThanEqualsDateField" attributes="field"/>
+	<validationConfig type="com.yukthitech.validation.annotations.LessThan" targetType="java.util.Date" name="lessThanDateField" attributes="field"/>
+	<validationConfig type="com.yukthitech.validation.annotations.LessThanEquals" targetType="java.util.Date" name="lessThanEqualsDateField" attributes="field"/>
+	<validationConfig type="com.yukthitech.validation.annotations.PastOrToday" targetType="java.util.Date" name="pastOrToday"/>
+
+	<!-- ======================================================================================== -->
+	<!-- Number related validations -->
+	<validationConfig type="com.yukthitech.validation.annotations.GreaterThan" targetType="java.lang.Number" name="greaterThan" attributes="field"/>
+	<validationConfig type="com.yukthitech.validation.annotations.GreaterThanEquals" targetType="java.lang.Number" name="greaterThanEquals" attributes="field"/>
+	<validationConfig type="com.yukthitech.validation.annotations.LessThan" targetType="java.lang.Number" name="lessThan" attributes="field"/>
+	<validationConfig type="com.yukthitech.validation.annotations.LessThanEquals" targetType="java.lang.Number" name="lessThanEquals" attributes="field"/>
+
+	<validationConfig type="javax.validation.constraints.Min" targetType="java.lang.Number" name="minValue" attributes="value"/>
+	<validationConfig type="javax.validation.constraints.Max" targetType="java.lang.Number" name="maxValue" attributes="value"/>
+
+	<!-- ======================================================================================== -->
+	<!-- Generic validations -->
+	<validationConfig type="com.yukthitech.validation.annotations.MandatoryOption" targetType="java.lang.Object" name="mandatoryOption" attributes="fields"/>
+	<validationConfig type="com.yukthitech.validation.annotations.MatchWith" targetType="java.lang.Object" name="matchWith" attributes="field"/>
+	<validationConfig type="com.yukthitech.validation.annotations.NotEmpty" targetType="java.util.Collection" name="required"/>
+	<validationConfig type="com.yukthitech.validation.annotations.Required" targetType="java.lang.Object" name="required"/>
+</validationConfigs>

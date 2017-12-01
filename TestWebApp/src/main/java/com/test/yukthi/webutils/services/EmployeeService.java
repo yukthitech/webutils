@@ -27,7 +27,7 @@ import org.springframework.stereotype.Service;
 
 import com.test.yukthi.webutils.entity.EmployeeEntity;
 import com.test.yukthi.webutils.entity.IEmployeeRepository;
-import com.yukthi.webutils.services.BaseCrudService;
+import com.yukthitech.webutils.services.BaseCrudService;
 
 /**
  * @author akiran

@@ -21,13 +21,13 @@
 		</dependency>
 
 		<dependency>
-			<groupId>com.yukthi.webutils</groupId>
+			<groupId>com.yukthitech.webutils</groupId>
 			<artifactId>webutils-commons</artifactId>
 			<version>1.0-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
-			<groupId>com.yukthi</groupId>
+			<groupId>com.yukthitech</groupId>
 			<artifactId>yukthi-utils</artifactId>
 			<version>1.0-SNAPSHOT</version>
 		</dependency>
@@ -35,7 +35,7 @@
 	</dependencies>
 
 	<parent>
-		<groupId>com.yukthi.webutils</groupId>
+		<groupId>com.yukthitech.webutils</groupId>
 		<artifactId>WebUtils</artifactId>
 		<version>1.0-SNAPSHOT</version>
 		<relativePath>../WebUtils</relativePath>

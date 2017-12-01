@@ -11,8 +11,7 @@
         http://www.springframework.org/schema/mvc 
         http://www.springframework.org/schema/mvc/spring-mvc.xsd">
 
-
-	<bean id="webutilsConfiguration" class="com.yukthi.webutils.WebutilsConfiguration">
+	<bean id="webutilsConfiguration" class="com.yukthitech.webutils.WebutilsConfiguration">
 		<property name="secretKey" value="A123456789ASERFD"/>
 		<property name="userDetailsType" value="com.test.yukthi.webutils.TestUserDetails"/>
 		<property name="basePackages">
@@ -27,7 +26,7 @@
 		<property name="url" value="jdbc:derby:c:/db/testDB;create=true" />
 	</bean>
 
-	<bean id="emailServerSettings" class="com.yukthi.webutils.common.models.mails.EmailServerSettings">
+	<bean id="emailServerSettings" class="com.yukthitech.webutils.common.models.mails.EmailServerSettings">
 		<property name="smtpHost" value="smtp.gmail.com" />
 		<property name="smtpPort" value="587" />
 		<property name="useAuthentication" value="true" />
@@ -39,11 +38,11 @@
 		<property name="readHost" value="imap.gmail.com" />
 	</bean>
 
-	<bean id="repositoryFactory" class="com.yukthi.persistence.repository.RepositoryFactory">
+	<bean id="repositoryFactory" class="com.yukthitech.persistence.repository.RepositoryFactory">
 		<property name="createTables" value="true" />
 		
 		<property name="dataStore">
-			<bean class="com.yukthi.persistence.rdbms.RdbmsDataStore">
+			<bean class="com.yukthitech.persistence.rdbms.RdbmsDataStore">
 				<constructor-arg type="java.lang.String" value="derby"></constructor-arg>
 				
 				<property name="dataSource" ref="dataSource"/>

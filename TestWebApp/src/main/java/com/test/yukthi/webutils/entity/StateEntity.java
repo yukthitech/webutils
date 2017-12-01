@@ -1,17 +1,10 @@
 package com.test.yukthi.webutils.entity;
 
-import java.util.List;
-
-import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import com.yukthi.persistence.annotations.UniqueConstraint;
-import com.yukthi.persistence.annotations.UniqueConstraints;
-import com.yukthi.webutils.repository.WebutilsEntity;
+import com.yukthitech.persistence.annotations.UniqueConstraint;
+import com.yukthitech.persistence.annotations.UniqueConstraints;
+import com.yukthitech.webutils.repository.WebutilsEntity;
 
 /**
  * The Class StateEntity.

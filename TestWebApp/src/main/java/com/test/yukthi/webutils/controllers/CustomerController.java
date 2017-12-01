@@ -31,13 +31,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.test.yukthi.webutils.entity.CustomerEntity;
-import com.test.yukthi.webutils.models.TestCustomerModel;
 import com.test.yukthi.webutils.services.CustomerService;
-import com.yukthi.webutils.annotations.ActionName;
-import com.yukthi.webutils.common.models.BaseResponse;
-import com.yukthi.webutils.common.models.BasicSaveResponse;
-import com.yukthi.webutils.controllers.BaseController;
-import com.yukthi.webutils.utils.WebUtils;
+import com.test.yukthitech.webutils.models.TestCustomerModel;
+import com.yukthitech.webutils.annotations.ActionName;
+import com.yukthitech.webutils.common.models.BaseResponse;
+import com.yukthitech.webutils.common.models.BasicSaveResponse;
+import com.yukthitech.webutils.controllers.BaseController;
+import com.yukthitech.webutils.utils.WebUtils;
 
 /**
  * Test controller to test spring validation enablement

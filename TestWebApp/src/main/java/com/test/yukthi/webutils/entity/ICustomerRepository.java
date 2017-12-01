@@ -23,7 +23,7 @@
 
 package com.test.yukthi.webutils.entity;
 
-import com.yukthi.webutils.repository.IWebutilsRepository;
+import com.yukthitech.webutils.repository.IWebutilsRepository;
 
 /**
  * @author akiran

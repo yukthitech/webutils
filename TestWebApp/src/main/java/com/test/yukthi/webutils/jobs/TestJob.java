@@ -31,9 +31,9 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.yukthi.webutils.WebutilsConfiguration;
-import com.yukthi.webutils.annotations.CronJob;
-import com.yukthi.webutils.services.job.IJob;
+import com.yukthitech.webutils.WebutilsConfiguration;
+import com.yukthitech.webutils.annotations.CronJob;
+import com.yukthitech.webutils.services.job.IJob;
 
 /**
  * @author akiran
@@ -53,9 +53,6 @@ public class TestJob implements IJob
 		logger.debug("================> Post construct is called");
 	}
 	
-	/* (non-Javadoc)
-	 * @see com.yukthi.webutils.services.job.IJob#execute(java.lang.Object, org.quartz.JobExecutionContext)
-	 */
 	@Override
 	public void execute(Object jobData, JobExecutionContext context) throws JobExecutionException
 	{

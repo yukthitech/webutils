@@ -39,19 +39,19 @@ import org.springframework.web.bind.annotation.RestController;
 import com.test.yukthi.webutils.Authorization;
 import com.test.yukthi.webutils.SecurityRole;
 import com.test.yukthi.webutils.mail.TestMailConfig1;
-import com.test.yukthi.webutils.models.ITestController;
-import com.test.yukthi.webutils.models.TestBean;
-import com.test.yukthi.webutils.models.TestMailModel;
-import com.yukthi.webutils.annotations.ActionName;
-import com.yukthi.webutils.common.models.BaseResponse;
-import com.yukthi.webutils.common.models.BasicReadListResponse;
-import com.yukthi.webutils.common.models.mails.EmailServerSettings;
-import com.yukthi.webutils.controllers.BaseController;
-import com.yukthi.webutils.mail.EmailService;
-import com.yukthi.webutils.mail.IMailProcessingContext;
-import com.yukthi.webutils.mail.IMailProcessor;
-import com.yukthi.webutils.mail.ReceivedMailMessage;
-import com.yukthi.webutils.mail.template.MailTemplateEntity;
+import com.test.yukthitech.webutils.models.ITestController;
+import com.test.yukthitech.webutils.models.TestBean;
+import com.test.yukthitech.webutils.models.TestMailModel;
+import com.yukthitech.webutils.annotations.ActionName;
+import com.yukthitech.webutils.common.models.BaseResponse;
+import com.yukthitech.webutils.common.models.BasicReadListResponse;
+import com.yukthitech.webutils.common.models.mails.EmailServerSettings;
+import com.yukthitech.webutils.controllers.BaseController;
+import com.yukthitech.webutils.mail.EmailService;
+import com.yukthitech.webutils.mail.IMailProcessingContext;
+import com.yukthitech.webutils.mail.IMailProcessor;
+import com.yukthitech.webutils.mail.ReceivedMailMessage;
+import com.yukthitech.webutils.mail.template.MailTemplateEntity;
 
 /**
  * Test controller to test spring validation enablement

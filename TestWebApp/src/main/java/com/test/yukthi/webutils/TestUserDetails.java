@@ -27,8 +27,8 @@ import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.yukthi.webutils.security.UserDetails;
-import com.yukthi.webutils.utils.WebUtils;
+import com.yukthitech.webutils.security.UserDetails;
+import com.yukthitech.webutils.utils.WebUtils;
 
 /**
  * User details for test

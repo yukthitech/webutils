@@ -25,17 +25,9 @@ package com.test.yukthi.webutils.entity;
 
 import java.util.List;
 
-import com.test.yukthi.webutils.Authorization;
-import com.test.yukthi.webutils.SecurityRole;
-import com.test.yukthi.webutils.models.TestEmpSearchQuery;
-import com.test.yukthi.webutils.models.TestEmpSearchResult;
-import com.yukthi.persistence.ICrudRepository;
-import com.yukthi.persistence.repository.annotations.OrderBy;
-import com.yukthi.persistence.repository.search.SearchQuery;
-import com.yukthi.webutils.annotations.LovQuery;
-import com.yukthi.webutils.annotations.SearchQueryMethod;
-import com.yukthi.webutils.common.models.ValueLabel;
-import com.yukthi.webutils.repository.IWebutilsRepository;
+import com.yukthitech.webutils.annotations.LovQuery;
+import com.yukthitech.webutils.common.models.ValueLabel;
+import com.yukthitech.webutils.repository.IWebutilsRepository;
 
 /**
  * @author akiran
