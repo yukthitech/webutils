@@ -21,22 +21,56 @@
  * SOFTWARE.
  */
 
-package com.test.yukthi.webutils.entity;
+package com.test.yukthitech.webutils.services;
 
-import java.util.List;
+import javax.annotation.PostConstruct;
 
-import com.yukthitech.webutils.annotations.LovQuery;
-import com.yukthitech.webutils.common.models.ValueLabel;
-import com.yukthitech.webutils.repository.IWebutilsRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.yukthitech.persistence.repository.RepositoryFactory;
+import com.yukthitech.webutils.repository.IUserRepository;
+import com.yukthitech.webutils.repository.UserEntity;
 
 /**
  * @author akiran
  *
  */
-public interface IStateRepository extends IWebutilsRepository<StateEntity>
+@Service
+public class TestUserService
 {
-	@LovQuery(name = "statesLov", valueField = "id", labelField = "name")
-	public List<ValueLabel> fetchStates();
+	@Autowired
+	private RepositoryFactory repositoryFactory;
 	
-	public void deleteAll();
+	private long userId;
+	
+	@PostConstruct
+	private void init()
+	{
+		IUserRepository userRepository = repositoryFactory.getRepository(IUserRepository.class);
+		
+		UserEntity user = userRepository.fetchUser("admin", "admin");
+		
+		if(user != null)
+		{
+			this.userId = user.getId();
+			return;
+		}
+		
+		user = new UserEntity("admin", "admin", "admin");
+		user.setVersion(1);
+		user.setSpaceIdentity("admin");
+		
+		userRepository.save(user);
+		
+		this.userId = user.getId();
+	}
+	
+	/**
+	 * @return the {@link #userId userId}
+	 */
+	public long getUserId()
+	{
+		return userId;
+	}
 }

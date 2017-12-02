@@ -20,7 +20,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.test.yukthi.webutils.controllers;
+package com.test.yukthitech.webutils.controllers;
 
 import javax.validation.Valid;
 
@@ -32,10 +32,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.test.yukthi.webutils.entity.EmployeeEntity;
-import com.test.yukthi.webutils.services.EmployeeService;
+import com.test.yukthitech.webutils.entity.EmployeeEntity;
 import com.test.yukthitech.webutils.models.IEmployeeController;
 import com.test.yukthitech.webutils.models.TestEmployeeModel;
+import com.test.yukthitech.webutils.services.EmployeeService;
 import com.yukthitech.webutils.InvalidRequestParameterException;
 import com.yukthitech.webutils.annotations.ActionName;
 import com.yukthitech.webutils.common.models.BaseResponse;

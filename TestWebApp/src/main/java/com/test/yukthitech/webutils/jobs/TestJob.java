@@ -21,20 +21,42 @@
  * SOFTWARE.
  */
 
-package com.test.yukthi.webutils;
+package com.test.yukthitech.webutils.jobs;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import javax.annotation.PostConstruct;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.yukthitech.webutils.WebutilsConfiguration;
+import com.yukthitech.webutils.annotations.CronJob;
+import com.yukthitech.webutils.services.job.IJob;
 
 /**
  * @author akiran
  *
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-public @interface Authorization
+@CronJob(name = "Test", cronExpression = "45 * * * * ?")
+public class TestJob implements IJob
 {
-	public SecurityRole[] value();
+	private static Logger logger = LogManager.getLogger(TestJob.class);
+	
+	@Autowired
+	private WebutilsConfiguration configuration;
+	
+	@PostConstruct
+	private void init()
+	{
+		logger.debug("================> Post construct is called");
+	}
+	
+	@Override
+	public void execute(Object jobData, JobExecutionContext context) throws JobExecutionException
+	{
+		logger.debug("Executing job with config - " + configuration);
+	}
+	
 }

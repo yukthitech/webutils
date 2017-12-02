@@ -21,51 +21,28 @@
  * SOFTWARE.
  */
 
-package com.test.yukthi.webutils.entity;
+package com.test.yukthitech.webutils.services;
 
-import javax.persistence.Column;
-import javax.persistence.Table;
+import org.springframework.stereotype.Service;
 
-import com.yukthitech.persistence.annotations.UniqueConstraint;
-import com.yukthitech.persistence.annotations.UniqueConstraints;
-import com.yukthitech.webutils.annotations.ExtendableEntity;
-import com.yukthitech.webutils.repository.WebutilsExtendableEntity;
+import com.test.yukthitech.webutils.entity.EmployeeEntity;
+import com.test.yukthitech.webutils.entity.IEmployeeRepository;
+import com.yukthitech.webutils.services.BaseCrudService;
 
 /**
- * Test entity
- * 
  * @author akiran
+ *
  */
-@Table(name = "CUSTOMER")
-@UniqueConstraints({
-	@UniqueConstraint(fields = {"name"}, name = "UQ_CUST_NAME")
-})
-@ExtendableEntity(name = "Customer")
-public class CustomerEntity extends WebutilsExtendableEntity
+@Service
+public class EmployeeService extends BaseCrudService<EmployeeEntity, IEmployeeRepository>
 {
-	/**
-	 * Name of the employee
-	 */
-	@Column(name = "NAME")
-	private String name;
-
-	public CustomerEntity()
-	{}
-
-	public CustomerEntity(String name)
+	public EmployeeService()
 	{
-		this.name = name;
+		super(EmployeeEntity.class, IEmployeeRepository.class);
 	}
 
-	public String getName()
+	public void deleteAll()
 	{
-		return name;
+		repository.deleteAll();
 	}
-
-	public void setName(String name)
-	{
-		this.name = name;
-	}
-	
-	
 }

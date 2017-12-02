@@ -20,7 +20,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.test.yukthi.webutils.controllers;
+package com.test.yukthitech.webutils.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,9 +30,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.test.yukthi.webutils.entity.CustomerEntity;
-import com.test.yukthi.webutils.services.CustomerService;
+import com.test.yukthitech.webutils.entity.CustomerEntity;
 import com.test.yukthitech.webutils.models.TestCustomerModel;
+import com.test.yukthitech.webutils.services.CustomerService;
 import com.yukthitech.webutils.annotations.ActionName;
 import com.yukthitech.webutils.common.models.BaseResponse;
 import com.yukthitech.webutils.common.models.BasicSaveResponse;

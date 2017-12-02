@@ -1,14 +1,14 @@
-package com.test.yukthi.webutils.services;
+package com.test.yukthitech.webutils.services;
 
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.test.yukthi.webutils.entity.CityEntity;
-import com.test.yukthi.webutils.entity.ICityRepository;
-import com.test.yukthi.webutils.entity.IStateRepository;
-import com.test.yukthi.webutils.entity.StateEntity;
+import com.test.yukthitech.webutils.entity.CityEntity;
+import com.test.yukthitech.webutils.entity.ICityRepository;
+import com.test.yukthitech.webutils.entity.IStateRepository;
+import com.test.yukthitech.webutils.entity.StateEntity;
 import com.yukthitech.persistence.repository.RepositoryFactory;
 
 @Service

@@ -74,6 +74,7 @@ public class BaseController
 	 * @param ex Exception to be handled
 	 * @return Response with proper error code and message
 	 */
+	//TODO: Needs to handle BeanPropertyBindingResult also properly
 	@ExceptionHandler(value={MethodArgumentNotValidException.class})
 	@ResponseBody
 	public BaseResponse handleParamValidationException(HttpServletResponse response, MethodArgumentNotValidException ex)

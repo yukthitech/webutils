@@ -1,4 +1,4 @@
-package com.test.yukthi.webutils.entity;
+package com.test.yukthitech.webutils.entity;
 
 import javax.persistence.Column;
 import javax.persistence.ManyToOne;

@@ -53,14 +53,15 @@ public class SearchHelper
 	}
 
 	/**
-	 * Executes search query with specified query object
+	 * Executes search query with specified query object.
 	 * @param context Client context
 	 * @param queryName Name of query to execute
 	 * @param searchQuery Query object
+	 * @param page page to be fetched
 	 * @param pageSize Query page size
 	 * @return List of search results
 	 */
-	public ExecuteSearchResponse executeSearchQuery(ClientContext context, String queryName, Object searchQuery, int pageSize)
+	public ExecuteSearchResponse executeSearchQuery(ClientContext context, String queryName, Object searchQuery, int page, int pageSize)
 	{
 		//Build model object
 		SearchExecutionModel searchExecutionModel = new SearchExecutionModel();
@@ -72,6 +73,17 @@ public class SearchHelper
 		{
 			throw new InvalidStateException("An error occurred while converting {} into json", searchQuery);
 		}
+		
+		if(page > 1)
+		{
+			searchExecutionModel.setPageNumber(page);
+		}
+		else
+		{
+			searchExecutionModel.setPageNumber(1);
+		}
+		
+		searchExecutionModel.setPageSize(pageSize);
 		
 		//build request object
 		RestRequest<?> request = ActionRequestBuilder.buildRequest(context, ACTION_PREFIX_SEARCH + "." + ACTION_TYPE_EXECUTE, searchExecutionModel, CommonUtils.toMap(

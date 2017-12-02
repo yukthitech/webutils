@@ -21,11 +21,13 @@
  * SOFTWARE.
  */
 
-package com.test.yukthi.webutils.entity;
+package com.test.yukthitech.webutils.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Table;
 
+import com.yukthitech.persistence.annotations.UniqueConstraint;
+import com.yukthitech.persistence.annotations.UniqueConstraints;
 import com.yukthitech.webutils.annotations.ExtendableEntity;
 import com.yukthitech.webutils.repository.WebutilsExtendableEntity;
 
@@ -34,9 +36,12 @@ import com.yukthitech.webutils.repository.WebutilsExtendableEntity;
  * 
  * @author akiran
  */
-@ExtendableEntity(name = "Employee")
-@Table(name = "EMP")
-public class EmployeeEntity extends WebutilsExtendableEntity
+@Table(name = "CUSTOMER")
+@UniqueConstraints({
+	@UniqueConstraint(fields = {"name"}, name = "UQ_CUST_NAME")
+})
+@ExtendableEntity(name = "Customer")
+public class CustomerEntity extends WebutilsExtendableEntity
 {
 	/**
 	 * Name of the employee
@@ -44,67 +49,23 @@ public class EmployeeEntity extends WebutilsExtendableEntity
 	@Column(name = "NAME")
 	private String name;
 
-	/**
-	 * Salary of the employee
-	 */
-	@Column(name = "SALARY")
-	private long salary;
-	
-	/**
-	 * Instantiates a new employee entity.
-	 */
-	public EmployeeEntity()
+	public CustomerEntity()
 	{}
 
-	/**
-	 * Instantiates a new employee entity.
-	 *
-	 * @param name the name
-	 * @param salary the salary
-	 */
-	public EmployeeEntity(String name, long salary)
+	public CustomerEntity(String name)
 	{
 		this.name = name;
-		this.salary = salary;
 	}
 
-	/**
-	 * Gets the name of the employee.
-	 *
-	 * @return the name of the employee
-	 */
 	public String getName()
 	{
 		return name;
 	}
 
-	/**
-	 * Sets the name of the employee.
-	 *
-	 * @param name the new name of the employee
-	 */
 	public void setName(String name)
 	{
 		this.name = name;
 	}
-
-	/**
-	 * Gets the salary of the employee.
-	 *
-	 * @return the salary of the employee
-	 */
-	public long getSalary()
-	{
-		return salary;
-	}
-
-	/**
-	 * Sets the salary of the employee.
-	 *
-	 * @param salary the new salary of the employee
-	 */
-	public void setSalary(long salary)
-	{
-		this.salary = salary;
-	}
+	
+	
 }

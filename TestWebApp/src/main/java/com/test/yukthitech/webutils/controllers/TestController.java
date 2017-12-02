@@ -20,7 +20,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.test.yukthi.webutils.controllers;
+package com.test.yukthitech.webutils.controllers;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -36,9 +36,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.test.yukthi.webutils.Authorization;
-import com.test.yukthi.webutils.SecurityRole;
-import com.test.yukthi.webutils.mail.TestMailConfig1;
+import com.test.yukthitech.webutils.Authorization;
+import com.test.yukthitech.webutils.SecurityRole;
+import com.test.yukthitech.webutils.mail.TestMailConfig1;
 import com.test.yukthitech.webutils.models.ITestController;
 import com.test.yukthitech.webutils.models.TestBean;
 import com.test.yukthitech.webutils.models.TestMailModel;

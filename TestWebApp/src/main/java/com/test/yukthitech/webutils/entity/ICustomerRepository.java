@@ -21,26 +21,17 @@
  * SOFTWARE.
  */
 
-package com.test.yukthi.webutils.entity;
+package com.test.yukthitech.webutils.entity;
 
-import static com.yukthitech.webutils.IWebUtilsInternalConstants.CONTEXT_ATTR_LOV_DEPENDENCY_VAL;
-
-import java.util.List;
-
-import com.yukthitech.persistence.repository.annotations.Condition;
-import com.yukthitech.webutils.annotations.LovQuery;
-import com.yukthitech.webutils.common.annotations.ContextAttribute;
-import com.yukthitech.webutils.common.models.ValueLabel;
 import com.yukthitech.webutils.repository.IWebutilsRepository;
 
 /**
  * @author akiran
  *
  */
-public interface ICityRepository extends IWebutilsRepository<CityEntity>
+public interface ICustomerRepository extends IWebutilsRepository<CustomerEntity>
 {
-	@LovQuery(name = "cityLov", valueField = "id", labelField = "name")
-	public List<ValueLabel> fetchCityLov(@ContextAttribute(CONTEXT_ATTR_LOV_DEPENDENCY_VAL) @Condition("state.id") long stateId);
-	
 	public void deleteAll();
+	
+	public CustomerEntity findByName(String name);
 }

@@ -21,12 +21,12 @@
  * SOFTWARE.
  */
 
-package com.test.yukthi.webutils.entity;
+package com.test.yukthitech.webutils.entity;
 
 import java.util.List;
 
-import com.test.yukthi.webutils.Authorization;
-import com.test.yukthi.webutils.SecurityRole;
+import com.test.yukthitech.webutils.Authorization;
+import com.test.yukthitech.webutils.SecurityRole;
 import com.test.yukthitech.webutils.models.TestEmpSearchQuery;
 import com.test.yukthitech.webutils.models.TestEmpSearchResult;
 import com.yukthitech.persistence.repository.annotations.OrderBy;

@@ -1,4 +1,4 @@
-package com.test.yukthi.webutils.mail;
+package com.test.yukthitech.webutils.mail;
 
 import java.io.File;
 import java.util.List;

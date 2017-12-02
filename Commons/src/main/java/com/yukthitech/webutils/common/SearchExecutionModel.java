@@ -41,7 +41,12 @@ public class SearchExecutionModel
 	private String queryModelJson;
 	
 	/**
-	 * Page to be fetched.
+	 * Page number to be fetched. If less than or equals to zero all records will be fetched.
+	 */
+	private int pageSize = -1;
+	
+	/**
+	 * Page to be fetched. 
 	 */
 	@Min(1)
 	private int pageNumber = 1;
@@ -94,6 +99,26 @@ public class SearchExecutionModel
 	public void setQueryModelJson(String queryModelJson)
 	{
 		this.queryModelJson = queryModelJson;
+	}
+
+	/**
+	 * Gets the page number to be fetched.
+	 *
+	 * @return the page number to be fetched
+	 */
+	public int getPageSize()
+	{
+		return pageSize;
+	}
+
+	/**
+	 * Sets the page number to be fetched.
+	 *
+	 * @param pageSize the new page number to be fetched
+	 */
+	public void setPageSize(int pageSize)
+	{
+		this.pageSize = pageSize;
 	}
 
 	/**

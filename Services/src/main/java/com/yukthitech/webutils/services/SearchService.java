@@ -470,8 +470,15 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 			}
 		}
 
-		// set limit on repo search query
-		int pageSize = searchExecutionModel.isFetchAll() ? -1 : searchSettings.getPageSize();
+		// set limit on repo search query, by default fetch all records
+		int pageSize = -1;
+		
+		if(!searchExecutionModel.isFetchAll())
+		{
+			//if page size is specified by input query give that higher preference then search settings
+			pageSize = searchExecutionModel.getPageSize() > 1 ? searchExecutionModel.getPageSize() : searchSettings.getPageSize();
+		}
+		
 		int pageNo = searchExecutionModel.getPageNumber();
 
 		repoSearchQuery.setResultsOffset((pageNo - 1) * pageSize);

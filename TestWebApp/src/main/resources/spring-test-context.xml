@@ -13,10 +13,10 @@
 
 	<bean id="webutilsConfiguration" class="com.yukthitech.webutils.WebutilsConfiguration">
 		<property name="secretKey" value="A123456789ASERFD"/>
-		<property name="userDetailsType" value="com.test.yukthi.webutils.TestUserDetails"/>
+		<property name="userDetailsType" value="com.test.yukthitech.webutils.TestUserDetails"/>
 		<property name="basePackages">
 			<list>
-				<value>com.test.yukthi</value>
+				<value>com.test.yukthitech</value>
 			</list>
 		</property>
 	</bean>

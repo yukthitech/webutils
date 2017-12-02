@@ -21,7 +21,7 @@
  * SOFTWARE.
  */
 
-package com.test.yukthi.webutils;
+package com.test.yukthitech.webutils;
 
 import java.util.Set;
 

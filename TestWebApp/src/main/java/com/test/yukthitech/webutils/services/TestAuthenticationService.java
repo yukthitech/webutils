@@ -21,7 +21,7 @@
  * SOFTWARE.
  */
 
-package com.test.yukthi.webutils.services;
+package com.test.yukthitech.webutils.services;
 
 import java.lang.reflect.Method;
 import java.util.Map;
@@ -32,9 +32,9 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.test.yukthi.webutils.Authorization;
-import com.test.yukthi.webutils.SecurityRole;
-import com.test.yukthi.webutils.TestUserDetails;
+import com.test.yukthitech.webutils.Authorization;
+import com.test.yukthitech.webutils.SecurityRole;
+import com.test.yukthitech.webutils.TestUserDetails;
 import com.yukthitech.utils.CommonUtils;
 import com.yukthitech.webutils.common.models.ActiveUserModel;
 import com.yukthitech.webutils.extensions.ExtensionEntityDetails;

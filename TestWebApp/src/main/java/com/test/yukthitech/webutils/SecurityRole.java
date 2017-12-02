@@ -21,28 +21,14 @@
  * SOFTWARE.
  */
 
-package com.test.yukthi.webutils.services;
-
-import org.springframework.stereotype.Service;
-
-import com.test.yukthi.webutils.entity.EmployeeEntity;
-import com.test.yukthi.webutils.entity.IEmployeeRepository;
-import com.yukthitech.webutils.services.BaseCrudService;
+package com.test.yukthitech.webutils;
 
 /**
  * @author akiran
  *
  */
-@Service
-public class EmployeeService extends BaseCrudService<EmployeeEntity, IEmployeeRepository>
+public enum SecurityRole
 {
-	public EmployeeService()
-	{
-		super(EmployeeEntity.class, IEmployeeRepository.class);
-	}
-
-	public void deleteAll()
-	{
-		repository.deleteAll();
-	}
+	ADMIN, PROJ_ADMIN,
+	CLIENT_ADMIN
 }

@@ -21,17 +21,22 @@
  * SOFTWARE.
  */
 
-package com.test.yukthi.webutils.entity;
+package com.test.yukthitech.webutils.entity;
 
+import java.util.List;
+
+import com.yukthitech.webutils.annotations.LovQuery;
+import com.yukthitech.webutils.common.models.ValueLabel;
 import com.yukthitech.webutils.repository.IWebutilsRepository;
 
 /**
  * @author akiran
  *
  */
-public interface ICustomerRepository extends IWebutilsRepository<CustomerEntity>
+public interface IStateRepository extends IWebutilsRepository<StateEntity>
 {
-	public void deleteAll();
+	@LovQuery(name = "statesLov", valueField = "id", labelField = "name")
+	public List<ValueLabel> fetchStates();
 	
-	public CustomerEntity findByName(String name);
+	public void deleteAll();
 }

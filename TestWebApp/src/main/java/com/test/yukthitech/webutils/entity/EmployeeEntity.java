@@ -21,77 +21,57 @@
  * SOFTWARE.
  */
 
-package com.test.yukthitech.webutils.models;
+package com.test.yukthitech.webutils.entity;
 
-import com.yukthitech.persistence.repository.annotations.Condition;
-import com.yukthitech.persistence.repository.annotations.Operator;
-import com.yukthitech.validation.annotations.Required;
-import com.yukthitech.webutils.common.annotations.Label;
-import com.yukthitech.webutils.common.annotations.Model;
+import javax.persistence.Column;
+import javax.persistence.Table;
+
+import com.yukthitech.webutils.annotations.ExtendableEntity;
+import com.yukthitech.webutils.repository.WebutilsExtendableEntity;
 
 /**
- * Emp search query.
+ * Test entity
  * 
  * @author akiran
  */
-@Model
-public class TestEmpSearchQuery
+@ExtendableEntity(name = "Employee")
+@Table(name = "EMP")
+public class EmployeeEntity extends WebutilsExtendableEntity
 {
 	/**
-	 * Id of the employee.
+	 * Name of the employee
 	 */
-	@Label("Id")
-	private long id;
-
-	/**
-	 * Employee search name pattern.
-	 */
-	@Required
-	@Condition(value = "name", op = Operator.LIKE)
-	@Label("Name")
+	@Column(name = "NAME")
 	private String name;
 
 	/**
-	 * Instantiates a new emp search query.
+	 * Salary of the employee
 	 */
-	public TestEmpSearchQuery()
+	@Column(name = "SALARY")
+	private long salary;
+	
+	/**
+	 * Instantiates a new employee entity.
+	 */
+	public EmployeeEntity()
 	{}
 
 	/**
-	 * Instantiates a new emp search query.
+	 * Instantiates a new employee entity.
 	 *
-	 * @param name
-	 *            the name
+	 * @param name the name
+	 * @param salary the salary
 	 */
-	public TestEmpSearchQuery(String name)
+	public EmployeeEntity(String name, long salary)
 	{
 		this.name = name;
+		this.salary = salary;
 	}
 
 	/**
-	 * Gets the id.
+	 * Gets the name of the employee.
 	 *
-	 * @return the id
-	 */
-	public long getId()
-	{
-		return id;
-	}
-
-	/**
-	 * Sets the id.
-	 *
-	 * @param id the new id
-	 */
-	public void setId(long id)
-	{
-		this.id = id;
-	}
-
-	/**
-	 * Gets the employee search name pattern.
-	 *
-	 * @return the employee search name pattern
+	 * @return the name of the employee
 	 */
 	public String getName()
 	{
@@ -99,13 +79,32 @@ public class TestEmpSearchQuery
 	}
 
 	/**
-	 * Sets the employee search name pattern.
+	 * Sets the name of the employee.
 	 *
-	 * @param name
-	 *            the new employee search name pattern
+	 * @param name the new name of the employee
 	 */
 	public void setName(String name)
 	{
 		this.name = name;
+	}
+
+	/**
+	 * Gets the salary of the employee.
+	 *
+	 * @return the salary of the employee
+	 */
+	public long getSalary()
+	{
+		return salary;
+	}
+
+	/**
+	 * Sets the salary of the employee.
+	 *
+	 * @param salary the new salary of the employee
+	 */
+	public void setSalary(long salary)
+	{
+		this.salary = salary;
 	}
 }

@@ -163,7 +163,7 @@ public class TFUserSpace extends TFBase
 		clientContext.setRequestCustomizer(customizer);
 		
 		TestEmpSearchQuery query = new TestEmpSearchQuery("*");
-		ExecuteSearchResponse results = searchHelper.executeSearchQuery(clientContext, "empSearch", query, -1);
+		ExecuteSearchResponse results = searchHelper.executeSearchQuery(clientContext, "empSearch", query, -1, -1);
 
 		if(results.getSearchResults() == null || results.getSearchResults().isEmpty())
 		{

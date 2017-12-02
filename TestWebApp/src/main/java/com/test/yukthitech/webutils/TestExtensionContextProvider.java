@@ -21,14 +21,38 @@
  * SOFTWARE.
  */
 
-package com.test.yukthi.webutils;
+package com.test.yukthitech.webutils;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import com.test.yukthitech.webutils.entity.CustomerEntity;
+import com.yukthitech.webutils.controllers.IExtensionContextProvider;
+import com.yukthitech.webutils.extensions.ExtensionDetails;
+import com.yukthitech.webutils.extensions.ExtensionEntityDetails;
 
 /**
  * @author akiran
  *
  */
-public enum SecurityRole
+@Component
+public class TestExtensionContextProvider implements IExtensionContextProvider
 {
-	ADMIN, PROJ_ADMIN,
-	CLIENT_ADMIN
+	@Autowired
+	private HttpServletRequest request;
+
+	@Override
+	public ExtensionDetails getExtensionDetails(String extensionName, ExtensionEntityDetails extensionPointDetails)
+	{
+		String customerId = request.getHeader("customerId");
+		
+		if(customerId == null)
+		{
+			return new ExtensionDetails();
+		}
+		
+		return new ExtensionDetails(CustomerEntity.class, Long.parseLong(customerId));
+	}
 }
