@@ -35,11 +35,6 @@ import com.yukthitech.webutils.common.annotations.ExtendableModel;
 public class TestEmployeeModel extends AbstractExtendableModel
 {
 	/**
-	 * Employee id
-	 */
-	private Long id;
-	
-	/**
 	 * Version of the entity
 	 */
 	private Integer version;
@@ -61,16 +56,6 @@ public class TestEmployeeModel extends AbstractExtendableModel
 	{
 		this.name = name;
 		this.salary = salary;
-	}
-
-	public Long getId()
-	{
-		return id;
-	}
-
-	public void setId(Long id)
-	{
-		this.id = id;
 	}
 
 	public String getName()

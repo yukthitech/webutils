@@ -50,6 +50,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.yukthitech.utils.exceptions.InvalidConfigurationException;
+import com.yukthitech.utils.exceptions.InvalidStateException;
 import com.yukthitech.webutils.annotations.ActionName;
 import com.yukthitech.webutils.annotations.AttachmentsExpected;
 import com.yukthitech.webutils.common.HttpMethod;
@@ -345,7 +346,7 @@ public class ActionsService
 				continue;
 			}
 			
-			action = new ActionModel(remoteInterTypeName, WebutilsCommonUtils.getMethodSignature(method));
+			action = new ActionModel(remoteInterTypeName, WebutilsCommonUtils.getMethodSignature(cls, method));
 			
 			//use method name as action name if action is not defined
 			actionName = (actName == null) ? method.getName() : actName.value();
@@ -359,7 +360,7 @@ public class ActionsService
 			//if action name is duplicated throw error
 			if(nameToModel.containsKey(actionName))
 			{
-				throw new IllegalStateException("Duplicate action configuration encountered for action: " + actionName);
+				throw new InvalidStateException("Duplicate action configuration encountered for action: {}.", actionName);
 			}
 			
 			//get the http method of the service method
@@ -414,19 +415,12 @@ public class ActionsService
 		//Get the action name from controller level
 		ActionName actName = cls.getAnnotation(ActionName.class);
 		String classActionName = (actName != null) ? actName.value() : null;
-		
-		Class<?> currentClass = cls;
-		
-		while(true)
-		{
-			if(currentClass.getName().startsWith("java."))
-			{
-				break;
-			}
-			
-			loadActions(classActionName, clsRequestMapping, currentClass, nameToModel);
-			currentClass = currentClass.getSuperclass();
-		}
+
+		/*
+		 * For loading actions, parent class need not be considered. As loadActions() method considers
+		 * all accessible methods of cls (which includes public methods of parent classes).
+		 */
+		loadActions(classActionName, clsRequestMapping, cls, nameToModel);
 	}
 	
 	/**

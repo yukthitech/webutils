@@ -30,7 +30,7 @@ import java.util.Map;
  * Abstract base class foe extendable model
  * @author akiran
  */
-public abstract class AbstractExtendableModel implements IExtendableModel
+public abstract class AbstractExtendableModel extends BaseModel implements IExtendableModel
 {
 	/**
 	 * Map to hold extended field value

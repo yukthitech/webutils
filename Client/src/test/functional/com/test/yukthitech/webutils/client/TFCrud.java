@@ -50,7 +50,7 @@ public class TFCrud extends TFBase
 	
 	private TestEmployeeModel getEmployee(long empId)
 	{
-		BasicReadResponse<TestEmployeeModel> response = employeeController.fetch(empId);
+		BasicReadResponse<TestEmployeeModel> response = employeeController.fetchById(empId);
 		return response.getModel();
 	}
 	

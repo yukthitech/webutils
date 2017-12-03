@@ -63,7 +63,7 @@ public class SearchSettingsService extends BaseCrudService<SearchSettingsEntity,
 	 */
 	public SearchSettingsService()
 	{
-		super(SearchSettingsEntity.class, ISearchSettingsRespository.class);
+		//super(SearchSettingsEntity.class, ISearchSettingsRespository.class);
 	}
 	
 	/**

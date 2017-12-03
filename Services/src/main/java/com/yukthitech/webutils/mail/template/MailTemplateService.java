@@ -17,7 +17,7 @@ public class MailTemplateService extends BaseCrudService<MailTemplateEntity, IMa
 	 */
 	public MailTemplateService()
 	{
-		super(MailTemplateEntity.class, IMailTemplateRepository.class);
+		//super(MailTemplateEntity.class, IMailTemplateRepository.class);
 	}
 	
 	/**

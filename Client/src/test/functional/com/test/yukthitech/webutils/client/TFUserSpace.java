@@ -126,11 +126,11 @@ public class TFUserSpace extends TFBase
 		Assert.assertEquals(response.getCode(), IWebUtilsCommonConstants.RESPONSE_CODE_SUCCESS);
 
 		//Validate entity is accessible in same space
-		BasicReadResponse<TestEmployeeModel> fetchRes1 = employeeController.setRequestCustomizer(requestCustomizer1).fetch(response.getId());
+		BasicReadResponse<TestEmployeeModel> fetchRes1 = employeeController.setRequestCustomizer(requestCustomizer1).fetchById(response.getId());
 		Assert.assertNotNull(fetchRes1.getModel());
 		
 		//Validate entity is accessible in same space
-		BasicReadResponse<TestEmployeeModel> fetchRes2 = employeeController.setRequestCustomizer(requestCustomizer2).fetch(response.getId());
+		BasicReadResponse<TestEmployeeModel> fetchRes2 = employeeController.setRequestCustomizer(requestCustomizer2).fetchById(response.getId());
 		Assert.assertNull(fetchRes2.getModel());
 	}
 	

@@ -23,7 +23,7 @@ public class UserRoleService extends BaseCrudService<UserRoleEntity, IUserRoleRe
 	 */
 	public UserRoleService()
 	{
-		super(UserRoleEntity.class, IUserRoleRepository.class);
+		//super(UserRoleEntity.class, IUserRoleRepository.class);
 	}
 	
 	/**

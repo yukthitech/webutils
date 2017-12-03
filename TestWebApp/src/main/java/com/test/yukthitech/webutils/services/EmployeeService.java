@@ -38,7 +38,7 @@ public class EmployeeService extends BaseCrudService<EmployeeEntity, IEmployeeRe
 {
 	public EmployeeService()
 	{
-		super(EmployeeEntity.class, IEmployeeRepository.class);
+		//super(EmployeeEntity.class, IEmployeeRepository.class);
 	}
 
 	public void deleteAll()

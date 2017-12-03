@@ -23,8 +23,13 @@
 
 package com.yukthitech.webutils.services;
 
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
+import java.util.Map;
+
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.lang3.reflect.TypeUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -107,18 +112,27 @@ public abstract class BaseCrudService<E extends WebutilsEntity, R extends IWebut
 	 * @param entityType Entity type for which this service is being created.
 	 * @param repositoryType the repository type
 	 */
+	/*
 	public BaseCrudService(Class<E> entityType, Class<R> repositoryType)
 	{
 		this.entityType = entityType;
 		this.repositoryType = repositoryType;
 	}
+	*/
 	
 	/**
 	 * Used to fetch repository from autowired factory. 
 	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@PostConstruct
 	private void init()
 	{
+		Map<TypeVariable<?>, Type> genericMap = TypeUtils.getTypeArguments(getClass(), BaseCrudService.class);
+		TypeVariable<?> typeVars[] = BaseCrudService.class.getTypeParameters();
+		
+		entityType = (Class) genericMap.get(typeVars[0]);
+		repositoryType = (Class) genericMap.get(typeVars[1]);
+
 		repository = repositoryFactory.getRepository(repositoryType);
 	}
 	

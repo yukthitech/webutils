@@ -92,6 +92,12 @@ public class ModelDetailsService
 		//loop through model types and load their def
 		for(Class<?> type : modelTypes)
 		{
+			//ignore classes without Model annotation
+			if(type.getAnnotation(Model.class) == null)
+			{
+				continue;
+			}
+			
 			logger.debug("Loading model type - " + type.getName());
 			
 			modelDef = modelDefBuilder.getModelDefinition(type);
