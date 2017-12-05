@@ -21,7 +21,7 @@
  * SOFTWARE.
  */
 
-package com.yukthitech.webutils.controllers;
+package com.yukthitech.webutils.search;
 
 import static com.yukthitech.webutils.common.IWebUtilsActionConstants.ACTION_PREFIX_SEARCH;
 import static com.yukthitech.webutils.common.IWebUtilsActionConstants.ACTION_TYPE_EXECUTE;
@@ -52,11 +52,11 @@ import com.yukthitech.webutils.annotations.ActionName;
 import com.yukthitech.webutils.common.FileInfo;
 import com.yukthitech.webutils.common.IWebUtilsCommonConstants;
 import com.yukthitech.webutils.common.SearchExecutionModel;
-import com.yukthitech.webutils.common.controllers.ISearchController;
 import com.yukthitech.webutils.common.models.ModelDefResponse;
 import com.yukthitech.webutils.common.models.def.ModelDef;
-import com.yukthitech.webutils.common.models.search.ExecuteSearchResponse;
-import com.yukthitech.webutils.services.SearchService;
+import com.yukthitech.webutils.common.search.ExecuteSearchResponse;
+import com.yukthitech.webutils.common.search.ISearchController;
+import com.yukthitech.webutils.controllers.BaseController;
 import com.yukthitech.webutils.services.ValidationService;
 import com.yukthitech.webutils.utils.WebAttachmentUtils;
 

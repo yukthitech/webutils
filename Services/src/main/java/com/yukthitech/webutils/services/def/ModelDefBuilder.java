@@ -105,23 +105,35 @@ public class ModelDefBuilder
 		
 		//fetch field definitions and set it on model type def
 		List<FieldDef> fieldDefLst = new ArrayList<>();
-		Field fields[] = modelType.getDeclaredFields();
+		Class<?> curCls = modelType;
 		
-		for(Field field : fields)
+		while(true)
 		{
-			//ignore static fields
-			if(Modifier.isStatic(field.getModifiers()))
+			if(curCls.getName().startsWith("java"))
 			{
-				continue;
+				break;
 			}
 			
-			//if field is marked to be ignore, ignore
-			if(field.getAnnotation(IgnoreField.class) != null)
+			Field fields[] = curCls.getDeclaredFields();
+			
+			for(Field field : fields)
 			{
-				continue;
+				//ignore static fields
+				if(Modifier.isStatic(field.getModifiers()))
+				{
+					continue;
+				}
+				
+				//if field is marked to be ignore, ignore
+				if(field.getAnnotation(IgnoreField.class) != null)
+				{
+					continue;
+				}
+				
+				fieldDefLst.add(fieldDefBuilder.getFieldDef(modelType, field));
 			}
 			
-			fieldDefLst.add(fieldDefBuilder.getFieldDef(modelType, field));
+			curCls = curCls.getSuperclass();
 		}
 		
 		modelDef.setFields(fieldDefLst);

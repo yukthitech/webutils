@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import com.yukthitech.persistence.repository.RepositoryFactory;
 import com.yukthitech.utils.exceptions.InvalidStateException;
 import com.yukthitech.webutils.cache.WebutilsCacheManager;
+import com.yukthitech.webutils.common.UserDetails;
 import com.yukthitech.webutils.services.job.BackgroundThreadManager;
 
 /**

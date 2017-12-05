@@ -1,6 +1,8 @@
-package com.yukthitech.webutils.services;
+package com.yukthitech.webutils.search;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -15,15 +17,19 @@ import com.yukthitech.persistence.repository.annotations.Field;
 import com.yukthitech.utils.exceptions.InvalidArgumentException;
 import com.yukthitech.utils.exceptions.InvalidStateException;
 import com.yukthitech.validation.annotations.Required;
-import com.yukthitech.webutils.common.models.SearchSettingsModel;
+import com.yukthitech.webutils.common.annotations.FieldOrder;
 import com.yukthitech.webutils.common.models.def.FieldDef;
 import com.yukthitech.webutils.common.models.def.ModelDef;
-import com.yukthitech.webutils.common.models.search.SearchField;
-import com.yukthitech.webutils.common.models.search.SearchSettingsColumn;
+import com.yukthitech.webutils.common.search.SearchField;
+import com.yukthitech.webutils.common.search.SearchSettingsColumn;
+import com.yukthitech.webutils.common.search.SearchSettingsModel;
 import com.yukthitech.webutils.repository.ExtensionFieldEntity;
 import com.yukthitech.webutils.repository.UserEntity;
 import com.yukthitech.webutils.repository.search.ISearchSettingsRespository;
 import com.yukthitech.webutils.repository.search.SearchSettingsEntity;
+import com.yukthitech.webutils.services.BaseCrudService;
+import com.yukthitech.webutils.services.CurrentUserService;
+import com.yukthitech.webutils.services.ExtensionService;
 import com.yukthitech.webutils.utils.WebUtils;
 
 /**
@@ -85,13 +91,28 @@ public class SearchSettingsService extends BaseCrudService<SearchSettingsEntity,
 		SearchSettingsColumn searchSettingsColumn = null, existingSettingsColumn = null;
 		String fieldName = null;
 		Field fieldAnnot = null;
+		FieldOrder fieldOrder = null;
+		
+		int orderNo = 0;
 		
 		for(FieldDef field : searchResultDef.getFields())
 		{
 			fieldAnnot = field.getField().getAnnotation(Field.class);
+			fieldOrder = field.getField().getAnnotation(FieldOrder.class);
+			
 			fieldName = (fieldAnnot != null) ? fieldAnnot.value() : field.getName();
 			
 			searchSettingsColumn = new SearchSettingsColumn(field.getLabel(), field.isDisplayable(), false, new SearchField(null, fieldName, field.getField().getName()));
+			
+			if(fieldOrder != null)
+			{
+				searchSettingsColumn.setOrder(fieldOrder.value());
+			}
+			else
+			{
+				searchSettingsColumn.setOrder(orderNo);
+				orderNo++;
+			}
 			
 			if("id".equals(field.getName()) || field.getField().getAnnotation(Required.class) != null)
 			{
@@ -117,6 +138,9 @@ public class SearchSettingsService extends BaseCrudService<SearchSettingsEntity,
 		 	{
 		 		searchColumns.put(searchSettingsColumn, searchSettingsColumn);
 		 	}
+		 	
+		 	searchSettingsColumn.setOrder(orderNo);
+		 	orderNo++;
 		}
 
 		return searchColumns;
@@ -132,7 +156,20 @@ public class SearchSettingsService extends BaseCrudService<SearchSettingsEntity,
 		LinkedHashMap<SearchSettingsColumn, SearchSettingsColumn> searchColumns = getSettingsColumns(searchQuery);
 		SearchSettingsEntity settings = new SearchSettingsEntity();
 		
-		settings.setSearchColumns(new ArrayList<>(searchColumns.keySet()));
+		List<SearchSettingsColumn> searchColumnsLst = new ArrayList<>(searchColumns.keySet());
+		
+		//sort columns by order
+		Collections.sort(searchColumnsLst, new Comparator<SearchSettingsColumn>()
+		{
+			@Override
+			public int compare(SearchSettingsColumn o1, SearchSettingsColumn o2)
+			{
+				int orderDiff = o1.getOrder() - o2.getOrder();
+				return orderDiff > 0 ? orderDiff : 1;
+			}
+		});
+		
+		settings.setSearchColumns(searchColumnsLst);
 		settings.setPageSize(DEFAULT_PAGE_SIZE);
 		settings.setSearchQueryName(searchQuery);
 		

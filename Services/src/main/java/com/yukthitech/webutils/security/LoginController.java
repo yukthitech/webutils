@@ -45,13 +45,14 @@ import com.yukthitech.webutils.IWebUtilsInternalConstants;
 import com.yukthitech.webutils.annotations.ActionName;
 import com.yukthitech.webutils.annotations.NoAuthentication;
 import com.yukthitech.webutils.common.IWebUtilsCommonConstants;
+import com.yukthitech.webutils.common.UserDetails;
 import com.yukthitech.webutils.common.controllers.ILoginController;
-import com.yukthitech.webutils.common.models.ActiveUserModel;
 import com.yukthitech.webutils.common.models.BaseResponse;
 import com.yukthitech.webutils.common.models.BasicReadResponse;
 import com.yukthitech.webutils.common.models.LoginCredentials;
 import com.yukthitech.webutils.common.models.LoginResponse;
 import com.yukthitech.webutils.controllers.BaseController;
+import com.yukthitech.webutils.services.CurrentUserService;
 
 /**
  * Controller to perform login operation.
@@ -71,10 +72,10 @@ public class LoginController extends BaseController implements ILoginController
 	private IAuthenticationService authenticationService;
 	
 	/**
-	 * Security service to get active user.
+	 * Service to get current user.
 	 */
 	@Autowired
-	private ISecurityService securityService;
+	private CurrentUserService currentUserService;
 
 	/**
 	 * Current http response.
@@ -126,11 +127,11 @@ public class LoginController extends BaseController implements ILoginController
 	@ResponseBody
 	@ActionName(ACTION_TYPE_ACTIVE_USER)
 	@RequestMapping(value = IWebUtilsCommonConstants.FETCH_USER_PATH, method = RequestMethod.GET)
-	public BasicReadResponse<ActiveUserModel> activeUser()
+	public BasicReadResponse<UserDetails> activeUser()
 	{
 		logger.trace("Trying to fetch active user details");
 		
-		return new BasicReadResponse<>(securityService.getActiverUser());
+		return new BasicReadResponse<>(currentUserService.getCurrentUserDetails());
 	}
 
 	@Override

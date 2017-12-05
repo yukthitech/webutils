@@ -105,7 +105,7 @@ public class BaseCrudController<M extends BaseModel, S extends BaseCrudService<?
 	 */
 	@ResponseBody
 	@RequestMapping("/fetch/{id}")
-	@ActionName(IWebUtilsActionConstants.ACTION_TYPE_FETCH)
+	@ActionName(IWebUtilsActionConstants.ACTION_TYPE_READ)
 	@Override
 	public BasicReadResponse<M> fetchById(@PathVariable("id") long id)
 	{

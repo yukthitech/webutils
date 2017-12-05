@@ -2,7 +2,7 @@
  * 
  */
 
-package com.yukthitech.webutils.common.models.search;
+package com.yukthitech.webutils.common.search;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,6 +41,14 @@ public class SearchSettingsColumn
 	 */
 	private boolean required;
 	
+	/**
+	 * Order of the field.
+	 */
+	private int order;
+	
+	/**
+	 * Instantiates a new search settings column.
+	 */
 	public SearchSettingsColumn()
 	{}
 
@@ -197,6 +205,11 @@ public class SearchSettingsColumn
 		return fields.get(0).getField();
 	}
 	
+	/**
+	 * Gets the property name.
+	 *
+	 * @return the property name
+	 */
 	@JsonIgnore
 	public String getPropertyName()
 	{
@@ -230,6 +243,26 @@ public class SearchSettingsColumn
 	public boolean isMixedField()
 	{
 		return fields.size() > 1;
+	}
+	
+	/**
+	 * Gets the order of the field.
+	 *
+	 * @return the order of the field
+	 */
+	public int getOrder()
+	{
+		return order;
+	}
+
+	/**
+	 * Sets the order of the field.
+	 *
+	 * @param order the new order of the field
+	 */
+	public void setOrder(int order)
+	{
+		this.order = order;
 	}
 
 	/* (non-Javadoc)
@@ -282,5 +315,4 @@ public class SearchSettingsColumn
 		builder.append("]");
 		return builder.toString();
 	}
-
 }

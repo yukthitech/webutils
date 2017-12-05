@@ -27,12 +27,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
+import com.yukthitech.utils.exceptions.InvalidStateException;
 import com.yukthitech.webutils.WebutilsConfiguration;
 import com.yukthitech.webutils.common.IExtendableModel;
 import com.yukthitech.webutils.common.annotations.ExtendableModel;
@@ -55,8 +58,17 @@ public class ExtendableModelValidator implements Validator
 	@Autowired
 	private WebutilsConfiguration webutilsConfiguration;
 	
-	@Autowired
+	@Autowired(required = false)
 	private IExtensionContextProvider extensionContextProvider;
+	
+	@PostConstruct
+	private void init()
+	{
+		if(webutilsConfiguration.isExtensionsRequired() && extensionContextProvider == null)
+		{
+			throw new InvalidStateException("Though extensions are enabled no implementation is provided for: {}", IExtensionContextProvider.class.getName());
+		}
+	}
 	
 	/* (non-Javadoc)
 	 * @see org.springframework.validation.Validator#supports(java.lang.Class)

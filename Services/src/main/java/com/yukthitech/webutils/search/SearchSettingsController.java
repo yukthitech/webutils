@@ -21,7 +21,7 @@
  * SOFTWARE.
  */
 
-package com.yukthitech.webutils.controllers;
+package com.yukthitech.webutils.search;
 
 import javax.validation.Valid;
 
@@ -35,14 +35,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.yukthitech.webutils.InvalidRequestParameterException;
 import com.yukthitech.webutils.annotations.ActionName;
-import com.yukthitech.webutils.common.controllers.ISearchSettingsController;
 import com.yukthitech.webutils.common.models.BaseResponse;
 import com.yukthitech.webutils.common.models.BasicReadResponse;
 import com.yukthitech.webutils.common.models.BasicSaveResponse;
-import com.yukthitech.webutils.common.models.SearchSettingsModel;
+import com.yukthitech.webutils.common.search.ISearchSettingsController;
+import com.yukthitech.webutils.common.search.SearchSettingsModel;
+import com.yukthitech.webutils.controllers.BaseController;
 import com.yukthitech.webutils.repository.search.SearchSettingsEntity;
-import com.yukthitech.webutils.services.SearchService;
-import com.yukthitech.webutils.services.SearchSettingsService;
 
 /**
  * Search settings controller.

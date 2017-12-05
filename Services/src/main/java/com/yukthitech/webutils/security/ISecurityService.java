@@ -25,9 +25,7 @@ package com.yukthitech.webutils.security;
 
 import java.lang.reflect.Method;
 
-import com.yukthitech.webutils.common.models.ActiveUserModel;
 import com.yukthitech.webutils.extensions.ExtensionEntityDetails;
-import com.yukthitech.webutils.repository.UserEntity;
 import com.yukthitech.webutils.repository.file.FileEntity;
 
 /**
@@ -37,19 +35,6 @@ import com.yukthitech.webutils.repository.file.FileEntity;
  */
 public interface ISecurityService
 {
-	/**
-	 * Builds and returns the user details based on specified user entity.
-	 * @param userEntity User entity for which user details needs to be built.
-	 * @return Built user details.
-	 */
-	public UserDetails getUserDetailsFor(UserEntity userEntity);
-	
-	/**
-	 * Should return user details and configurations of the current user. 
-	 * @return current active user details
-	 */
-	public ActiveUserModel getActiverUser();
-	
 	/**
 	 * Invoked to check if specified user is authorized to invoke specified method. This method is expected to read
 	 * security annotations from the target method and cross check with specified roles and decide the authorization
@@ -71,7 +56,10 @@ public interface ISecurityService
 	 * This space is used to restrict operations to the specified user space.
 	 * @return User space identity string.
 	 */
-	public String getUserSpaceIdentity();
+	public default String getUserSpaceIdentity()
+	{
+		return "";
+	}
 	
 	/**
 	 * Invoked to check if specified extension can be accessed by specified user.

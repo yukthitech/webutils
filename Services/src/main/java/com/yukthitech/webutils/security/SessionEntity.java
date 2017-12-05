@@ -14,6 +14,7 @@ import com.yukthitech.persistence.annotations.Index;
 import com.yukthitech.persistence.annotations.Indexes;
 import com.yukthitech.persistence.annotations.NotUpdateable;
 import com.yukthitech.persistence.conversion.impl.JsonConverter;
+import com.yukthitech.webutils.common.UserDetails;
 
 /**
  * Entity to maintain sessions.

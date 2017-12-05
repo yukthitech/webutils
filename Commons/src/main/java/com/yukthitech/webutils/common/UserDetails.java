@@ -21,7 +21,9 @@
  * SOFTWARE.
  */
 
-package com.yukthitech.webutils.security;
+package com.yukthitech.webutils.common;
+
+import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -30,8 +32,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * User details representing current user, which is used by security services.
  * 
  * @author akiran
+ * @param <R> Type of roles used by application.
  */
-public class UserDetails
+public class UserDetails<R extends Enum<R>>
 {
 	/**
 	 * Unique user id.
@@ -39,14 +42,19 @@ public class UserDetails
 	private long userId;
 	
 	/**
-	 * Type of the user.
+	 * Display name of the user.
 	 */
-	private String userType;
-
+	private String displayName;
+	
 	/**
 	 * Encrypted authentication/authorization token.
 	 */
 	private String authToken;
+	
+	/**
+	 * Roles of the user.
+	 */
+	private Set<R> roles;
 	
 	/**
 	 * Instantiates a new user details.
@@ -57,12 +65,13 @@ public class UserDetails
 	/**
 	 * Instantiates a new user details.
 	 *
-	 * @param userId
-	 *            the user id
+	 * @param userId the user id
+	 * @param displayName the display name
 	 */
-	public UserDetails(long userId)
+	public UserDetails(long userId, String displayName)
 	{
 		this.userId = userId;
+		this.displayName = displayName;
 	}
 
 	/**
@@ -110,22 +119,42 @@ public class UserDetails
 	}
 
 	/**
-	 * Gets the type of the user.
+	 * Gets the display name of the user.
 	 *
-	 * @return the type of the user
+	 * @return the display name of the user
 	 */
-	public String getUserType()
+	public String getDisplayName()
 	{
-		return userType;
+		return displayName;
 	}
 
 	/**
-	 * Sets the type of the user.
+	 * Sets the display name of the user.
 	 *
-	 * @param userType the new type of the user
+	 * @param displayName the new display name of the user
 	 */
-	public void setUserType(String userType)
+	public void setDisplayName(String displayName)
 	{
-		this.userType = userType;
+		this.displayName = displayName;
+	}
+
+	/**
+	 * Gets the roles of the user.
+	 *
+	 * @return the roles of the user
+	 */
+	public Set<R> getRoles()
+	{
+		return roles;
+	}
+
+	/**
+	 * Sets the roles of the user.
+	 *
+	 * @param roles the new roles of the user
+	 */
+	public void setRoles(Set<R> roles)
+	{
+		this.roles = roles;
 	}
 }

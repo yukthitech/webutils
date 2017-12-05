@@ -23,7 +23,7 @@
 
 package com.yukthitech.webutils.security;
 
-import com.yukthitech.webutils.security.UserDetails;
+import com.yukthitech.webutils.common.UserDetails;
 
 /**
  * Test user details without security fields

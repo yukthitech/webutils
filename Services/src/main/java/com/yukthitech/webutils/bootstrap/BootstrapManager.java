@@ -34,10 +34,11 @@ import com.yukthitech.persistence.repository.search.SearchQuery;
 import com.yukthitech.utils.ReflectionUtils;
 import com.yukthitech.utils.exceptions.InvalidArgumentException;
 import com.yukthitech.utils.exceptions.InvalidStateException;
+import com.yukthitech.webutils.common.UserDetails;
 import com.yukthitech.webutils.repository.UserEntity;
 import com.yukthitech.webutils.repository.WebutilsEntity;
+import com.yukthitech.webutils.security.IAuthenticationService;
 import com.yukthitech.webutils.security.ISecurityService;
-import com.yukthitech.webutils.security.UserDetails;
 import com.yukthitech.webutils.services.CurrentUserService;
 import com.yukthitech.webutils.services.UserService;
 import com.yukthitech.webutils.services.freemarker.FreeMarkerService;
@@ -169,10 +170,10 @@ public class BootstrapManager
 	private CurrentUserService currentUserService;
 	
 	/**
-	 * Security service to build user details from user entity.
+	 * Used to fetch user details from entity.
 	 */
 	@Autowired
-	private ISecurityService securityService;
+	private IAuthenticationService authenticationService;
 	
 	/**
 	 * Free marker service to process templates.
@@ -370,7 +371,7 @@ public class BootstrapManager
 				throw new InvalidStateException("Failed to fetch default user with specified name - {}", defaultUserName);
 			}
 			
-			UserDetails userDetails = securityService.getUserDetailsFor(defaultUser);
+			UserDetails userDetails = authenticationService.toUserDetails(defaultUser);
 			currentUserService.setInternalCurrentUser(userDetails);
 		}
 		

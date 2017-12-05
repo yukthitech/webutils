@@ -450,7 +450,9 @@
 								<set-var name="_showExpr" 
 									expr="(context._action.attr('row-action') == 'true') ? 'selectedIndex != null &amp;&amp; selectedIndex &gt;= 0' : 'true'"/>
 								
-								<yk-icon-link id="${_actionId}" icon="glyphicon ${_action.attr('icon')}" ng-click="${_action.attr('method')}" 
+								<set-var name="_actionIconPrefix" expr="(context._action.attr('icon').indexOf('glyphicon') &gt;= 0) ? 'glyphicon' : ''"/>
+								
+								<yk-icon-link id="${_actionId}" icon="${_actionIconPrefix} ${_action.attr('icon')}" ng-click="${_action.attr('method')}" 
 										color="${_action.attr('color')}" label="${_action.attr('label')}" ng-show="${_showExpr}"></yk-icon-link>
 							</for-each>
 							
@@ -461,11 +463,13 @@
 										<set-var name="_label" expr="context._action.attr('label') ? context._action.attr('label') : ''"/>
 										<set-var name="_showExpr" 
 											expr="(context._action.attr('row-action') == 'true') ? 'selectedIndex != null &amp;&amp; selectedIndex &gt;= 0' : 'true'"/>
+										<set-var name="_actionIconPrefix" expr="(context._action.attr('icon').indexOf('glyphicon') &gt;= 0) ? 'glyphicon' : ''"/>
 										
 										<li>
 											<a tabindex="-1" ng-click="${_action.attr('method')}" 
 													style="text-decoration: none; color: black; cursor: default; padding: 0.5em;" ng-show="${_showExpr}">
-												<i class="glyphicon ${_action.attr('icon')}" style="color: ${_action.attr('color')}; margin-right: 0.5em;"></i>
+												
+												<i class="${_actionIconPrefix} ${_action.attr('icon')}" style="color: ${_action.attr('color')}; margin-right: 0.5em;"></i>
 												${_action.attr('label')}
 											</a>
 										</li>
@@ -483,10 +487,11 @@
 						<for-each data="${actions}" loop-var="action" index-var="actionIdx">
 							<set-var name="_action" expr="$(context.action)"/>
 							<set-var name="_label" expr="context._action.attr('label') ? context._action.attr('label') : ''"/>
+							<set-var name="_actionIconPrefix" expr="(context._action.attr('icon').indexOf('glyphicon') &gt;= 0) ? 'glyphicon' : ''"/>
 
 							<a role="button" ng-click="${_action.attr('method')}" style="text-decoration: none; color: ${_action.attr('color')};" class="yk-icon-link" 
 										data-toggle="tooltip" title="${_action.attr('label')}" >
-								<i class="glyphicon ${_action.attr('icon')}"></i>
+								<i class="${_actionIconPrefix} ${_action.attr('icon')}"></i>
 							</a>
 						</for-each>
 					</if>

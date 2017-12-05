@@ -30,8 +30,8 @@ import java.util.stream.Collectors;
 
 import com.yukthitech.excel.exporter.data.Cell;
 import com.yukthitech.excel.exporter.data.IExcelDataReport;
-import com.yukthitech.webutils.common.models.search.ExecuteSearchResponse;
-import com.yukthitech.webutils.common.models.search.SearchColumn;
+import com.yukthitech.webutils.common.search.ExecuteSearchResponse;
+import com.yukthitech.webutils.common.search.SearchColumn;
 
 /**
  * Converts search results into excel date report format. Used during export of search results.

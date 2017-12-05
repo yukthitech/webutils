@@ -10,7 +10,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -80,6 +82,11 @@ public class EmailService
 	 */
 	@Autowired
 	private FreeMarkerService freeMarkerService;
+	
+	/**
+	 * Cache of email sessions used for efficiency.
+	 */
+	private Map<String, Session> sessionCache = new HashMap<>();
 
 	/**
 	 * Create new java mail session with the configuration provided to the
@@ -91,8 +98,15 @@ public class EmailService
 	 */
 	private Session newSession(EmailServerSettings settings)
 	{
+		String key = settings.getSmtpHost() + ":" + settings.getSmtpPort() + "@" + settings.getUserName();
+		Session mailSession = sessionCache.get(key);
+		
+		if(mailSession != null)
+		{
+			return mailSession;
+		}
+		
 		Properties configProperties = settings.toProperties();
-		Session mailSession = null;
 
 		// if authentication needs to be done provide user name and password
 		if(settings.isUseAuthentication())
@@ -110,6 +124,7 @@ public class EmailService
 			mailSession = Session.getInstance(configProperties);
 		}
 
+		sessionCache.put(key, mailSession);
 		return mailSession;
 	}
 

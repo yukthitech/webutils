@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.logging.log4j.LogManager;
@@ -168,7 +169,7 @@ public class AttachmentAopService
 	}
 
 	/**
-	 * Expected to be invoked by spring when a service with {@link AttachmentsExpected} annotation is present
+	 * Expected to be invoked by spring when a service with {@link AttachmentsExpected} annotation is present.
 	 * @param joinPoint Joint point details
 	 * @return Value returned by target method 
 	 * @throws Throwable

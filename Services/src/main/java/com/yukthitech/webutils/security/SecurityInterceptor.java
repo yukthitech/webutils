@@ -46,6 +46,7 @@ import com.yukthitech.webutils.WebutilsConfiguration;
 import com.yukthitech.webutils.WebutilsContext;
 import com.yukthitech.webutils.annotations.NoAuthentication;
 import com.yukthitech.webutils.common.IWebUtilsCommonConstants;
+import com.yukthitech.webutils.common.UserDetails;
 import com.yukthitech.webutils.common.models.BaseResponse;
 
 /**

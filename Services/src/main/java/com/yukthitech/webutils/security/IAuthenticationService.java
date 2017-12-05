@@ -2,11 +2,15 @@ package com.yukthitech.webutils.security;
 
 import java.util.Map;
 
+import com.yukthitech.webutils.common.UserDetails;
+import com.yukthitech.webutils.repository.UserEntity;
+
 /**
  * Authentication service base contract.
  * @author akiran
+ * @param <R> Roles used by application.
  */
-public interface IAuthenticationService
+public interface IAuthenticationService<R extends Enum<R>>
 {
 	/**
 	 * Implementation of this method should validate if given credentials are valid or not. 
@@ -16,5 +20,12 @@ public interface IAuthenticationService
 	 * @param attributes Extra attributes from client for custom login
 	 * @return User details representing matching user.
 	 */
-	public UserDetails authenticate(String userName, String password, Map<String, String> attributes);
+	public UserDetails<R> authenticate(String userName, String password, Map<String, String> attributes);
+	
+	/**
+	 * Used to convert user entity to user details. Currently this is used by bootstrap service.
+	 * @param userEntity user entity to convert
+	 * @return converted user details
+	 */
+	public UserDetails<R> toUserDetails(UserEntity userEntity);
 }

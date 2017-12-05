@@ -36,6 +36,11 @@ public interface IWebUtilsActionConstants
 	public String ACTION_TYPE_FETCH = "fetch";
 
 	/**
+	 * Action to be used for read by id.
+	 */
+	public String ACTION_TYPE_READ = "read";
+
+	/**
 	 * Action to be used for fetching names.
 	 */
 	public String ACTION_TYPE_FETCH_NAMES = "fetchNames";

@@ -130,7 +130,7 @@ $.application.controller('searchQueryController', ["$scope", "actionHelper", "lo
 					this.$scope.recordCount = result.totalCount;
 				}
 				
-				if(result.searchResults.length > 0)
+				if(result.searchResults && result.searchResults.length > 0)
 				{
 					for(var i = 0; i < result.searchColumns.length; i++)
 					{

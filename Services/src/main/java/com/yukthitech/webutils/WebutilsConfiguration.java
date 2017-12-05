@@ -24,19 +24,14 @@
 package com.yukthitech.webutils;
 
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-
-import com.yukthitech.webutils.security.UserDetails;
 
 /**
- * Configurations to be specified by web-applications using this web-utils
+ * Configurations to be specified by web-applications using this web-utils.
  * framework
  * 
  * @author akiran
@@ -58,29 +53,9 @@ public class WebutilsConfiguration
 	private List<String> basePackages;
 	
 	/**
-	 * Secret key used to encrypt/decrypt user details by auth services
-	 */
-	private String secretKey;
-	
-	/**
-	 * User details type to be used
-	 */
-	private Class<? extends UserDetails> userDetailsType = UserDetails.class;
-	
-	/**
-	 * Webutils authentication/authorization is enabled or not
+	 * Webutils authentication/authorization is enabled or not.
 	 */
 	private boolean authEnabled = true;
-	
-	/**
-	 * Session timeout in minutes
-	 */
-	private int sessionTimeOutInMin = 3;
-	
-	/**
-	 * Time after which session expires even if active. If non-negative or zero, session never gets expired.
-	 */
-	private int sessionExpiryInMin = -1;
 	
 	/**
 	 * Date format to be used for internal data exchange between client and server
@@ -88,14 +63,9 @@ public class WebutilsConfiguration
 	private SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 	
 	/**
-	 * Javascript based date format
+	 * Javascript based date format.
 	 */
 	private String jsDateFormat = "DD/MM/YYYY";
-	
-	/**
-	 *  Application specific configurations
-	 */
-	private Map<String, String> appConfigurations = new HashMap<>();
 	
 	/**
 	 * Validte.
@@ -111,16 +81,6 @@ public class WebutilsConfiguration
 		if(!authEnabled)
 		{
 			return;
-		}
-		
-		if(userDetailsType == null)
-		{
-			throw new IllegalStateException("No user-details-type is specified in Web-utils-configurationn bean. It is mandatory when auth is enabled.");
-		}
-		
-		if(StringUtils.isBlank(secretKey))
-		{
-			throw new IllegalStateException("No secret key is specified in Web-utils-configurationn bean. It is mandatory when auth is enabled.");
 		}
 	}
 
@@ -165,56 +125,6 @@ public class WebutilsConfiguration
 	}
 
 	/**
-	 * Gets the secret key used to enrypt/decrypt user details by auth services.
-	 *
-	 * @return the secret key used to enrypt/decrypt user details by auth services
-	 */
-	public String getSecretKey()
-	{
-		return secretKey;
-	}
-
-	/**
-	 * Sets the secret key used to enrypt/decrypt user details by auth services. Secret key length should be 16.
-	 *
-	 * @param secretKey the new secret key used to enrypt/decrypt user details by auth services
-	 */
-	public void setSecretKey(String secretKey)
-	{
-		if(secretKey.length() != 16)
-		{
-			throw new IllegalArgumentException("Secret key should be of length 16");
-		}
-		
-		this.secretKey = secretKey;
-	}
-
-	/**
-	 * Gets the user details type to be used.
-	 *
-	 * @return the user details type to be used
-	 */
-	public Class<? extends UserDetails> getUserDetailsType()
-	{
-		return userDetailsType;
-	}
-
-	/**
-	 * Sets the user details type to be used.
-	 *
-	 * @param userDetailsType the new user details type to be used
-	 */
-	public void setUserDetailsType(Class<? extends UserDetails> userDetailsType)
-	{
-		if(!UserDetails.class.isAssignableFrom(userDetailsType))
-		{
-			throw new IllegalArgumentException("Non user-details element is specified as user details type - " + userDetailsType.getName());
-		}
-		
-		this.userDetailsType = userDetailsType;
-	}
-
-	/**
 	 * Checks if is webutils authentication/authorization is enabled or not.
 	 *
 	 * @return the webutils authentication/authorization is enabled or not
@@ -234,31 +144,6 @@ public class WebutilsConfiguration
 		this.authEnabled = enableAuth;
 	}
 
-	/**
-	 * Gets the session timeout in minutes.
-	 *
-	 * @return the session timeout in minutes
-	 */
-	public int getSessionTimeOutInMin()
-	{
-		return sessionTimeOutInMin;
-	}
-
-	/**
-	 * Sets the session timeout in minutes. Time out value should be greater than or equal to 2 mins.
-	 *
-	 * @param sessionTimeOutInMin the new session timeout in minutes
-	 */
-	public void setSessionTimeOutInMin(int sessionTimeOutInMin)
-	{
-		if(sessionTimeOutInMin < 2)
-		{
-			throw new IllegalArgumentException("Session time can not be less than 2 mins - " + sessionTimeOutInMin);
-		}
-		
-		this.sessionTimeOutInMin = sessionTimeOutInMin;
-	}
-	
 	/**
 	 * Sets the date format to be used for internal data exchange between client and server.
 	 *
@@ -280,26 +165,6 @@ public class WebutilsConfiguration
 	}
 
 	/**
-	 * Gets the time after which session expires even if active. If non-negative or zero, session never gets expired.
-	 *
-	 * @return the time after which session expires even if active
-	 */
-	public int getSessionExpiryInMin()
-	{
-		return sessionExpiryInMin;
-	}
-
-	/**
-	 * Sets the time after which session expires even if active. If non-negative or zero, session never gets expired.
-	 *
-	 * @param sessionExpiryInMin the new time after which session expires even if active
-	 */
-	public void setSessionExpiryInMin(int sessionExpiryInMin)
-	{
-		this.sessionExpiryInMin = sessionExpiryInMin;
-	}
-
-	/**
 	 * Gets the javascript based date format.
 	 *
 	 * @return the javascript based date format
@@ -317,25 +182,5 @@ public class WebutilsConfiguration
 	public void setJsDateFormat(String jsDateFormat)
 	{
 		this.jsDateFormat = jsDateFormat;
-	}
-
-	/**
-	 * Gets the application specific configurations.
-	 *
-	 * @return the application specific configurations
-	 */
-	public Map<String, String> getAppConfigurations()
-	{
-		return appConfigurations;
-	}
-
-	/**
-	 * Sets the application specific configurations.
-	 *
-	 * @param appConfigurations the new application specific configurations
-	 */
-	public void setAppConfigurations(Map<String, String> appConfigurations)
-	{
-		this.appConfigurations = appConfigurations;
 	}
 }

@@ -328,15 +328,8 @@ public class EmailServerSettings
 	{
 		Properties props = new Properties();
 		
-		if(useAuthentication)
-		{
-			props.put(PROP_USE_AUTH, "true");
-		}
-		
-		if(enableTtls)
-		{
-			props.put(PROP_ENABLE_TTLS, "true");
-		}
+		props.put(PROP_USE_AUTH, "" + useAuthentication);
+		props.put(PROP_ENABLE_TTLS, "" + enableTtls);
 		
 		props.put(PROP_SMTP_HOST, smtpHost);
 		

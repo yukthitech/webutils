@@ -12,7 +12,7 @@ import com.yukthitech.persistence.annotations.NotUpdateable;
 import com.yukthitech.persistence.annotations.UniqueConstraint;
 import com.yukthitech.persistence.annotations.UniqueConstraints;
 import com.yukthitech.persistence.conversion.impl.JsonConverter;
-import com.yukthitech.webutils.common.models.search.SearchSettingsColumn;
+import com.yukthitech.webutils.common.search.SearchSettingsColumn;
 import com.yukthitech.webutils.repository.UserEntity;
 import com.yukthitech.webutils.repository.WebutilsEntity;
 

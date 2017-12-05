@@ -57,7 +57,7 @@ public abstract class WebutilsEntity
 	 * Created on time.
 	 */
 	@NotUpdateable
-	@Column(name = "CREATED_ON")
+	@Column(name = "CREATED_ON", nullable = false)
 	@DataTypeMapping(type = DataType.DATE_TIME)
 	private Date createdOn;
 
@@ -71,7 +71,7 @@ public abstract class WebutilsEntity
 	/**
 	 * Updated on.
 	 */
-	@Column(name = "UPDATED_ON")
+	@Column(name = "UPDATED_ON", nullable = false)
 	@DataTypeMapping(type = DataType.DATE_TIME)
 	private Date updatedOn;
 

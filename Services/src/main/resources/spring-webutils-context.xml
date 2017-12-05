@@ -33,7 +33,12 @@
 	</mvc:interceptors>
 	
 	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-		<property name="location" value="classpath:/app-config.properties"/>
+   		<property name="locations">
+   			<list>
+				<value>classpath:/default-app-config.properties</value>
+   				<value>classpath:/app-config.properties</value>
+   			</list>
+   		</property>
 	</bean>
 
 	<bean id="labelsMessageSource"
@@ -80,7 +85,6 @@
 	</bean>
 	
 	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver" />
-
 	<!--  
 	<bean id="emailServiceConfig" class="com.yukthitech.webutils.mail.EmailServiceConfiguration">
 		<property name="smtpHost" value="${webutils.mail.smtp.host}"/>
@@ -91,7 +95,19 @@
 		<property name="enableTtls" value="${webutils.mail.smtp.enableTtls:false}"/>
 	</bean>
 	-->
-
 	<aop:aspectj-autoproxy/>
 
+	<bean id="webutilsConfiguration" class="com.yukthitech.webutils.WebutilsConfiguration">
+		<property name="extensionsRequired" value="${app.extensions.enabled:false}"/>
+		<property name="authEnabled" value="${app.auth.enabled:true}"/>
+		
+		<property name="dateFormat" value="${app.date.format:dd/MM/yyyy}"/>
+		<property name="jsDateFormat" value="${app.js.date.format:dd/MM/yyyy}"/>
+		
+		<property name="basePackages">
+			<list>
+				<value>${app.base.package}</value>
+			</list>
+		</property>
+	</bean>
 </beans>

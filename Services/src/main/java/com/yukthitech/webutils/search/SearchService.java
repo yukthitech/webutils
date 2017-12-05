@@ -21,7 +21,7 @@
  * SOFTWARE.
  */
 
-package com.yukthitech.webutils.services;
+package com.yukthitech.webutils.search;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -34,6 +34,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.annotation.PostConstruct;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -62,17 +64,18 @@ import com.yukthitech.webutils.common.annotations.ContextAttribute;
 import com.yukthitech.webutils.common.annotations.Model;
 import com.yukthitech.webutils.common.models.def.FieldType;
 import com.yukthitech.webutils.common.models.def.ModelDef;
-import com.yukthitech.webutils.common.models.search.ExecuteSearchResponse;
-import com.yukthitech.webutils.common.models.search.SearchColumn;
-import com.yukthitech.webutils.common.models.search.SearchField;
-import com.yukthitech.webutils.common.models.search.SearchRow;
-import com.yukthitech.webutils.common.models.search.SearchSettingsColumn;
+import com.yukthitech.webutils.common.search.ExecuteSearchResponse;
+import com.yukthitech.webutils.common.search.SearchColumn;
+import com.yukthitech.webutils.common.search.SearchField;
+import com.yukthitech.webutils.common.search.SearchRow;
+import com.yukthitech.webutils.common.search.SearchSettingsColumn;
 import com.yukthitech.webutils.controllers.IExtensionContextProvider;
 import com.yukthitech.webutils.repository.WebutilsExtendableEntity;
 import com.yukthitech.webutils.repository.search.ISearchResultCustomizer;
 import com.yukthitech.webutils.repository.search.SearchSettingsEntity;
 import com.yukthitech.webutils.security.ISecurityService;
 import com.yukthitech.webutils.security.UnauthorizedException;
+import com.yukthitech.webutils.services.ModelDetailsService;
 import com.yukthitech.webutils.services.dynamic.DynamicMethod;
 import com.yukthitech.webutils.utils.WebUtils;
 
@@ -157,8 +160,20 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 	/**
 	 * Used to fetch extension name of the search result.
 	 */
-	@Autowired
+	@Autowired(required = false)
 	private IExtensionContextProvider extensionContextProvider;
+	
+	/**
+	 * Post construct method used to validate autowired services.
+	 */
+	@PostConstruct
+	private void init()
+	{
+		if(webutilsConfiguration.isExtensionsRequired() && extensionContextProvider == null)
+		{
+			throw new InvalidStateException("Though extensions are enabled no implmentation provided for {}", IExtensionContextProvider.class.getName());
+		}
+	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override

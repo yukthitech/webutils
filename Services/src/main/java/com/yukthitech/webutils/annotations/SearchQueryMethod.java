@@ -31,7 +31,7 @@ import java.lang.annotation.Target;
 import com.yukthitech.persistence.repository.annotations.SearchFunction;
 import com.yukthitech.persistence.repository.annotations.SearchResult;
 import com.yukthitech.webutils.repository.search.ISearchResultCustomizer;
-import com.yukthitech.webutils.services.SearchService;
+import com.yukthitech.webutils.search.SearchService;
 
 /**
  * Used to mark a repository method as search query method. So that when required

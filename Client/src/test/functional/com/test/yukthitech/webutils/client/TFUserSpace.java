@@ -45,8 +45,8 @@ import com.yukthitech.webutils.common.controllers.ILovController;
 import com.yukthitech.webutils.common.models.BasicReadResponse;
 import com.yukthitech.webutils.common.models.BasicSaveResponse;
 import com.yukthitech.webutils.common.models.ValueLabel;
-import com.yukthitech.webutils.common.models.search.ExecuteSearchResponse;
-import com.yukthitech.webutils.common.models.search.SearchRow;
+import com.yukthitech.webutils.common.search.ExecuteSearchResponse;
+import com.yukthitech.webutils.common.search.SearchRow;
 
 /**
  * Tests the data save and fetch are restricted to spaces.

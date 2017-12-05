@@ -36,13 +36,12 @@ import com.test.yukthitech.webutils.Authorization;
 import com.test.yukthitech.webutils.SecurityRole;
 import com.test.yukthitech.webutils.TestUserDetails;
 import com.yukthitech.utils.CommonUtils;
-import com.yukthitech.webutils.common.models.ActiveUserModel;
+import com.yukthitech.webutils.common.UserDetails;
 import com.yukthitech.webutils.extensions.ExtensionEntityDetails;
 import com.yukthitech.webutils.repository.UserEntity;
 import com.yukthitech.webutils.repository.file.FileEntity;
 import com.yukthitech.webutils.security.IAuthenticationService;
 import com.yukthitech.webutils.security.ISecurityService;
-import com.yukthitech.webutils.security.UserDetails;
 import com.yukthitech.webutils.services.CurrentUserService;
 
 /**
@@ -50,7 +49,7 @@ import com.yukthitech.webutils.services.CurrentUserService;
  *
  */
 @Service
-public class TestAuthenticationService implements ISecurityService, IAuthenticationService
+public class TestAuthenticationService implements ISecurityService, IAuthenticationService<SecurityRole>
 {
 	/** The user service. */
 	@Autowired
@@ -118,12 +117,6 @@ public class TestAuthenticationService implements ISecurityService, IAuthenticat
 	}
 
 	@Override
-	public ActiveUserModel getActiverUser()
-	{
-		return new ActiveUserModel();
-	}
-
-	@Override
 	public String getUserSpaceIdentity()
 	{
 		String custId = request.getHeader("customerId");
@@ -131,8 +124,8 @@ public class TestAuthenticationService implements ISecurityService, IAuthenticat
 	}
 
 	@Override
-	public UserDetails getUserDetailsFor(UserEntity userEntity)
+	public UserDetails<SecurityRole> toUserDetails(UserEntity userEntity)
 	{
-		return null;
+		return new TestUserDetails(userEntity.getId(), CommonUtils.toSet(SecurityRole.ADMIN, SecurityRole.CLIENT_ADMIN), 0);
 	}
 }

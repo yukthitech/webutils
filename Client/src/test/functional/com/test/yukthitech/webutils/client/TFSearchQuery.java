@@ -45,13 +45,13 @@ import com.yukthitech.webutils.client.ActionRequestBuilder;
 import com.yukthitech.webutils.client.RestException;
 import com.yukthitech.webutils.client.helpers.SearchHelper;
 import com.yukthitech.webutils.common.IWebUtilsCommonConstants;
-import com.yukthitech.webutils.common.controllers.ISearchController;
 import com.yukthitech.webutils.common.models.BaseResponse;
 import com.yukthitech.webutils.common.models.BasicSaveResponse;
 import com.yukthitech.webutils.common.models.def.FieldDef;
 import com.yukthitech.webutils.common.models.def.ModelDef;
-import com.yukthitech.webutils.common.models.search.ExecuteSearchResponse;
-import com.yukthitech.webutils.common.models.search.SearchRow;
+import com.yukthitech.webutils.common.search.ExecuteSearchResponse;
+import com.yukthitech.webutils.common.search.ISearchController;
+import com.yukthitech.webutils.common.search.SearchRow;
 
 /**
  * Test LOV value fetching from server

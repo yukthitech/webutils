@@ -1,4 +1,4 @@
-package com.yukthitech.webutils.common.models.search;
+package com.yukthitech.webutils.common.search;
 
 import java.util.ArrayList;
 import java.util.List;

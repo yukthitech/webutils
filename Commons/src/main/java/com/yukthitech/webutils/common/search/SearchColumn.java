@@ -1,4 +1,4 @@
-package com.yukthitech.webutils.common.models.search;
+package com.yukthitech.webutils.common.search;
 
 import com.yukthitech.webutils.common.models.def.FieldType;
 

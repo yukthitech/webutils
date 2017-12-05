@@ -23,10 +23,8 @@
 
 package com.yukthitech.webutils.security;
 
-import java.util.Set;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.yukthitech.webutils.security.UserDetails;
+import com.yukthitech.webutils.common.UserDetails;
 
 /**
  * Test user details with security fields
@@ -38,8 +36,6 @@ public class UserDetails2 extends UserDetails
 	private int field1;
 
 	private long field2;
-
-	private Set<TestRole> roles;
 
 	public UserDetails2()
 	{}
@@ -70,17 +66,6 @@ public class UserDetails2 extends UserDetails
 	public void setField2(long field2)
 	{
 		this.field2 = field2;
-	}
-
-	@JsonProperty("ro")
-	public Set<TestRole> getRoles()
-	{
-		return roles;
-	}
-
-	public void setRoles(Set<TestRole> roles)
-	{
-		this.roles = roles;
 	}
 
 }

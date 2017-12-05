@@ -29,11 +29,11 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.yukthitech.webutils.common.IWebUtilsCommonConstants;
-import com.yukthitech.webutils.common.controllers.ISearchSettingsController;
 import com.yukthitech.webutils.common.models.BasicReadResponse;
 import com.yukthitech.webutils.common.models.BasicSaveResponse;
-import com.yukthitech.webutils.common.models.SearchSettingsModel;
-import com.yukthitech.webutils.common.models.search.SearchSettingsColumn;
+import com.yukthitech.webutils.common.search.ISearchSettingsController;
+import com.yukthitech.webutils.common.search.SearchSettingsColumn;
+import com.yukthitech.webutils.common.search.SearchSettingsModel;
 
 /**
  * @author akiran

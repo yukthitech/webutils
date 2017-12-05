@@ -1,10 +1,10 @@
-package com.yukthitech.webutils.common.controllers;
+package com.yukthitech.webutils.common.search;
 
 import com.yukthitech.webutils.common.RemoteService;
+import com.yukthitech.webutils.common.controllers.IClientController;
 import com.yukthitech.webutils.common.models.BaseResponse;
 import com.yukthitech.webutils.common.models.BasicReadResponse;
 import com.yukthitech.webutils.common.models.BasicSaveResponse;
-import com.yukthitech.webutils.common.models.SearchSettingsModel;
 
 /**
  * Controller interface for search settings.

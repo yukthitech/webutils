@@ -37,7 +37,6 @@ import org.springframework.stereotype.Service;
 
 import com.yukthitech.persistence.ICrudRepository;
 import com.yukthitech.persistence.repository.RepositoryFactory;
-import com.yukthitech.utils.exceptions.InvalidStateException;
 import com.yukthitech.webutils.IRepositoryMethodRegistry;
 import com.yukthitech.webutils.IWebUtilsInternalConstants;
 import com.yukthitech.webutils.WebutilsConfiguration;
@@ -137,7 +136,8 @@ public class RepositoryLoader
 					continue;
 				}
 				
-				throw new InvalidStateException("Found repository which is of non webutils repository type - {}", type.getName());
+				logger.warn("Found repository which is of non webutils repository type - {}", type.getName());
+				continue;
 			}
 			
 			repository = repositoryFactory.getRepository((Class) type);
@@ -145,7 +145,8 @@ public class RepositoryLoader
 			
 			if( !WebutilsEntity.class.isAssignableFrom(repository.getEntityDetails().getEntityType()) )
 			{
-				throw new InvalidStateException("Found entity which is of non webutils entity type - {}", type.getName());
+				logger.warn("Found entity which is of non webutils entity type - {}", type.getName());
+				continue;
 			}
 			
 			registerDynamicMethods(type, repository, dynAnnotLst);

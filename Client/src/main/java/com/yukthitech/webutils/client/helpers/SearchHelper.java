@@ -38,7 +38,7 @@ import com.yukthitech.webutils.client.ClientContext;
 import com.yukthitech.webutils.client.RestException;
 import com.yukthitech.webutils.common.IWebUtilsCommonConstants;
 import com.yukthitech.webutils.common.SearchExecutionModel;
-import com.yukthitech.webutils.common.models.search.ExecuteSearchResponse;
+import com.yukthitech.webutils.common.search.ExecuteSearchResponse;
 
 /**
  * Helper to execute search related functions

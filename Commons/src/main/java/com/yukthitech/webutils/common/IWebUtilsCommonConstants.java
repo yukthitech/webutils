@@ -118,17 +118,47 @@ public interface IWebUtilsCommonConstants
 	public SimpleDateFormat DEFAULT_DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy");
 	
 	/**
-	 * Phone pattern string
+	 * Phone pattern string.
 	 */
 	public String PATTERN_PHONE = "[\\d\\ \\(\\)]+";
 	
 	/**
-	 * Email pattern string
+	 * Error message for name pattern.
+	 */
+	public String PATTERN_MSSG_PHONE = "Phone number can contain only numbers.";
+
+	/**
+	 * Email pattern string.
 	 */
 	public String PATTERN_EMAIL = "[\\w\\.\\-]+\\@[\\w\\.\\-]+\\.[\\w]+";
 	
+	/**
+	 * Error message for mail pattern.
+	 */
+	public String PATTERN_MSSG_EMAIL = "Mail-id can contain alpha numeric characters or dot or hyphen.";
+
 	/** 
 	 * The pattern url link to save the documents link. 
 	 **/
 	public String PATTERN_URL_LINK = "\\w+\\:.+";
+	
+	/**
+	 * Pattern to be used for name fields.
+	 */
+	public String PATTERN_NAME = "[a-zA-Z\\s]+";
+	
+	/**
+	 * Error message for name pattern.
+	 */
+	public String PATTERN_MSSG_NAME = "Name can contain only alphabets.";
+	
+	/**
+	 * Pattern which is not suppose to be found in names.
+	 */
+	public String MIS_PATTERN_NAME = "\\s+";
+
+	/**
+	 * Error message for name pattern.
+	 */
+	public String MIS_PATTERN_MSSG_NAME = "Name should not contain more than one continous space.";
 }

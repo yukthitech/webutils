@@ -302,15 +302,13 @@ public class ActionsService
 	 * @param clsRequestMapping Request mapping path defined on main controller class
 	 * @param cls Class from which service methods needs to be scanned
 	 * @param nameToModel Map into which action details needs to be populated, using action name as key
+	 * @param remoteInterTypeName remote interface type of the controller class being loaded
+	 * @param inheritedActions actions already inherited by current controller
+	 * @return actions loaded by current class
 	 */
-	private void loadActions(String classActionName, String clsRequestMapping, Class<?> cls, Map<String, ActionModel> nameToModel)
+	private Set<String> loadActions(String classActionName, String clsRequestMapping, Class<?> cls, Map<String, ActionModel> nameToModel, 
+			String remoteInterTypeName, Set<String> inheritedActions)
 	{
-		//if class is part of core java
-		if(cls.getName().startsWith("java"))
-		{
-			return;
-		}
-
 		ActionName actName = null;
 		RequestMapping requestMapping = null;
 
@@ -318,18 +316,15 @@ public class ActionsService
 		Set<String> expectedRequestParams = new TreeSet<>(); 
 
 		String url = null;
-		
-		//fetch the remote interface of the current controller
-		Class<?> remoteInterType = getRemoteInterface(cls);
-		String remoteInterTypeName = remoteInterType != null ? remoteInterType.getName() : null;
-		
 		ActionModel action = null;
 		
+		Set<String> newActions = new HashSet<>();
+		
 		//get controller methods
-		for(Method method : cls.getMethods())
+		for(Method method : cls.getDeclaredMethods())
 		{
 			//if current method is static, ignore
-			if(Modifier.isStatic(method.getModifiers()))
+			if(Modifier.isStatic(method.getModifiers()) || method.isSynthetic() || !Modifier.isPublic(method.getModifiers()))
 			{
 				continue;
 			}
@@ -346,8 +341,6 @@ public class ActionsService
 				continue;
 			}
 			
-			action = new ActionModel(remoteInterTypeName, WebutilsCommonUtils.getMethodSignature(cls, method));
-			
 			//use method name as action name if action is not defined
 			actionName = (actName == null) ? method.getName() : actName.value();
 			
@@ -357,11 +350,22 @@ public class ActionsService
 				actionName = classActionName + "." + actionName;
 			}
 			
+			//if action is already found in child class, ignore in parent class
+			if(inheritedActions.contains(actionName))
+			{
+				continue;
+			}
+			
 			//if action name is duplicated throw error
 			if(nameToModel.containsKey(actionName))
 			{
-				throw new InvalidStateException("Duplicate action configuration encountered for action: {}.", actionName);
+				throw new InvalidStateException("Duplicate action configuration encountered for action: {}. Duplicates: [{}, {}]", 
+						actionName, nameToModel.get(actionName).getRemoteMethodSignature(), action.getRemoteMethodSignature());
 			}
+
+			action = new ActionModel(remoteInterTypeName, WebutilsCommonUtils.getMethodSignature(cls, method));
+			
+			newActions.add(actionName);
 			
 			//get the http method of the service method
 			if(requestMapping.method().length == 0)
@@ -390,6 +394,8 @@ public class ActionsService
 			
 			nameToModel.put(actionName, action);
 		}
+		
+		return newActions;
 	}
 	
 	/**
@@ -416,11 +422,29 @@ public class ActionsService
 		ActionName actName = cls.getAnnotation(ActionName.class);
 		String classActionName = (actName != null) ? actName.value() : null;
 
+		//fetch the remote interface of the current controller
+		Class<?> remoteInterType = getRemoteInterface(cls);
+		String remoteInterTypeName = remoteInterType != null ? remoteInterType.getName() : null;
+		
+		Set<String> inheritedActions = new HashSet<>();
+		Set<String> newActions = null;
+		Class<?> curCls = cls;
+
 		/*
-		 * For loading actions, parent class need not be considered. As loadActions() method considers
-		 * all accessible methods of cls (which includes public methods of parent classes).
+		 * Load actions hierarchically
 		 */
-		loadActions(classActionName, clsRequestMapping, cls, nameToModel);
+		while(true)
+		{
+			if(curCls.getName().startsWith("java"))
+			{
+				break;
+			}
+			
+			newActions = loadActions(classActionName, clsRequestMapping, curCls, nameToModel, remoteInterTypeName, inheritedActions);
+			inheritedActions.addAll(newActions);
+			
+			curCls = curCls.getSuperclass();
+		}
 	}
 	
 	/**

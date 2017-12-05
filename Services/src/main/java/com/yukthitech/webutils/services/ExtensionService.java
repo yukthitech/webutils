@@ -24,6 +24,7 @@
 package com.yukthitech.webutils.services;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -44,6 +45,7 @@ import com.yukthitech.utils.exceptions.InvalidConfigurationException;
 import com.yukthitech.utils.exceptions.InvalidStateException;
 import com.yukthitech.webutils.IWebUtilsInternalConstants;
 import com.yukthitech.webutils.ServiceException;
+import com.yukthitech.webutils.WebutilsConfiguration;
 import com.yukthitech.webutils.annotations.ExtendableEntity;
 import com.yukthitech.webutils.annotations.LovMethod;
 import com.yukthitech.webutils.common.IExtendableModel;
@@ -103,6 +105,12 @@ public class ExtensionService
 	 */
 	@Autowired
 	private ISecurityService securityService;
+	
+	/**
+	 * Webutils configuration used for app customization.
+	 */
+	@Autowired
+	private WebutilsConfiguration webutilsConfiguration;
 
 	/**
 	 * Maintains name to extension mapping.
@@ -127,7 +135,7 @@ public class ExtensionService
 	/**
 	 * Used to fetch extension name of the required models.
 	 */
-	@Autowired
+	@Autowired(required = false)
 	private IExtensionContextProvider extensionContextProvider;
 	
 	/**
@@ -136,6 +144,17 @@ public class ExtensionService
 	@PostConstruct
 	private void init()
 	{
+		if(!webutilsConfiguration.isExtensionsRequired())
+		{
+			logger.warn("As extensions are not enabled for application, extension-service initialization is being skipped.");
+			return;
+		}
+		
+		if(extensionContextProvider == null)
+		{
+			throw new InvalidStateException("Though extensions are enabled for application no implementation is provided for: {}", IExtensionContextProvider.class.getName());
+		}
+		
 		this.extensionRepository = repositoryFactory.getRepository(IExtensionRepository.class);
 		this.extensionFieldRepository = repositoryFactory.getRepository(IExtensionFieldRepository.class);
 		
@@ -296,6 +315,11 @@ public class ExtensionService
 	 */
 	public List<ExtensionFieldEntity> getExtensionFieldsForEntity(String entityType)
 	{
+		if(!webutilsConfiguration.isExtensionsRequired())
+		{
+			return Collections.emptyList();
+		}
+		
 		logger.trace("Fetching extension fields for entity type - {}", entityType);
 		
 		return extensionFieldRepository.findExtensionFieldsByEntity(entityType);

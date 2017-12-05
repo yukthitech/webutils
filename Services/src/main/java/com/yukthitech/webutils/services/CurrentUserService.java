@@ -33,9 +33,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.yukthitech.webutils.IWebUtilsInternalConstants;
+import com.yukthitech.webutils.common.UserDetails;
 import com.yukthitech.webutils.repository.UserEntity;
 import com.yukthitech.webutils.repository.WebutilsEntity;
-import com.yukthitech.webutils.security.UserDetails;
 
 /**
  * Context user related services.
@@ -55,13 +55,13 @@ public class CurrentUserService
 	/**
 	 * Internal active user to be used for populating tracking fields when request is not available.
 	 */
-	private UserDetails internalActiveUser;
+	private UserDetails<?> internalActiveUser;
 	
 	/**
 	 * Used to set active user. Expected to be used for internal services like bootstrap loader.
 	 * @param userDetails User details to be set.
 	 */
-	public void setInternalCurrentUser(UserDetails userDetails)
+	public void setInternalCurrentUser(UserDetails<?> userDetails)
 	{
 		this.internalActiveUser = userDetails;
 	}
@@ -70,11 +70,11 @@ public class CurrentUserService
 	 * Fetches current user details from the request.
 	 * @return Current user details
 	 */
-	public UserDetails getCurrentUserDetails()
+	public UserDetails<?> getCurrentUserDetails()
 	{
 		try
 		{
-			return (UserDetails) request.getAttribute(IWebUtilsInternalConstants.REQ_ATTR_USER_DETAILS);
+			return (UserDetails<?>) request.getAttribute(IWebUtilsInternalConstants.REQ_ATTR_USER_DETAILS);
 		}catch(Exception ex)
 		{
 			if(internalActiveUser != null)
@@ -93,7 +93,7 @@ public class CurrentUserService
 	 */
 	public void populateTrackingFieldForCreate(WebutilsEntity trackedEntity)
 	{
-		UserDetails userDetails = getCurrentUserDetails();
+		UserDetails<?> userDetails = getCurrentUserDetails();
 
 		//set date fields
 		Date now = new Date();
@@ -119,7 +119,7 @@ public class CurrentUserService
 	 */
 	public void populateTrackingFieldForUpdate(WebutilsEntity trackedEntity)
 	{
-		UserDetails userDetails = getCurrentUserDetails();
+		UserDetails<?> userDetails = getCurrentUserDetails();
 
 		//set date fields
 		Date now = new Date();
