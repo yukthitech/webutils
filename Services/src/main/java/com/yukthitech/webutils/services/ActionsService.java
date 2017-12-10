@@ -239,9 +239,8 @@ public class ActionsService
 					action.setFileFields(fileFields);
 				}
 			}
-			
 			//if the parameter is defined to fetch from request
-			if(parameter.getAnnotation(RequestParam.class) != null)
+			else if(parameter.getAnnotation(RequestParam.class) != null)
 			{
 				paramName = parameter.getAnnotation(RequestParam.class).value();
 				
@@ -254,9 +253,8 @@ public class ActionsService
 				actionParam.setName(paramName);
 				actionParam.setType(ActionParamModel.TYPE_REQUEST_PARAM);
 			}
-			
 			//if the parameter is defined to fetch from url path
-			if(parameter.getAnnotation(PathVariable.class) != null)
+			else if(parameter.getAnnotation(PathVariable.class) != null)
 			{
 				paramName = parameter.getAnnotation(PathVariable.class).value();
 				
@@ -304,10 +302,11 @@ public class ActionsService
 	 * @param nameToModel Map into which action details needs to be populated, using action name as key
 	 * @param remoteInterTypeName remote interface type of the controller class being loaded
 	 * @param inheritedActions actions already inherited by current controller
+	 * @param mainClass Main class from which actions are being loaded. "cls" can be parent class of mainClass
 	 * @return actions loaded by current class
 	 */
 	private Set<String> loadActions(String classActionName, String clsRequestMapping, Class<?> cls, Map<String, ActionModel> nameToModel, 
-			String remoteInterTypeName, Set<String> inheritedActions)
+			String remoteInterTypeName, Set<String> inheritedActions, Class<?> mainClass)
 	{
 		ActionName actName = null;
 		RequestMapping requestMapping = null;
@@ -363,7 +362,7 @@ public class ActionsService
 						actionName, nameToModel.get(actionName).getRemoteMethodSignature(), action.getRemoteMethodSignature());
 			}
 
-			action = new ActionModel(remoteInterTypeName, WebutilsCommonUtils.getMethodSignature(cls, method));
+			action = new ActionModel(remoteInterTypeName, WebutilsCommonUtils.getMethodSignature(mainClass, method));
 			
 			newActions.add(actionName);
 			
@@ -440,7 +439,7 @@ public class ActionsService
 				break;
 			}
 			
-			newActions = loadActions(classActionName, clsRequestMapping, curCls, nameToModel, remoteInterTypeName, inheritedActions);
+			newActions = loadActions(classActionName, clsRequestMapping, curCls, nameToModel, remoteInterTypeName, inheritedActions, cls);
 			inheritedActions.addAll(newActions);
 			
 			curCls = curCls.getSuperclass();

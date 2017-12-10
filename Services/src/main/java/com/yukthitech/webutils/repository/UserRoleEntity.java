@@ -38,7 +38,7 @@ import com.yukthitech.persistence.conversion.impl.JsonConverter;
  * 
  * @author akiran
  */
-@Table(name = "USER_ROLES")
+@Table(name = "WEBUTILS_USER_ROLES")
 @UniqueConstraints({
 	@UniqueConstraint(name = "UQ_UROLE_ROLE", fields = {"user", "role", "ownerType", "ownerId"})
 	})

@@ -43,7 +43,7 @@ import com.yukthitech.webutils.repository.WebutilsEntity;
 @Indexes({
 	@Index(name = "FILE_OWNER_IDX", fields = {"ownerEntityType", "ownerEntityId"})
 	})
-@Table(name = "FILE_ENTITY")
+@Table(name = "WEBUTILS_FILE_ENTITY")
 public class FileEntity extends WebutilsEntity
 {
 	/**

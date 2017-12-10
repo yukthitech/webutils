@@ -140,7 +140,28 @@ public class ActionRequestBuilder
 		{
 			//build GET request
 			request = new GetRestRequest(actionModel.getUrl());
-			((GetRestRequest)request).addBeanParameters(requestEntity);
+			
+			if(requestEntity != null)
+			{
+				((GetRestRequest) request).addBeanParameters(requestEntity);
+			}
+			
+			if(parameters != null)
+			{
+				Object value = null;
+				
+				for(String key : parameters.keySet())
+				{
+					value = parameters.get(key);
+					
+					if(value == null)
+					{
+						continue;
+					}
+					
+					((GetRestRequest) request).addParam(key, "" + value);
+				}
+			}
 		}
 		else if(actionModel.getMethod() == HttpMethod.DELETE)
 		{

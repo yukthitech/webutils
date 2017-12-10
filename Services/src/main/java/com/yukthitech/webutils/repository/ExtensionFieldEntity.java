@@ -47,7 +47,7 @@ import com.yukthitech.webutils.common.extensions.LovOption;
  * 
  * @author akiran
  */
-@Table(name = "EXTENSION_FIELDS")
+@Table(name = "WEBUTILS_EXTENSION_FIELDS")
 @UniqueConstraints({
 	@UniqueConstraint(name = "EXT_ID_NAME", fields = {"extension", "name"}, message = "Extension field with specified name already eixsts."),
 	@UniqueConstraint(name = "EXT_ID_COL_NAME", fields = {"extension", "columnName"}, message = "Extension field for specified column already exists."),

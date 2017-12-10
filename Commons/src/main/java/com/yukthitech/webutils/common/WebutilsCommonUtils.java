@@ -7,6 +7,8 @@ import java.util.Map;
 
 import org.apache.commons.lang3.reflect.TypeUtils;
 
+import com.yukthitech.utils.exceptions.InvalidStateException;
+
 /**
  * Contains common util methods required by webutils.
  * @author akiran
@@ -21,47 +23,53 @@ public class WebutilsCommonUtils
 	 */
 	public static String getMethodSignature(Class<?> activeClass, Method method)
 	{
-		StringBuilder builder = new StringBuilder(method.getName());
-		
-		builder.append("(");
-		
-		Class<?> paramTypes[] = method.getParameterTypes();
-		Type genericParamTypes[] = method.getGenericParameterTypes();
-
-		//fetch class variable to type map if applicable
-		Map<TypeVariable<?>, Type> varToType = null;
-		TypeVariable<?> clsTypeVar[] = method.getDeclaringClass().getTypeParameters();
-		
-		if(clsTypeVar != null && clsTypeVar.length > 0)
+		try
 		{
-			varToType = TypeUtils.getTypeArguments(activeClass, method.getDeclaringClass());	
-		}
-		
-		//loop through method params
-		if(paramTypes.length > 0)
-		{
-			int idx = 0;
+			StringBuilder builder = new StringBuilder(method.getName());
 			
-			for(Class<?> ptype : paramTypes)
+			builder.append("(");
+			
+			Class<?> paramTypes[] = method.getParameterTypes();
+			Type genericParamTypes[] = method.getGenericParameterTypes();
+	
+			//fetch class variable to type map if applicable
+			Map<TypeVariable<?>, Type> varToType = null;
+			TypeVariable<?> clsTypeVar[] = method.getDeclaringClass().getTypeParameters();
+			
+			if(clsTypeVar != null && clsTypeVar.length > 0)
 			{
-				if(varToType != null && genericParamTypes[idx] instanceof TypeVariable)
-				{
-					ptype = (Class<?>) varToType.get(genericParamTypes[idx]);
-				}
-				
-				if(ptype.getName().contains("MultipartHttpServletRequest"))
-				{
-					ptype = Object.class;
-				}
-				
-				builder.append(ptype.getName()).append(",");
-				idx++;
+				varToType = TypeUtils.getTypeArguments(activeClass, method.getDeclaringClass());	
 			}
 			
-			builder.deleteCharAt(builder.length() - 1);
+			//loop through method params
+			if(paramTypes.length > 0)
+			{
+				int idx = 0;
+				
+				for(Class<?> ptype : paramTypes)
+				{
+					if(varToType != null && genericParamTypes[idx] instanceof TypeVariable)
+					{
+						ptype = (Class<?>) varToType.get(genericParamTypes[idx]);
+					}
+					
+					if(ptype.getName().contains("MultipartHttpServletRequest"))
+					{
+						ptype = Object.class;
+					}
+					
+					builder.append(ptype.getName()).append(",");
+					idx++;
+				}
+				
+				builder.deleteCharAt(builder.length() - 1);
+			}
+			
+			builder.append(")");
+			return builder.toString();
+		}catch(Exception ex)
+		{
+			throw new InvalidStateException("An error occurred while loading method signature: {}.{}()", activeClass.getName(), method.getName(), ex);
 		}
-		
-		builder.append(")");
-		return builder.toString();
 	}
 }

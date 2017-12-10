@@ -31,6 +31,7 @@ import static com.yukthitech.webutils.common.IWebUtilsActionConstants.ACTION_TYP
 import static com.yukthitech.webutils.common.IWebUtilsActionConstants.PARAM_NAME;
 
 import java.io.File;
+import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -50,12 +51,14 @@ import com.yukthitech.webutils.InvalidRequestParameterException;
 import com.yukthitech.webutils.SearchExcelDataReport;
 import com.yukthitech.webutils.annotations.ActionName;
 import com.yukthitech.webutils.common.FileInfo;
+import com.yukthitech.webutils.common.IWebUtilsActionConstants;
 import com.yukthitech.webutils.common.IWebUtilsCommonConstants;
 import com.yukthitech.webutils.common.SearchExecutionModel;
 import com.yukthitech.webutils.common.models.ModelDefResponse;
 import com.yukthitech.webutils.common.models.def.ModelDef;
 import com.yukthitech.webutils.common.search.ExecuteSearchResponse;
 import com.yukthitech.webutils.common.search.ISearchController;
+import com.yukthitech.webutils.common.search.SearchResponse;
 import com.yukthitech.webutils.controllers.BaseController;
 import com.yukthitech.webutils.services.ValidationService;
 import com.yukthitech.webutils.utils.WebAttachmentUtils;
@@ -139,6 +142,35 @@ public class SearchController extends BaseController implements ISearchControlle
 		validationService.validate(query);
 		
 		return searchService.executeSearch(queryName, query, searchExecutionModel);
+	}
+
+	@Override
+	@ActionName(IWebUtilsActionConstants.ACTION_TYPE_SEARCH)
+	@ResponseBody
+	@RequestMapping(value = "/search/{" + PARAM_NAME + "}", method = RequestMethod.GET)
+	public SearchResponse executeSearchObjects(@PathVariable(PARAM_NAME) String queryName, @Valid SearchExecutionModel searchExecutionModel) throws Exception
+	{
+		logger.trace("executeSearch is called for query - {}", queryName);
+		
+		Class<?> queryType = searchService.getSearchQueryType(queryName);
+		Object query = null;
+		
+		if(searchExecutionModel.getQueryModelJson() != null)
+		{
+			try
+			{
+				query = objectMapper.readValue(searchExecutionModel.getQueryModelJson(), queryType);
+			}catch(Exception ex)
+			{
+				throw new InvalidRequestParameterException(ex, "Failed to convert input json to {}. Input json - ", queryType.getName(), searchExecutionModel.getQueryModelJson());
+			}
+		}
+		
+		validationService.validate(query);
+		
+		List<Object> results = searchService.searchObjects(queryName, query, searchExecutionModel);
+		
+		return new SearchResponse(results); 
 	}
 
 	@Override

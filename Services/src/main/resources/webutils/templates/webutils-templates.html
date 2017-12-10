@@ -322,6 +322,7 @@
 					context["export-action"] = false;
 				}
 				
+				///////////////////////////////
 				//check if custom results displayer is present
 				var resultCustomizer = context.element.children("result-customizer");
 				
@@ -330,7 +331,44 @@
 					context["resultCustomizer"] = $(resultCustomizer.get(0)).html();
 				}
 				
-				//search field customizers
+				/////////////////////////////
+				//extra pre columns
+				
+				var extraColumns = context.element.children("extra-column");
+				context.extraColumns = [];
+								
+				if(extraColumns.length &gt; 0)
+				{
+					var extraCol = null;
+					
+					for(var i = 0; i &lt; extraColumns.length; i++ )
+					{
+						extraCol = $(extraColumns.get(i));
+						
+						var headerElem = extraCol.children("col-header");
+						var bodyElem = extraCol.children("col-body");
+						
+						//extract extra column header and body html
+						if(headerElem.length &gt; 0)
+						{
+							headerElem = $(headerElem.get(0)).html();
+						} 
+						else
+						{
+							headerElem = "";
+						}
+						
+						bodyElem = $(bodyElem.get(0)).html();
+						
+						context.extraColumns.push({"header": headerElem, "body": bodyElem});
+					}
+				}
+				
+				console.log("Got extra columns as: ", context.extraColumns);				
+				
+				//////////////////////////////
+				//result field customizers
+				
 				var resultFieldCustomizers = context.element.children("result-field-customizer");
 				var resultFieldCustomizer = {};
 								
@@ -348,6 +386,7 @@
 				
 				context.$scope.resultFieldCustomizer = resultFieldCustomizer;
 
+				///////////////////////////////////
 				//search field customizers
 				var searchFieldCustomizers = context.element.children("search-field-customizer");
 				var searchFieldCustomizer = {};
@@ -550,6 +589,12 @@
 								<!-- Headings row -->
 								<tr>
 									<th>#</th>
+									<for-each data="${extraColumns}" loop-var="col" index-var="colIdx">
+										<th>
+											${col.header}
+										</th>
+									</for-each>
+									
 									<th ng-repeat="field in searchResultDef.fields" ng-if="field.displayable">
 										{{field.label}}
 									</th>
@@ -557,6 +602,12 @@
 								
 								<tr ng-repeat="result in searchResults" ng-click="rowSelected($index, $event)" yk-right-click="rowSelected({{$index}}, $event)" search-row-id="{{$index}}" style="cursor: pointer;">
 									<td>{{$index + 1}}</td>
+									<for-each data="${extraColumns}" loop-var="col" index-var="colIdx">
+										<th>
+											${col.body}
+										</th>
+									</for-each>
+
 									<td ng-repeat="field in searchResultDef.fields" ng-if="field.displayable">
 										<div ng-if="getResultFieldCustomizer()[field.name]" style="display: inline" 
 											yk-dynamic="$scope.getResultFieldCustomizer()[$scope.field.name]">
@@ -1546,7 +1597,7 @@
 	<attr-directive name="ykDynamic">
 		<script>
 		var $scope = context.$scope;
-		var innerHtml = eval(context.attributeValue);
+		var innerHtml = context.element.html();//eval(context.attributeValue);
 		
 		innerHtml = context.$compile(innerHtml)($scope);
 		

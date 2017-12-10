@@ -19,7 +19,7 @@ import com.yukthitech.webutils.repository.WebutilsEntity;
 /**
  * Search query customization settings.
  */
-@Table(name = "SEARCH_SETTINGS")
+@Table(name = "WEBUTILS_SEARCH_SETTINGS")
 @UniqueConstraints({
 	@UniqueConstraint(name = "UQ_USER_QUERY_NAME", fields = {"user", "searchQueryName"})
 	})

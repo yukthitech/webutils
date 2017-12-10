@@ -8,6 +8,7 @@ import java.lang.reflect.TypeVariable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -15,6 +16,7 @@ import org.apache.commons.lang3.reflect.TypeUtils;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.yukthitech.utils.beans.BeanProperty;
 import com.yukthitech.utils.exceptions.InvalidArgumentException;
 import com.yukthitech.utils.exceptions.InvalidStateException;
 import com.yukthitech.utils.rest.RestClient;
@@ -169,6 +171,28 @@ class ControllerProxy implements InvocationHandler
 		}
 	}
 	
+	/**
+	 * Loads the properties of specifid bean as params.
+	 * @param model model to load
+	 * @param paramMap param map
+	 */
+	private void loadPropertiesAsParams(Object model, Map<String, Object> paramMap)
+	{
+		List<BeanProperty> properties = BeanProperty.loadProperties(model.getClass(), true, true);
+		
+		for(BeanProperty prop : properties)
+		{
+			Object value = prop.getValue(model);
+			
+			if(value == null)
+			{
+				continue;
+			}
+			
+			paramMap.put(prop.getName(), value);
+		}
+	}
+	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
@@ -203,6 +227,16 @@ class ControllerProxy implements InvocationHandler
 				if(paramModel.getType() == ActionParamModel.TYPE_BODY)
 				{
 					requestEntity = args[index];
+					continue;
+				}
+				else if(paramModel.getType() == ActionParamModel.TYPE_EMBEDDED_REQUEST_PARAMS)
+				{
+					loadPropertiesAsParams(args[index], parameters);
+					continue;
+				}
+				
+				if(paramModel.getName() == null)
+				{
 					continue;
 				}
 				

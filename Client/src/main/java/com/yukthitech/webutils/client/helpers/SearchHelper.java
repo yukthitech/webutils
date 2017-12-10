@@ -25,9 +25,18 @@ package com.yukthitech.webutils.client.helpers;
 
 import static com.yukthitech.webutils.common.IWebUtilsActionConstants.ACTION_PREFIX_SEARCH;
 import static com.yukthitech.webutils.common.IWebUtilsActionConstants.ACTION_TYPE_EXECUTE;
+import static com.yukthitech.webutils.common.IWebUtilsActionConstants.ACTION_TYPE_SEARCH;
 import static com.yukthitech.webutils.common.IWebUtilsActionConstants.PARAM_NAME;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import org.apache.commons.collections.CollectionUtils;
+
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.yukthitech.utils.CommonUtils;
 import com.yukthitech.utils.exceptions.InvalidStateException;
 import com.yukthitech.utils.rest.RestClient;
@@ -39,6 +48,7 @@ import com.yukthitech.webutils.client.RestException;
 import com.yukthitech.webutils.common.IWebUtilsCommonConstants;
 import com.yukthitech.webutils.common.SearchExecutionModel;
 import com.yukthitech.webutils.common.search.ExecuteSearchResponse;
+import com.yukthitech.webutils.common.search.SearchResponse;
 
 /**
  * Helper to execute search related functions
@@ -102,5 +112,74 @@ public class SearchHelper
 		}
 		
 		return response;
+	}
+
+	/**
+	 * Executes search query with specified query object.
+	 * @param context Client context
+	 * @param queryName Name of query to execute
+	 * @param searchQuery Query object
+	 * @param page page to be fetched
+	 * @param pageSize Query page size
+	 * @param expectedResultType Type of result expected
+	 * @param <T> expected result type
+	 * @return List of search results
+	 */
+	public <T> List<T> executeSearchForObjects(ClientContext context, String queryName, Object searchQuery, int page, int pageSize, Class<T> expectedResultType)
+	{
+		//Build model object
+		SearchExecutionModel searchExecutionModel = new SearchExecutionModel();
+		
+		try
+		{
+			searchExecutionModel.setQueryModelJson(searchQuery == null ? null : objectMapper.writeValueAsString(searchQuery));
+		}catch(Exception ex)
+		{
+			throw new InvalidStateException("An error occurred while converting {} into json", searchQuery);
+		}
+		
+		if(page > 1)
+		{
+			searchExecutionModel.setPageNumber(page);
+		}
+		else
+		{
+			searchExecutionModel.setPageNumber(1);
+		}
+		
+		searchExecutionModel.setPageSize(pageSize);
+		
+		//build request object
+		RestRequest<?> request = ActionRequestBuilder.buildRequest(context, ACTION_PREFIX_SEARCH + "." + ACTION_TYPE_SEARCH, searchExecutionModel, CommonUtils.toMap(
+				PARAM_NAME, queryName
+		));
+		
+		RestClient client = context.getRestClient();
+		
+		//execute request
+		RestResult<SearchResponse> searchResult = client.invokeJsonRequest(request, SearchResponse.class);
+		SearchResponse response = searchResult.getValue();
+		
+		if(response == null || response.getCode() != 0)
+		{
+			throw new RestException("An error occurred while executing search-query - " + queryName, searchResult.getStatusCode(), response);
+		}
+		
+		if(CollectionUtils.isEmpty(response.getResults()))
+		{
+			return Collections.emptyList();
+		}
+		
+		try
+		{
+			String convertedJson = objectMapper.writeValueAsString(response.getResults());
+			JavaType collectionJavaType = TypeFactory.defaultInstance().constructCollectionType(ArrayList.class, expectedResultType);
+			List<T> resLst = objectMapper.readValue(convertedJson, collectionJavaType);
+			
+			return resLst;
+		}catch(Exception ex)
+		{
+			throw new InvalidStateException("An error occurred while converting results into required result type", ex);
+		}
 	}
 }

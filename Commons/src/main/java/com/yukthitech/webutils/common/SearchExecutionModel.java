@@ -26,6 +26,8 @@ package com.yukthitech.webutils.common;
 import javax.validation.constraints.Min;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.yukthitech.utils.exceptions.InvalidStateException;
 import com.yukthitech.webutils.common.annotations.Model;
 
 /**
@@ -35,6 +37,11 @@ import com.yukthitech.webutils.common.annotations.Model;
 @Model
 public class SearchExecutionModel
 {
+	/**
+	 * Object mapper to convert to json.
+	 */
+	private static ObjectMapper objectMapper = new ObjectMapper();
+	
 	/**
 	 * Query object json.
 	 */
@@ -99,6 +106,21 @@ public class SearchExecutionModel
 	public void setQueryModelJson(String queryModelJson)
 	{
 		this.queryModelJson = queryModelJson;
+	}
+	
+	/**
+	 * Sets specified model as json on this model.
+	 * @param model model to set as query json
+	 */
+	public void setQueryModel(Object model)
+	{
+		try
+		{
+			this.queryModelJson = objectMapper.writeValueAsString(model);
+		}catch(Exception ex)
+		{
+			throw new InvalidStateException("An error occurred while converting specified object into json", ex);
+		}
 	}
 
 	/**

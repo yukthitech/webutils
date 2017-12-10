@@ -37,7 +37,7 @@ import com.yukthitech.persistence.conversion.impl.JsonConverter;
  * Entity to keep track of the extensions of other entities. 
  * @author akiran
  */
-@Table(name = "ENTITY_EXTENSIONS")
+@Table(name = "WEBUTILS_ENTITY_EXTENSIONS")
 @UniqueConstraints({
 	@UniqueConstraint(name = "TARGET_OWNER", fields = {"targetEntityType", "ownerEntityType", "ownerEntityId"}),
 	@UniqueConstraint(name = "NAME", fields = {"spaceIdentity", "name"})

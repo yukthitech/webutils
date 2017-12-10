@@ -27,9 +27,17 @@ public interface ISearchController extends IClientController<ISearchController>
 	 * Executes specified search query with query object
 	 * @param queryName Name of the query to execute
 	 * @param searchExecutionModel Query object
-	 * @return List of search results
+	 * @return List of search results in generic format.
 	 */
 	ExecuteSearchResponse executeSearch(String queryName, SearchExecutionModel searchExecutionModel) throws Exception;
+	
+	/**
+	 * Executes specified search query with query object
+	 * @param queryName Name of the query to execute
+	 * @param searchExecutionModel Query object
+	 * @return List of search results as objects.
+	 */
+	SearchResponse executeSearchObjects(String queryName, SearchExecutionModel searchExecutionModel) throws Exception;
 
 	void exportSearch(String queryName, SearchExecutionModel searchExecutionModel) throws Exception;
 

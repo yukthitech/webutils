@@ -51,6 +51,7 @@ import com.yukthitech.persistence.repository.annotations.Operator;
 import com.yukthitech.persistence.repository.annotations.OrderBy;
 import com.yukthitech.persistence.repository.annotations.OrderByType;
 import com.yukthitech.persistence.repository.search.SearchCondition;
+import com.yukthitech.utils.ObjectWrapper;
 import com.yukthitech.utils.exceptions.InvalidConfigurationException;
 import com.yukthitech.utils.exceptions.InvalidStateException;
 import com.yukthitech.webutils.IRepositoryMethodRegistry;
@@ -200,12 +201,12 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 
 		if(queryModelType.getAnnotation(Model.class) == null)
 		{
-			throw new InvalidStateException("For search-method {}.{} non-model {} is defined as query-model-type", repository.getClass().getName(), method.getName(), queryModelType.getName());
+			throw new InvalidStateException("For search-method {}.{} non-model {} is defined as query-model-type", repository.getType().getName(), method.getName(), queryModelType.getName());
 		}
 
 		if(returnModelType.getAnnotation(Model.class) == null)
 		{
-			throw new InvalidStateException("For search-method {}.{} non-model {} is defined as query-return-type", repository.getClass().getName(), method.getName(), returnModelType.getName());
+			throw new InvalidStateException("For search-method {}.{} non-model {} is defined as query-return-type", repository.getType().getName(), method.getName(), returnModelType.getName());
 		}
 
 		// for extendable entities ensure search results is also extendable
@@ -213,7 +214,7 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 		{
 			if(!IExtendedSearchResult.class.isAssignableFrom(returnModelType))
 			{
-				throw new InvalidStateException("For extendable entity {} search result type {} defined for search method {}.{} is not extendable", repository.getEntityDetails().getEntityType().getName(), returnModelType.getName(), repository.getClass().getName(), method.getName());
+				throw new InvalidStateException("For extendable entity {} search result type {} defined for search method {}.{} is not extendable", repository.getEntityDetails().getEntityType().getName(), returnModelType.getName(), repository.getType().getName(), method.getName());
 			}
 		}
 
@@ -335,20 +336,19 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 	}
 
 	/**
-	 * Executes search query method with name specified by "searchQueryName" by
-	 * passing query-object "query". The number of results will be limited to
-	 * "resultLimit".
-	 * 
-	 * @param searchQueryName
-	 *            Search query name to execute
-	 * @param query
-	 *            Query object containing conditions
-	 * @param searchExecutionModel
-	 *            Search execution params
-	 * @return Results of search query execution
+	 * Executes search with specified criteria and returns the matching objects.
+	 *
+	 * @param searchQueryName the search query name
+	 * @param query the query
+	 * @param searchExecutionModel the search execution model
+	 * @param searchSettingsWrapper the search settings wrapper
+	 * @param queryWrapper the query wrapper
+	 * @return the list
 	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public ExecuteSearchResponse executeSearch(String searchQueryName, Object query, SearchExecutionModel searchExecutionModel)
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private List<Object> searchObjects(String searchQueryName, Object query, SearchExecutionModel searchExecutionModel, 
+			ObjectWrapper<SearchSettingsEntity> searchSettingsWrapper,
+			ObjectWrapper<com.yukthitech.persistence.repository.search.SearchQuery> queryWrapper)
 	{
 		// validate inputs
 		SearchQueryDetails searchQueryDetails = nameToSearchMet.get(searchQueryName);
@@ -374,6 +374,8 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 		}
 
 		com.yukthitech.persistence.repository.search.SearchQuery repoSearchQuery = new com.yukthitech.persistence.repository.search.SearchQuery();
+		queryWrapper.setValue(repoSearchQuery);
+		
 		Field queryFields[] = searchQueryDetails.queryType.getDeclaredFields();
 		Condition condition = null;
 		Object value = null;
@@ -457,6 +459,7 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 		///////////////////////////////////////////////////////////
 		// Add result fields
 		SearchSettingsEntity searchSettings = searchSettingsService.fetchSettings(searchQueryName);
+		searchSettingsWrapper.setValue(searchSettings);
 
 		for(SearchSettingsColumn column : searchSettings.getSearchColumns())
 		{
@@ -502,13 +505,59 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 		// execute search and return results
 		try
 		{
-			List<Object> results = (List) searchQueryDetails.method.invoke(searchQueryDetails.repository, repoSearchQuery);
+			return (List) searchQueryDetails.method.invoke(searchQueryDetails.repository, repoSearchQuery);
+		} catch(Exception ex)
+		{
+			throw new InvalidStateException(ex, "An error occurred while executing search query - {}", searchQueryName);
+		}
+	}
+
+	/**
+	 * Search objects with given criteria.
+	 *
+	 * @param searchQueryName the search query name
+	 * @param query the query
+	 * @param searchExecutionModel the search execution model
+	 * @return the list
+	 */
+	public List<Object> searchObjects(String searchQueryName, Object query, SearchExecutionModel searchExecutionModel)
+	{
+		ObjectWrapper<SearchSettingsEntity> searchSettingsWrapper = new ObjectWrapper<>();
+		ObjectWrapper<com.yukthitech.persistence.repository.search.SearchQuery> queryWrapper = new ObjectWrapper<>();
+		
+		return searchObjects(searchQueryName, query, searchExecutionModel, searchSettingsWrapper, queryWrapper);
+	}
+	
+	/**
+	 * Executes search query method with name specified by "searchQueryName" by
+	 * passing query-object "query". The number of results will be limited to
+	 * "resultLimit".
+	 * 
+	 * @param searchQueryName
+	 *            Search query name to execute
+	 * @param query
+	 *            Query object containing conditions
+	 * @param searchExecutionModel
+	 *            Search execution params
+	 * @return Results of search query execution
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public ExecuteSearchResponse executeSearch(String searchQueryName, Object query, SearchExecutionModel searchExecutionModel)
+	{
+		ObjectWrapper<SearchSettingsEntity> searchSettingsWrapper = new ObjectWrapper<>();
+		ObjectWrapper<com.yukthitech.persistence.repository.search.SearchQuery> queryWrapper = new ObjectWrapper<>();
+		
+		List<Object> results = searchObjects(searchQueryName, query, searchExecutionModel, searchSettingsWrapper, queryWrapper);
+
+		try
+		{
 			long count = 0;
+			SearchQueryDetails searchQueryDetails = nameToSearchMet.get(searchQueryName);
 
 			// if fetch count is enabled
 			if(searchExecutionModel.isFetchCount())
 			{
-				count = searchQueryDetails.repository.searchCount(repoSearchQuery);
+				count = searchQueryDetails.repository.searchCount(queryWrapper.getValue());
 			}
 			
 			// instance of customizer
@@ -518,10 +567,10 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 				results = customizerResult.customize(results);
 			}
 			
-			return toResponse(searchQueryName, results, searchSettings, searchExecutionModel, count);
-		} catch(Exception ex)
+			return toResponse(searchQueryName, results, searchSettingsWrapper.getValue(), searchExecutionModel, count);
+		}catch(Exception ex)
 		{
-			throw new InvalidStateException(ex, "An error occurred while executing search query - {}", searchQueryName);
+			throw new InvalidStateException("An error occurred while coverting to responses", ex);
 		}
 	}
 

@@ -51,6 +51,11 @@ public interface IWebUtilsActionConstants
 	public String ACTION_TYPE_SAVE = "save";
 
 	/**
+	 * Action be be used for import.
+	 */
+	public String ACTION_TYPE_IMPORT = "import";
+
+	/**
 	 * Action be be used for update.
 	 */
 	public String ACTION_TYPE_UPDATE = "update";
@@ -64,6 +69,11 @@ public interface IWebUtilsActionConstants
 	 * Action be be used for delete.
 	 */
 	public String ACTION_TYPE_EXECUTE = "execute";
+
+	/**
+	 * Action be be used for delete.
+	 */
+	public String ACTION_TYPE_SEARCH = "search";
 
 	/**
 	 * Action be be used for exporting the data.
