@@ -24,9 +24,13 @@ $.application.controller('mainController', ["$scope", "$rootScope", "logger", "a
 		// Active user is ready fetch the projects
 		if(this.$scope.activeUser.userId > 1)
 		{
+			logger.debug("Broadcasting activeUserIsReady event...");
 			$scope.$broadcast("activeUserIsReady");
 		}
-		
+		else
+		{
+			logger.warn("Though user is assigned to scope, user-details is found without valid id.");
+		}
 		
 	}, {"$scope": $scope}));
 	

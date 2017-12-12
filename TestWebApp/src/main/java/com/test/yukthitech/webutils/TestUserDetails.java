@@ -55,7 +55,7 @@ public class TestUserDetails extends UserDetails<SecurityRole>
 	 */
 	public TestUserDetails(long userId, Set<SecurityRole> roles, long clientId)
 	{
-		super(userId, "");
+		super(userId, "", null);
 		this.clientId = clientId;
 		setRoles(roles);
 	}

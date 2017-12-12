@@ -485,6 +485,7 @@
 								<set-var name="_action" expr="$(context.action)"/>
 								<set-var name="_label" expr="context._action.attr('label') ? context._action.attr('label') : ''"/>
 								<set-var name="_actionId" expr="context._action.attr('id') ? context._action.attr('id') : ''"/>
+								<set-var name="_roles" expr="context._action.attr('yk-for-role') ? context._action.attr('yk-for-role') : ''"/>
 
 								<set-var name="_showExpr" 
 									expr="(context._action.attr('row-action') == 'true') ? 'selectedIndex != null &amp;&amp; selectedIndex &gt;= 0' : 'true'"/>
@@ -492,7 +493,7 @@
 								<set-var name="_actionIconPrefix" expr="(context._action.attr('icon').indexOf('glyphicon') &gt;= 0) ? 'glyphicon' : ''"/>
 								
 								<yk-icon-link id="${_actionId}" icon="${_actionIconPrefix} ${_action.attr('icon')}" ng-click="${_action.attr('method')}" 
-										color="${_action.attr('color')}" label="${_action.attr('label')}" ng-show="${_showExpr}"></yk-icon-link>
+										color="${_action.attr('color')}" label="${_action.attr('label')}" ng-show="${_showExpr}" yk-for-role="${_roles}"></yk-icon-link>
 							</for-each>
 							
 							<div id="${attr('id')}_context_menu">
@@ -503,8 +504,9 @@
 										<set-var name="_showExpr" 
 											expr="(context._action.attr('row-action') == 'true') ? 'selectedIndex != null &amp;&amp; selectedIndex &gt;= 0' : 'true'"/>
 										<set-var name="_actionIconPrefix" expr="(context._action.attr('icon').indexOf('glyphicon') &gt;= 0) ? 'glyphicon' : ''"/>
+										<set-var name="_roles" expr="context._action.attr('yk-for-role') ? context._action.attr('yk-for-role') : ''"/>
 										
-										<li>
+										<li yk-for-role="${_roles}">
 											<a tabindex="-1" ng-click="${_action.attr('method')}" 
 													style="text-decoration: none; color: black; cursor: default; padding: 0.5em;" ng-show="${_showExpr}">
 												
@@ -527,9 +529,10 @@
 							<set-var name="_action" expr="$(context.action)"/>
 							<set-var name="_label" expr="context._action.attr('label') ? context._action.attr('label') : ''"/>
 							<set-var name="_actionIconPrefix" expr="(context._action.attr('icon').indexOf('glyphicon') &gt;= 0) ? 'glyphicon' : ''"/>
+							<set-var name="_roles" expr="context._action.attr('yk-for-role') ? context._action.attr('yk-for-role') : ''"/>
 
 							<a role="button" ng-click="${_action.attr('method')}" style="text-decoration: none; color: ${_action.attr('color')};" class="yk-icon-link" 
-										data-toggle="tooltip" title="${_action.attr('label')}" >
+										data-toggle="tooltip" title="${_action.attr('label')}" yk-for-role="${_roles}">
 								<i class="${_actionIconPrefix} ${_action.attr('icon')}"></i>
 							</a>
 						</for-each>
@@ -1406,9 +1409,11 @@
 				expr="context.attr('size')? 'font-size: ' + context.attr('size') + ';' : '' "/>
 			<set-var name="_extraStyle" 
 				expr="context.attr('style')? context.attr('style') : '' "/>
+			<set-var name="_role" 
+				expr="context.attr('yk-for-role')? context.attr('yk-for-role') : '' "/>
 
 			<a id="${attr('id')}" role="button" ng-click="${attr('ng-click')}" style="text-decoration: none; color: ${attr('color')};${_sizeAttr};${_extraStyle}" class="yk-icon-link" 
-						data-toggle="tooltip" title="${attr('label')}" ng-show="${_showExpr}" ng-if="${_ifExpr}">
+						data-toggle="tooltip" title="${attr('label')}" ng-show="${_showExpr}" ng-if="${_ifExpr}" yk-for-role="${_role}">
 				<i class="${attr('icon')}"></i>
 			</a>
 		</content>

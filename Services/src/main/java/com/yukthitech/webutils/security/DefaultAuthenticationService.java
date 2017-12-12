@@ -5,6 +5,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.yukthitech.persistence.utils.PasswordEncryptor;
+import com.yukthitech.webutils.WebutilsConfiguration;
 import com.yukthitech.webutils.common.UserDetails;
 import com.yukthitech.webutils.repository.UserEntity;
 import com.yukthitech.webutils.services.UserService;
@@ -16,6 +17,12 @@ import com.yukthitech.webutils.services.UserService;
  */
 public class DefaultAuthenticationService<R extends Enum<R>> implements IAuthenticationService<R>
 {
+	/**
+	 * Used to fetch date format to be used.
+	 */
+	@Autowired
+	protected WebutilsConfiguration webutilsConfiguration;
+
 	/**
 	 * User service for authentication.
 	 */
@@ -60,6 +67,6 @@ public class DefaultAuthenticationService<R extends Enum<R>> implements IAuthent
 	@Override
 	public UserDetails<R> toUserDetails(UserEntity user)
 	{
-		return new UserDetails<>(user.getId(), user.getDisplayName());
+		return new UserDetails<R>(user.getId(), user.getDisplayName(), webutilsConfiguration.getJsDateFormat());
 	}
 }

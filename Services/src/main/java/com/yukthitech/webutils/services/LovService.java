@@ -58,7 +58,9 @@ import com.yukthitech.webutils.annotations.LovQuery;
 import com.yukthitech.webutils.common.annotations.Label;
 import com.yukthitech.webutils.common.models.ValueLabel;
 import com.yukthitech.webutils.security.ISecurityService;
+import com.yukthitech.webutils.security.SecurityInvocationContext;
 import com.yukthitech.webutils.security.UnauthorizedException;
+import com.yukthitech.webutils.security.WebutilsSecurityService;
 import com.yukthitech.webutils.services.dynamic.DynamicMethod;
 import com.yukthitech.webutils.utils.WebUtils;
 
@@ -91,10 +93,16 @@ public class LovService implements IRepositoryMethodRegistry<LovQuery>
 	private ClassScannerService classScannerService;
 
 	/**
-	 * LOV method details cache
+	 * LOV method details cache.
 	 */
 	private Map<String, DynamicMethod> nameToLovMet = new HashMap<>();
 	
+	/**
+	 * Security service.
+	 */
+	@Autowired
+	private WebutilsSecurityService webutilsSecurityService;
+
 	@PostConstruct
 	private void init()
 	{
@@ -177,7 +185,7 @@ public class LovService implements IRepositoryMethodRegistry<LovQuery>
 	}
 
 	/**
-	 * Fetches specified enum fields as {@link ValueLabel} list
+	 * Fetches specified enum fields as {@link ValueLabel} list.
 	 * @param name Enum class name
 	 * @param locale Local in which LOV needs to be fetched
 	 * @return List of LOVs as {@link ValueLabel}
@@ -204,7 +212,7 @@ public class LovService implements IRepositoryMethodRegistry<LovQuery>
 			Field field = null;
 			
 			//loop through enum fields
-			for(Object obj: enumValues)
+			for(Object obj : enumValues)
 			{
 				enumObj = (Enum)obj;
 				
@@ -246,6 +254,19 @@ public class LovService implements IRepositoryMethodRegistry<LovQuery>
 				
 				valueLst.add(new ValueLabel(enumObj.name(), label));
 			}
+			
+			//Note: By default enums are ordered in order of definition
+			/*
+			//sort the lov list
+			Collections.sort(valueLst, new Comparator<ValueLabel>()
+			{
+				@Override
+				public int compare(ValueLabel o1, ValueLabel o2)
+				{
+					return o1.getLabel().compareTo(o2.getLabel());
+				}
+			});
+			*/
 			
 			return valueLst;
 		}catch(ClassNotFoundException ex)
@@ -291,7 +312,9 @@ public class LovService implements IRepositoryMethodRegistry<LovQuery>
 		//if security service is specified, check user authorization for target search method
 		if(securityService != null)
 		{
-			if(!securityService.isAuthorized(method.getMethod()))
+			SecurityInvocationContext context = webutilsSecurityService.newSecurityInvocationContext(method.getType(), method.getMethod());
+			
+			if(!securityService.isAuthorized(context))
 			{
 				throw new UnauthorizedException("Current user is not authorized to execute lov query - {}", name);
 			}

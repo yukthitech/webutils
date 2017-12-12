@@ -75,7 +75,9 @@ import com.yukthitech.webutils.repository.WebutilsExtendableEntity;
 import com.yukthitech.webutils.repository.search.ISearchResultCustomizer;
 import com.yukthitech.webutils.repository.search.SearchSettingsEntity;
 import com.yukthitech.webutils.security.ISecurityService;
+import com.yukthitech.webutils.security.SecurityInvocationContext;
 import com.yukthitech.webutils.security.UnauthorizedException;
+import com.yukthitech.webutils.security.WebutilsSecurityService;
 import com.yukthitech.webutils.services.ModelDetailsService;
 import com.yukthitech.webutils.services.dynamic.DynamicMethod;
 import com.yukthitech.webutils.utils.WebUtils;
@@ -164,6 +166,12 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 	@Autowired(required = false)
 	private IExtensionContextProvider extensionContextProvider;
 	
+	/**
+	 * Security service.
+	 */
+	@Autowired
+	private WebutilsSecurityService webutilsSecurityService;
+
 	/**
 	 * Post construct method used to validate autowired services.
 	 */
@@ -367,7 +375,9 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 		// search method
 		if(securityService != null)
 		{
-			if(!securityService.isAuthorized(searchQueryDetails.method))
+			SecurityInvocationContext context = webutilsSecurityService.newSecurityInvocationContext(searchQueryDetails.repository.getType(), searchQueryDetails.method);
+			
+			if(!securityService.isAuthorized(context))
 			{
 				throw new UnauthorizedException("Current user is not authorized to execute search query - {}", searchQueryName);
 			}

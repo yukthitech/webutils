@@ -41,6 +41,9 @@
  * onChange(field, isExtendedField, model, $scope) - 
  * 				Event method. If specified, this method will be called whenever a field value is changed. This can be
  * 				used to control the ui on value change events.
+ * 
+ * onNewSearch() - 
+ * 				Event method. If specified, this method will be called whenever search is re-exected.
  */
 $.application.factory('crudController', ["logger", "actionHelper", "utils", "validator", "modelDefService", 
                 function(logger, actionHelper, utils, validator, modelDefService){
@@ -89,6 +92,11 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 				$scope.selectedIndex = data.index;
 				
 				logger.trace("Row selection changed. Selected id - {}", $scope.selectedId);
+				
+				if(data.newSearch && $scope.crudConfig.onNewSearch)
+				{
+					$scope.crudConfig.onNewSearch();
+				}
 			});
 			
 			$scope.addEntry = function(e) {

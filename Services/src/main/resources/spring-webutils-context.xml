@@ -102,7 +102,7 @@
 		<property name="authEnabled" value="${app.auth.enabled:true}"/>
 		
 		<property name="dateFormat" value="${app.date.format:dd/MM/yyyy}"/>
-		<property name="jsDateFormat" value="${app.js.date.format:dd/MM/yyyy}"/>
+		<property name="jsDateFormat" value="${app.js.date.format:DD/MM/YYYY}"/>
 		
 		<property name="basePackages">
 			<list>

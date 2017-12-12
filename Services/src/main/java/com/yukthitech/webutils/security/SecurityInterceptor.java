@@ -47,7 +47,9 @@ import com.yukthitech.webutils.WebutilsContext;
 import com.yukthitech.webutils.annotations.NoAuthentication;
 import com.yukthitech.webutils.common.IWebUtilsCommonConstants;
 import com.yukthitech.webutils.common.UserDetails;
+import com.yukthitech.webutils.common.models.ActionModel;
 import com.yukthitech.webutils.common.models.BaseResponse;
+import com.yukthitech.webutils.services.ActionsService;
 
 /**
  * Spring interceptor to control authorization  based on token passed as part of request.
@@ -79,6 +81,12 @@ public class SecurityInterceptor extends HandlerInterceptorAdapter
 	 */
 	@Autowired
 	private SessionManagementService sessionManagementService;
+	
+	/**
+	 * Security service.
+	 */
+	@Autowired
+	private WebutilsSecurityService webutilsSecurityService;
 	
 	/**
 	 * Post construct method to validate configuration.
@@ -210,7 +218,9 @@ public class SecurityInterceptor extends HandlerInterceptorAdapter
 	 */
 	private boolean isAuthorized(UserDetails userDetails, HandlerMethod handlerMethod, HttpServletResponse response)
 	{
-		if(!securityService.isAuthorized(handlerMethod.getMethod()))
+		SecurityInvocationContext context = webutilsSecurityService.newSecurityInvocationContext(handlerMethod.getBeanType(), handlerMethod.getMethod());
+		
+		if(!securityService.isAuthorized(context))
 		{
 			sendError(response, IWebUtilsCommonConstants.RESPONSE_CODE_AUTHORIZATION_ERROR, "Authorization failed. User is not authorized to invoke current action.");
 			return false;

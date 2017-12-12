@@ -25,6 +25,8 @@
 			var element = $(context.$result).find("div.date");
 			element = $(element);
 			
+			console.log("date picker: ", dateFormat, context.$scope.activeUser);
+			
 			element.datetimepicker({
 				"format" : dateFormat
 			});
@@ -32,6 +34,13 @@
 			element.off("dp.change").on("dp.change", $.proxy(function(event){
 				this.element.find("input").trigger("change");
 			}, {"element": element, "$scope" : context.$scope}));
+			
+			context.$scope.$on('activeUserIsReady', $.proxy(function(event, data){
+				this.element.datetimepicker({
+					"format" : this.$scope.activeUser.jsDateFormat
+				});
+			},{"$scope": context.$scope, "element": element}));
+			
 		</post-script>
 	</directive>
 

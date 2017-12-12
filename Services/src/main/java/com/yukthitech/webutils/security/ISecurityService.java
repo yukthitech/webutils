@@ -23,8 +23,6 @@
 
 package com.yukthitech.webutils.security;
 
-import java.lang.reflect.Method;
-
 import com.yukthitech.webutils.extensions.ExtensionEntityDetails;
 import com.yukthitech.webutils.repository.file.FileEntity;
 
@@ -38,10 +36,10 @@ public interface ISecurityService
 	/**
 	 * Invoked to check if specified user is authorized to invoke specified method. This method is expected to read
 	 * security annotations from the target method and cross check with specified roles and decide the authorization
-	 * @param method Method being invoked
+	 * @param context Information about the controller method being invoked
 	 * @return True, if user is authorized to invoke the method
 	 */
-	public boolean isAuthorized(Method method);
+	public boolean isAuthorized(SecurityInvocationContext context);
 	
 	/**
 	 * This method should return true only if current user is authorized to access specified file content.

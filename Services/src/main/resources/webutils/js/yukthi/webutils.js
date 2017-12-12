@@ -433,6 +433,16 @@ $.application.factory('logger', ["utils", function(utils){
 			}
 			
 			this.log("TRACE", message, arguments);
+		},
+
+		"warn" : function(message) {
+			
+			if(!this.traceEnabled)
+			{
+				return;
+			}
+			
+			this.log("WARN", message, arguments);
 		}
 	};
 	

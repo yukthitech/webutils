@@ -42,6 +42,7 @@ import com.yukthitech.webutils.repository.UserEntity;
 import com.yukthitech.webutils.repository.file.FileEntity;
 import com.yukthitech.webutils.security.IAuthenticationService;
 import com.yukthitech.webutils.security.ISecurityService;
+import com.yukthitech.webutils.security.SecurityInvocationContext;
 import com.yukthitech.webutils.services.CurrentUserService;
 
 /**
@@ -74,9 +75,9 @@ public class TestAuthenticationService implements ISecurityService, IAuthenticat
 	}
 
 	@Override
-	public boolean isAuthorized(Method method)
+	public boolean isAuthorized(SecurityInvocationContext context)
 	{
-		Authorization authorization = method.getAnnotation(Authorization.class);
+		Authorization authorization = context.getMethod().getAnnotation(Authorization.class);
 		
 		//if target method is not secured, return true
 		if(authorization == null)

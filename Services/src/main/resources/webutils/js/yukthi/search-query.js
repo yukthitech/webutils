@@ -174,7 +174,8 @@ $.application.controller('searchQueryController', ["$scope", "actionHelper", "lo
 				this.$scope.$emit('searchResultSelectionChanged', {
 					"index": -1,
 					"selectedRow": null,
-					"searchQuery": this.$scope.searchQuery
+					"searchQuery": this.$scope.searchQuery,
+					"newSearch": true
 				});
 			}
 		]);

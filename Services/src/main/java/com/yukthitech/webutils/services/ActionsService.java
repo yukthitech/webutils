@@ -27,6 +27,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -79,6 +80,64 @@ public class ActionsService
 	private static RequestMethod DEFAULT_METHODS[] = {RequestMethod.POST};
 	
 	/**
+	 * Represents combination of controller class and method.
+	 * @author akiran
+	 */
+	private static class ControllerMethod
+	{
+		/**
+		 * Controller type.
+		 */
+		private Class<?> controllerType;
+		
+		/**
+		 * Action method.
+		 */
+		private Method method;
+
+		/**
+		 * Instantiates a new controller method.
+		 *
+		 * @param controllerType the controller type
+		 * @param method the method
+		 */
+		public ControllerMethod(Class<?> controllerType, Method method)
+		{
+			this.controllerType = controllerType;
+			this.method = method;
+		}
+		
+		/* (non-Javadoc)
+		 * @see java.lang.Object#equals(java.lang.Object)
+		 */
+		@Override
+		public boolean equals(Object obj)
+		{
+			if(obj == this)
+			{
+				return true;
+			}
+
+			if(!(obj instanceof ActionsService.ControllerMethod))
+			{
+				return false;
+			}
+
+			ActionsService.ControllerMethod other = (ActionsService.ControllerMethod) obj;
+			return controllerType.equals(other.controllerType) && method.equals(other.method);
+		}
+
+		/* (non-Javadoc)
+		 * @see java.lang.Object#hashcode()
+		 */
+		@Override
+		public int hashCode()
+		{
+			return controllerType.hashCode() + method.hashCode();
+		}
+	}
+	
+	/**
 	 * Service to scan classes.
 	 */
 	@Autowired
@@ -94,6 +153,11 @@ public class ActionsService
 	 * List of actions information resulted from scanning.
 	 */
 	private List<ActionModel> actionModels;
+	
+	/**
+	 * Mapping from controller method to action.
+	 */
+	private Map<ControllerMethod, ActionModel> methodToAction = new HashMap<>();
 	
 	/**
 	 * Fetches fields name from specified model type whose type is File.
@@ -392,6 +456,7 @@ public class ActionsService
 			action.setUrl(url);
 			
 			nameToModel.put(actionName, action);
+			methodToAction.put(new ControllerMethod(mainClass, method), action);
 		}
 		
 		return newActions;
@@ -495,5 +560,16 @@ public class ActionsService
 	public List<ActionModel> getActions()
 	{
 		return actionModels;
+	}
+	
+	/**
+	 * Fetches action details for specified controller class and method.
+	 * @param controllerType controller class
+	 * @param method action method
+	 * @return action details
+	 */
+	public ActionModel getActionDetails(Class<?> controllerType, Method method)
+	{
+		return methodToAction.get(new ControllerMethod(controllerType, method));
 	}
 }

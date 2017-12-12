@@ -26,7 +26,6 @@ package com.yukthitech.webutils.common;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * User details representing current user, which is used by security services.
@@ -57,6 +56,11 @@ public class UserDetails<R extends Enum<R>>
 	private Set<R> roles;
 	
 	/**
+	 * Date format to be used in JS.
+	 */
+	private String jsDateFormat;
+	
+	/**
 	 * Instantiates a new user details.
 	 */
 	public UserDetails()
@@ -67,11 +71,13 @@ public class UserDetails<R extends Enum<R>>
 	 *
 	 * @param userId the user id
 	 * @param displayName the display name
+	 * @param dateFormat date format to be used.
 	 */
-	public UserDetails(long userId, String displayName)
+	public UserDetails(long userId, String displayName, String dateFormat)
 	{
 		this.userId = userId;
 		this.displayName = displayName;
+		this.jsDateFormat = dateFormat;
 	}
 
 	/**
@@ -79,7 +85,6 @@ public class UserDetails<R extends Enum<R>>
 	 *
 	 * @return the unique user id
 	 */
-	@JsonProperty("u")
 	public long getUserId()
 	{
 		return userId;
@@ -156,5 +161,25 @@ public class UserDetails<R extends Enum<R>>
 	public void setRoles(Set<R> roles)
 	{
 		this.roles = roles;
+	}
+
+	/**
+	 * Gets the date format to be used in JS.
+	 *
+	 * @return the date format to be used in JS
+	 */
+	public String getJsDateFormat()
+	{
+		return jsDateFormat;
+	}
+
+	/**
+	 * Sets the date format to be used in JS.
+	 *
+	 * @param dateFormat the new date format to be used in JS
+	 */
+	public void setJsDateFormat(String dateFormat)
+	{
+		this.jsDateFormat = dateFormat;
 	}
 }
