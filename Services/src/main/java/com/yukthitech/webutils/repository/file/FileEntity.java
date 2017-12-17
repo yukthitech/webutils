@@ -55,7 +55,7 @@ public class FileEntity extends WebutilsEntity
 	/**
 	 * File content.
 	 */
-	@DataTypeMapping(type = DataType.BLOB)
+	@DataTypeMapping(type = DataType.ZIP_BLOB)
 	@Column(name = "FILE", nullable = false)
 	private File file;
 	

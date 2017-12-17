@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.yukthitech.webutils.common.annotations.SearchResultType;
 
 /**
  * Represents a search column settings for search settings.
@@ -45,6 +46,11 @@ public class SearchSettingsColumn
 	 * Order of the field.
 	 */
 	private int order;
+	
+	/**
+	 * Represent the search result field type for special rendering.
+	 */
+	private SearchResultType searchResultType = SearchResultType.NONE;
 	
 	/**
 	 * Instantiates a new search settings column.
@@ -283,6 +289,26 @@ public class SearchSettingsColumn
 
 		SearchSettingsColumn other = (SearchSettingsColumn) obj;
 		return label.equals(other.label) && (extended == other.extended);
+	}
+
+	/**
+	 * Gets the represent the search result field type for special rendering.
+	 *
+	 * @return the represent the search result field type for special rendering
+	 */
+	public SearchResultType getSearchResultType()
+	{
+		return searchResultType;
+	}
+
+	/**
+	 * Sets the represent the search result field type for special rendering.
+	 *
+	 * @param searchResultType the new represent the search result field type for special rendering
+	 */
+	public void setSearchResultType(SearchResultType searchResultType)
+	{
+		this.searchResultType = searchResultType;
 	}
 
 	/**

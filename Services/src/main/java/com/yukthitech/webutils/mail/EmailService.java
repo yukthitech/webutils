@@ -49,8 +49,8 @@ import com.yukthitech.utils.ObjectWrapper;
 import com.yukthitech.utils.ReflectionUtils;
 import com.yukthitech.utils.exceptions.InvalidArgumentException;
 import com.yukthitech.utils.exceptions.InvalidStateException;
+import com.yukthitech.webutils.common.mailtemplate.MailTemplateConfiguration;
 import com.yukthitech.webutils.common.models.mails.EmailServerSettings;
-import com.yukthitech.webutils.common.models.mails.MailTemplateConfiguration;
 import com.yukthitech.webutils.mail.template.MailTemplateConfigService;
 import com.yukthitech.webutils.mail.template.MailTemplateEntity;
 import com.yukthitech.webutils.services.freemarker.FreeMarkerService;
@@ -311,9 +311,14 @@ public class EmailService
 		mailMessage.setSubject(subject);
 		mailMessage.setBody(content);
 
+		String fromId = settings.getUserName();
+		
 		if(context instanceof IMailCustomizer)
 		{
 			((IMailCustomizer) context).customize(mailMessage, emailTemplate.getCustomization());
+			
+			String customFromId = ((IMailCustomizer) context).getFromId();
+			fromId = (customFromId != null) ? customFromId : fromId;
 		}
 
 		if(isEmpty(mailMessage.getToList()) && isEmpty(mailMessage.getCcList()) && isEmpty(mailMessage.getBccList()))
@@ -329,10 +334,10 @@ public class EmailService
 
 		try
 		{
-			message.setFrom(new InternetAddress(settings.getUserName()));
+			message.setFrom(new InternetAddress(fromId));
 		} catch(Exception ex)
 		{
-			throw new InvalidArgumentException("An error occurred while parsing from mail id - {}", settings.getUserName());
+			throw new InvalidArgumentException("An error occurred while parsing from mail id - {}", fromId);
 		}
 
 		// set recipients mail lists

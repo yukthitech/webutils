@@ -49,4 +49,11 @@ public interface IMailTemplateRepository extends IWebutilsRepository<MailTemplat
 	 * @return Number of records deleted.
 	 */
 	public int deleteByOwner(@Condition("ownerEntityType") String ownerEntityType, @Condition("ownerEntityId") Long ownerEntityId);
+	
+	/**
+	 * Fetches the mail template with specified name.
+	 * @param name name of template to fetch
+	 * @return matching template
+	 */
+	public MailTemplateEntity fetchByName(@Condition("templateName") String name);
 }

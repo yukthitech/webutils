@@ -1,4 +1,4 @@
-package com.yukthitech.webutils.common.models.mails;
+package com.yukthitech.webutils.common.mailtemplate;
 
 import java.util.TreeSet;
 

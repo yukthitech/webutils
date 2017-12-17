@@ -1,5 +1,6 @@
 package com.yukthitech.webutils.common.search;
 
+import com.yukthitech.webutils.common.annotations.SearchResultType;
 import com.yukthitech.webutils.common.models.def.FieldType;
 
 /**
@@ -29,6 +30,11 @@ public class SearchColumn
 	private FieldType type;
 	
 	/**
+	 * Search result type.
+	 */
+	private SearchResultType searchResultType;
+	
+	/**
 	 * Instantiates a new search column.
 	 */
 	public SearchColumn()
@@ -41,13 +47,15 @@ public class SearchColumn
 	 * @param heading the heading
 	 * @param displayable the displayable
 	 * @param type the type
+	 * @param searchResultType Search result type
 	 */
-	public SearchColumn(String name, String heading, boolean displayable, FieldType type)
+	public SearchColumn(String name, String heading, boolean displayable, FieldType type, SearchResultType searchResultType)
 	{
 		this.name = name;
 		this.heading = heading;
 		this.displayable = displayable;
 		this.type = type;
+		this.searchResultType = searchResultType;
 	}
 
 	/**
@@ -128,5 +136,25 @@ public class SearchColumn
 	public void setType(FieldType type)
 	{
 		this.type = type;
+	}
+
+	/**
+	 * Gets the search result type.
+	 *
+	 * @return the search result type
+	 */
+	public SearchResultType getSearchResultType()
+	{
+		return searchResultType;
+	}
+
+	/**
+	 * Sets the search result type.
+	 *
+	 * @param searchResultType the new search result type
+	 */
+	public void setSearchResultType(SearchResultType searchResultType)
+	{
+		this.searchResultType = searchResultType;
 	}
 }

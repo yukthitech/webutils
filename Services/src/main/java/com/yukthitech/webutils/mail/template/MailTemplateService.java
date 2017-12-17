@@ -3,6 +3,7 @@ package com.yukthitech.webutils.mail.template;
 import org.springframework.stereotype.Service;
 
 import com.yukthitech.persistence.repository.annotations.Condition;
+import com.yukthitech.webutils.common.mailtemplate.MailTemplateModel;
 import com.yukthitech.webutils.services.BaseCrudService;
 
 /**
@@ -41,5 +42,16 @@ public class MailTemplateService extends BaseCrudService<MailTemplateEntity, IMa
 	public int deleteByOwner(@Condition("ownerEntityType") String ownerEntityType, @Condition("ownerEntityId") Long ownerEntityId)
 	{
 		return repository.deleteByOwner(ownerEntityType, ownerEntityId);
+	}
+	
+	/**
+	 * Fetches the mail template with specified name.
+	 * @param name name of template to fetch
+	 * @return matching template
+	 */
+	public MailTemplateModel fetchByName(String name)
+	{
+		MailTemplateEntity entity = repository.fetchByName(name);
+		return toModel(entity, MailTemplateModel.class);
 	}
 }

@@ -144,6 +144,9 @@ public class SearchController extends BaseController implements ISearchControlle
 		return searchService.executeSearch(queryName, query, searchExecutionModel);
 	}
 
+	/* (non-Javadoc)
+	 * @see com.yukthitech.webutils.common.search.ISearchController#executeSearchObjects(java.lang.String, com.yukthitech.webutils.common.SearchExecutionModel)
+	 */
 	@Override
 	@ActionName(IWebUtilsActionConstants.ACTION_TYPE_SEARCH)
 	@ResponseBody

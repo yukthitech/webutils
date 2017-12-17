@@ -13,5 +13,15 @@ public interface IMailCustomizer
 	 * @param mailMessage Mail message being sent.
 	 * @param templateCustomization Customization data set on mail template.
 	 */
-	public void customize(MailMessage mailMessage, Object templateCustomization);
+	public default void customize(MailMessage mailMessage, Object templateCustomization)
+	{}
+	
+	/**
+	 * If custom from id to be used when sending the mail.
+	 * @return from mail id to be used
+	 */
+	public default String getFromId()
+	{
+		return null;
+	}
 }

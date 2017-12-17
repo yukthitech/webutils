@@ -36,10 +36,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.yukthitech.webutils.annotations.ActionName;
-import com.yukthitech.webutils.common.controllers.IMailTemplateConfigController;
+import com.yukthitech.webutils.common.mailtemplate.IMailTemplateConfigController;
+import com.yukthitech.webutils.common.mailtemplate.MailTemplateConfiguration;
 import com.yukthitech.webutils.common.models.BasicReadListResponse;
 import com.yukthitech.webutils.common.models.BasicReadResponse;
-import com.yukthitech.webutils.common.models.mails.MailTemplateConfiguration;
 import com.yukthitech.webutils.controllers.BaseController;
 
 /**
@@ -48,7 +48,7 @@ import com.yukthitech.webutils.controllers.BaseController;
  */
 @RestController
 @ActionName(ACTION_PREFIX_MAIL_TEMP_CONFIG)
-@RequestMapping("/mail-template/configuration")
+@RequestMapping("/mail-template-config")
 public class MailTemplateConfigController extends BaseController implements IMailTemplateConfigController
 {
 	/**

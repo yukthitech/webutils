@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 
 import com.yukthitech.utils.CommonUtils;
 import com.yukthitech.utils.exceptions.InvalidStateException;
-import com.yukthitech.webutils.common.models.mails.MailTemplateConfiguration;
+import com.yukthitech.webutils.common.mailtemplate.MailTemplateConfiguration;
 import com.yukthitech.webutils.notification.NotificationService;
 import com.yukthitech.webutils.notification.NotificationType;
 import com.yukthitech.webutils.services.ClassScannerService;

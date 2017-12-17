@@ -1,9 +1,8 @@
-package com.yukthitech.webutils.common.controllers;
+package com.yukthitech.webutils.common.mailtemplate;
 
 import com.yukthitech.webutils.common.RemoteService;
 import com.yukthitech.webutils.common.models.BasicReadListResponse;
 import com.yukthitech.webutils.common.models.BasicReadResponse;
-import com.yukthitech.webutils.common.models.mails.MailTemplateConfiguration;
 
 /**
  * Controller for fetching mail template configurations.

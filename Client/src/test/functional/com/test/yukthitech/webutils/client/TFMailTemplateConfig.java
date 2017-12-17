@@ -16,8 +16,8 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.yukthitech.webutils.common.controllers.IMailTemplateConfigController;
-import com.yukthitech.webutils.common.models.mails.MailTemplateConfiguration;
+import com.yukthitech.webutils.common.mailtemplate.IMailTemplateConfigController;
+import com.yukthitech.webutils.common.mailtemplate.MailTemplateConfiguration;
 
 /**
  * Test cases for mail template configurations.

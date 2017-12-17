@@ -12,11 +12,17 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-public @interface FieldOrder
+public @interface SearchFieldInfo
 {
 	/**
 	 * Order of the field.
 	 * @return order of the field.
 	 */
-	public int value();
+	public int order() default -1;
+
+	/**
+	 * Provides special type of search field.
+	 * @return search field type.
+	 */
+	public SearchResultType resultType() default SearchResultType.NONE;
 }

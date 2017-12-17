@@ -3,8 +3,10 @@ package com.yukthitech.webutils.search;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -17,7 +19,7 @@ import com.yukthitech.persistence.repository.annotations.Field;
 import com.yukthitech.utils.exceptions.InvalidArgumentException;
 import com.yukthitech.utils.exceptions.InvalidStateException;
 import com.yukthitech.validation.annotations.Required;
-import com.yukthitech.webutils.common.annotations.FieldOrder;
+import com.yukthitech.webutils.common.annotations.SearchFieldInfo;
 import com.yukthitech.webutils.common.models.def.FieldDef;
 import com.yukthitech.webutils.common.models.def.ModelDef;
 import com.yukthitech.webutils.common.search.SearchField;
@@ -44,7 +46,7 @@ public class SearchSettingsService extends BaseCrudService<SearchSettingsEntity,
 	/**
 	 * Default page size.
 	 */
-	private static final int DEFAULT_PAGE_SIZE = 20;
+	private static final int DEFAULT_PAGE_SIZE = 1000;
 	
 	/**
 	 * Current user service used to fetch current user id.
@@ -63,6 +65,11 @@ public class SearchSettingsService extends BaseCrudService<SearchSettingsEntity,
 	 */
 	@Autowired
 	private SearchService searchService;
+	
+	/**
+	 * Cache to maintain default settings.
+	 */
+	private Map<String, SearchSettingsEntity> nameToDefaultSettings = new HashMap<String, SearchSettingsEntity>();
 	
 	/**
 	 * Instantiates a search settings service.
@@ -91,27 +98,32 @@ public class SearchSettingsService extends BaseCrudService<SearchSettingsEntity,
 		SearchSettingsColumn searchSettingsColumn = null, existingSettingsColumn = null;
 		String fieldName = null;
 		Field fieldAnnot = null;
-		FieldOrder fieldOrder = null;
+		SearchFieldInfo searchFieldInfo = null;
 		
 		int orderNo = 0;
 		
 		for(FieldDef field : searchResultDef.getFields())
 		{
 			fieldAnnot = field.getField().getAnnotation(Field.class);
-			fieldOrder = field.getField().getAnnotation(FieldOrder.class);
+			searchFieldInfo = field.getField().getAnnotation(SearchFieldInfo.class);
 			
 			fieldName = (fieldAnnot != null) ? fieldAnnot.value() : field.getName();
 			
 			searchSettingsColumn = new SearchSettingsColumn(field.getLabel(), field.isDisplayable(), false, new SearchField(null, fieldName, field.getField().getName()));
 			
-			if(fieldOrder != null)
+			if(searchFieldInfo != null && searchFieldInfo.order() >= 0)
 			{
-				searchSettingsColumn.setOrder(fieldOrder.value());
+				searchSettingsColumn.setOrder(searchFieldInfo.order());
 			}
 			else
 			{
 				searchSettingsColumn.setOrder(orderNo);
 				orderNo++;
+			}
+			
+			if(searchFieldInfo != null)
+			{
+				searchSettingsColumn.setSearchResultType(searchFieldInfo.resultType());
 			}
 			
 			if("id".equals(field.getName()) || field.getField().getAnnotation(Required.class) != null)
@@ -151,10 +163,17 @@ public class SearchSettingsService extends BaseCrudService<SearchSettingsEntity,
 	 * @param searchQuery Search query name.
 	 * @return Default settings
 	 */
-	private SearchSettingsEntity defaultSettings(String searchQuery)
+	private synchronized SearchSettingsEntity defaultSettings(String searchQuery)
 	{
+		SearchSettingsEntity settings = nameToDefaultSettings.get(searchQuery);
+		
+		if(settings != null)
+		{
+			return settings;
+		}
+		
 		LinkedHashMap<SearchSettingsColumn, SearchSettingsColumn> searchColumns = getSettingsColumns(searchQuery);
-		SearchSettingsEntity settings = new SearchSettingsEntity();
+		settings = new SearchSettingsEntity();
 		
 		List<SearchSettingsColumn> searchColumnsLst = new ArrayList<>(searchColumns.keySet());
 		
@@ -173,6 +192,7 @@ public class SearchSettingsService extends BaseCrudService<SearchSettingsEntity,
 		settings.setPageSize(DEFAULT_PAGE_SIZE);
 		settings.setSearchQueryName(searchQuery);
 		
+		nameToDefaultSettings.put(searchQuery, settings);
 		return settings;
 	}
 	
@@ -205,7 +225,7 @@ public class SearchSettingsService extends BaseCrudService<SearchSettingsEntity,
 	 * @param searchQuery Search query name
 	 * @param settings Existing settings.
 	 */
-	private void filterInvalidFields(String searchQuery, SearchSettingsEntity settings)
+	private void filterDisabledFields(String searchQuery, SearchSettingsEntity settings)
 	{
 		LinkedHashMap<SearchSettingsColumn, SearchSettingsColumn> allSearchColumns = new LinkedHashMap<>(getSettingsColumns(searchQuery));
 		
@@ -317,7 +337,7 @@ public class SearchSettingsService extends BaseCrudService<SearchSettingsEntity,
 		}
 		else
 		{
-			filterInvalidFields(searchQueryName, entity);
+			filterDisabledFields(searchQueryName, entity);
 		}
 
 		return entity;

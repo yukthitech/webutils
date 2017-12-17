@@ -36,6 +36,11 @@ public interface IWebUtilsActionConstants
 	public String ACTION_TYPE_FETCH = "fetch";
 
 	/**
+	 * Action to be used for fetch.
+	 */
+	public String ACTION_TYPE_FETCH_BY_NAME = "fetchByName";
+
+	/**
 	 * Action to be used for read by id.
 	 */
 	public String ACTION_TYPE_READ = "read";
@@ -140,6 +145,11 @@ public interface IWebUtilsActionConstants
 	 * Action prefix that can be used on LOV controller.
 	 */
 	public String ACTION_PREFIX_MAIL_TEMP_CONFIG = "mailTemplateConfig";
+
+	/**
+	 * Action prefix for mail templates.
+	 */
+	public String ACTION_PREFIX_MAIL_TEMP = "mailTemplate";
 
 	/**
 	 * Action prefix that is used for search relation methods.

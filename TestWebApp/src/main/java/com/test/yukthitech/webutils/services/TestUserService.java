@@ -23,6 +23,8 @@
 
 package com.test.yukthitech.webutils.services;
 
+import java.util.Date;
+
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,6 +62,8 @@ public class TestUserService
 		user = new UserEntity("admin", "admin", "admin");
 		user.setVersion(1);
 		user.setSpaceIdentity("admin");
+		user.setUpdatedOn(new Date());
+		user.setCreatedOn(new Date());
 		
 		userRepository.save(user);
 		

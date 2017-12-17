@@ -21,14 +21,14 @@
  * SOFTWARE.
  */
 
-package com.yukthitech.webutils.common.models.mails;
+package com.yukthitech.webutils.common.mailtemplate;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import com.yukthitech.webutils.common.BaseModel;
 import com.yukthitech.webutils.common.annotations.IgnoreField;
 import com.yukthitech.webutils.common.annotations.Model;
-import com.yukthitech.webutils.common.annotations.NonDisplayable;
 
 /**
  * Represents data of the mail to be sent.
@@ -36,20 +36,8 @@ import com.yukthitech.webutils.common.annotations.NonDisplayable;
  * @author akiran
  */
 @Model
-public class MailTemplateModel
+public class MailTemplateModel extends BaseModel
 {
-	/**
-	 * Id of the mail template.
-	 */
-	@NonDisplayable
-	private Long id;
-	
-	/**
-	 * Version of mail tample entity.
-	 */
-	@NonDisplayable
-	private Integer version;
-	
 	/**
 	 * Name of template used for building this data object.
 	 */

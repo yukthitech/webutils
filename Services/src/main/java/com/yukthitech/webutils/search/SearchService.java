@@ -595,6 +595,7 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 	 *            Search settings to be used
 	 * @param searchExecutionModel
 	 *            Search execution params
+	 * @param count total number rows resulted in search
 	 * @return Converted response.
 	 */
 	private ExecuteSearchResponse toResponse(String searchQueryName, List<Object> results, SearchSettingsEntity searchSettings, SearchExecutionModel searchExecutionModel, long count) throws Exception
@@ -612,11 +613,13 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 			{
 				if(column.isExtended())
 				{
-					response.addSearchColumn(new SearchColumn("Ext_" + column.getLabel().replaceAll("\\s+", "_"), column.getLabel(), column.isDisplayed(), FieldType.STRING));
+					response.addSearchColumn(new SearchColumn("Ext_" + column.getLabel().replaceAll("\\s+", "_"), column.getLabel(), 
+							column.isDisplayed(), FieldType.STRING, column.getSearchResultType()));
 				}
 				else
 				{
-					response.addSearchColumn(new SearchColumn(column.getPropertyName(), column.getLabel(), column.isDisplayed(), FieldType.STRING));
+					response.addSearchColumn(new SearchColumn(column.getPropertyName(), column.getLabel(), column.isDisplayed(), 
+							FieldType.STRING, column.getSearchResultType()));
 				}
 			}
 		}

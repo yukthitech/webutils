@@ -3,7 +3,7 @@ package com.yukthitech.webutils.common;
 import java.util.Date;
 
 import com.yukthitech.persistence.repository.annotations.Field;
-import com.yukthitech.webutils.common.annotations.FieldOrder;
+import com.yukthitech.webutils.common.annotations.SearchFieldInfo;
 import com.yukthitech.webutils.common.annotations.NonDisplayable;
 
 /**
@@ -23,28 +23,28 @@ public class BasicSearchResult
 	 * Name of the user who has created this entity.
 	 */
 	@Field(value = "createdBy.displayName")
-	@FieldOrder(1000)
+	@SearchFieldInfo(order = 1000)
 	private String createdBy;
 	
 	/**
 	 * Created on time.
 	 */
 	@Field(value = "createdOn")
-	@FieldOrder(1001)
+	@SearchFieldInfo(order = 1001)
 	private Date createdOn;
 
 	/**
 	 * Name of the user who has updated this entity last time.
 	 */
 	@Field(value = "updatedBy.displayName")
-	@FieldOrder(1002)
+	@SearchFieldInfo(order = 1002)
 	private String updatedBy;
 	
 	/**
 	 * Updated on.
 	 */
 	@Field(value = "updatedOn")
-	@FieldOrder(1003)
+	@SearchFieldInfo(order = 1003)
 	private Date updatedOn;
 
 	/**

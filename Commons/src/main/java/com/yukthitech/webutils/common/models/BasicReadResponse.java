@@ -24,7 +24,7 @@
 package com.yukthitech.webutils.common.models;
 
 /**
- * Generic read response
+ * Generic read response.
  * 
  * @author akiran
  */
