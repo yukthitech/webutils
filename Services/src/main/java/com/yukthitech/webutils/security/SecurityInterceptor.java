@@ -47,9 +47,7 @@ import com.yukthitech.webutils.WebutilsContext;
 import com.yukthitech.webutils.annotations.NoAuthentication;
 import com.yukthitech.webutils.common.IWebUtilsCommonConstants;
 import com.yukthitech.webutils.common.UserDetails;
-import com.yukthitech.webutils.common.models.ActionModel;
 import com.yukthitech.webutils.common.models.BaseResponse;
-import com.yukthitech.webutils.services.ActionsService;
 
 /**
  * Spring interceptor to control authorization  based on token passed as part of request.
@@ -157,7 +155,7 @@ public class SecurityInterceptor extends HandlerInterceptorAdapter
 	 * @param response Response
 	 * @return User details who is trying to invoke the action
 	 */
-	private UserDetails checkAuthenticationToken(HttpServletRequest request, HttpServletResponse response)
+	private UserDetails<?> checkAuthenticationToken(HttpServletRequest request, HttpServletResponse response)
 	{
 		String sessionToken = request.getHeader(IWebUtilsCommonConstants.HEADER_AUTHORIZATION_TOKEN);
 
@@ -184,7 +182,7 @@ public class SecurityInterceptor extends HandlerInterceptorAdapter
 		try
 		{
 			//fetch user details
-			UserDetails userDetails = sessionManagementService.getUserDetails(sessionToken);
+			UserDetails<?> userDetails = sessionManagementService.getUserDetails(sessionToken);
 			
 			if(userDetails == null)
 			{
@@ -216,7 +214,7 @@ public class SecurityInterceptor extends HandlerInterceptorAdapter
 	 * @param response Response
 	 * @return True if user is authorized to invoke action
 	 */
-	private boolean isAuthorized(UserDetails userDetails, HandlerMethod handlerMethod, HttpServletResponse response)
+	private boolean isAuthorized(UserDetails<?> userDetails, HandlerMethod handlerMethod, HttpServletResponse response)
 	{
 		SecurityInvocationContext context = webutilsSecurityService.newSecurityInvocationContext(handlerMethod.getBeanType(), handlerMethod.getMethod());
 		
@@ -254,7 +252,7 @@ public class SecurityInterceptor extends HandlerInterceptorAdapter
 		}
 
 		//check and validate authorization token
-		UserDetails userDetails = checkAuthenticationToken(request, response);
+		UserDetails<?> userDetails = checkAuthenticationToken(request, response);
 		
 		if(userDetails == null)
 		{

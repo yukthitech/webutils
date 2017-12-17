@@ -13,7 +13,7 @@ import com.yukthitech.persistence.annotations.DataTypeMapping;
 import com.yukthitech.persistence.annotations.Index;
 import com.yukthitech.persistence.annotations.Indexes;
 import com.yukthitech.persistence.annotations.NotUpdateable;
-import com.yukthitech.persistence.conversion.impl.JsonConverter;
+import com.yukthitech.persistence.annotations.Transient;
 import com.yukthitech.webutils.common.UserDetails;
 
 /**
@@ -41,14 +41,6 @@ public class SessionEntity
 	private String sessionToken;
 	
 	/**
-	 * User details returned by authentication service during authentication. Which would be available
-	 * on server side in the current session.
-	 */
-	@Column(name = "USER_DETAILS", nullable = false, length = 2000)
-	@DataTypeMapping(type = DataType.STRING, converterType = JsonConverter.class)
-	private UserDetails userDetails;
-	
-	/**
 	 * User id of the session.
 	 */
 	@Column(name = "USER_ID", nullable = false)
@@ -70,6 +62,12 @@ public class SessionEntity
 	private Date createdOn;
 	
 	/**
+	 * User details used only for caching purpose within memory.
+	 */
+	@Transient
+	private UserDetails<?> userDetails;
+	
+	/**
 	 * Instantiates a new session entity.
 	 */
 	public SessionEntity()
@@ -80,16 +78,14 @@ public class SessionEntity
 	 *
 	 * @param id the id
 	 * @param sessionToken the session token
-	 * @param userDetails the user details
 	 * @param userId the user id
 	 * @param lastAccessedOn the expires on
 	 * @param createdOn the created on
 	 */
-	public SessionEntity(Long id, String sessionToken, UserDetails userDetails, Long userId, Date lastAccessedOn, Date createdOn)
+	public SessionEntity(Long id, String sessionToken, Long userId, Date lastAccessedOn, Date createdOn)
 	{
 		this.id = id;
 		this.sessionToken = sessionToken;
-		this.userDetails = userDetails;
 		this.userId = userId;
 		this.lastAccessedOn = lastAccessedOn;
 		this.createdOn = createdOn;
@@ -133,26 +129,6 @@ public class SessionEntity
 	public void setSessionToken(String sessionToken)
 	{
 		this.sessionToken = sessionToken;
-	}
-
-	/**
-	 * Gets the user details returned by authentication service during authentication. Which would be available on server side in the current session.
-	 *
-	 * @return the user details returned by authentication service during authentication
-	 */
-	public UserDetails getUserDetails()
-	{
-		return userDetails;
-	}
-
-	/**
-	 * Sets the user details returned by authentication service during authentication. Which would be available on server side in the current session.
-	 *
-	 * @param userDetails the new user details returned by authentication service during authentication
-	 */
-	public void setUserDetails(UserDetails userDetails)
-	{
-		this.userDetails = userDetails;
 	}
 
 	/**
@@ -213,5 +189,25 @@ public class SessionEntity
 	public void setUserId(Long userId)
 	{
 		this.userId = userId;
+	}
+
+	/**
+	 * Gets the user details used only for caching purpose within memory.
+	 *
+	 * @return the user details used only for caching purpose within memory
+	 */
+	public UserDetails<?> getUserDetails()
+	{
+		return userDetails;
+	}
+
+	/**
+	 * Sets the user details used only for caching purpose within memory.
+	 *
+	 * @param userDetails the new user details used only for caching purpose within memory
+	 */
+	public void setUserDetails(UserDetails<?> userDetails)
+	{
+		this.userDetails = userDetails;
 	}
 }

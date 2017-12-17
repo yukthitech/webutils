@@ -17,6 +17,8 @@ import com.yukthitech.persistence.repository.RepositoryFactory;
 import com.yukthitech.utils.exceptions.InvalidStateException;
 import com.yukthitech.webutils.cache.WebutilsCacheManager;
 import com.yukthitech.webutils.common.UserDetails;
+import com.yukthitech.webutils.repository.IUserRepository;
+import com.yukthitech.webutils.repository.UserEntity;
 import com.yukthitech.webutils.services.job.BackgroundThreadManager;
 
 /**
@@ -45,6 +47,11 @@ public class SessionManagementService
 	private ISessionRepository sessionRepository;
 	
 	/**
+	 * Repository to access user details.
+	 */
+	private IUserRepository userRepository;
+	
+	/**
 	 * Session timeout time in seconds.
 	 */
 	@Value("${webutils.session.timeOut.inSecs:3600}")
@@ -67,6 +74,12 @@ public class SessionManagementService
 	 */
 	@Autowired
 	private BackgroundThreadManager backgroundThreadManager;
+	
+	/**
+	 * Used to fetch application specific user details.
+	 */
+	@Autowired
+	private IAuthenticationService<?> authenticationService;
 
 	/**
 	 * Post construct method to initialize repository.
@@ -97,12 +110,13 @@ public class SessionManagementService
 	 * @param userDetails User details for which new session needs to be created.
 	 * @return New session id.
 	 */
-	public synchronized String startSession(UserDetails userDetails)
+	public synchronized String startSession(UserDetails<?> userDetails)
 	{
 		Date createdOn = new Date();
 		String sessionToken = UUID.randomUUID().toString();
 		
-		SessionEntity sessionEntity = new SessionEntity(null, sessionToken, userDetails, userDetails.getUserId(), createdOn, createdOn);
+		SessionEntity sessionEntity = new SessionEntity(null, sessionToken, userDetails.getUserId(), createdOn, createdOn);
+		sessionEntity.setUserDetails(userDetails);
 		
 		if(!sessionRepository.save(sessionEntity))
 		{
@@ -154,6 +168,11 @@ public class SessionManagementService
 			
 			if(sessionEntity != null)
 			{
+				UserEntity userEntity = userRepository.findById(sessionEntity.getUserId());
+				UserDetails<?> userDetails = authenticationService.toUserDetails(userEntity);
+				
+				sessionEntity.setUserDetails(userDetails);
+
 				cacheManager.set(sessionToken, sessionEntity);
 			}
 		}
@@ -190,7 +209,7 @@ public class SessionManagementService
 	 * @param sessionToken Session from which user details needs to be fetched.
 	 * @return Session user details.
 	 */
-	public UserDetails getUserDetails(String sessionToken)
+	public UserDetails<?> getUserDetails(String sessionToken)
 	{
 		SessionEntity sessionEntity = getSession(sessionToken);
 		
