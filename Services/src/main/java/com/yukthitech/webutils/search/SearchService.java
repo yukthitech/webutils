@@ -42,6 +42,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import com.yukthitech.persistence.ICrudRepository;
@@ -169,6 +170,7 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 	/**
 	 * Security service.
 	 */
+	@Lazy
 	@Autowired
 	private WebutilsSecurityService webutilsSecurityService;
 

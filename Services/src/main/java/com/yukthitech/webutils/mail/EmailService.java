@@ -304,10 +304,14 @@ public class EmailService
 		String subject = freeMarkerService.processTemplate(emailTemplate.getTemplateName() + ".subject", emailTemplate.getSubjectTemplate(), context);
 		String content = freeMarkerService.processTemplate(emailTemplate.getTemplateName() + ".content", emailTemplate.getContentTemplate(), context);
 
+		List<String> toStrLst = toList(toStr);
+		List<String> ccStrLst = toList(ccStr);
+		List<String> bccStrLst = toList(bccStr);
+		
 		MailMessage mailMessage = new MailMessage();
-		mailMessage.setToList(toList(toStr));
-		mailMessage.setCcList(toList(ccStr));
-		mailMessage.setBccList(toList(bccStr));
+		mailMessage.setToList(toStrLst);
+		mailMessage.setCcList(ccStrLst);
+		mailMessage.setBccList(bccStrLst);
 		mailMessage.setSubject(subject);
 		mailMessage.setBody(content);
 
@@ -320,6 +324,8 @@ public class EmailService
 			String customFromId = ((IMailCustomizer) context).getFromId();
 			fromId = (customFromId != null) ? customFromId : fromId;
 		}
+
+		logger.debug("Setting mail details as: [\n\tTo: {}, \n\tCC: {}, \n\tBCC: {}, \n\tFrom: {}, \n\tSubject: {}]", toStrLst, ccStrLst, bccStrLst, fromId, subject);
 
 		if(isEmpty(mailMessage.getToList()) && isEmpty(mailMessage.getCcList()) && isEmpty(mailMessage.getBccList()))
 		{

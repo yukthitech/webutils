@@ -44,6 +44,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import com.yukthitech.persistence.ICrudRepository;
@@ -100,6 +101,7 @@ public class LovService implements IRepositoryMethodRegistry<LovQuery>
 	/**
 	 * Security service.
 	 */
+	@Lazy
 	@Autowired
 	private WebutilsSecurityService webutilsSecurityService;
 

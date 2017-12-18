@@ -90,6 +90,7 @@ public class SessionManagementService
 		logger.info("Initializing sessions manager with session-time-out as {} Sec and session update time gap as - {} Sec", sessionTimeout, sessionUpdateGap);
 		
 		this.sessionRepository = repositoryFactory.getRepository(ISessionRepository.class);
+		this.userRepository = repositoryFactory.getRepository(IUserRepository.class);
 		
 		this.backgroundThreadManager.scheduleWithFixedDelay(this :: cleanOldSessions, 0, sessionTimeout * 2, TimeUnit.SECONDS);
 	}
