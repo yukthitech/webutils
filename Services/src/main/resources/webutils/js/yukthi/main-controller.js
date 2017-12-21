@@ -1,5 +1,5 @@
-$.application.controller('mainController', ["$scope", "$rootScope", "logger", "actionHelper", "$state", 
-                                            function($scope, $rootScope, logger, actionHelper, $state) {
+$.application.controller('mainController', ["$scope", "$rootScope", "logger", "actionHelper", "$state", "utils",
+                                            function($scope, $rootScope, logger, actionHelper, $state, utils) {
 	
 	$scope.activeUser = null;
 	
@@ -69,6 +69,32 @@ $.application.controller('mainController', ["$scope", "$rootScope", "logger", "a
 	
 	$scope.getAppConfiguration = function(name) {
 		return $.appConfiguration[name];
+	};
+	
+	$scope.sendMail = function(template, mail) {
+		$scope.$broadcast("sendMail", {"template": template, "mail": mail});
+	};
+	
+	/**
+	 * Copies the source element inner text to clipboard.
+	 */
+	$scope.copyToClipboard = function($event, mssg) {
+		var elem = $event.currentTarget;
+		
+		clipboard.writeText($(elem).get(0).innerText);
+
+		if(mssg && mssg.length > 0)
+		{
+			utils.info([mssg]);
+		}
+		
+		return false;
+	};
+	
+	/**
+	 * Main controller init method, which is current a place holder.
+	 */
+	$scope.initMainController = function() {
 	};
 	
 }]);

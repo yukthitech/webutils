@@ -25,6 +25,11 @@ $.application.controller('searchQueryController', ["$scope", "actionHelper", "lo
 	$scope.pageCount = 1;
 	$scope.recordCount = -1;
 	
+	/**
+	 * Maintains list of selected rows during multi-selection.
+	 */
+	$scope.multiSelectRows = [];
+
 	$scope.init = function(){
 		for(var fld in $scope.defaultValues)
 		{
@@ -137,7 +142,8 @@ $.application.controller('searchQueryController', ["$scope", "actionHelper", "lo
 						searchResultDef.fields.push({
 							"displayable": result.searchColumns[i].displayable, 
 							"label": result.searchColumns[i].heading, 
-							"name": result.searchColumns[i].name
+							"name": result.searchColumns[i].name,
+							"searchResultType": result.searchColumns[i].searchResultType
 						});
 					}
 					
@@ -169,6 +175,8 @@ $.application.controller('searchQueryController', ["$scope", "actionHelper", "lo
 					this.$scope.$parent.$digest();
 				}catch(ex)
 				{}
+				
+				$("input." + this.$scope.searchQueryId + "_srchCheckBoxSelectAll").prop("checked", false);
 				
 				//ensure parent is informed that there is no selected row
 				this.$scope.$emit('searchResultSelectionChanged', {
@@ -536,6 +544,85 @@ $.application.controller('searchQueryController', ["$scope", "actionHelper", "lo
 			actionHelper.invokeAction("searchSettings.update", $scope.searchSettings, null, saveCallback);
 		}
 		
+	};
+	
+	/**
+	 * Toggles all rows selection.
+	 */
+	$scope.selectMultiAll = function($event) {
+		var elem = $event.currentTarget;
+		elem = $(elem);
+		
+		var isChecked = elem.prop("checked");
+
+		$("input." + $scope.searchQueryId + "_srchRowCheckBox").prop("checked", isChecked);
+		$scope.multiSelectRows = [];
+		
+		if(isChecked)
+		{
+			for(var i = 0; i < $scope.searchResults.length; i++)
+			{
+				$scope.multiSelectRows.push( $scope.searchResults[i] );
+			}
+		}
+		
+		//send selection event to parent controller
+		$scope.$emit('searchResultMultiSelectionChanged', {
+			"selectedMultiRows": $scope.multiSelectRows,
+			"searchQuery": $scope.searchQuery,
+			"searchQueryName": $scope.searchQueryName
+		});
+	};
+	
+	/**
+	 * Toggle single row selection.
+	 */
+	$scope.selectMultiRow = function($event, index) {
+		$event.stopPropagation();
+		
+		var elem = $event.currentTarget;
+		elem = $(elem);
+		
+		var isChecked = elem.prop("checked");
+		var row = $scope.searchResults[index];
+		
+		var rowIdx = $scope.multiSelectRows.indexOf(row);
+		
+		if(isChecked)
+		{
+			if(rowIdx >= 0)
+			{
+				return;
+			}
+			
+			$scope.multiSelectRows.push(row);
+		}
+		else if(rowIdx >= 0)
+		{
+			$scope.multiSelectRows.splice(rowIdx, 1);
+		}
+		
+		//if all rows are selected
+		if($scope.multiSelectRows.length == $scope.searchResults.length)
+		{
+			$("input." + $scope.searchQueryId + "_srchCheckBoxSelectAll").prop("checked", true);
+		}
+		//if only partial rows are selected
+		else
+		{
+			$("input." + $scope.searchQueryId + "_srchCheckBoxSelectAll").prop("checked", false);
+		}
+
+		//send selection event to parent controller
+		$scope.$emit('searchResultMultiSelectionChanged', {
+			"selectedMultiRows": $scope.multiSelectRows,
+			"searchQuery": $scope.searchQuery,
+			"searchQueryName": $scope.searchQueryName
+		});
+	};
+	
+	$scope.isMultiRowSelected = function() {
+		return $scope.multiSelectRows.length > 0 ? true : false;
 	};
 	
 }]);

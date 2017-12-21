@@ -303,6 +303,15 @@
 				context["fieldWidth"] = 15;
 				////////////////////////
 				
+				if(context.attr("multi-selection") == 'true')
+				{
+					context["multiSelection"] = true;
+				}
+				else
+				{
+					context["multiSelection"] = false;
+				}
+				
 				//set the actions on context
 				var actions = context.element.children("action");
 				
@@ -490,6 +499,11 @@
 								<set-var name="_showExpr" 
 									expr="(context._action.attr('row-action') == 'true') ? 'selectedIndex != null &amp;&amp; selectedIndex &gt;= 0' : 'true'"/>
 								
+								<if test="context.multiSelection">
+									<set-var name="_showExpr" 
+										expr="(context._action.attr('multi-row-action') == 'true') ? 'isMultiRowSelected()' : context._showExpr"/>
+								</if>
+
 								<set-var name="_actionIconPrefix" expr="(context._action.attr('icon').indexOf('glyphicon') &gt;= 0) ? 'glyphicon' : ''"/>
 								
 								<yk-icon-link id="${_actionId}" icon="${_actionIconPrefix} ${_action.attr('icon')}" ng-click="${_action.attr('method')}" 
@@ -501,8 +515,15 @@
 									<for-each data="${actions}" loop-var="action" index-var="actionIdx">
 										<set-var name="_action" expr="$(context.action)"/>
 										<set-var name="_label" expr="context._action.attr('label') ? context._action.attr('label') : ''"/>
+									
 										<set-var name="_showExpr" 
 											expr="(context._action.attr('row-action') == 'true') ? 'selectedIndex != null &amp;&amp; selectedIndex &gt;= 0' : 'true'"/>
+											
+										<if test="context.multiSelection">
+											<set-var name="_showExpr" 
+												expr="(context._action.attr('multi-row-action') == 'true') ? 'isMultiRowSelected()' : context._showExpr"/>
+										</if>
+									
 										<set-var name="_actionIconPrefix" expr="(context._action.attr('icon').indexOf('glyphicon') &gt;= 0) ? 'glyphicon' : ''"/>
 										<set-var name="_roles" expr="context._action.attr('yk-for-role') ? context._action.attr('yk-for-role') : ''"/>
 										
@@ -523,7 +544,7 @@
 				</div>
 
 				<!-- Popup actions -->	
-				<div class="popupIconsContainer popupIcons">
+				<div class="popupIconsContainer popupIcons"  style="padding-left: 0.2em; padding-right: 0.2em;">
 					<if test="context.actions">
 						<for-each data="${actions}" loop-var="action" index-var="actionIdx">
 							<set-var name="_action" expr="$(context.action)"/>
@@ -531,8 +552,11 @@
 							<set-var name="_actionIconPrefix" expr="(context._action.attr('icon').indexOf('glyphicon') &gt;= 0) ? 'glyphicon' : ''"/>
 							<set-var name="_roles" expr="context._action.attr('yk-for-role') ? context._action.attr('yk-for-role') : ''"/>
 
+							<set-var name="_showExpr" 
+								expr="(context._action.attr('multi-row-action') == 'true') ? 'isMultiRowSelected()' : 'true'"/>
+								
 							<a role="button" ng-click="${_action.attr('method')}" style="text-decoration: none; color: ${_action.attr('color')};" class="yk-icon-link" 
-										data-toggle="tooltip" title="${_action.attr('label')}" yk-for-role="${_roles}">
+										data-toggle="tooltip" title="${_action.attr('label')}" yk-for-role="${_roles}" ng-if="${_showExpr}">
 								<i class="${_actionIconPrefix} ${_action.attr('icon')}"></i>
 							</a>
 						</for-each>
@@ -591,6 +615,11 @@
 							<table class="table table-striped table-bordered table-hover searchResults" ng-if="searchResults.length &gt; 0">
 								<!-- Headings row -->
 								<tr>
+									<if test="context.multiSelection">
+										<th>
+											<input type="checkbox" ng-click="selectMultiAll($event)" style="min-width: 1em; height: 1em;"  class="${attr('id')}_srchCheckBoxSelectAll"/>
+										</th>
+									</if>
 									<th>#</th>
 									<for-each data="${extraColumns}" loop-var="col" index-var="colIdx">
 										<th>
@@ -603,7 +632,13 @@
 									</th>
 								</tr>
 								
-								<tr ng-repeat="result in searchResults" ng-click="rowSelected($index, $event)" yk-right-click="rowSelected({{$index}}, $event)" search-row-id="{{$index}}" style="cursor: pointer;">
+								<tr ng-repeat="result in searchResults" ng-click="rowSelected($index, $event)" yk-right-click="rowSelected({{$index}}, $event)" 
+										search-row-id="{{$index}}" style="cursor: pointer;">
+									<if test="context.multiSelection">
+										<td>
+											<input type="checkbox" ng-click="selectMultiRow($event, $index)" style="min-width: 1em; height: 1em;" class="${attr('id')}_srchRowCheckBox"/>
+										</td>
+									</if>
 									<td>{{$index + 1}}</td>
 									<for-each data="${extraColumns}" loop-var="col" index-var="colIdx">
 										<th>
@@ -616,7 +651,15 @@
 											yk-dynamic="$scope.getResultFieldCustomizer()[$scope.field.name]">
 										</div>
 										<div ng-if="!getResultFieldCustomizer()[field.name]" style="display: inline">
-											{{result[field.name]}}
+											<a href="tel:{{result[field.name]}}" ng-if="field.searchResultType == 'PHONE_NO'">
+												{{result[field.name]}}
+											</a>
+											<a href="mailto:{{result[field.name]}}" ng-if="field.searchResultType == 'EMAIL'">
+												{{result[field.name]}}
+											</a>
+											<span ng-if="field.searchResultType == 'NONE'">
+												{{result[field.name]}}
+											</span>
 										</div>
 									</td>
 								</tr>
@@ -886,10 +929,12 @@
 							<continue/>
 						</if>
 					
-						<if test="context.colIndex != 0 &amp;&amp; (context.colIndex % context.columnCount) == 0"><![CDATA[
-							</div>
-							<div style="${enclosingDivStyle}">
-						]]></if>
+						<if test="context.colIndex != 0">
+							<if test="(context.colIndex % context.columnCount) == 0"><![CDATA[
+								</div>
+								<div style="${enclosingDivStyle}">
+							]]></if>
+						</if>
 						
 						<!-- Customizes the field as specified -->
 						<if test="context.fieldCustomizer &amp;&amp; context.fieldCustomizer[context.field.name]">
@@ -1602,7 +1647,7 @@
 	<attr-directive name="ykDynamic">
 		<script>
 		var $scope = context.$scope;
-		var innerHtml = context.element.html();//eval(context.attributeValue);
+		var innerHtml = eval(context.attributeValue);
 		
 		innerHtml = context.$compile(innerHtml)($scope);
 		
