@@ -37,42 +37,42 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class FieldDef
 {
 	/**
-	 * Id of the field, in the cases where this field represents extension field
+	 * Id of the field, in the cases where this field represents extension field.
 	 */
 	private String id;
 	
 	/**
-	 * Name of the model
+	 * Name of the model.
 	 */
 	private String name;
 	
 	/**
-	 * Label for user display
+	 * Label for user display.
 	 */
 	private String label;
 	
 	/**
-	 * Description for user display
+	 * Description for user display.
 	 */
 	private String description;
 	
 	/**
-	 * Data type of current field
+	 * Data type of current field.
 	 */
 	private FieldType fieldType;
 	
 	/**
-	 * Validations on this field
+	 * Validations on this field.
 	 */
 	private List<ValidationDef> validations;
 
 	/**
-	 * Lov details, if this field type is LOV
+	 * Lov details, if this field type is LOV.
 	 */
 	private LovDetails lovDetails;
 	
 	/**
-	 * Default value for this field
+	 * Default value for this field.
 	 */
 	private String defaultValue;
 	
@@ -87,12 +87,12 @@ public class FieldDef
 	private boolean displayable;
 	
 	/**
-	 * Indicates this field holds multiple values
+	 * Indicates this field holds multiple values.
 	 */
 	private boolean multiValued;
 	
 	/**
-	 * Compatible collection type that can be used for field value population
+	 * Compatible collection type that can be used for field value population.
 	 */
 	private Class<?> compatibleCollectionType;
 	
@@ -100,6 +100,11 @@ public class FieldDef
 	 * Java fields, which can be used to get further annotation on field.
 	 */
 	private Field field;
+	
+	/**
+	 * Indicates that current field needs to occupy full width.
+	 */
+	private boolean fullWidth;
 	
 	/**
 	 * Instantiates a new field def.
@@ -366,6 +371,26 @@ public class FieldDef
 	public Field getField()
 	{
 		return field;
+	}
+
+	/**
+	 * Checks if is indicates that current field needs to occupy full width.
+	 *
+	 * @return the indicates that current field needs to occupy full width
+	 */
+	public boolean isFullWidth()
+	{
+		return fullWidth;
+	}
+
+	/**
+	 * Sets the indicates that current field needs to occupy full width.
+	 *
+	 * @param fullWidth the new indicates that current field needs to occupy full width
+	 */
+	public void setFullWidth(boolean fullWidth)
+	{
+		this.fullWidth = fullWidth;
 	}
 
 	/* (non-Javadoc)

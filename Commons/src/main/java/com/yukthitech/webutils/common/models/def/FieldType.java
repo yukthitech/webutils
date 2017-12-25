@@ -36,7 +36,7 @@ import com.yukthitech.webutils.common.ImageInfo;
 public enum FieldType
 {
 	/**
-	 * Simple string field
+	 * Simple string field.
 	 */
 	STRING("string", String.class),
 	
@@ -46,9 +46,14 @@ public enum FieldType
 	MULTI_LINE_STRING("multiLine"),
 	
 	/**
-	 * Type to be used for password fields
+	 * Type to be used for password fields.
 	 */
 	PASSWORD("password"),
+	
+	/**
+	 * Type to be used when formatted html text is expected.
+	 */
+	HTML("html"),
 	
 	INTEGER("int", Integer.class, int.class, Long.class, long.class, Short.class, short.class),
 	

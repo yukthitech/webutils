@@ -116,6 +116,9 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 				{
 					$scope.model[fld] = $scope.defaultValues[fld];
 				}
+				
+				//inform custom widgets to sync model with ui (currently used by tinymce)
+				$scope.$broadcast("postModelLoad");
 
 				utils.openModal($scope.crudConfig.modelDailogId, {
 					context: {"$scope": $scope},
@@ -222,6 +225,9 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 					this.$scope.$digest();
 					
 					$("#" + this.$scope.crudConfig.modelDailogId + " [yk-read-only='true']").prop('disabled', true);
+
+					//inform custom widgets to sync model with ui (currently used by tinymce)
+					$scope.$broadcast("postModelLoad");
 
 					utils.openModal(this.$scope.crudConfig.modelDailogId, {
 						context: {"$scope": $scope},
@@ -382,6 +388,9 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 					$scope.crudConfig.customizeOp($scope.model, $scope);
 				}
 				
+				//inform custom widgets to sync model with ui (currently used by tinymce)
+				$scope.$broadcast("preModelValidate");
+
 				if(!validator.validateModel($scope.model, $scope.modelDef, $scope.errors.model))
 				{
 					utils.alert("Please correct the errors and then try!", function(){

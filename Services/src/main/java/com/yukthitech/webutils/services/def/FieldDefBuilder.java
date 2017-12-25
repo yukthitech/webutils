@@ -40,6 +40,7 @@ import com.yukthitech.utils.exceptions.InvalidStateException;
 import com.yukthitech.webutils.common.LovType;
 import com.yukthitech.webutils.common.annotations.Color;
 import com.yukthitech.webutils.common.annotations.DefaultValue;
+import com.yukthitech.webutils.common.annotations.Html;
 import com.yukthitech.webutils.common.annotations.LOV;
 import com.yukthitech.webutils.common.annotations.MultilineText;
 import com.yukthitech.webutils.common.annotations.NonDisplayable;
@@ -247,6 +248,11 @@ public class FieldDefBuilder
 				else if(field.getAnnotation(Password.class) != null)
 				{
 					fieldDef.setFieldType(FieldType.PASSWORD);
+				}
+				else if(field.getAnnotation(Html.class) != null)
+				{
+					fieldDef.setFieldType(FieldType.HTML);
+					fieldDef.setFullWidth(true);
 				}
 				else if(field.getAnnotation(Color.class) != null)
 				{

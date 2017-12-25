@@ -75,6 +75,10 @@ $.application.controller('mainController', ["$scope", "$rootScope", "logger", "a
 		$scope.$broadcast("sendMail", {"template": template, "mail": mail});
 	};
 	
+	$scope.displayMulitResponseDialog = function(data) {
+		$scope.$broadcast("displayMultiResponseDialog", data);
+	};
+	
 	/**
 	 * Copies the source element inner text to clipboard.
 	 */
