@@ -162,6 +162,16 @@ public class UserDetails<R extends Enum<R>>
 	{
 		this.roles = roles;
 	}
+	
+	/**
+	 * Checkes if this user has specified role.
+	 * @param role role to check.
+	 * @return true if role is present.
+	 */
+	public boolean hasRole(R role)
+	{
+		return (roles != null && roles.contains(role));
+	}
 
 	/**
 	 * Gets the date format to be used in JS.
