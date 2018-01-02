@@ -330,6 +330,7 @@ public class EmailServerSettings
 		
 		props.put(PROP_USE_AUTH, "" + useAuthentication);
 		props.put(PROP_ENABLE_TTLS, "" + enableTtls);
+		props.put("mail.smtp.ssl.enable", "" + enableTtls);
 		
 		props.put(PROP_SMTP_HOST, smtpHost);
 		
