@@ -159,6 +159,14 @@ class ControllerProxy implements InvocationHandler
 			if(controllerTypeName.equals(actionModel.getRemoteJavaInterfaceType()))
 			{
 				MethodDetails metDet = signToDetails.get(actionModel.getRemoteMethodSignature());
+				
+				//method details will be null, when a method is defined in controller
+				//		but not in interface
+				if(metDet == null)
+				{
+					continue;
+				}
+				
 				metDet.actionModel = actionModel;
 				
 				methodToAction.put(metDet.method, metDet);

@@ -50,7 +50,8 @@ public class WebutilsCommonUtils
 				{
 					if(varToType != null && genericParamTypes[idx] instanceof TypeVariable)
 					{
-						ptype = (Class<?>) varToType.get(genericParamTypes[idx]);
+						Class<?> genType = (Class<?>) varToType.get(genericParamTypes[idx]);
+						ptype = (genType == null) ? ptype : genType;
 					}
 					
 					if(ptype.getName().contains("MultipartHttpServletRequest"))

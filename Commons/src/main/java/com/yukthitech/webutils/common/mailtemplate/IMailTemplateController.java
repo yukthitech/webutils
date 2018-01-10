@@ -1,6 +1,5 @@
 package com.yukthitech.webutils.common.mailtemplate;
 
-import com.yukthitech.webutils.common.RemoteService;
 import com.yukthitech.webutils.common.controllers.ICrudController;
 import com.yukthitech.webutils.common.models.BasicReadResponse;
 
@@ -8,8 +7,7 @@ import com.yukthitech.webutils.common.models.BasicReadResponse;
  * Controller for operations on mail templates.
  * @author akiran
  */
-@RemoteService
-public interface IMailTemplateController extends ICrudController<MailTemplateModel>
+public interface IMailTemplateController extends ICrudController<MailTemplateModel, IMailTemplateController>
 {
 	/**
 	 * Fetches the mail template with specified name.

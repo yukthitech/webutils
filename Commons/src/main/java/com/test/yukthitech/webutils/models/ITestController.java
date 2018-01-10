@@ -1,10 +1,8 @@
 package com.test.yukthitech.webutils.models;
 
-import com.yukthitech.webutils.common.RemoteService;
 import com.yukthitech.webutils.common.models.BaseResponse;
 import com.yukthitech.webutils.common.models.BasicReadListResponse;
 
-@RemoteService
 public interface ITestController
 {
 

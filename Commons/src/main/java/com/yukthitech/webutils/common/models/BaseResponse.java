@@ -26,7 +26,7 @@ package com.yukthitech.webutils.common.models;
 import com.yukthitech.webutils.common.IWebUtilsCommonConstants;
 
 /**
- * Base for all response classes to include response code and message
+ * Base for all response classes to include response code and message.
  */
 public class BaseResponse
 {

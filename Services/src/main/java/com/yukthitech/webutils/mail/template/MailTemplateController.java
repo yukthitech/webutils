@@ -44,7 +44,7 @@ import com.yukthitech.webutils.controllers.BaseCrudController;
 @RestController
 @ActionName(ACTION_PREFIX_MAIL_TEMP)
 @RequestMapping("/mail-template")
-public class MailTemplateController extends BaseCrudController<MailTemplateModel, MailTemplateService> implements IMailTemplateController
+public class MailTemplateController extends BaseCrudController<MailTemplateModel, MailTemplateService, IMailTemplateController> implements IMailTemplateController
 {
 	@ResponseBody
 	@RequestMapping("/fetchByName/{name}")

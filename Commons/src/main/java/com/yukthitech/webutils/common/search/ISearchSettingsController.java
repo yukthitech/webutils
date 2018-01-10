@@ -1,6 +1,5 @@
 package com.yukthitech.webutils.common.search;
 
-import com.yukthitech.webutils.common.RemoteService;
 import com.yukthitech.webutils.common.controllers.IClientController;
 import com.yukthitech.webutils.common.models.BaseResponse;
 import com.yukthitech.webutils.common.models.BasicReadResponse;
@@ -10,7 +9,6 @@ import com.yukthitech.webutils.common.models.BasicSaveResponse;
  * Controller interface for search settings.
  * @author akiran
  */
-@RemoteService
 public interface ISearchSettingsController extends IClientController<ISearchSettingsController>
 {
 	/**

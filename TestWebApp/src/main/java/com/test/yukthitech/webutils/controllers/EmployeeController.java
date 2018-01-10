@@ -42,7 +42,7 @@ import com.yukthitech.webutils.controllers.BaseCrudController;
 @RestController
 @RequestMapping("/employee")
 @ActionName("employee")
-public class EmployeeController extends BaseCrudController<TestEmployeeModel, EmployeeService> implements IEmployeeController
+public class EmployeeController extends BaseCrudController<TestEmployeeModel, EmployeeService, IEmployeeController> implements IEmployeeController
 {
 	/* (non-Javadoc)
 	 * @see com.test.yukthi.webutils.controllers.IEmployeeController#deleteAll()

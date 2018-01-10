@@ -1,14 +1,12 @@
 package com.yukthitech.webutils.common.controllers;
 
 import com.yukthitech.webutils.common.LovType;
-import com.yukthitech.webutils.common.RemoteService;
 import com.yukthitech.webutils.common.models.LovListResponse;
 
 /**
  * Controller for fetching list of values (LOV).
  * @author akiran
  */
-@RemoteService
 public interface ILovController extends IClientController<ILovController>
 {
 

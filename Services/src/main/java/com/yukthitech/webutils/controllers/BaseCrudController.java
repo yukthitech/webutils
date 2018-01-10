@@ -32,8 +32,9 @@ import com.yukthitech.webutils.services.BaseCrudService;
  * @author akiran
  * @param <M> Model type for which controller is being defined.
  * @param <S> service type to be used.
+ * @param <C> Current controller type.
  */
-public class BaseCrudController<M extends BaseModel, S extends BaseCrudService<?, ?>> extends BaseController implements ICrudController<M>
+public class BaseCrudController<M extends BaseModel, S extends BaseCrudService<?, ?>, C extends ICrudController<M, C>> extends BaseController implements ICrudController<M, C>
 {
 	/**
 	 * Spring application context to fetch service instance.

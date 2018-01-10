@@ -1,13 +1,11 @@
 package com.yukthitech.webutils.common.controllers;
 
-import com.yukthitech.webutils.common.RemoteService;
 import com.yukthitech.webutils.common.models.BaseResponse;
 import com.yukthitech.webutils.common.models.BasicSaveResponse;
 import com.yukthitech.webutils.common.models.ExtensionFieldModel;
 import com.yukthitech.webutils.common.models.ExtensionFieldReadResponse;
 import com.yukthitech.webutils.common.models.ExtensionFieldsResponse;
 
-@RemoteService
 public interface IExtensionController extends IClientController<IExtensionController>
 {
 

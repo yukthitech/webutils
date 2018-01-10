@@ -8,8 +8,9 @@ import com.yukthitech.webutils.common.models.BasicSaveResponse;
  * Base interface for crud controllers which provides most common apis.
  * @author akiran
  * @param <M> Model to be used by this controller
+ * @param <C> Current controller type
  */
-public interface ICrudController<M>
+public interface ICrudController<M, C extends IClientController<C>> extends IClientController<C>
 {
 	/**
 	 * Saves the specified model into persistence.

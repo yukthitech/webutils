@@ -1,9 +1,7 @@
 package com.yukthitech.webutils.common.controllers;
 
-import com.yukthitech.webutils.common.RemoteService;
 import com.yukthitech.webutils.common.models.ModelDefResponse;
 
-@RemoteService
 public interface IModelController extends IClientController<IModelController>
 {
 

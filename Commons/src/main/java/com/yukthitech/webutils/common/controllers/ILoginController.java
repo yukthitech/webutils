@@ -1,7 +1,6 @@
 package com.yukthitech.webutils.common.controllers;
 
 import com.yukthitech.webutils.common.IWebUtilsCommonConstants;
-import com.yukthitech.webutils.common.RemoteService;
 import com.yukthitech.webutils.common.models.BaseResponse;
 import com.yukthitech.webutils.common.models.LoginCredentials;
 import com.yukthitech.webutils.common.models.LoginResponse;
@@ -10,7 +9,6 @@ import com.yukthitech.webutils.common.models.LoginResponse;
  * Controller interface for login and logout.
  * @author akiran
  */
-@RemoteService
 public interface ILoginController extends IClientController<ILoginController>
 {
 

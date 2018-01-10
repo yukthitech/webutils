@@ -56,10 +56,10 @@ import com.yukthitech.webutils.annotations.ActionName;
 import com.yukthitech.webutils.annotations.AttachmentsExpected;
 import com.yukthitech.webutils.common.HttpMethod;
 import com.yukthitech.webutils.common.IWebUtilsCommonConstants;
-import com.yukthitech.webutils.common.RemoteService;
 import com.yukthitech.webutils.common.WebutilsCommonUtils;
 import com.yukthitech.webutils.common.annotations.ExtendableModel;
 import com.yukthitech.webutils.common.annotations.Model;
+import com.yukthitech.webutils.common.controllers.IClientController;
 import com.yukthitech.webutils.common.models.ActionModel;
 import com.yukthitech.webutils.common.models.ActionParamModel;
 import com.yukthitech.webutils.common.models.def.FieldDef;
@@ -204,7 +204,7 @@ public class ActionsService
 		
 		for(Class<?> interType : interTypes)
 		{
-			if(interType.getAnnotation(RemoteService.class) != null)
+			if( IClientController.class.isAssignableFrom(interType) )
 			{
 				return interType;
 			}
