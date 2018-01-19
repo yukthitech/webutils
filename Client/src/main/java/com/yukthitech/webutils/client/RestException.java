@@ -34,17 +34,17 @@ public class RestException extends RuntimeException
 	private static final long serialVersionUID = 1L;
 	
 	/**
-	 * Http status code during REST error
+	 * Http status code during REST error.
 	 */
 	private int statusCode;
 	
 	/**
-	 * Response code from server
+	 * Response code from server.
 	 */
 	private int responseCode;
 	
 	/**
-	 * Response error message from server
+	 * Response error message from server.
 	 */
 	private String responseMessage;
 
@@ -64,9 +64,8 @@ public class RestException extends RuntimeException
 		this.responseMessage = (response != null)? response.getMessage() : null;
 	}
 	
-	
 	/**
-	 * Builds exception message on the parameters specified
+	 * Builds exception message on the parameters specified.
 	 * @param message
 	 * @param statusCode
 	 * @param responseCode
@@ -77,7 +76,7 @@ public class RestException extends RuntimeException
 	{
 		StringBuilder builder = new StringBuilder(message);
 		
-		builder.append("[Http Status: ").append(statusCode);
+		builder.append(" [Http Status: ").append(statusCode);
 		
 		if(response != null)
 		{

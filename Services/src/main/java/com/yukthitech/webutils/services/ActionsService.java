@@ -26,6 +26,7 @@ package com.yukthitech.webutils.services;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -38,6 +39,7 @@ import java.util.TreeSet;
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.reflect.TypeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Service;
@@ -217,15 +219,23 @@ public class ActionsService
 	 * Fetches the action parameter details from specified method parameters into specified action.
 	 * @param action Action to which parameter details needs to be fetched
 	 * @param method Method whose parameters needs to be used
+	 * @param mainClass Class from which methods are being loaded.
 	 */
-	private void fetchActionParameters(ActionModel action, Method method)
+	private void fetchActionParameters(ActionModel action, Method method, Class<?> mainClass)
 	{
 		ActionParamModel actionParam = null;
 		Set<String> fileFields = null;
 		String paramName = null;
 		
+		Type genericParamTypes[] = method.getGenericParameterTypes();
+		int idx = 0;
+		Type paramGenericType = null;
+		
 		for(Parameter parameter : method.getParameters())
 		{
+			paramGenericType = genericParamTypes[idx];
+			idx++;
+			
 			actionParam = new ActionParamModel();
 			
 			//if RequestBody annotation is present on the parameter
@@ -234,15 +244,15 @@ public class ActionsService
 				if(action.isAttachmentsExpected())
 				{
 					throw new InvalidConfigurationException("@RequestBody is used in service method where attachments are expected. "
-							+ "Use @RequestPart(\"{}\") instead. Method - {}.{}()", IWebUtilsCommonConstants.MULTIPART_DEFAULT_PART, 
-								method.getDeclaringClass().getName(), method.getName());
+							+ "Use @RequestPart(\"{}\") instead. Method - {}", IWebUtilsCommonConstants.MULTIPART_DEFAULT_PART, 
+								action.getRemoteMethodSignature());
 				}
 
 				//if multiple parameters are marked for body throw error
 				if(action.isBodyExpected())
 				{
-					throw new InvalidConfigurationException("Multiple parameters are marked as body attributes.  Method - {}.{}()",  
-								method.getDeclaringClass().getName(), method.getName());
+					throw new InvalidConfigurationException("Multiple parameters are marked as body attributes.  Method - {}",  
+								action.getRemoteMethodSignature());
 				}
 				
 				actionParam.setType(ActionParamModel.TYPE_BODY);
@@ -253,7 +263,7 @@ public class ActionsService
 				if(!action.isAttachmentsExpected())
 				{
 					throw new InvalidConfigurationException("@RequestPart is used in service method where attachments are not expected. "
-							+ "Use @RequestBody instead. Method - {}.{}()", method.getDeclaringClass().getName(), method.getName());
+							+ "Use @RequestBody instead. Method - {}", action.getRemoteMethodSignature());
 				}
 				
 				String partName = parameter.getAnnotation(RequestPart.class).value();
@@ -261,16 +271,16 @@ public class ActionsService
 				if(!IWebUtilsCommonConstants.MULTIPART_DEFAULT_PART.equals(partName))
 				{
 					throw new InvalidConfigurationException("Invalid request part name used '{}'. "
-							+ "Only '{}' is supported as part name for action methods. Method - {}.{}()", 
+							+ "Only '{}' is supported as part name for action methods. Method - {}", 
 							partName, IWebUtilsCommonConstants.MULTIPART_DEFAULT_PART, 
-							method.getDeclaringClass().getName(), method.getName());
+							action.getRemoteMethodSignature());
 				}
 				
 				//if multiple parameters are marked for body throw error
 				if(action.isBodyExpected())
 				{
-					throw new InvalidConfigurationException("Multiple parameters are marked as body attributes. Method - {}.{}()",  
-								method.getDeclaringClass().getName(), method.getName());
+					throw new InvalidConfigurationException("Multiple parameters are marked as body attributes. Method - {}",  
+								action.getRemoteMethodSignature());
 				}
 
 				actionParam.setType(ActionParamModel.TYPE_BODY);
@@ -282,22 +292,23 @@ public class ActionsService
 				//if non model is declared as body throw error
 				if(parameter.getType().getAnnotation(Model.class) == null && parameter.getType().getAnnotation(ExtendableModel.class) == null)
 				{
-					throw new InvalidConfigurationException("Non-model parameter type '{}' is defined as body attribute. Method - {}.{}()", 
+					throw new InvalidConfigurationException("Non-model parameter type '{}' is defined as body attribute. Method - {}", 
 							parameter.getType().getName(), 
-							method.getDeclaringClass().getName(), method.getName());
+							action.getRemoteMethodSignature());
 				}
 				
 				//if attachments are expected
 				if(action.isAttachmentsExpected())
 				{
-					fileFields = getFileFields(parameter.getType());
+					Class<?> paramType = TypeUtils.getRawType(paramGenericType, mainClass);
+					fileFields = getFileFields(paramType);
 
 					//if no file fields are found
 					if(fileFields == null)
 					{
-						throw new InvalidConfigurationException("No file fields are found in model though service method is marked as attachments expected. Method - {}.{}()", 
+						throw new InvalidConfigurationException("No file fields are found in model '{}' though service method is marked as attachments expected. Method - {}", 
 								parameter.getType().getName(), 
-								method.getDeclaringClass().getName(), method.getName());
+								action.getRemoteMethodSignature());
 					}
 					
 					action.setFileFields(fileFields);
@@ -310,8 +321,8 @@ public class ActionsService
 				
 				if( StringUtils.isBlank(paramName) )
 				{
-					throw new InvalidConfigurationException("@RequestParam is defined without value argument in method {}.{}()", 
-							method.getDeclaringClass().getName(), method.getName());
+					throw new InvalidConfigurationException("@RequestParam is defined without value argument in method {}", 
+							action.getRemoteMethodSignature());
 				}
 				
 				actionParam.setName(paramName);
@@ -324,8 +335,8 @@ public class ActionsService
 				
 				if( StringUtils.isBlank(paramName) )
 				{
-					throw new InvalidConfigurationException("@PathVariable is defined without value argument in method {}.{}()", 
-							method.getDeclaringClass().getName(), method.getName());
+					throw new InvalidConfigurationException("@PathVariable is defined without value argument in method {}", 
+							action.getRemoteMethodSignature());
 				}
 				
 				actionParam.setName(paramName);
@@ -345,8 +356,8 @@ public class ActionsService
 					//if the parameter is non-model type
 					if(parameter.getType().getAnnotation(Model.class) == null && parameter.getType().getAnnotation(ExtendableModel.class) == null)
 					{
-						throw new InvalidConfigurationException("Unable to determine action parameter type in method {}.{}()", 
-								method.getDeclaringClass().getName(), method.getName());
+						throw new InvalidConfigurationException("Unable to determine action parameter type in method {}", 
+								action.getRemoteMethodSignature());
 					}
 					
 					actionParam.setType(ActionParamModel.TYPE_EMBEDDED_REQUEST_PARAMS);
@@ -441,7 +452,7 @@ public class ActionsService
 			}
 
 			action.setAttachmentsExpected(method.getAnnotation(AttachmentsExpected.class) != null);
-			fetchActionParameters(action, method);
+			fetchActionParameters(action, method, mainClass);
 			
 			//build action model object and cache it
 			url = clsRequestMapping + requestMapping.value()[0];

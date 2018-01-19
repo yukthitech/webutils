@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.http.HttpStatus;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -51,15 +52,45 @@ import com.yukthitech.webutils.common.search.ExecuteSearchResponse;
 import com.yukthitech.webutils.common.search.SearchResponse;
 
 /**
- * Helper to execute search related functions
+ * Helper to execute search related functions.
  * @author akiran
  */
 public class SearchHelper
 {
+	/**
+	 * Used to convert objects to json and vice versa.
+	 */
 	private ObjectMapper objectMapper = new ObjectMapper();
 	
 	{
 		objectMapper.setDateFormat(IWebUtilsCommonConstants.DEFAULT_DATE_FORMAT);
+	}
+	
+	/**
+	 * Executes search query with specified query object. This method would retry the operation one more time on session timeout.
+	 * @param context Client context
+	 * @param queryName Name of query to execute
+	 * @param searchQuery Query object
+	 * @param page page to be fetched
+	 * @param pageSize Query page size
+	 * @return List of search results
+	 */
+	public ExecuteSearchResponse executeSearchQuery(ClientContext context, String queryName, Object searchQuery, int page, int pageSize)
+	{
+		try
+		{
+			return executeSearchQueryInternal(context, queryName, searchQuery, page, pageSize);
+		} catch(RestException ex)
+		{
+			//on session timeout retry the operation
+			if(ex.getStatusCode() == HttpStatus.SC_UNAUTHORIZED)
+			{
+				context.reauthenticate();
+				return executeSearchQueryInternal(context, queryName, searchQuery, page, pageSize);
+			}
+			
+			throw ex;
+		}
 	}
 
 	/**
@@ -71,7 +102,7 @@ public class SearchHelper
 	 * @param pageSize Query page size
 	 * @return List of search results
 	 */
-	public ExecuteSearchResponse executeSearchQuery(ClientContext context, String queryName, Object searchQuery, int page, int pageSize)
+	private ExecuteSearchResponse executeSearchQueryInternal(ClientContext context, String queryName, Object searchQuery, int page, int pageSize)
 	{
 		//Build model object
 		SearchExecutionModel searchExecutionModel = new SearchExecutionModel();
@@ -113,6 +144,35 @@ public class SearchHelper
 		
 		return response;
 	}
+	
+	/**
+	 * Executes search query with specified query object. The operation would be reteried once on session timeout.
+	 * @param context Client context
+	 * @param queryName Name of query to execute
+	 * @param searchQuery Query object
+	 * @param page page to be fetched
+	 * @param pageSize Query page size
+	 * @param expectedResultType Type of result expected
+	 * @param <T> expected result type
+	 * @return List of search results
+	 */
+	public <T> List<T> executeSearchForObjects(ClientContext context, String queryName, Object searchQuery, int page, int pageSize, Class<T> expectedResultType)
+	{
+		try
+		{
+			return executeSearchForObjectsInternal(context, queryName, searchQuery, page, pageSize, expectedResultType);
+		} catch(RestException ex)
+		{
+			//on session timeout retry the operation
+			if(ex.getStatusCode() == HttpStatus.SC_UNAUTHORIZED)
+			{
+				context.reauthenticate();
+				return executeSearchForObjectsInternal(context, queryName, searchQuery, page, pageSize, expectedResultType);
+			}
+			
+			throw ex;
+		}
+	}
 
 	/**
 	 * Executes search query with specified query object.
@@ -125,7 +185,7 @@ public class SearchHelper
 	 * @param <T> expected result type
 	 * @return List of search results
 	 */
-	public <T> List<T> executeSearchForObjects(ClientContext context, String queryName, Object searchQuery, int page, int pageSize, Class<T> expectedResultType)
+	private <T> List<T> executeSearchForObjectsInternal(ClientContext context, String queryName, Object searchQuery, int page, int pageSize, Class<T> expectedResultType)
 	{
 		//Build model object
 		SearchExecutionModel searchExecutionModel = new SearchExecutionModel();

@@ -25,10 +25,52 @@ $.application.controller('searchQueryController', ["$scope", "actionHelper", "lo
 	$scope.pageCount = 1;
 	$scope.recordCount = -1;
 	
+	$scope.popupDisplayTime = -1;
+	
 	/**
 	 * Maintains list of selected rows during multi-selection.
 	 */
 	$scope.multiSelectRows = [];
+	
+	/**
+	 * Ensure mouse up from popup container is not propogated to document
+	 * which may hide popup container prematurely. 
+	 */
+	$(".popupIconsContainer").on('mouseup', function(event){
+		event.stopPropagation();
+		return false;
+	});
+
+	/**
+	 * After click of popup icon ensure popup is closed
+	 */
+	$(".popupIconsContainer").on('mouseup', function(event){
+		var popupDiv = $("#" + $scope.searchQueryId + " div.popupIcons");
+		popupDiv.css("display", "none");
+		$scope.popupDisplayTime = -1;
+	});
+
+	/**
+	 * A callback function, which would hide the popup menu
+	 * when scond click is done.
+	 */
+	$(document).on('mouseup', $.proxy(function(){
+		if(!this.$scope.popupDisplayTime < 0)
+		{
+			return;
+		}
+		
+		var diff = (new Date()).getTime() - this.$scope.popupDisplayTime;
+		
+		if(diff < 1000)
+		{
+			return;
+		}
+		
+		var popupDiv = $("#" + $scope.searchQueryId + " div.popupIcons");
+		popupDiv.css("display", "none");
+		$scope.popupDisplayTime = -1;
+	}, {"$scope": $scope}));
 
 	$scope.init = function(){
 		for(var fld in $scope.defaultValues)
@@ -256,6 +298,7 @@ $.application.controller('searchQueryController', ["$scope", "actionHelper", "lo
 			left: (event.pageX >  maxX) ? maxX : event.pageX 
 		});
 		
+		$scope.popupDisplayTime = (new Date()).getTime();
 		
 		$scope.selectedIndex = index;
 		
@@ -290,7 +333,7 @@ $.application.controller('searchQueryController', ["$scope", "actionHelper", "lo
 	});
 
 	$scope.$on('invokeSearch', function(event, data){
-		if(data.searchQuery)
+		if(data && data.searchQuery)
 		{
 			$scope.searchQuery = data.searchQuery; 
 		}

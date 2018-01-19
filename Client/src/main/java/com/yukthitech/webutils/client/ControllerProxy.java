@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.reflect.TypeUtils;
+import org.apache.http.HttpStatus;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -205,7 +206,6 @@ class ControllerProxy implements InvocationHandler
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
 	{
-		//TODO: correct this condition to use full method signature
 		if("setRequestCustomizer".equals(method.getName()))
 		{
 			clientContext.setRequestCustomizer((IRequestCustomizer) args[0]);
@@ -231,7 +231,6 @@ class ControllerProxy implements InvocationHandler
 			{
 				index++;
 				
-				//TODO: Take care of file uploads, if needed
 				if(paramModel.getType() == ActionParamModel.TYPE_BODY)
 				{
 					requestEntity = args[index];
@@ -257,6 +256,14 @@ class ControllerProxy implements InvocationHandler
 		RestClient client = clientContext.getRestClient();
 		
 		RestResult<BaseResponse> modelDefResult = (RestResult) client.invokeJsonRequest(request, methodDetails.getReturnType());
+
+		//reauthenticate and retry on session timeout
+		if(modelDefResult.getStatusCode() == HttpStatus.SC_UNAUTHORIZED)
+		{
+			clientContext.reauthenticate();
+			modelDefResult = (RestResult) client.invokeJsonRequest(request, methodDetails.getReturnType());
+		}
+		
 		BaseResponse response = modelDefResult.getValue();
 		
 		if(response == null || response.getCode() != 0)

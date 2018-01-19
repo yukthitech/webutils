@@ -45,7 +45,7 @@ import com.yukthitech.webutils.common.models.LoginCredentials;
 import com.yukthitech.webutils.common.models.LoginResponse;
 
 /**
- * Client context to invoke actions
+ * Client context to invoke actions.
  * 
  * @author akiran
  */
@@ -54,25 +54,28 @@ public class ClientContext
 	private static Logger logger = LogManager.getLogger(ClientContext.class);
 
 	/**
-	 * Rest client that can be used to invoke actions
+	 * Rest client that can be used to invoke actions.
 	 */
 	private RestClient restClient;
 
 	/**
-	 * Base url of the application
+	 * Base url of the application.
 	 */
 	private String baseUrl;
 
 	/**
-	 * Maps name to action details
+	 * Maps name to action details.
 	 */
 	private Map<String, ActionModel> actionsMap;
 
 	/**
-	 * Authentication token obtained during authentication and other reponses
+	 * Authentication token obtained during authentication and other responses.
 	 */
 	private String authToken;
 
+	/**
+	 * Used to maintain request customizer at thread level.
+	 */
 	private ThreadLocal<IRequestCustomizer> requestCustomizerLocal = new ThreadLocal<>();
 
 	/**
@@ -84,6 +87,16 @@ public class ClientContext
 	 * The user name.
 	 **/
 	private String userName;
+	
+	/**
+	 * Password used for authentication.
+	 */
+	private String password;
+	
+	/**
+	 * Attributes used during authentication.
+	 */
+	private Map<String, String> attributes;
 
 	/**
 	 * Instantiates a new client context.
@@ -100,7 +113,7 @@ public class ClientContext
 	}
 
 	/**
-	 * Invokes action url and fetches all available actions
+	 * Invokes action url and fetches all available actions.
 	 */
 	private void initActions()
 	{
@@ -136,12 +149,33 @@ public class ClientContext
 		this.requestCustomizerLocal.set(customizer);
 		return this;
 	}
+	
+	/**
+	 * Used to reauthenticate the session.
+	 */
+	public void reauthenticate()
+	{
+		this.authenticate(userName, password, attributes);
+	}
 
+	/**
+	 * Used for authentication.
+	 *
+	 * @param userName the user name
+	 * @param password the password
+	 */
 	public void authenticate(String userName, String password)
 	{
 		this.authenticate(userName, password, null);
 	}
 
+	/**
+	 * Used for authentication.
+	 *
+	 * @param userName the user name
+	 * @param password the password
+	 * @param attributes the attributes
+	 */
 	public void authenticate(String userName, String password, Map<String, String> attributes)
 	{
 		// build request
@@ -162,6 +196,7 @@ public class ClientContext
 		this.authToken = authResult.getValue().getAuthToken();
 
 		this.userName = userName;
+		this.password = password;
 		this.userId = authResult.getValue().getUserId();
 
 		/*
@@ -229,7 +264,7 @@ public class ClientContext
 	}
 
 	/**
-	 * Gets the action details with specified name
+	 * Gets the action details with specified name.
 	 * 
 	 * @param name
 	 *            Name of action whose details needs to be fetched
