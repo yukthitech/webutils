@@ -20,6 +20,7 @@ import com.yukthitech.webutils.InvalidRequestParameterException;
 import com.yukthitech.webutils.annotations.ActionName;
 import com.yukthitech.webutils.common.BaseModel;
 import com.yukthitech.webutils.common.IWebUtilsActionConstants;
+import com.yukthitech.webutils.common.client.IRequestCustomizer;
 import com.yukthitech.webutils.common.controllers.ICrudController;
 import com.yukthitech.webutils.common.models.BaseResponse;
 import com.yukthitech.webutils.common.models.BasicReadResponse;
@@ -143,5 +144,14 @@ public class BaseCrudController<M extends BaseModel, S extends BaseCrudService<?
 	{
 		getService().deleteById(id);
 		return new BaseResponse();
+	}
+	
+	/* (non-Javadoc)
+	 * @see com.yukthitech.webutils.common.controllers.IClientController#setRequestCustomizer(com.yukthitech.webutils.common.client.IRequestCustomizer)
+	 */
+	@Override
+	public C setRequestCustomizer(IRequestCustomizer customizer)
+	{
+		return null;
 	}
 }

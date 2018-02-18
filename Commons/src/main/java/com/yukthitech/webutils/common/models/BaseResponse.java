@@ -45,7 +45,7 @@ public class BaseResponse
 	 */
 	public BaseResponse()
 	{
-		this(IWebUtilsCommonConstants.RESPONSE_CODE_SUCCESS, null);
+		this(IWebUtilsCommonConstants.RESPONSE_CODE_SUCCESS, IWebUtilsCommonConstants.DEF_RESPONSE_SUCCES_MESSAGE);
 	}
 
 	/**

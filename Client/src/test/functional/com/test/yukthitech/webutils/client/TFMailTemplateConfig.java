@@ -5,6 +5,7 @@
 package com.test.yukthitech.webutils.client;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -18,6 +19,7 @@ import org.testng.annotations.Test;
 
 import com.yukthitech.webutils.common.mailtemplate.IMailTemplateConfigController;
 import com.yukthitech.webutils.common.mailtemplate.MailTemplateConfiguration;
+import com.yukthitech.webutils.common.models.def.FieldDef;
 
 /**
  * Test cases for mail template configurations.
@@ -63,7 +65,12 @@ public class TFMailTemplateConfig extends TFBase
 		
 		Assert.assertNotNull(config);
 		
-		Set<String> fieldNames = config.getFields().stream().map(field -> field.getName()).collect(Collectors.toSet());
+		Set<String> fieldNames = new HashSet<>();
+		
+		for(MailTemplateConfiguration.Field field : config.getFields())
+		{
+			fieldNames.add(field.getName());
+		}
 		
 		Assert.assertEquals(fieldNames, new TreeSet<>(Arrays.asList(
 				"name", "age", "address", "departments",

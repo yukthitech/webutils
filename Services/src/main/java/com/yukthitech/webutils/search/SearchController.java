@@ -54,6 +54,8 @@ import com.yukthitech.webutils.common.FileInfo;
 import com.yukthitech.webutils.common.IWebUtilsActionConstants;
 import com.yukthitech.webutils.common.IWebUtilsCommonConstants;
 import com.yukthitech.webutils.common.SearchExecutionModel;
+import com.yukthitech.webutils.common.client.IRequestCustomizer;
+import com.yukthitech.webutils.common.controllers.IExtensionController;
 import com.yukthitech.webutils.common.models.ModelDefResponse;
 import com.yukthitech.webutils.common.models.def.ModelDef;
 import com.yukthitech.webutils.common.search.ExecuteSearchResponse;
@@ -209,5 +211,14 @@ public class SearchController extends BaseController implements ISearchControlle
 		excelExporter.generateExcelSheet(tempFile.getPath(), searchExcelDataReport);
 		
 		WebAttachmentUtils.sendFile(response, new FileInfo(searchResultDef.getLabel() + ".xls", tempFile, WebAttachmentUtils.MIME_MS_EXCEL_FILE), true, true);
+	}
+
+	/* (non-Javadoc)
+	 * @see com.yukthitech.webutils.common.controllers.IClientController#setRequestCustomizer(com.yukthitech.webutils.common.client.IRequestCustomizer)
+	 */
+	@Override
+	public ISearchController setRequestCustomizer(IRequestCustomizer customizer)
+	{
+		return null;
 	}
 }

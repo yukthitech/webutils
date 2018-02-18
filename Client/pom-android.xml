@@ -2,7 +2,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<artifactId>webutils-client</artifactId>
+	<artifactId>webutils-client-android</artifactId>
 	<packaging>jar</packaging>
 
 	<name>Client</name>
@@ -45,6 +45,34 @@
 					<target>1.7</target>
 				</configuration>
 			</plugin>
+
+			<plugin>
+				<groupId>org.sonatype.plugins</groupId>
+				<artifactId>jarjar-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>jarjar</goal>
+						</goals>
+						<configuration>
+							<includes>
+								<include>org.apache.httpcomponents:httpclient</include>
+								<include>org.apache.httpcomponents:httpcore</include>
+								<include>org.apache.tika:tika-core</include>
+								<include>com.yukthitech:yukthi-utils</include>
+							</includes>
+							<rules>
+								<rule>
+									<pattern>org.apache.http.**</pattern>
+									<result>yukthi.org.apache.http.@1</result>
+								</rule>
+							</rules>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
 		</plugins>
 	</build>
 	

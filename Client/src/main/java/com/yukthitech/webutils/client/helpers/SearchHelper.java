@@ -127,9 +127,8 @@ public class SearchHelper
 		searchExecutionModel.setPageSize(pageSize);
 		
 		//build request object
-		RestRequest<?> request = ActionRequestBuilder.buildRequest(context, ACTION_PREFIX_SEARCH + "." + ACTION_TYPE_EXECUTE, searchExecutionModel, CommonUtils.toMap(
-				PARAM_NAME, queryName
-		));
+		RestRequest<?> request = ActionRequestBuilder.buildRequest(context, ACTION_PREFIX_SEARCH + "." + ACTION_TYPE_EXECUTE, 
+				searchExecutionModel, CommonUtils.<String, Object>toMap(PARAM_NAME, queryName));
 		
 		RestClient client = context.getRestClient();
 		
@@ -210,9 +209,9 @@ public class SearchHelper
 		searchExecutionModel.setPageSize(pageSize);
 		
 		//build request object
-		RestRequest<?> request = ActionRequestBuilder.buildRequest(context, ACTION_PREFIX_SEARCH + "." + ACTION_TYPE_SEARCH, searchExecutionModel, CommonUtils.toMap(
-				PARAM_NAME, queryName
-		));
+		RestRequest<?> request = ActionRequestBuilder.buildRequest(context, 
+				ACTION_PREFIX_SEARCH + "." + ACTION_TYPE_SEARCH, searchExecutionModel, 
+				CommonUtils.<String, Object>toMap(PARAM_NAME, queryName));
 		
 		RestClient client = context.getRestClient();
 		

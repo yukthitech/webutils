@@ -85,7 +85,7 @@ public class TFExtensionValues extends TFBase
 		}
 		
 		RestRequest<?> request = ActionRequestBuilder.buildRequest(
-				clientContext.setRequestCustomizer(new RequestHeadersCustomizer(CommonUtils.toMap("customerId", "" + customerId))), 
+				clientContext.setRequestCustomizer(new RequestHeadersCustomizer(CommonUtils.<String, Object>toMap("customerId", "" + customerId))), 
 				"employee.save", emp, null);
 		
 		RestClient client = clientContext.getRestClient();
@@ -120,7 +120,7 @@ public class TFExtensionValues extends TFBase
 		}
 		
 		RestRequest<?> request = ActionRequestBuilder.buildRequest(
-				clientContext.setRequestCustomizer(new RequestHeadersCustomizer(CommonUtils.toMap("customerId", "" + customerId))), 
+				clientContext.setRequestCustomizer(new RequestHeadersCustomizer(CommonUtils.<String, Object>toMap("customerId", "" + customerId))), 
 				"employee.update", emp, null);
 		
 		RestClient client = clientContext.getRestClient();
@@ -144,8 +144,8 @@ public class TFExtensionValues extends TFBase
 	private void deleteEmployee(long customerId, long empId)
 	{
 		RestRequest<?> request = ActionRequestBuilder.buildRequest(
-				clientContext.setRequestCustomizer(new RequestHeadersCustomizer(CommonUtils.toMap("customerId", "" + customerId))), 
-				"employee.delete", null, CommonUtils.toMap("id", empId));
+				clientContext.setRequestCustomizer(new RequestHeadersCustomizer(CommonUtils.<String, Object>toMap("customerId", "" + customerId))), 
+				"employee.delete", null, CommonUtils.<String, Object>toMap("id", empId));
 		
 		RestClient client = clientContext.getRestClient();
 		
@@ -183,8 +183,8 @@ public class TFExtensionValues extends TFBase
 	private TestEmployeeModel getEmployee(long customerId, long empId)
 	{
 		RestRequest<?> request = ActionRequestBuilder.buildRequest(
-				clientContext.setRequestCustomizer(new RequestHeadersCustomizer(CommonUtils.toMap("customerId", "" + customerId))), 
-				"employee.fetch", null, CommonUtils.toMap(
+				clientContext.setRequestCustomizer(new RequestHeadersCustomizer(CommonUtils.<String, Object>toMap("customerId", "" + customerId))), 
+				"employee.fetch", null, CommonUtils.<String, Object>toMap(
 						"id", "" + empId
 					));
 		
@@ -197,7 +197,7 @@ public class TFExtensionValues extends TFBase
 	private long addExtensionField(long customerId, ExtensionFieldModel field)
 	{
 		long id = extensionsController
-			.setRequestCustomizer(new RequestHeadersCustomizer(CommonUtils.toMap("customerId", "" + customerId)))
+			.setRequestCustomizer(new RequestHeadersCustomizer(CommonUtils.<String, Object>toMap("customerId", "" + customerId)))
 			.saveExtensionField(field).getId();
 		
 		return id;

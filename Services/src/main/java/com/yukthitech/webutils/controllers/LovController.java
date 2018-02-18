@@ -40,6 +40,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.yukthitech.webutils.annotations.ActionName;
 import com.yukthitech.webutils.common.LovType;
+import com.yukthitech.webutils.common.client.IRequestCustomizer;
+import com.yukthitech.webutils.common.controllers.IExtensionController;
 import com.yukthitech.webutils.common.controllers.ILovController;
 import com.yukthitech.webutils.common.models.LovListResponse;
 import com.yukthitech.webutils.services.LovService;
@@ -86,5 +88,15 @@ public class LovController extends BaseController implements ILovController
 	public LovListResponse fetchDependentLov(@PathVariable(PARAM_NAME) String lovName, @PathVariable(PARAM_VALUE) String dependencyValue)
 	{
 		return new LovListResponse( lovService.getDynamicLovValues(lovName, dependencyValue, request.getLocale()) );
+	}
+
+	
+	/* (non-Javadoc)
+	 * @see com.yukthitech.webutils.common.controllers.IClientController#setRequestCustomizer(com.yukthitech.webutils.common.client.IRequestCustomizer)
+	 */
+	@Override
+	public ILovController setRequestCustomizer(IRequestCustomizer customizer)
+	{
+		return null;
 	}
 }

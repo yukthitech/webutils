@@ -31,7 +31,7 @@ package com.yukthitech.webutils.common.models;
 public class BasicReadResponse<M> extends BaseResponse
 {
 	/**
-	 * Model read from server
+	 * Model read from server.
 	 */
 	private M model;
 	

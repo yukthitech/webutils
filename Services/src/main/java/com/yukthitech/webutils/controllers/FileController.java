@@ -30,12 +30,19 @@ import static com.yukthitech.webutils.common.IWebUtilsActionConstants.ACTION_TYP
 import static com.yukthitech.webutils.common.IWebUtilsActionConstants.ACTION_TYPE_UPLOAD;
 import static com.yukthitech.webutils.common.IWebUtilsActionConstants.PARAM_ID;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.tika.metadata.Metadata;
+import org.apache.tika.parser.AutoDetectParser;
+import org.apache.tika.sax.ToXMLContentHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -50,6 +57,7 @@ import com.yukthitech.webutils.annotations.NoAuthentication;
 import com.yukthitech.webutils.common.FileInfo;
 import com.yukthitech.webutils.common.IWebUtilsCommonConstants;
 import com.yukthitech.webutils.common.models.BasicSaveResponse;
+import com.yukthitech.webutils.common.models.FileReadResponse;
 import com.yukthitech.webutils.common.models.UploadTempFileRequest;
 import com.yukthitech.webutils.repository.file.FileEntity;
 import com.yukthitech.webutils.security.ISecurityService;
@@ -216,5 +224,41 @@ public class FileController
 		}
 
 		WebAttachmentUtils.sendFile(response, fileInfo, true, true);
+	}
+	
+	/**
+	 * API to read content as html.
+	 * @param id id of file to read
+	 * @return file content in html format. 
+	 */
+	@ActionName("contentAsHtml")
+	@RequestMapping(value = "/contentAsHtml/{" + PARAM_ID + "}", method = RequestMethod.GET)
+	public FileReadResponse getFileContentAsHtml(@PathVariable(PARAM_ID) long id) throws Exception
+	{
+		FileInfo fileInfo = getFileInfo(id, false, response);
+
+		if(fileInfo == null)
+		{
+			return new FileReadResponse("No file available with specified id: " + id);
+		}
+
+		ToXMLContentHandler handler = new ToXMLContentHandler();
+		AutoDetectParser parser = new AutoDetectParser();
+		Metadata metadata = new Metadata();
+		
+		File file = fileInfo.getFile();
+		
+		//rename the file
+		File renamedFile = File.createTempFile(FilenameUtils.getBaseName(fileInfo.getFileName()), "." + FilenameUtils.getExtension(fileInfo.getFileName()));
+		FileUtils.forceDelete(renamedFile);
+		FileUtils.moveFile(file, renamedFile);
+		file.delete();
+
+		FileInputStream fis = new FileInputStream(renamedFile);
+		parser.parse(fis, handler, metadata);
+		String resultContent = handler.toString();
+		
+		fis.close();
+		return new FileReadResponse(resultContent);
 	}
 }

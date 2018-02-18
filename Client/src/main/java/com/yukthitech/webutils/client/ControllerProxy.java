@@ -14,6 +14,8 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.reflect.TypeUtils;
 import org.apache.http.HttpStatus;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -31,6 +33,8 @@ import com.yukthitech.webutils.common.models.BaseResponse;
 
 class ControllerProxy implements InvocationHandler
 {
+	private static Logger logger = LogManager.getLogger(ControllerProxy.class);
+	
 	/**
 	 * Contains details needed during method invocation handling.
 	 * @author akiran
@@ -147,11 +151,12 @@ class ControllerProxy implements InvocationHandler
 		this.controllerType = controllerType;
 		this.clientContext = clientContext;
 		
-		Map<String, MethodDetails> signToDetails = Arrays.asList(controllerType.getMethods()).stream()
-				.collect(Collectors.toMap(
-						met -> WebutilsCommonUtils.getMethodSignature(controllerType, met), 
-						met -> new MethodDetails(met)
-				));
+		Map<String, MethodDetails> signToDetails = new HashMap<>();
+		
+		for(Method method : controllerType.getMethods())
+		{
+			signToDetails.put(WebutilsCommonUtils.getMethodSignature(controllerType, method), new MethodDetails(method));
+		}
 		
 		String controllerTypeName = controllerType.getName();
 		
@@ -260,6 +265,8 @@ class ControllerProxy implements InvocationHandler
 		//reauthenticate and retry on session timeout
 		if(modelDefResult.getStatusCode() == HttpStatus.SC_UNAUTHORIZED)
 		{
+			logger.info("As the session got timeout, reauthenticating the session...");
+			
 			clientContext.reauthenticate();
 			modelDefResult = (RestResult) client.invokeJsonRequest(request, methodDetails.getReturnType());
 		}

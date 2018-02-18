@@ -27,18 +27,23 @@ import java.text.SimpleDateFormat;
 import java.util.regex.Pattern;
 
 /**
- * Different response codes
+ * Different response codes.
  * @author akiran
  */
 public interface IWebUtilsCommonConstants
 {
 	/**
-	 * Success code to be used for successful request processing
+	 * Success code to be used for successful request processing.
 	 */
 	public int RESPONSE_CODE_SUCCESS = 0;
 	
 	/**
-	 * Response code to be used when input request validation failed
+	 * Default success message response.
+	 */
+	public String DEF_RESPONSE_SUCCES_MESSAGE = "Operation was successful.";
+	
+	/**
+	 * Response code to be used when input request validation failed.
 	 */
 	public int RESPONSE_CODE_INVALID_REQUEST = 4400;
 	

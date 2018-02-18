@@ -79,7 +79,7 @@ public class TFExtensions extends TFBase
 	
 	private long saveExtensionField(String customerId, ExtensionFieldModel field)
 	{
-		clientContext.setRequestCustomizer(new RequestHeadersCustomizer(CommonUtils.toMap("customerId", customerId)));
+		clientContext.setRequestCustomizer(new RequestHeadersCustomizer(CommonUtils.<String, Object>toMap("customerId", customerId)));
 		return extensionController.saveExtensionField(field).getId();
 	}
 	
@@ -102,7 +102,7 @@ public class TFExtensions extends TFBase
 						new LovOption("2", "Label2")) ) );
 
 		List<ExtensionFieldModel> fieldList1 = extensionController
-			.setRequestCustomizer(new RequestHeadersCustomizer(CommonUtils.toMap("customerId", id1)))
+			.setRequestCustomizer(new RequestHeadersCustomizer(CommonUtils.<String, Object>toMap("customerId", id1)))
 			.fetchExtensionFields("Employee").getExtensionFields();
 		
 		Assert.assertEquals(fieldList1.size(), 2);
@@ -113,7 +113,7 @@ public class TFExtensions extends TFBase
 		Assert.assertEquals(fieldList1.get(0).isRequired(), true);
 		
 		List<ExtensionFieldModel> fieldList2 = extensionController
-			.setRequestCustomizer(new RequestHeadersCustomizer(CommonUtils.toMap("customerId", id2)))
+			.setRequestCustomizer(new RequestHeadersCustomizer(CommonUtils.<String, Object>toMap("customerId", id2)))
 			.fetchExtensionFields("Employee").getExtensionFields();
 		
 		Assert.assertEquals(fieldList2.size(), 1);
@@ -130,7 +130,7 @@ public class TFExtensions extends TFBase
 		try
 		{
 			extensionController
-				.setRequestCustomizer(new RequestHeadersCustomizer(CommonUtils.toMap("customerId", id1)))
+				.setRequestCustomizer(new RequestHeadersCustomizer(CommonUtils.<String, Object>toMap("customerId", id1)))
 				.saveExtensionField(new ExtensionFieldModel("Employee", "field1", "field1", "Desc4", ExtensionFieldType.BOOLEAN, true) );
 			Assert.fail("Able to add multiple fields with same name");
 		}catch(Exception ex)
@@ -155,7 +155,7 @@ public class TFExtensions extends TFBase
 		saveExtensionField(id1, field2);
 
 		List<ExtensionFieldModel> fieldList1 = extensionController
-			.setRequestCustomizer(new RequestHeadersCustomizer(CommonUtils.toMap("customerId", id1)))
+			.setRequestCustomizer(new RequestHeadersCustomizer(CommonUtils.<String, Object>toMap("customerId", id1)))
 			.fetchExtensionFields("Employee").getExtensionFields();
 		
 		Assert.assertEquals(fieldList1.size(), 2);
@@ -171,11 +171,11 @@ public class TFExtensions extends TFBase
 		field1.setVersion(1);
 		
 		extensionController
-			.setRequestCustomizer(new RequestHeadersCustomizer(CommonUtils.toMap("customerId", id1)))
+			.setRequestCustomizer(new RequestHeadersCustomizer(CommonUtils.<String, Object>toMap("customerId", id1)))
 			.updateExtensionField(field1);
 		
 		fieldList1 = extensionController
-			.setRequestCustomizer(new RequestHeadersCustomizer(CommonUtils.toMap("customerId", id1)))
+			.setRequestCustomizer(new RequestHeadersCustomizer(CommonUtils.<String, Object>toMap("customerId", id1)))
 			.fetchExtensionFields("Employee").getExtensionFields();
 		
 		Assert.assertEquals(fieldList1.size(), 2);
@@ -201,7 +201,7 @@ public class TFExtensions extends TFBase
 		saveExtensionField(id1, field3);
 		
 		List<ExtensionFieldModel> fieldList1 = extensionController
-			.setRequestCustomizer(new RequestHeadersCustomizer(CommonUtils.toMap("customerId", id1)))
+			.setRequestCustomizer(new RequestHeadersCustomizer(CommonUtils.<String, Object>toMap("customerId", id1)))
 			.fetchExtensionFields("Employee").getExtensionFields();
 		Assert.assertEquals(fieldList1.size(), 3);
 		Assert.assertEquals(CommonUtils.toSet(fieldList1.get(0).getName(), fieldList1.get(1).getName(), fieldList1.get(2).getName()), 
@@ -212,11 +212,11 @@ public class TFExtensions extends TFBase
 		
 		//update and validate
 		extensionController
-			.setRequestCustomizer(new RequestHeadersCustomizer(CommonUtils.toMap("customerId", id1)))
+			.setRequestCustomizer(new RequestHeadersCustomizer(CommonUtils.<String, Object>toMap("customerId", id1)))
 			.deleteExtensionField("Employee", fieldId1);
 		
 		fieldList1 = extensionController
-						.setRequestCustomizer(new RequestHeadersCustomizer(CommonUtils.toMap("customerId", id1))) 
+						.setRequestCustomizer(new RequestHeadersCustomizer(CommonUtils.<String, Object>toMap("customerId", id1))) 
 						.fetchExtensionFields("Employee").getExtensionFields();
 		Assert.assertEquals(fieldList1.size(), 2);
 		Assert.assertEquals(CommonUtils.toSet(fieldList1.get(0).getName(), fieldList1.get(1).getName()), 

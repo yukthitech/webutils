@@ -485,5 +485,37 @@ public class FileService
 		
 		return fileInfo;
 	}
+	
+	/**
+	 * Fetches file id with specified ownership details.
+	 * @param entityType Entity owner type
+	 * @param field Entity field with which file is associated
+	 * @param ownerId Entity owner id.
+	 * @return Matching first file id.
+	 */
+	public Long fetchFileIdByOwner(Class<?> entityType, String field, Long ownerId)
+	{
+		List<Long> fileIds = repository.fetchIdsByOwner(entityType.getName(), field, ownerId, securityService.getUserSpaceIdentity());
+		
+		if(fileIds == null || fileIds.isEmpty())
+		{
+			return null;
+		}
+		
+		return fileIds.get(0);
+	}
+	
+	/**
+	 * Fetches file ids with specified ownership details.
+	 * @param entityType Entity owner type
+	 * @param field Entity field with which file is associated
+	 * @param ownerId Entity owner id.
+	 * @return Matching file id list.
+	 */
+	public List<Long> fetchFileIdListByOwner(Class<?> entityType, String field, Long ownerId)
+	{
+		List<Long> fileIds = repository.fetchIdsByOwner(entityType.getName(), field, ownerId, securityService.getUserSpaceIdentity());
+		return fileIds;
+	}
 }
  

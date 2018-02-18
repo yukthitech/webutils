@@ -23,6 +23,7 @@
 
 package com.test.yukthitech.webutils.client;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -118,9 +119,13 @@ public class TFSearchQuery extends TFBase
 		Assert.assertEquals(modelDef.getName(), TestEmpSearchQuery.class.getSimpleName());
 		Assert.assertEquals(modelDef.getFields().size(), 2);
 		
-		Set<String> fieldNames = modelDef.getFields().stream()
-				.map(field -> field.getName())
-				.collect(Collectors.toSet());
+		Set<String> fieldNames = new HashSet<>();
+		
+		for(FieldDef field : modelDef.getFields())
+		{
+			fieldNames.add(field.getName());
+		}
+
 		Assert.assertEquals(fieldNames, CommonUtils.toSet("id", "name"));
 	}
 

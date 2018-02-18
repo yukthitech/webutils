@@ -46,6 +46,8 @@ import com.yukthitech.webutils.annotations.ActionName;
 import com.yukthitech.webutils.annotations.NoAuthentication;
 import com.yukthitech.webutils.common.IWebUtilsCommonConstants;
 import com.yukthitech.webutils.common.UserDetails;
+import com.yukthitech.webutils.common.client.IRequestCustomizer;
+import com.yukthitech.webutils.common.controllers.IExtensionController;
 import com.yukthitech.webutils.common.controllers.ILoginController;
 import com.yukthitech.webutils.common.models.BaseResponse;
 import com.yukthitech.webutils.common.models.BasicReadResponse;
@@ -150,5 +152,14 @@ public class LoginController extends BaseController implements ILoginController
 		
 		sessionManagementService.clearSession(currentSessionToken);
 		return new BaseResponse();
+	}
+	
+	/* (non-Javadoc)
+	 * @see com.yukthitech.webutils.common.controllers.IClientController#setRequestCustomizer(com.yukthitech.webutils.common.client.IRequestCustomizer)
+	 */
+	@Override
+	public ILoginController setRequestCustomizer(IRequestCustomizer customizer)
+	{
+		return null;
 	}
 }

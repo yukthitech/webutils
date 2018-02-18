@@ -14,9 +14,5 @@ public interface IClientController<C extends IClientController<C>>
 	 * @param customizer Customized to customize request.
 	 * @return Returns current controller instance for nested call.
 	 */
-	@SuppressWarnings("unchecked")
-	public default C setRequestCustomizer(IRequestCustomizer customizer)
-	{
-		return (C) this;
-	}
+	public C setRequestCustomizer(IRequestCustomizer customizer);
 }

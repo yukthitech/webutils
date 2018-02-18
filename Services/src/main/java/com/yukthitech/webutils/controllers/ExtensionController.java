@@ -55,6 +55,7 @@ import com.yukthitech.utils.exceptions.InvalidStateException;
 import com.yukthitech.webutils.IWebUtilsInternalConstants;
 import com.yukthitech.webutils.InvalidRequestParameterException;
 import com.yukthitech.webutils.annotations.ActionName;
+import com.yukthitech.webutils.common.client.IRequestCustomizer;
 import com.yukthitech.webutils.common.controllers.IExtensionController;
 import com.yukthitech.webutils.common.extensions.ExtensionFieldType;
 import com.yukthitech.webutils.common.models.BaseResponse;
@@ -323,5 +324,14 @@ public class ExtensionController extends BaseController implements IExtensionCon
 		
 		extensionService.deleteAllExtensionFields();
 		return new BaseResponse("Success");
+	}
+	
+	/* (non-Javadoc)
+	 * @see com.yukthitech.webutils.common.controllers.IClientController#setRequestCustomizer(com.yukthitech.webutils.common.client.IRequestCustomizer)
+	 */
+	@Override
+	public IExtensionController setRequestCustomizer(IRequestCustomizer customizer)
+	{
+		return null;
 	}
 }
