@@ -109,6 +109,8 @@ $.application.controller('searchQueryController', ["$scope", "actionHelper", "lo
 	$scope.performSearch = function(searchCriteria) {
 		logger.trace("Search is triggered for query - " + $scope.searchQueryName);
 		
+		$scope.clearSelections();
+		
 		//TODO: Move init errors to post rendering
 		$scope.initErrors("searchQuery");
 		
@@ -218,7 +220,8 @@ $.application.controller('searchQueryController', ["$scope", "actionHelper", "lo
 				}catch(ex)
 				{}
 				
-				$("input." + this.$scope.searchQueryId + "_srchCheckBoxSelectAll").prop("checked", false);
+				//$("input." + this.$scope.searchQueryId + "_srchCheckBoxSelectAll").prop("checked", false);
+				$scope.clearSelections();
 				
 				//ensure parent is informed that there is no selected row
 				this.$scope.$emit('searchResultSelectionChanged', {
@@ -589,6 +592,21 @@ $.application.controller('searchQueryController', ["$scope", "actionHelper", "lo
 		
 	};
 	
+	/**
+	 * Clear all row selections if any.
+	 */
+	$scope.clearSelections = function() {
+		$scope.multiSelectRows = [];
+		$("input." + $scope.searchQueryId + "_srchCheckBoxSelectAll").prop("checked", false);
+		$("input." + $scope.searchQueryId + "_srchRowCheckBox").prop("checked", false);
+
+		$scope.$emit('searchResultMultiSelectionChanged', {
+			"selectedMultiRows": $scope.multiSelectRows,
+			"searchQuery": $scope.searchQuery,
+			"searchQueryName": $scope.searchQueryName
+		});
+	};
+
 	/**
 	 * Toggles all rows selection.
 	 */

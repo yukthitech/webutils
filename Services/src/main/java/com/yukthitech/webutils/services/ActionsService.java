@@ -356,8 +356,8 @@ public class ActionsService
 					//if the parameter is non-model type
 					if(parameter.getType().getAnnotation(Model.class) == null && parameter.getType().getAnnotation(ExtendableModel.class) == null)
 					{
-						throw new InvalidConfigurationException("Unable to determine action parameter type in method {}", 
-								action.getRemoteMethodSignature());
+						throw new InvalidConfigurationException("Unable to determine action parameter type at index {} in method {}", 
+								idx, action.getRemoteMethodSignature());
 					}
 					
 					actionParam.setType(ActionParamModel.TYPE_EMBEDDED_REQUEST_PARAMS);

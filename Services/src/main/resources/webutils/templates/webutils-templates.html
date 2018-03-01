@@ -1151,7 +1151,7 @@
 												<table style="width: 100%; table-layout: fixed;">
 													<tr>
 														<td style="padding: 0.2em; overflow: hidden; white-space: nowrap;">
-															<div ng-show="${modelField}">
+															<div ng-show="${modelField}" style="overflow: hidden;">
 																<a role="button" yk-file-delete="-1" model-name="${modelField}"
 																			data-toggle="tooltip" title="Remove" class="delButtonLink">
 																	<span aria-hidden="true">&amp;times;</span>
@@ -1328,7 +1328,7 @@
 					<table>
 						<tr ng-repeat="lov in dropDown.${attr('name')}">
 							<td>
-								<input type="checkbox" value="{{lov.value}}" style="min-width: 1px; height: 1em; width: 1em; margin: 0.2em;"/> 
+								<input type="checkbox" value="{{lov.value}}" style="min-width: 1px; height: 1em; width: 1em; margin: 0.2em;" ng-click="${attr('name')}_lov_clicked()"/> 
 								{{lov.label}}
 							</td>
 						</tr>
@@ -1398,19 +1398,21 @@
 				return;
 			}
 			
-			var lovCheckBoxes = $(context.$result).find("input[type='checkbox']");
-			
-			lovCheckBoxes.off("click").on("click", $.proxy(function(event){
+			context.$scope[context.attr('name') + "_lov_clicked"] = $.proxy(function() {
+				var lovCheckBoxes = this.parent.find("input[type='checkbox']");
+					
 				var lst = [];
 				
-				for(var i = 0; i &lt; this.lovCheckBoxes.length; i++)
+				for(var i = 0; i &lt; lovCheckBoxes.length; i++)
 				{
 					//if checkbox is checked add the value to final result
-					if( $(this.lovCheckBoxes[i]).prop("checked") )
+					if( $(lovCheckBoxes[i]).prop("checked") )
 					{
-						lst.push( $(this.lovCheckBoxes[i]).val() );
+						lst.push( $(lovCheckBoxes[i]).val() );
 					}
 				}
+				
+				console.log("Checkbox state changed: ", lst);
 				
 				//set the value on the scope
 				eval("this.$scope." + this.modelField + " = lst");
@@ -1421,11 +1423,11 @@
 					var $event = $(event);
 					eval("this.$scope." + this.onChange );
 				}
-				
-			}, {"lovCheckBoxes": lovCheckBoxes, "$scope" : context.$scope, "onChange": context.attr('on-change'), "modelField": context.modelField}));
-
+			}, {"$scope" : context.$scope, "onChange": context.attr('on-change'), "modelField": context.modelField, "parent": $(context.$result)});
+			
 			//Add watch function for lov field			
 			var watchFunc = $.proxy(function(){
+				var lovCheckBoxes = this.parent.find("input[type='checkbox']");
 				//get the model field values
 				var values = null;
 				
@@ -1443,21 +1445,21 @@
 				
 				//loop through the check boxes and check the checkboxes whose value is present
 					// in model field values. If not uncheck.
-				for(var i = 0; i &lt; this.lovCheckBoxes.length; i++)
+				for(var i = 0; i &lt; lovCheckBoxes.length; i++)
 				{
-					if(values.indexOf( $(this.lovCheckBoxes[i]).val() ) &gt;= 0 )
+					if(values.indexOf( $(lovCheckBoxes[i]).val() ) &gt;= 0 )
 					{
-						$(this.lovCheckBoxes[i]).prop("checked", true);
+						$(lovCheckBoxes[i]).prop("checked", true);
 					}
 					else
 					{
-						$(this.lovCheckBoxes[i]).prop("checked", false);
+						$(lovCheckBoxes[i]).prop("checked", false);
 					}
 				}
 				
 				return false;
 				
-			}, {"$scope" : context.$scope, "modelField": context.modelField, "lovCheckBoxes": lovCheckBoxes});
+			}, {"$scope" : context.$scope, "modelField": context.modelField, "parent": $(context.$result)});
 			
 			var respFunc = $.proxy(function(newValue, oldValue){
 			}, {"$scope" : context.$scope, "element": context.element});

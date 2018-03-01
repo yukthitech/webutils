@@ -99,6 +99,10 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 				}
 			});
 			
+			$scope.resetModelForm = function() {
+				$("#" + $scope.crudConfig.modelDailogId +" input[type='file']").val("");
+			};
+			
 			$scope.addEntry = function(e) {
 				logger.trace("Add {} is triggered..", $scope.crudConfig.name);
 				$scope.initErrors("model", true);
@@ -111,6 +115,8 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 				$scope[$scope.dlgModeField] = true;
 				$("#" + $scope.crudConfig.modelDailogId +" [yk-read-only='true']").prop('disabled', false);
 				$scope.model = {};
+				
+				$scope.resetModelForm();
 				
 				for(var fld in $scope.defaultValues)
 				{
@@ -154,6 +160,8 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 				{
 					$scope.crudConfig.onBeforeShow(false, $scope);
 				}
+				
+				$scope.resetModelForm();
 
 				var readResponse = null;
 				
