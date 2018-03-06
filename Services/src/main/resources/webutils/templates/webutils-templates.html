@@ -2013,12 +2013,13 @@
 		<script>
 			var eventDataObj = {"element": context.element, "expression": context.attributeValue};
 			
-			var eventHandler = function(eventData){
+			var eventHandler = function(event){
+				var eventData = event.data;
 				var $this = eventData.element;
 				
 				var pattern = /\${1,2}\{(.+)\}/g;
 				
-				console.log("Event data: ", eventData);
+				console.log("Got event as: ", event);
 				
 				var res = eventData.expression.replace(pattern, function(match, p1){
 					if(match.indexOf("$$") == 0)
@@ -2039,7 +2040,7 @@
 			$(window).resize(eventDataObj, eventHandler);
 
 			//call event handler explicitly, so that for default height max-height is set
-			eventHandler(eventDataObj);
+			eventHandler( {"data": eventDataObj} );
 		</script>
 	</attr-directive>
 

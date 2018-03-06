@@ -34,9 +34,11 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.ThreadContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.web.method.HandlerMethod;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -191,6 +193,8 @@ public class SecurityInterceptor extends HandlerInterceptorAdapter
 				throw new SecurityException(IWebUtilsCommonConstants.RESPONSE_CODE_SESSION_TIMEOUT_ERROR, "Session timed out or is invalid");
 			}
 			
+			userDetails.setAuthToken(sessionToken);
+			
 			request.setAttribute(IWebUtilsInternalConstants.REQ_ATTR_USER_DETAILS, userDetails);
 			request.setAttribute(IWebUtilsInternalConstants.REQ_ATTR_SESSION_TOKEN, sessionToken);
 			
@@ -227,6 +231,17 @@ public class SecurityInterceptor extends HandlerInterceptorAdapter
 		}
 		
 		return true;
+	}
+	
+	/**
+	 * Sets the user details on log4j context which can be used during logging.
+	 * @param token auth token
+	 * @param user user name
+	 */
+	private void setUserDetailsOnContext(String token, String user)
+	{
+		ThreadContext.put("token", token);
+		ThreadContext.put("user", user);
 	}
 
 	/**
@@ -267,6 +282,14 @@ public class SecurityInterceptor extends HandlerInterceptorAdapter
 			return false;
 		}
 		
+		setUserDetailsOnContext(userDetails.getAuthToken(), userDetails.getDisplayName());
 		return true;
+	}
+
+	@Override
+	public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception
+	{
+		ThreadContext.clearAll();
+		super.postHandle(request, response, handler, modelAndView);
 	}
 }

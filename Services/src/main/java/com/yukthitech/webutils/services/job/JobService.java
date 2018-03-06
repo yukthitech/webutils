@@ -45,9 +45,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
 import com.yukthitech.utils.CommonUtils;
 import com.yukthitech.utils.exceptions.InvalidArgumentException;
 import com.yukthitech.utils.exceptions.InvalidStateException;
@@ -67,13 +64,13 @@ public class JobService
 	private static Logger logger = LogManager.getLogger(JobService.class);
 	
 	/**
-	 * Spring application context to fetch configured job beans
+	 * Spring application context to fetch configured job beans.
 	 */
 	@Autowired
 	private ApplicationContext applicationContext;
 
 	/**
-	 * Quartz scheduler for scheduling
+	 * Quartz scheduler for scheduling.
 	 */
 	private Scheduler scheduler;
 	
@@ -106,6 +103,7 @@ public class JobService
 			scheduler.start();
 		}catch(Exception ex)
 		{
+			logger.error("An error occurred while starting up the scheduler", ex);
 			throw new InvalidStateException(ex, "An error occurred while starting up the scheduler");
 		}
 		
@@ -123,12 +121,12 @@ public class JobService
 			
 			cronJob = jobBeanType.getAnnotation(CronJob.class);
 			
-			scheduleJob(new JobDetails(cronJob.name(), cronJob.cronExpression(), (Class)jobBeanType, null));
+			scheduleJob(new JobDetails(cronJob.name(), cronJob.cronExpression(), (Class) jobBeanType, null));
 		}
 	}
 	
 	/**
-	 * Schedules job with specified details
+	 * Schedules job with specified details.
 	 * @param jobDetails Details of job to configure
 	 */
 	public void scheduleJob(JobDetails jobDetails)
@@ -144,7 +142,9 @@ public class JobService
 				jobDataJson = jsonService.toJsonString(jobDetails.getJobData());
 			}catch(Exception ex)
 			{
-				throw new InvalidStateException(ex, "An error occurred wile converting jobdetails into json - {}", jobDetails);
+				logger.error("An error occurred wile converting jobdetails into json - {}", jobDetails, ex);
+				return;
+				//throw new InvalidStateException(ex, "An error occurred wile converting jobdetails into json - {}", jobDetails);
 			}
 		}
 		
@@ -153,11 +153,14 @@ public class JobService
 		{
 			if(!(jobDetails.getJobClass().newInstance() instanceof IJob))
 			{
+				logger.error("Invalid job type specified - {}", jobDetails.getJobClass().getName());
 				throw new InvalidArgumentException("Invalid job type specified - {}", jobDetails.getJobClass().getName());
 			}
 		}catch(Exception ex)
 		{
-			throw new InvalidStateException(ex, "Failed to created specified job type instance - {}", jobDetails.getJobClass().getName());
+			logger.error("Failed to created specified job type instance - {}", jobDetails.getJobClass().getName(), ex);
+			return;
+			//throw new InvalidStateException(ex, "Failed to created specified job type instance - {}", jobDetails.getJobClass().getName());
 		}
 		
 		//create job instance
@@ -183,7 +186,8 @@ public class JobService
 			nameToKey.put(jobDetails.getName(), job.getKey());
 		}catch(Exception ex)
 		{
-			throw new InvalidStateException(ex, "An error occurred while scheduling job - {}", jobDetails);
+			logger.error("An error occurred while scheduling job - {}", jobDetails, ex);
+			//throw new InvalidStateException(ex, "An error occurred while scheduling job - {}", jobDetails);
 		}
 	}
 	

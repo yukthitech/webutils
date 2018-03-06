@@ -422,6 +422,13 @@ $.application.factory('validator', ["logger", function(logger){
 			var validations = null;
 			var noErrorsFound = true;
 			
+			if(!errors)
+			{
+				errors = {};
+			}
+			
+			errors.summaryMessage = "";
+			
 			for(var i = 0 ; i < fields.length; i++)
 			{
 				value = model[fields[i].name];
@@ -457,6 +464,8 @@ $.application.factory('validator', ["logger", function(logger){
 						errors[fields[i].name] = validations[j].errorMessage.replace("${value}", value);
 						logger.error("Field '{}' resulted in error - {}", fields[i].name, errors[fields[i].name]);
 						
+						errors.summaryMessage += "'" + fields[i].label + "' - " + errors[fields[i].name] + "<br/>";
+						
 						noErrorsFound = false;
 						break;
 					}
@@ -480,6 +489,8 @@ $.application.factory('validator', ["logger", function(logger){
 				{
 					errors.extendedFields[extFldName] = "Value can not be empty";
 					logger.error("Ext-Field '{}' resulted in error - {}", extFldName, errors.extendedFields[extFldName]);
+					
+					errors.summaryMessage += "'" + extFldName + "' - " + errors.extendedFields[extFldName] + "<br/>";
 					noErrorsFound = false;
 				}
 				
@@ -495,6 +506,8 @@ $.application.factory('validator', ["logger", function(logger){
 					{
 						errors.extendedFields[extFldName] = "Value length should be less than " + fieldDef.maxLength;
 						logger.error("Ext-Field '{}' resulted in error - {}", extFldName, errors.extendedFields[extFldName]);
+						
+						errors.summaryMessage += "'" + extFldName + "' - " + errors.extendedFields[extFldName] + "<br/>";
 						noErrorsFound = false;
 					}
 				}

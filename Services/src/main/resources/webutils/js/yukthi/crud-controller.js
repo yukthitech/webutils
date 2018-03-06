@@ -58,6 +58,10 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 			$scope.selectedName = null;
 			
 			$scope.searchQuery = null;
+			
+			/**
+			 * Currently selected row.
+			 */
 			$scope.selectedRow = null;
 			
 			$scope.dlgModeField = "newModelMode";
@@ -401,7 +405,7 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 
 				if(!validator.validateModel($scope.model, $scope.modelDef, $scope.errors.model))
 				{
-					utils.alert("Please correct the errors and then try!", function(){
+					utils.alert("Please correct below errors and then try!<br/>" + $scope.errors.model.summaryMessage, function(){
 						$('body').addClass('modal-open');
 					});
 					
