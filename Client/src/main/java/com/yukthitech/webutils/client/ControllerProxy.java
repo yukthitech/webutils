@@ -5,12 +5,10 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.reflect.TypeUtils;
 import org.apache.http.HttpStatus;
@@ -265,9 +263,10 @@ class ControllerProxy implements InvocationHandler
 		//reauthenticate and retry on session timeout
 		if(modelDefResult.getStatusCode() == HttpStatus.SC_UNAUTHORIZED)
 		{
-			logger.info("As the session got timeout, reauthenticating the session...");
+			logger.info("As the session got timeout, reauthenticating the session and request will be remade...");
 			
 			clientContext.reauthenticate();
+			request = ActionRequestBuilder.buildRequest(clientContext, actionModel.getName(), requestEntity, parameters);
 			modelDefResult = (RestResult) client.invokeJsonRequest(request, methodDetails.getReturnType());
 		}
 		
