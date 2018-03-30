@@ -57,12 +57,12 @@ public class AlertController extends BaseController implements IAlertController<
 	}
 
 	@ActionName("fetchAlerts")
-	@RequestMapping(value = "/fetchAlerts/{source}", method = RequestMethod.POST)
+	@RequestMapping(value = "/fetchAlerts/{target}", method = RequestMethod.POST)
 	@ResponseBody
 	@Override
-	public BasicReadListResponse<AlertDetails> fetchAlerts(@PathVariable("source") String source)
+	public BasicReadListResponse<AlertDetails> fetchAlerts(@PathVariable("target") String target)
 	{
-		List<AlertDetails> alertDetails = pullAlertService.fetchAlerts(source);
+		List<AlertDetails> alertDetails = pullAlertService.fetchAlerts(target);
 		return new BasicReadListResponse<>(alertDetails);
 	}
 

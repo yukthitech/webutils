@@ -39,7 +39,7 @@ public abstract class AbstractMailAlertingAgent implements IAlertingAgent
 		
 		MailTemplateEntity mailTemplateEntity = new MailTemplateEntity();
 		mailTemplateEntity.setToListTemplate( recipients.stream().collect(Collectors.joining(",")) );
-		mailTemplateEntity.setSubjectTemplate(alertDetails.getMessage());
+		mailTemplateEntity.setSubjectTemplate(alertDetails.getTitle());
 		mailTemplateEntity.setContentTemplate(alertDetails.getMessage());
 		
 		emailService.sendEmail(emailServerSettings, mailTemplateEntity, Collections.emptyMap());

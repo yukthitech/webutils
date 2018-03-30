@@ -18,14 +18,14 @@ public interface IPullAlertRepository extends IWebutilsRepository<PullAlertEntit
 {
 	/**
 	 * Fetches alerts for specified source. 
-	 * @param source source for which alerts to be fetched
+	 * @param target target for which alerts to be fetched
 	 * @return matching alerts.
 	 */
 	@OrderBy("id")
 	@MethodConditions(conditions = {
 		@DefaultCondition(field = "status", value = "NOT_PROCESSED")
 		})
-	public List<PullAlertEntity> fetchAlerts(@Condition("source") String source);
+	public List<PullAlertEntity> fetchAlerts(@Condition("target") String target);
 	
 	/**
 	 * Updates the status of specified alert.

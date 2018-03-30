@@ -52,6 +52,12 @@ public class AlertDetails
 	 * Optional file that can be attached to alert.
 	 */
 	private FileInfo file;
+	
+	/**
+	 * Flag indicating if this alert requires confirmation of alert
+	 * recieval by target.
+	 */
+	private boolean requiresConfirmation;
 
 	/**
 	 * Gets the id of the alert.
@@ -211,5 +217,25 @@ public class AlertDetails
 	public void setTarget(String target)
 	{
 		this.target = target;
+	}
+
+	/**
+	 * Checks if is flag indicating if this alert requires confirmation of alert recieval by target.
+	 *
+	 * @return the flag indicating if this alert requires confirmation of alert recieval by target
+	 */
+	public boolean isRequiresConfirmation()
+	{
+		return requiresConfirmation;
+	}
+
+	/**
+	 * Sets the flag indicating if this alert requires confirmation of alert recieval by target.
+	 *
+	 * @param requiresConfirmation the new flag indicating if this alert requires confirmation of alert recieval by target
+	 */
+	public void setRequiresConfirmation(boolean requiresConfirmation)
+	{
+		this.requiresConfirmation = requiresConfirmation;
 	}
 }

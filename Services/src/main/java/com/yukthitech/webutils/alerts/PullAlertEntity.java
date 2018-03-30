@@ -61,6 +61,13 @@ public class PullAlertEntity extends WebutilsEntity
 	private String target;
 
 	/**
+	 * Flag indicating if this alert requires confirmation of alert
+	 * recieval by target.
+	 */
+	@Column(name = "REQUIRES_CONFIRMATION")
+	private boolean requiresConfirmation;
+	
+	/**
 	 * Gets the source which is generating this alert.
 	 *
 	 * @return the source which is generating this alert
@@ -198,5 +205,25 @@ public class PullAlertEntity extends WebutilsEntity
 	public void setTarget(String target)
 	{
 		this.target = target;
+	}
+
+	/**
+	 * Checks if is flag indicating if this alert requires confirmation of alert recieval by target.
+	 *
+	 * @return the flag indicating if this alert requires confirmation of alert recieval by target
+	 */
+	public boolean isRequiresConfirmation()
+	{
+		return requiresConfirmation;
+	}
+
+	/**
+	 * Sets the flag indicating if this alert requires confirmation of alert recieval by target.
+	 *
+	 * @param requiresConfirmation the new flag indicating if this alert requires confirmation of alert recieval by target
+	 */
+	public void setRequiresConfirmation(boolean requiresConfirmation)
+	{
+		this.requiresConfirmation = requiresConfirmation;
 	}
 }

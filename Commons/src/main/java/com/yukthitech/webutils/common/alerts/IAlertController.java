@@ -21,10 +21,10 @@ public interface IAlertController<R> extends IClientController<IAlertController<
 	
 	/**
 	 * Fetches alerts for specified source.
-	 * @param source source for which alerts needs to be fetched.
+	 * @param target target for which alerts needs to be fetched.
 	 * @return matching alerts.
 	 */
-	public BasicReadListResponse<AlertDetails> fetchAlerts(String source);
+	public BasicReadListResponse<AlertDetails> fetchAlerts(String target);
 	
 	/**
 	 * Marks the specified alert as processed.

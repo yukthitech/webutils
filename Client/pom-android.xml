@@ -58,14 +58,26 @@
 						<configuration>
 							<includes>
 								<include>org.apache.httpcomponents:httpclient</include>
+								<include>commons-beanutils:commons-beanutils</include>
+								<include>org.apache.commons:commons-lang3</include>
 								<include>org.apache.httpcomponents:httpcore</include>
 								<include>org.apache.tika:tika-core</include>
+
+								<include>com.fasterxml.jackson.core:jackson-core</include>
+								<include>com.fasterxml.jackson.core:jackson-annotations</include>
+								<include>com.fasterxml.jackson.core:jackson-databind</include>
+
 								<include>com.yukthitech:yukthi-utils</include>
+								<include>com.yukthitech.webutils:webutils-commons</include>
 							</includes>
 							<rules>
 								<rule>
-									<pattern>org.apache.http.**</pattern>
-									<result>yukthi.org.apache.http.@1</result>
+									<pattern>org.apache.**</pattern>
+									<result>yukthi.org.apache.@1</result>
+								</rule>
+								<rule>
+									<pattern>com.fasterxml.jackson.**</pattern>
+									<result>yukthi.com.fasterxml.jackson.@1</result>
 								</rule>
 							</rules>
 						</configuration>

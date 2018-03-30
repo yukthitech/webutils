@@ -21,12 +21,12 @@ public class PullAlertService extends BaseCrudService<PullAlertEntity, IPullAler
 {
 	/**
 	 * Fetches alerts for specified source. 
-	 * @param source source for which alerts to be fetched
+	 * @param target target for which alerts to be fetched
 	 * @return matching alerts.
 	 */
-	public List<AlertDetails> fetchAlerts(String source)
+	public List<AlertDetails> fetchAlerts(String target)
 	{
-		List<PullAlertEntity> alerts = super.repository.fetchAlerts(source);
+		List<PullAlertEntity> alerts = super.repository.fetchAlerts(target);
 		
 		if(alerts == null || alerts.isEmpty())
 		{
