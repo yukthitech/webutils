@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Used to define default value for a model field
+ * Used to define default value for a model field.
  * @author akiran
  */
 @Retention(RetentionPolicy.RUNTIME)
@@ -14,8 +14,14 @@ import java.lang.annotation.Target;
 public @interface DefaultValue
 {
 	/**
-	 * Default value for the field
+	 * Default value for the field.
 	 * @return Default value for the field
 	 */
-	public String value();
+	public String value() default "";
+	
+	/**
+	 * If specified, default value will be picked from default-values message resource.
+	 * @return property name to be used from default-values
+	 */
+	public String property() default "";
 }

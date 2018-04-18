@@ -1,5 +1,7 @@
 package com.yukthitech.webutils.alerts;
 
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.Table;
 
@@ -61,12 +63,24 @@ public class PullAlertEntity extends WebutilsEntity
 	private String target;
 
 	/**
-	 * Flag indicating if this alert requires confirmation of alert
-	 * recieval by target.
+	 * Flags indicating different flags for alert.
 	 */
-	@Column(name = "REQUIRES_CONFIRMATION")
-	private boolean requiresConfirmation;
+	@Column(name = "FLAGS")
+	private int flags;
+
+	/**
+	 * Actions that can be taken on this alert.
+	 */
+	@Column(name = "ACTIONS", length = 100)
+	@DataTypeMapping(converterType = JsonWithTypeConverter.class, type = DataType.STRING)
+	private List<String> actions;
 	
+	/**
+	 * Action used to close alert.
+	 */
+	@Column(name = "CLOSE_ACTION", length = 15)
+	private String closeAction;
+
 	/**
 	 * Gets the source which is generating this alert.
 	 *
@@ -208,22 +222,62 @@ public class PullAlertEntity extends WebutilsEntity
 	}
 
 	/**
-	 * Checks if is flag indicating if this alert requires confirmation of alert recieval by target.
+	 * Gets the flags indicating different flags for alert.
 	 *
-	 * @return the flag indicating if this alert requires confirmation of alert recieval by target
+	 * @return the flags indicating different flags for alert
 	 */
-	public boolean isRequiresConfirmation()
+	public int getFlags()
 	{
-		return requiresConfirmation;
+		return flags;
 	}
 
 	/**
-	 * Sets the flag indicating if this alert requires confirmation of alert recieval by target.
+	 * Sets the flags indicating different flags for alert.
 	 *
-	 * @param requiresConfirmation the new flag indicating if this alert requires confirmation of alert recieval by target
+	 * @param flags the new flags indicating different flags for alert
 	 */
-	public void setRequiresConfirmation(boolean requiresConfirmation)
+	public void setFlags(int flags)
 	{
-		this.requiresConfirmation = requiresConfirmation;
+		this.flags = flags;
+	}
+
+	/**
+	 * Gets the actions that can be taken on this alert.
+	 *
+	 * @return the actions that can be taken on this alert
+	 */
+	public List<String> getActions()
+	{
+		return actions;
+	}
+
+	/**
+	 * Sets the actions that can be taken on this alert.
+	 *
+	 * @param actions the new actions that can be taken on this alert
+	 */
+	public void setActions(List<String> actions)
+	{
+		this.actions = actions;
+	}
+
+	/**
+	 * Gets the action used to close alert.
+	 *
+	 * @return the action used to close alert
+	 */
+	public String getCloseAction()
+	{
+		return closeAction;
+	}
+
+	/**
+	 * Sets the action used to close alert.
+	 *
+	 * @param closeAction the new action used to close alert
+	 */
+	public void setCloseAction(String closeAction)
+	{
+		this.closeAction = closeAction;
 	}
 }

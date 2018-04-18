@@ -1,4 +1,4 @@
-package com.yukthitech.webutils.alerts;
+package com.yukthitech.webutils.alerts.message;
 
 import java.util.List;
 import java.util.Set;

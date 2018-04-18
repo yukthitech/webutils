@@ -255,26 +255,34 @@ class ControllerProxy implements InvocationHandler
 		}
 		
 		RestRequest<?> request = ActionRequestBuilder.buildRequest(clientContext, actionModel.getName(), requestEntity, parameters);
+		boolean isVoidReturn = void.class.equals(method.getReturnType());
+		
+		if(!isVoidReturn)
+		{
+			request.addHeader("Accept", "application/json");
+		}
 		
 		RestClient client = clientContext.getRestClient();
 		
-		RestResult<BaseResponse> modelDefResult = (RestResult) client.invokeJsonRequest(request, methodDetails.getReturnType());
+		RestResult<BaseResponse> methodResult = (RestResult) client.invokeJsonRequest(request, methodDetails.getReturnType());
 
 		//reauthenticate and retry on session timeout
-		if(modelDefResult.getStatusCode() == HttpStatus.SC_UNAUTHORIZED)
+		if(methodResult.getStatusCode() == HttpStatus.SC_UNAUTHORIZED)
 		{
 			logger.info("As the session got timeout, reauthenticating the session and request will be remade...");
 			
 			clientContext.reauthenticate();
 			request = ActionRequestBuilder.buildRequest(clientContext, actionModel.getName(), requestEntity, parameters);
-			modelDefResult = (RestResult) client.invokeJsonRequest(request, methodDetails.getReturnType());
+			methodResult = (RestResult) client.invokeJsonRequest(request, methodDetails.getReturnType());
 		}
 		
-		BaseResponse response = modelDefResult.getValue();
+		BaseResponse response = methodResult.getValue();
 		
-		if(response == null || response.getCode() != 0)
+		if( !isVoidReturn && response == null )
 		{
-			throw new RestException("An error occurred while fetching Model definition for - " + actionModel.getName(), modelDefResult.getStatusCode(), response);
+			String methodStr = controllerType.getName() + "." + method.getName() + "()";
+			
+			throw new RestException("Failed to fetch response from remote method - " + methodStr, methodResult.getStatusCode(), response);
 		}
 		
 		return response;

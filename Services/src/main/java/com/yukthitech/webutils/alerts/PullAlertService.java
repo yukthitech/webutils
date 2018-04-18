@@ -56,10 +56,11 @@ public class PullAlertService extends BaseCrudService<PullAlertEntity, IPullAler
 	/**
 	 * Updates the status of specified alert.
 	 * @param id id of alert to update
+	 * @param action action used to close alert
 	 * @param status status to update
 	 */
-	public void updateStatus(long id, PullAlertStatus status)
+	public void updateStatus(long id, PullAlertStatus status, String action)
 	{
-		super.repository.updateStatus(id, status);
+		super.repository.updateStatus(id, status, action);
 	}
 }

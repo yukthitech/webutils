@@ -1,5 +1,6 @@
 package com.yukthitech.webutils.alerts;
 
+import java.util.Collections;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -8,11 +9,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
+import com.yukthitech.webutils.InvalidRequestParameterException;
 import com.yukthitech.webutils.annotations.ActionName;
 import com.yukthitech.webutils.annotations.AttachmentsExpected;
 import com.yukthitech.webutils.common.IWebUtilsCommonConstants;
@@ -57,12 +60,18 @@ public class AlertController extends BaseController implements IAlertController<
 	}
 
 	@ActionName("fetchAlerts")
-	@RequestMapping(value = "/fetchAlerts/{target}", method = RequestMethod.POST)
+	@RequestMapping(value = "/fetchAlerts", method = RequestMethod.POST)
 	@ResponseBody
 	@Override
-	public BasicReadListResponse<AlertDetails> fetchAlerts(@PathVariable("target") String target)
+	public BasicReadListResponse<AlertDetails> fetchAlerts(@RequestParam("target") String target)
 	{
 		List<AlertDetails> alertDetails = pullAlertService.fetchAlerts(target);
+		
+		if(alertDetails == null)
+		{
+			alertDetails = Collections.emptyList();
+		}
+		
 		return new BasicReadListResponse<>(alertDetails);
 	}
 
@@ -70,9 +79,28 @@ public class AlertController extends BaseController implements IAlertController<
 	@RequestMapping(value = "/markProcessed/{alertId}", method = RequestMethod.POST)
 	@ResponseBody
 	@Override
-	public BaseResponse markProcessed(@PathVariable("alertId") long id)
+	public BaseResponse markProcessed(@PathVariable("alertId") long id, @RequestParam(value = "action", required = false) String action)
 	{
-		pullAlertService.updateStatus(id, PullAlertStatus.PROCESSED);
+		AlertDetails alert = pullAlertService.fetchFullModel(id, AlertDetails.class);
+		
+		if(alert == null)
+		{
+			throw new InvalidRequestParameterException("No alert found with id: " + id);
+		}
+		
+		if(alert.getStatus() != PullAlertStatus.NOT_PROCESSED)
+		{
+			throw new InvalidRequestParameterException("Specified alert is already processed.");
+		}
+		
+		pullAlertService.updateStatus(id, PullAlertStatus.PROCESSED, action);
+		
+		//Send confirmation alert if needed
+		if(alert.isConfirmationRequired())
+		{
+			alertEngine.sendConfirmationAlert(alert);
+		}
+		
 		return new BaseResponse();
 	}
 

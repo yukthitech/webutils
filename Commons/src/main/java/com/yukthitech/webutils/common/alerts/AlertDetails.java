@@ -1,5 +1,11 @@
 package com.yukthitech.webutils.common.alerts;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.yukthitech.utils.BitHelper;
 import com.yukthitech.webutils.common.FileInfo;
 import com.yukthitech.webutils.common.annotations.IgnoreField;
 import com.yukthitech.webutils.common.annotations.Model;
@@ -11,6 +17,22 @@ import com.yukthitech.webutils.common.annotations.Model;
 @Model
 public class AlertDetails
 {
+	/**
+	 * Flag indicating if confirmation is required for alert.
+	 */
+	public static final int FLAG_CONFIRMATION_REQUIRED = 0b1;
+	
+	/**
+	 * Flag indicating this is a silent alert and end user should not be 
+	 * disturbed with this alert.
+	 */
+	public static final int FLAG_SILENT_ALERT = 0b10;
+	
+	/**
+	 * Flag indicating this is confirmation alert.
+	 */
+	public static final int FLAGS_CONFIRMATION_ALERT = 0b100;
+	
 	/**
 	 * Id of the alert.
 	 */
@@ -30,6 +52,11 @@ public class AlertDetails
 	 * Message to be sent.
 	 */
 	private String message;
+	
+	/**
+	 * Non persisted field. Detailed message that can be used by alert agents which can handle long messages.
+	 */
+	private String longMessage;
 	
 	/**
 	 * Data to be sent along with alert.
@@ -54,10 +81,30 @@ public class AlertDetails
 	private FileInfo file;
 	
 	/**
-	 * Flag indicating if this alert requires confirmation of alert
-	 * recieval by target.
+	 * Flags indicating different flags for alert.
 	 */
-	private boolean requiresConfirmation;
+	private int flags;
+	
+	/**
+	 * Non persistent internal field. Target agent types, if specified, only those will be invoked to process
+	 * the alert.
+	 */
+	private Set<String> targetAgentTypes;
+	
+	/**
+	 * Status of the alert.
+	 */
+	private PullAlertStatus status;
+	
+	/**
+	 * Actions available with this alert.
+	 */
+	private List<String> actions;
+
+	/**
+	 * Action used to close alert.
+	 */
+	private String closeAction;
 
 	/**
 	 * Gets the id of the alert.
@@ -218,15 +265,36 @@ public class AlertDetails
 	{
 		this.target = target;
 	}
+	
+	/**
+	 * Gets the flags indicating different flags for alert.
+	 *
+	 * @return the flags indicating different flags for alert
+	 */
+	public int getFlags()
+	{
+		return flags;
+	}
+
+	/**
+	 * Sets the flags indicating different flags for alert.
+	 *
+	 * @param flags the new flags indicating different flags for alert
+	 */
+	public void setFlags(int flags)
+	{
+		this.flags = flags;
+	}
 
 	/**
 	 * Checks if is flag indicating if this alert requires confirmation of alert recieval by target.
 	 *
 	 * @return the flag indicating if this alert requires confirmation of alert recieval by target
 	 */
-	public boolean isRequiresConfirmation()
+	@JsonIgnore
+	public boolean isConfirmationRequired()
 	{
-		return requiresConfirmation;
+		return BitHelper.isSet(flags, FLAG_CONFIRMATION_REQUIRED);
 	}
 
 	/**
@@ -234,8 +302,183 @@ public class AlertDetails
 	 *
 	 * @param requiresConfirmation the new flag indicating if this alert requires confirmation of alert recieval by target
 	 */
-	public void setRequiresConfirmation(boolean requiresConfirmation)
+	public void setConfirmationRequired(boolean requiresConfirmation)
 	{
-		this.requiresConfirmation = requiresConfirmation;
+		if(requiresConfirmation)
+		{
+			flags = BitHelper.setFlag(flags, FLAG_CONFIRMATION_REQUIRED);
+		}
+		else
+		{
+			flags = BitHelper.unsetFlag(flags, FLAG_CONFIRMATION_REQUIRED);
+		}
+	}
+	
+	/**
+	 * Checks if is flag indicating if this alert is silent alert.
+	 *
+	 * @return the flag indicating if this alert is silent alert
+	 */
+	@JsonIgnore
+	public boolean isSilentAlert()
+	{
+		return BitHelper.isSet(flags, FLAG_SILENT_ALERT);
+	}
+
+	/**
+	 * Sets the flag indicating if this alert is silent alert.
+	 *
+	 * @param silentAlert the new flag indicating if this alert is silent alert
+	 */
+	public void setSilentAlert(boolean silentAlert)
+	{
+		if(silentAlert)
+		{
+			flags = BitHelper.setFlag(flags, FLAG_SILENT_ALERT);
+		}
+		else
+		{
+			flags = BitHelper.unsetFlag(flags, FLAG_SILENT_ALERT);
+		}
+	}
+	
+	/**
+	 * Checks and returns if this is confirmation alert.
+	 * @return true if confirmation alert
+	 */
+	public boolean isConfirmationAlert()
+	{
+		return BitHelper.isSet(flags, FLAGS_CONFIRMATION_ALERT);
+	}
+	
+	/**
+	 * Sets the flag indicating if this is confirmation alert.
+	 * @param flag true if confirmation alert.
+	 */
+	public void setConfirmationAlert(boolean flag)
+	{
+		if(flag)
+		{
+			flags = BitHelper.setFlag(flags, FLAGS_CONFIRMATION_ALERT);
+		}
+		else
+		{
+			flags = BitHelper.unsetFlag(flags, FLAGS_CONFIRMATION_ALERT);
+		}
+	}
+
+	/**
+	 * Gets the detailed message that can be used by alert agents which can handle long messages.
+	 *
+	 * @return the detailed message that can be used by alert agents which can handle long messages
+	 */
+	public String getLongMessage()
+	{
+		return longMessage;
+	}
+
+	/**
+	 * Sets the detailed message that can be used by alert agents which can handle long messages.
+	 *
+	 * @param longMessage the new detailed message that can be used by alert agents which can handle long messages
+	 */
+	public void setLongMessage(String longMessage)
+	{
+		this.longMessage = longMessage;
+	}
+
+	/**
+	 * Gets the target agent types, if specified, only those will be invoked to process the alert.
+	 *
+	 * @return the target agent types, if specified, only those will be invoked to process the alert
+	 */
+	public Set<String> getTargetAgentTypes()
+	{
+		return targetAgentTypes;
+	}
+
+	/**
+	 * Sets the target agent types, if specified, only those will be invoked to process the alert.
+	 *
+	 * @param targetAgentTypes the new target agent types, if specified, only those will be invoked to process the alert
+	 */
+	public void setTargetAgentTypes(Set<String> targetAgentTypes)
+	{
+		this.targetAgentTypes = targetAgentTypes;
+	}
+	
+	/**
+	 * Adds specified target agent type.
+	 *
+	 * @param type type to add
+	 */
+	public void addTargetAgentType(String type)
+	{
+		if(this.targetAgentTypes == null)
+		{
+			this.targetAgentTypes = new HashSet<>();
+		}
+		
+		this.targetAgentTypes.add(type);
+	}
+
+	/**
+	 * Gets the status of the alert.
+	 *
+	 * @return the status of the alert
+	 */
+	public PullAlertStatus getStatus()
+	{
+		return status;
+	}
+
+	/**
+	 * Sets the status of the alert.
+	 *
+	 * @param status the new status of the alert
+	 */
+	public void setStatus(PullAlertStatus status)
+	{
+		this.status = status;
+	}
+
+	/**
+	 * Gets the actions available with this alert.
+	 *
+	 * @return the actions available with this alert
+	 */
+	public List<String> getActions()
+	{
+		return actions;
+	}
+
+	/**
+	 * Sets the actions available with this alert.
+	 *
+	 * @param actions the new actions available with this alert
+	 */
+	public void setActions(List<String> actions)
+	{
+		this.actions = actions;
+	}
+
+	/**
+	 * Gets the action used to close alert.
+	 *
+	 * @return the action used to close alert
+	 */
+	public String getCloseAction()
+	{
+		return closeAction;
+	}
+
+	/**
+	 * Sets the action used to close alert.
+	 *
+	 * @param closeAction the new action used to close alert
+	 */
+	public void setCloseAction(String closeAction)
+	{
+		this.closeAction = closeAction;
 	}
 }

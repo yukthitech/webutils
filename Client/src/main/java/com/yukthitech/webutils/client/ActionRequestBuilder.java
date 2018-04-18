@@ -213,7 +213,10 @@ public class ActionRequestBuilder
 			}
 			else
 			{
-				postRequest.setJsonBody(requestEntity);
+				if(requestEntity != null)
+				{
+					postRequest.setJsonBody(requestEntity);
+				}
 			}
 			
 			request = postRequest;

@@ -224,5 +224,4 @@ public class ModelDef
 		builder.append("]");
 		return builder.toString();
 	}
-
 }

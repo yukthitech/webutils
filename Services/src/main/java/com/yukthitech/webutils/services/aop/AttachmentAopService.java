@@ -73,7 +73,7 @@ public class AttachmentAopService
 	}
 	
 	/**
-	 * Sets the specified attachments on the corresponding fields 
+	 * Sets the specified attachments on the corresponding fields. 
 	 * @param joinPoint Used for messaging
 	 * @param fieldAttachments Attachments that needs to be set
 	 * @param arguments Method arguments in which one of them is expected to be model

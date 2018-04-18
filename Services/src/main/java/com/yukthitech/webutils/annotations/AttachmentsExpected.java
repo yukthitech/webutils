@@ -38,8 +38,8 @@ import java.lang.annotation.Target;
 public @interface AttachmentsExpected
 {
 	/**
-	 * Indicates whether or not expected attachments are secured
-	 * @return
+	 * Indicates whether or not expected attachments are secured.
+	 * @return true if the attachments are suppose to be secured.
 	 */
 	public boolean secured() default true;
 }

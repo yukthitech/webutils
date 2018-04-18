@@ -18,6 +18,11 @@ import com.yukthitech.webutils.common.models.BasicReadListResponse;
  */
 public class AlertManager
 {
+	/**
+	 * 30sec duration.
+	 */
+	private static final int THIRTY_SEC = 30000;
+	
 	private static Logger logger = LogManager.getLogger(AlertManager.class);
 	
 	/**
@@ -38,12 +43,17 @@ public class AlertManager
 	/**
 	 * Check duration in millis after which alerts will be checked.
 	 */
-	private long checkDuration = 30000;
+	private long checkDuration = THIRTY_SEC;
 	
 	/**
 	 * Name of the agent for which alerts needs to be monitored.
 	 */
 	private String agentName;
+	
+	/**
+	 * Background thread that will be checking for alerts.
+	 */
+	private Thread alertCheckThread;
 	
 	/**
 	 * Instantiates a new alert manager.
@@ -57,13 +67,17 @@ public class AlertManager
 		this.agentName = agentName;
 		this.alertController = clientControllerFactory.getController(IAlertController.class);
 		
-		Thread alertCheckThread = new Thread("Alert Checker")
+		alertCheckThread = new Thread("Alert Checker")
 		{
 			public void run()
 			{
 				while(true)
 				{
-					checkForAlerts();
+					//check for alerts only when listeners are present
+					if( CollectionUtils.isNotEmpty( alertEventListenerManager.getListeners() ) )
+					{
+						fetchAlerts();
+					}
 					
 					try
 					{
@@ -75,29 +89,6 @@ public class AlertManager
 				}
 			}
 		};
-		
-		alertCheckThread.start();
-		
-		//create the filter for listener invocation
-		EventListenerManager.ListenerFilter<IAlertListener> filter = new EventListenerManager.ListenerFilter<IAlertListener>()
-		{
-			@Override
-			public boolean filter(IAlertListener listener, Object data, Method listenerMethod, Object... params)
-			{
-				AlertDetails alertDetails = (AlertDetails) params[0];
-				String targetAlertType = (String) data;
-				
-				if(targetAlertType == null)
-				{
-					return true;
-				}
-				
-				String curAlertType = alertDetails.getAlertType().toString();
-				return targetAlertType.equals(curAlertType);
-			}
-		};
-		
-		alertEventListenerManager.setFilter(filter);
 		
 		//create the result processor
 		EventListenerManager.ResultProcessor<IAlertListener> resultProcessor = new EventListenerManager.ResultProcessor<IAlertListener>()
@@ -116,6 +107,8 @@ public class AlertManager
 		};
 		
 		alertEventListenerManager.setResultProcessor(resultProcessor);
+
+		alertCheckThread.start();
 	}
 	
 	/**
@@ -131,11 +124,10 @@ public class AlertManager
 	/**
 	 * Adds specified listener.
 	 * @param listener listener to add.
-	 * @param alertType Alert type for which listener should be invoked.
 	 */
-	public void addAlertListener(IAlertListener listener, final String alertType)
+	public void addAlertListener(IAlertListener listener)
 	{
-		alertEventListenerManager.addListener(listener, alertType);
+		alertEventListenerManager.addListener(listener);
 	}
 	
 	/**
@@ -151,7 +143,7 @@ public class AlertManager
 	 * Checks for alerts for current agent, if found approp
 	 * listeners will be invoked.
 	 */
-	private void checkForAlerts()
+	private void fetchAlerts()
 	{
 		BasicReadListResponse<AlertDetails> res = alertController.fetchAlerts(agentName);
 		
@@ -172,8 +164,16 @@ public class AlertManager
 	 * Marks specified alert details as processed.
 	 * @param alertDetails alert to be marked.
 	 */
-	public void markAsProcessed(AlertDetails alertDetails)
+	private void markAsProcessed(AlertDetails alertDetails)
 	{
-		alertController.markProcessed(alertDetails.getId());
+		alertController.markProcessed(alertDetails.getId(), null);
+	}
+	
+	/**
+	 * Interrupts the background thread and forces it to check for alerts.
+	 */
+	public void checkForAlerts()
+	{
+		alertCheckThread.interrupt();
 	}
 }

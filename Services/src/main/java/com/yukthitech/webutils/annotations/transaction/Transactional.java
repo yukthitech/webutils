@@ -21,60 +21,26 @@
  * SOFTWARE.
  */
 
-package com.yukthitech.webutils.common.models;
+package com.yukthitech.webutils.annotations.transaction;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * Generic response to return list of values.
- * @param <V> Type of value maintained.
+ * Indicates the target method is transaction. Hence the method invocation will
+ * be wrapped in transaction. If the method returns normally, the transaction will
+ * get committed. On exception, rollback will be called.
  * @author akiran
  */
-public class BasicReadListResponse<V> extends BaseResponse
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface Transactional
 {
 	/**
-	 * List of values.
+	 * Defines what type of transaction is expected. 
+	 * @return transaction type.
 	 */
-	private List<V> values;
-	
-	/**
-	 * Instantiates a new lov list response.
-	 */
-	public BasicReadListResponse()
-	{}
-
-	/**
-	 * Instantiates a new value list response.
-	 *
-	 * @param values the value list
-	 */
-	public BasicReadListResponse(Collection<V> values)
-	{
-		if(values != null && !values.isEmpty())
-		{
-			this.values = new ArrayList<>(values);
-		}
-	}
-
-	/**
-	 * Gets the list of values.
-	 *
-	 * @return the list of values
-	 */
-	public List<V> getValues()
-	{
-		return values;
-	}
-
-	/**
-	 * Sets the list of values.
-	 *
-	 * @param values the new list of values
-	 */
-	public void setValues(List<V> values)
-	{
-		this.values = values;
-	}
+	public TransactionType value() default TransactionType.NEW_OR_EXISTING;
 }

@@ -20,16 +20,16 @@ public class ClientControllerFactory
 	@SuppressWarnings("unchecked")
 	public <T> T getController(Class<T> controllerType)
 	{
-		if(!controllerType.isInterface())
-		{
-			throw new InvalidArgumentException("Non interface type specified for controller type - {}", controllerType.getName());
-		}
-		
 		Object controller = typeToController.get(controllerType);
 		
 		if(controller != null)
 		{
 			return (T) controller;
+		}
+
+		if(!controllerType.isInterface())
+		{
+			throw new InvalidArgumentException("Non interface type specified for controller type - {}", controllerType.getName());
 		}
 		
 		ControllerProxy proxy = new ControllerProxy(clientContext, controllerType);

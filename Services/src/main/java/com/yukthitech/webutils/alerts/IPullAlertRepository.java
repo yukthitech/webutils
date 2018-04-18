@@ -31,6 +31,7 @@ public interface IPullAlertRepository extends IWebutilsRepository<PullAlertEntit
 	 * Updates the status of specified alert.
 	 * @param id id of alert to update
 	 * @param status status to update
+	 * @param closeAction Action used to close alert.
 	 */
-	public void updateStatus(@Condition("id") long id, @Field("status") PullAlertStatus status);
+	public void updateStatus(@Condition("id") long id, @Field("status") PullAlertStatus status, @Field("closeAction") String closeAction);
 }

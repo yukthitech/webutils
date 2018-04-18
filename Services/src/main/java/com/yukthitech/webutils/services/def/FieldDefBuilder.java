@@ -31,8 +31,10 @@ import java.util.Collection;
 import java.util.HashSet;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
 import com.yukthitech.utils.exceptions.InvalidConfigurationException;
@@ -77,6 +79,13 @@ public class FieldDefBuilder
 	@Autowired
 	private ValidationDefBuilder validationDefBuilder;
 	
+	/**
+	 * Used to fetch default values for fields.
+	 */
+	@Autowired
+	@Qualifier("defaultValuesMessageSource")
+	private MessageSource defaultValuesMessageSource;
+
 	/**
 	 * Used to LOV details on field-def, whose type is an enum.
 	 * @param fieldDef Field def being built
@@ -190,7 +199,19 @@ public class FieldDefBuilder
 		
 		if(defaultValue != null)
 		{
-			fieldDef.setDefaultValue(defaultValue.value());
+			if(StringUtils.isNotBlank(defaultValue.value()))
+			{
+				fieldDef.setDefaultValue(defaultValue.value());
+			}
+			else if(StringUtils.isNotBlank(defaultValue.property()))
+			{
+				String value = defaultValuesMessageSource.getMessage(defaultValue.property(), null, "", null);
+				
+				if(StringUtils.isNotBlank(value))
+				{
+					fieldDef.setDefaultValue(value);
+				}
+			}
 		}
 		
 		Class<?> fieldType = field.getType();

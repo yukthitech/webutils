@@ -55,6 +55,13 @@
 		</property>
 	</bean>
 
+	<bean id="defaultValuesMessageSource"
+		class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+		<property name="basenames">
+			<value>classpath:default-values</value>
+		</property>
+	</bean>
+
 	<bean id="objectMapper" class="com.fasterxml.jackson.databind.ObjectMapper">
 		<property name="dateFormat">
 			<bean class="java.text.SimpleDateFormat">
