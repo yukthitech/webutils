@@ -47,36 +47,18 @@ public class MessageParsingRuleEntity extends WebutilsEntity
 	private Set<String> messagePatterns;
 	
 	/**
-	 * Alert bean to be constructed from the message.
+	 * Alert event type to be executed when this message parsing rule is
+	 * matched.
 	 */
-	@Column(name = "ALERT_BEAN_TYPE", length = 100)
-	private String alertBeanType;
-	
-	/**
-	 * Type of alert to be generated from message.
-	 */
-	@Column(name = "ALERT_TYPE", length = 100, nullable = false)
-	private Object alertType;
-	
-	/**
-	 * Title to be used on alert. Can use expressions to refer to groups
-	 * obtained from message.
-	 */
-	@Column(name = "TITLE", length = 1000, nullable = false)
-	private String title;
-	
-	/**
-	 * Message to be set on alert. Can use expressions to refer to groups
-	 * obtained from message. 
-	 */
-	@Column(name = "MESSAGE", length = 2000, nullable = false)
-	private String message;
+	@Column(name = "ALERT_EVENT_TYPE", length = 100)
+	private String alertEventType;
 	
 	/**
 	 * Default attributes to be set when this rule is matched.
 	 */
 	@Column(name = "DEF_ATTR", length = 2000)
-	private Map<String, String> defaultAttributes;
+	@DataTypeMapping(converterType = JsonWithTypeConverter.class, type = DataType.STRING)
+	private Map<String, Object> defaultAttributes;
 
 	/**
 	 * Gets the agent of user with this role only will be used to use this rule.
@@ -159,83 +141,23 @@ public class MessageParsingRuleEntity extends WebutilsEntity
 	}
 
 	/**
-	 * Gets the alert bean to be constructed from the message.
+	 * Gets the alert event type to be executed when this message parsing rule is matched.
 	 *
-	 * @return the alert bean to be constructed from the message
+	 * @return the alert event type to be executed when this message parsing rule is matched
 	 */
-	public String getAlertBeanType()
+	public String getAlertEventType()
 	{
-		return alertBeanType;
+		return alertEventType;
 	}
 
 	/**
-	 * Sets the alert bean to be constructed from the message.
+	 * Sets the alert event type to be executed when this message parsing rule is matched.
 	 *
-	 * @param alertBeanType the new alert bean to be constructed from the message
+	 * @param alertEventType the new alert event type to be executed when this message parsing rule is matched
 	 */
-	public void setAlertBeanType(String alertBeanType)
+	public void setAlertEventType(String alertEventType)
 	{
-		this.alertBeanType = alertBeanType;
-	}
-
-	/**
-	 * Gets the type of alert to be generated from message.
-	 *
-	 * @return the type of alert to be generated from message
-	 */
-	public Object getAlertType()
-	{
-		return alertType;
-	}
-
-	/**
-	 * Sets the type of alert to be generated from message.
-	 *
-	 * @param alertType the new type of alert to be generated from message
-	 */
-	public void setAlertType(Object alertType)
-	{
-		this.alertType = alertType;
-	}
-
-	/**
-	 * Gets the title to be used on alert. Can use expressions to refer to groups obtained from message.
-	 *
-	 * @return the title to be used on alert
-	 */
-	public String getTitle()
-	{
-		return title;
-	}
-
-	/**
-	 * Sets the title to be used on alert. Can use expressions to refer to groups obtained from message.
-	 *
-	 * @param title the new title to be used on alert
-	 */
-	public void setTitle(String title)
-	{
-		this.title = title;
-	}
-
-	/**
-	 * Gets the message to be set on alert. Can use expressions to refer to groups obtained from message.
-	 *
-	 * @return the message to be set on alert
-	 */
-	public String getMessage()
-	{
-		return message;
-	}
-
-	/**
-	 * Sets the message to be set on alert. Can use expressions to refer to groups obtained from message.
-	 *
-	 * @param message the new message to be set on alert
-	 */
-	public void setMessage(String message)
-	{
-		this.message = message;
+		this.alertEventType = alertEventType;
 	}
 
 	/**
@@ -243,7 +165,7 @@ public class MessageParsingRuleEntity extends WebutilsEntity
 	 *
 	 * @return the default attributes to be set when this rule is matched
 	 */
-	public Map<String, String> getDefaultAttributes()
+	public Map<String, Object> getDefaultAttributes()
 	{
 		return defaultAttributes;
 	}
@@ -253,7 +175,7 @@ public class MessageParsingRuleEntity extends WebutilsEntity
 	 *
 	 * @param defaultAttributes the new default attributes to be set when this rule is matched
 	 */
-	public void setDefaultAttributes(Map<String, String> defaultAttributes)
+	public void setDefaultAttributes(Map<String, Object> defaultAttributes)
 	{
 		this.defaultAttributes = defaultAttributes;
 	}

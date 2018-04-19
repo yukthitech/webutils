@@ -5,7 +5,7 @@ import java.util.Set;
 
 import org.springframework.stereotype.Service;
 
-import com.yukthitech.webutils.common.alerts.MessageParsingRuleModel;
+import com.yukthitech.webutils.common.alerts.BasicMessageParsingRuleModel;
 import com.yukthitech.webutils.services.BaseCrudService;
 
 /**
@@ -21,7 +21,7 @@ public class MessageParsingRuleService extends BaseCrudService<MessageParsingRul
 	 * @param roles the roles
 	 * @return the list of applicable rules.
 	 */
-	public List<MessageParsingRuleModel> fetchParsingRules(Set<Object> roles)
+	public List<BasicMessageParsingRuleModel> fetchParsingRules(Set<Object> roles)
 	{
 		return super.repository.fetchParsingRules(roles);
 	}

@@ -7,6 +7,7 @@ import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.yukthitech.utils.BitHelper;
 import com.yukthitech.webutils.common.FileInfo;
+import com.yukthitech.webutils.common.IWebUtilsCommonConstants;
 import com.yukthitech.webutils.common.annotations.IgnoreField;
 import com.yukthitech.webutils.common.annotations.Model;
 
@@ -17,22 +18,6 @@ import com.yukthitech.webutils.common.annotations.Model;
 @Model
 public class AlertDetails
 {
-	/**
-	 * Flag indicating if confirmation is required for alert.
-	 */
-	public static final int FLAG_CONFIRMATION_REQUIRED = 0b1;
-	
-	/**
-	 * Flag indicating this is a silent alert and end user should not be 
-	 * disturbed with this alert.
-	 */
-	public static final int FLAG_SILENT_ALERT = 0b10;
-	
-	/**
-	 * Flag indicating this is confirmation alert.
-	 */
-	public static final int FLAGS_CONFIRMATION_ALERT = 0b100;
-	
 	/**
 	 * Id of the alert.
 	 */
@@ -285,6 +270,33 @@ public class AlertDetails
 	{
 		this.flags = flags;
 	}
+	
+	/**
+	 * Checks if specified flag is set.
+	 * @param flag flag to check
+	 * @return true if specified flag is set
+	 */
+	public boolean isFlagSet(int flag)
+	{
+		return BitHelper.isSet(flags, flag);
+	}
+	
+	/**
+	 * Sets/unsets the specified flag.
+	 * @param flag flag to set or unser
+	 * @param set flag indicating if the specified flag should be set or unset.
+	 */
+	public void setFlag(int flag, boolean set)
+	{
+		if(set)
+		{
+			flags = BitHelper.setFlag(flags, flag);
+		}
+		else
+		{
+			flags = BitHelper.unsetFlag(flags, flag);
+		}
+	}
 
 	/**
 	 * Checks if is flag indicating if this alert requires confirmation of alert recieval by target.
@@ -294,7 +306,7 @@ public class AlertDetails
 	@JsonIgnore
 	public boolean isConfirmationRequired()
 	{
-		return BitHelper.isSet(flags, FLAG_CONFIRMATION_REQUIRED);
+		return isFlagSet(IWebUtilsCommonConstants.ALERT_FLAG_CONFIRMATION_REQUIRED);
 	}
 
 	/**
@@ -304,14 +316,7 @@ public class AlertDetails
 	 */
 	public void setConfirmationRequired(boolean requiresConfirmation)
 	{
-		if(requiresConfirmation)
-		{
-			flags = BitHelper.setFlag(flags, FLAG_CONFIRMATION_REQUIRED);
-		}
-		else
-		{
-			flags = BitHelper.unsetFlag(flags, FLAG_CONFIRMATION_REQUIRED);
-		}
+		setFlag(IWebUtilsCommonConstants.ALERT_FLAG_CONFIRMATION_REQUIRED, requiresConfirmation);
 	}
 	
 	/**
@@ -322,7 +327,7 @@ public class AlertDetails
 	@JsonIgnore
 	public boolean isSilentAlert()
 	{
-		return BitHelper.isSet(flags, FLAG_SILENT_ALERT);
+		return isFlagSet(IWebUtilsCommonConstants.ALERT_FLAG_SILENT_ALERT);
 	}
 
 	/**
@@ -332,23 +337,17 @@ public class AlertDetails
 	 */
 	public void setSilentAlert(boolean silentAlert)
 	{
-		if(silentAlert)
-		{
-			flags = BitHelper.setFlag(flags, FLAG_SILENT_ALERT);
-		}
-		else
-		{
-			flags = BitHelper.unsetFlag(flags, FLAG_SILENT_ALERT);
-		}
+		setFlag(IWebUtilsCommonConstants.ALERT_FLAG_SILENT_ALERT, silentAlert);
 	}
 	
 	/**
 	 * Checks and returns if this is confirmation alert.
 	 * @return true if confirmation alert
 	 */
+	@JsonIgnore
 	public boolean isConfirmationAlert()
 	{
-		return BitHelper.isSet(flags, FLAGS_CONFIRMATION_ALERT);
+		return isFlagSet(IWebUtilsCommonConstants.ALERT_FLAG_CONFIRMATION_ALERT);
 	}
 	
 	/**
@@ -357,14 +356,64 @@ public class AlertDetails
 	 */
 	public void setConfirmationAlert(boolean flag)
 	{
-		if(flag)
-		{
-			flags = BitHelper.setFlag(flags, FLAGS_CONFIRMATION_ALERT);
-		}
-		else
-		{
-			flags = BitHelper.unsetFlag(flags, FLAGS_CONFIRMATION_ALERT);
-		}
+		setFlag(IWebUtilsCommonConstants.ALERT_FLAG_CONFIRMATION_ALERT, flag);
+	}
+
+	/**
+	 * Checks if app specific flag1 is set.
+	 * @return true if set
+	 */
+	@JsonIgnore
+	public boolean isAppSpecificFlag1()
+	{
+		return isFlagSet(IWebUtilsCommonConstants.ALERT_FLAG_APP_SPECIFIC_1);
+	}
+	
+	/**
+	 * Sets the app specific flag 1.
+	 * @param flag true if flag needs to be set.
+	 */
+	public void setAppSpecificFlag1(boolean flag)
+	{
+		setFlag(IWebUtilsCommonConstants.ALERT_FLAG_APP_SPECIFIC_1, flag);
+	}
+
+	/**
+	 * Checks if app specific flag2 is set.
+	 * @return true if set
+	 */
+	@JsonIgnore
+	public boolean isAppSpecificFlag2()
+	{
+		return isFlagSet(IWebUtilsCommonConstants.ALERT_FLAG_APP_SPECIFIC_2);
+	}
+	
+	/**
+	 * Sets the app specific flag 2.
+	 * @param flag true if flag needs to be set.
+	 */
+	public void setAppSpecificFlag2(boolean flag)
+	{
+		setFlag(IWebUtilsCommonConstants.ALERT_FLAG_APP_SPECIFIC_2, flag);
+	}
+
+	/**
+	 * Checks if app specific flag3 is set.
+	 * @return true if set
+	 */
+	@JsonIgnore
+	public boolean isAppSpecificFlag3()
+	{
+		return isFlagSet(IWebUtilsCommonConstants.ALERT_FLAG_APP_SPECIFIC_3);
+	}
+	
+	/**
+	 * Sets the app specific flag 3.
+	 * @param flag true if flag needs to be set.
+	 */
+	public void setAppSpecificFlag3(boolean flag)
+	{
+		setFlag(IWebUtilsCommonConstants.ALERT_FLAG_APP_SPECIFIC_3, flag);
 	}
 
 	/**

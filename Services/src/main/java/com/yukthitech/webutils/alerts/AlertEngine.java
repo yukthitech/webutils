@@ -273,7 +273,7 @@ public class AlertEngine
 	 */
 	private AlertDetails parseAlertDetails(String template, Object eventObject) throws JsonParseException, JsonMappingException, IOException
 	{
-		String xml = freeMarkerService.processTemplate("AlertDetails-json", template, eventObject);
+		String xml = freeMarkerService.processTemplate("AlertDetails-xml", template, eventObject);
 		
 		AlertDetails alertDetails = new AlertDetails();
 		XMLBeanParser.parse(new ByteArrayInputStream(xml.getBytes()), alertDetails);
@@ -282,13 +282,23 @@ public class AlertEngine
 	}
 	
 	/**
-	 * Sends alerts corresponding to specified event type, if any. 
-	 * @param eventObject Event object to be used to parse expressions. This object will be used as free marker context.
+	 * Sends alerts corresponding to specified event type, if any. Event object class name (FQN) will be used 
+	 * as event type name. 
+	 *
+	 * @param eventObject the event object
 	 */
 	public void sendEventAlerts(Object eventObject)
 	{
-		String eventType = eventObject.getClass().getName();
-
+		sendEventAlerts(eventObject, eventObject.getClass().getName());
+	}
+	
+	/**
+	 * Sends alerts corresponding to specified event type, if any. 
+	 * @param eventObject Event object to be used to parse expressions. This object will be used as free marker context.
+	 * @param eventType Event type name whose rules needs to be checked.
+	 */
+	public void sendEventAlerts(Object eventObject, String eventType)
+	{
 		asyncTaskService.executeTask(new Runnable()
 		{
 			public void run()

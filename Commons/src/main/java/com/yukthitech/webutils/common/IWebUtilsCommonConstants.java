@@ -166,4 +166,35 @@ public interface IWebUtilsCommonConstants
 	 * Error message for name pattern.
 	 */
 	public String MIS_PATTERN_MSSG_NAME = "Name should not contain more than one continous space.";
+
+	/**
+	 * Alert Flag indicating if confirmation is required for alert.
+	 */
+	public int ALERT_FLAG_CONFIRMATION_REQUIRED = 0b1;
+	
+	/**
+	 * Alert Flag indicating if an alert is a silent alert and end user should not be 
+	 * disturbed with this alert.
+	 */
+	public int ALERT_FLAG_SILENT_ALERT = 0b10;
+	
+	/**
+	 * Alert Flag indicating if an alert is confirmation alert.
+	 */
+	public int ALERT_FLAG_CONFIRMATION_ALERT = 0b100;
+	
+	/**
+	 * Alert Flag (1 of 3) that can be used for app specific purpose.
+	 */
+	public int ALERT_FLAG_APP_SPECIFIC_1 = 0b1000;
+	
+	/**
+	 * Alert Flag (2 of 3) that can be used for app specific purpose.
+	 */
+	public int ALERT_FLAG_APP_SPECIFIC_2 = 0b10000;
+
+	/**
+	 * Alert Flag (3 of 3) that can be used for app specific purpose.
+	 */
+	public int ALERT_FLAG_APP_SPECIFIC_3 = 0b100000;
 }

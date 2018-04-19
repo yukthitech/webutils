@@ -36,7 +36,7 @@ public class MessageParsingRuleModel extends BaseModel
 	private String messageFilterPattern;
 	
 	/**
-	 * This pattern will be searched with in pattern. And the named groups found in the message
+	 * This pattern will be searched with in message. And the named groups found in the message
 	 * will be used to construct alert bean, if specified.
 	 */
 	@IgnoreField

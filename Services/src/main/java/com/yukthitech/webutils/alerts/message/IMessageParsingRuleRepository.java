@@ -9,7 +9,7 @@ import com.yukthitech.persistence.repository.annotations.MethodConditions;
 import com.yukthitech.persistence.repository.annotations.NullCheck;
 import com.yukthitech.persistence.repository.annotations.Operator;
 import com.yukthitech.persistence.repository.annotations.SearchResult;
-import com.yukthitech.webutils.common.alerts.MessageParsingRuleModel;
+import com.yukthitech.webutils.common.alerts.BasicMessageParsingRuleModel;
 import com.yukthitech.webutils.repository.IWebutilsRepository;
 
 /**
@@ -28,5 +28,5 @@ public interface IMessageParsingRuleRepository extends IWebutilsRepository<Messa
 		@NullCheck(field = "userRole", joinOperator = JoinOperator.OR)
 		})
 	@SearchResult
-	public List<MessageParsingRuleModel> fetchParsingRules(@Condition(value = "userRole", op = Operator.IN) Set<Object> roles);
+	public List<BasicMessageParsingRuleModel> fetchParsingRules(@Condition(value = "userRole", op = Operator.IN) Set<Object> roles);
 }
