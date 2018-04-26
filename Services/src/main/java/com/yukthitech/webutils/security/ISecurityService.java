@@ -23,6 +23,9 @@
 
 package com.yukthitech.webutils.security;
 
+import java.util.List;
+
+import com.yukthitech.webutils.common.ContactDetails;
 import com.yukthitech.webutils.extensions.ExtensionEntityDetails;
 import com.yukthitech.webutils.repository.file.FileEntity;
 
@@ -72,4 +75,15 @@ public interface ISecurityService
 	 * @param fileEntity File entity to which security customization can be done
 	 */
 	public void addSecurityCustomization(FileEntity fileEntity);
+	
+	/**
+	 * Need to fetch contact details of user with specified role. This is used by certain services which
+	 * need to send user details to other agents.
+	 * @param role role of users to fetch
+	 * @return matching user contact details.
+	 */
+	public default List<ContactDetails> fetchUserContactDetails(Object role)
+	{
+		return null;
+	}
 }

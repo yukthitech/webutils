@@ -4,6 +4,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.yukthitech.utils.ObjectWrapper;
 import com.yukthitech.validation.annotations.MaxLen;
 import com.yukthitech.validation.annotations.NotEmpty;
 import com.yukthitech.validation.annotations.Required;
@@ -16,6 +17,11 @@ import com.yukthitech.webutils.common.annotations.Model;
 @Model
 public class ParsedMessage
 {
+	/**
+	 * Type of contact from which message is received.
+	 */
+	private String fromType;
+	
 	/**
 	 * Source of message.
 	 */
@@ -99,28 +105,69 @@ public class ParsedMessage
 	}
 	
 	/**
-	 * Checkes if the current message is matching with specified rule.
+	 * Gets the type of contact from which message is received.
+	 *
+	 * @return the type of contact from which message is received
+	 */
+	public String getFromType()
+	{
+		return fromType;
+	}
+
+	/**
+	 * Sets the type of contact from which message is received.
+	 *
+	 * @param fromType the new type of contact from which message is received
+	 */
+	public void setFromType(String fromType)
+	{
+		this.fromType = fromType;
+	}
+
+	/**
+	 * Checks if the current message is matching with specified rule.
 	 * @param basicRule rule to be matched with
+	 * @param matchError Wrapper which will hold approp error message if current message is not matching with specified rule. 
 	 * @return true if message is matched
 	 */
-	public boolean isMatchingWith(BasicMessageParsingRuleModel basicRule)
+	public boolean isMatchingWith(BasicMessageParsingRuleModel basicRule, ObjectWrapper<String> matchError)
 	{
-		if(StringUtils.isNotBlank(from) && StringUtils.isNotBlank(basicRule.getFromAddressPattern()))
+		if(StringUtils.isNotBlank(basicRule.getFromType()))
 		{
+			matchError.setValue(String.format("Input from type '%s' is not matching with rule's from type '%s'", fromType, basicRule.getFromType()));
+			return basicRule.getFromType().equals(fromType);
+		}
+
+		if(StringUtils.isNotBlank(basicRule.getFromAddressPattern()))
+		{
+			if(StringUtils.isBlank(from))
+			{
+				matchError.setValue(String.format("Input from is blank which is not matching with rule's from pattern '%s'", basicRule.getFromAddressPattern()));
+				return false;
+			}
+			
 			Pattern fromPattern = Pattern.compile(basicRule.getFromAddressPattern());
 			
-			if(!fromPattern.matcher(from).matches())
+			if(!fromPattern.matcher(from).find())
 			{
+				matchError.setValue(String.format("Input from '%s' is not matching with rule's from pattern '%s'", from, basicRule.getFromAddressPattern()));
 				return false;
 			}
 		}
 
-		if(StringUtils.isNotBlank(message) && StringUtils.isNotBlank(basicRule.getMessageFilterPattern()))
+		if(StringUtils.isNotBlank(basicRule.getMessageFilterPattern()))
 		{
+			if(StringUtils.isBlank(message))
+			{
+				matchError.setValue(String.format("Rule's message pattern '%s' is not matching input blank message", basicRule.getMessageFilterPattern()));
+				return false;
+			}
+			
 			Pattern msgPattern = Pattern.compile(basicRule.getMessageFilterPattern());
 			
-			if(!msgPattern.matcher(message).matches())
+			if(!msgPattern.matcher(message).find())
 			{
+				matchError.setValue(String.format("Rule's message pattern '%s' is not matching input message: %s", basicRule.getMessageFilterPattern(), message));
 				return false;
 			}
 		}

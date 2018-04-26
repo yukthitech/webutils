@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.yukthitech.utils.ObjectWrapper;
 import com.yukthitech.utils.exceptions.InvalidStateException;
 import com.yukthitech.webutils.InvalidRequestParameterException;
 import com.yukthitech.webutils.alerts.AlertEngine;
@@ -29,6 +30,7 @@ import com.yukthitech.webutils.common.client.IRequestCustomizer;
 import com.yukthitech.webutils.common.models.BaseResponse;
 import com.yukthitech.webutils.common.models.BasicReadListResponse;
 import com.yukthitech.webutils.controllers.BaseCrudController;
+import com.yukthitech.webutils.security.ISecurityService;
 import com.yukthitech.webutils.services.CurrentUserService;
 
 /**
@@ -53,6 +55,12 @@ public class MessageParsingRuleController extends BaseCrudController<MessagePars
 	private MessageParser messageParser;
 	
 	/**
+	 * Used to fetch target user contact details.
+	 */
+	@Autowired
+	private ISecurityService securityService;
+	
+	/**
 	 * Used to send alerts based on parsed rules.
 	 */
 	@Autowired
@@ -72,6 +80,17 @@ public class MessageParsingRuleController extends BaseCrudController<MessagePars
 		if(rules == null)
 		{
 			rules = Collections.emptyList();
+		}
+		
+		for(BasicMessageParsingRuleModel rule : rules)
+		{
+			if(rule.getTargetUserRole() == null)
+			{
+				continue;
+			}
+			
+			//if target role is specified, fetch approp user contact details and attach them to rule
+			rule.setTargetUsers( securityService.fetchUserContactDetails(rule.getTargetUserRole()) );
 		}
 		
 		return new BasicReadListResponse<>(rules);
@@ -100,9 +119,11 @@ public class MessageParsingRuleController extends BaseCrudController<MessagePars
 			throw new InvalidStateException("An error occurred while building basic rule object", ex);
 		}
 		
-		if(!parsedMessage.isMatchingWith(basicRule))
+		ObjectWrapper<String> errMssg = new ObjectWrapper<>();
+		
+		if(!parsedMessage.isMatchingWith(basicRule, errMssg))
 		{
-			throw new InvalidRequestParameterException("Specified message is not matching with specified rule: " + parsingRuleId);
+			throw new InvalidRequestParameterException("Specified message is not matching with specified rule: {}.\nError: {}", parsingRuleId, errMssg.getValue());
 		}
 		
 		//Build values by parsing message body with patterns

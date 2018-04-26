@@ -1,5 +1,6 @@
 package com.yukthitech.webutils.common;
 
+import com.yukthitech.persistence.repository.annotations.Field;
 import com.yukthitech.webutils.common.annotations.Model;
 import com.yukthitech.webutils.common.annotations.NonDisplayable;
 
@@ -13,6 +14,7 @@ public class BaseModel
 	/**
 	 * Id for the model.
 	 */
+	@Field("id")
 	@NonDisplayable
 	private Long id;
 	

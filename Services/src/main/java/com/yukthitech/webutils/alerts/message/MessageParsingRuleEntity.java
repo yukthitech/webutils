@@ -20,11 +20,32 @@ public class MessageParsingRuleEntity extends WebutilsEntity
 {
 	/**
 	 * Agent of user with this role only
-	 * will be used to use this rule.
+	 * will be having access to use this rule.
 	 */
 	@Column(name = "USER_ROLE", length = 100)
 	@DataTypeMapping(converterType = JsonWithTypeConverter.class, type = DataType.STRING)
 	private Object userRole;
+	
+	/**
+	 * User role in string format.
+	 */
+	@Column(name = "USER_ROLE_STR", length = 100)
+	private String userRoleString;
+
+	/**
+	 * If specified, when sending this rule to agent, employee contact details with
+	 * specified role will also be attached. So on need basis, other employees can be contacted
+	 * directly. 
+	 */
+	@Column(name = "TARGET_USER_ROLE", length = 100)
+	@DataTypeMapping(converterType = JsonWithTypeConverter.class, type = DataType.STRING)
+	private Object targetUserRole;
+	
+	/**
+	 * From type to be matched.
+	 */
+	@Column(name = "FROM_TYPE", length = 200)
+	private String fromType;
 	
 	/**
 	 * From address pattern to be used.
@@ -178,5 +199,65 @@ public class MessageParsingRuleEntity extends WebutilsEntity
 	public void setDefaultAttributes(Map<String, Object> defaultAttributes)
 	{
 		this.defaultAttributes = defaultAttributes;
+	}
+
+	/**
+	 * Gets the if specified, when sending this rule to agent, employee contact details with specified role will also be attached. So on need basis, other employees can be contacted directly.
+	 *
+	 * @return the if specified, when sending this rule to agent, employee contact details with specified role will also be attached
+	 */
+	public Object getTargetUserRole()
+	{
+		return targetUserRole;
+	}
+
+	/**
+	 * Sets the if specified, when sending this rule to agent, employee contact details with specified role will also be attached. So on need basis, other employees can be contacted directly.
+	 *
+	 * @param targetUserRole the new if specified, when sending this rule to agent, employee contact details with specified role will also be attached
+	 */
+	public void setTargetUserRole(Object targetUserRole)
+	{
+		this.targetUserRole = targetUserRole;
+	}
+
+	/**
+	 * Gets the from type to be matched.
+	 *
+	 * @return the from type to be matched
+	 */
+	public String getFromType()
+	{
+		return fromType;
+	}
+
+	/**
+	 * Sets the from type to be matched.
+	 *
+	 * @param fromType the new from type to be matched
+	 */
+	public void setFromType(String fromType)
+	{
+		this.fromType = fromType;
+	}
+
+	/**
+	 * Gets the user role in string format.
+	 *
+	 * @return the user role in string format
+	 */
+	public String getUserRoleString()
+	{
+		return userRoleString;
+	}
+
+	/**
+	 * Sets the user role in string format.
+	 *
+	 * @param userRoleString the new user role in string format
+	 */
+	public void setUserRoleString(String userRoleString)
+	{
+		this.userRoleString = userRoleString;
 	}
 }

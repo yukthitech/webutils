@@ -2,6 +2,7 @@ package com.yukthitech.webutils.alerts.message;
 
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -23,6 +24,10 @@ public class MessageParsingRuleService extends BaseCrudService<MessageParsingRul
 	 */
 	public List<BasicMessageParsingRuleModel> fetchParsingRules(Set<Object> roles)
 	{
-		return super.repository.fetchParsingRules(roles);
+		Set<String> roleStrSet = roles.stream()
+				.map(role -> role.toString())
+				.collect(Collectors.toSet());
+		
+		return super.repository.fetchParsingRules(roleStrSet);
 	}
 }

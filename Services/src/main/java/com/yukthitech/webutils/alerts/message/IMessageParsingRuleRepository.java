@@ -28,5 +28,5 @@ public interface IMessageParsingRuleRepository extends IWebutilsRepository<Messa
 		@NullCheck(field = "userRole", joinOperator = JoinOperator.OR)
 		})
 	@SearchResult
-	public List<BasicMessageParsingRuleModel> fetchParsingRules(@Condition(value = "userRole", op = Operator.IN) Set<Object> roles);
+	public List<BasicMessageParsingRuleModel> fetchParsingRules(@Condition(value = "userRoleString", op = Operator.IN) Set<String> roles);
 }
