@@ -18,6 +18,11 @@
         http://www.springframework.org/schema/aop 
 		http://www.springframework.org/schema/aop/spring-aop-3.0.xsd">
 
+	<aop:aspectj-autoproxy proxy-target-class="true"/>
+	<aop:config proxy-target-class="true"/>
+
+	<cache:annotation-driven />
+	
 	<mvc:annotation-driven>
 		<mvc:message-converters register-defaults="true">
 			<ref bean="jsonMessageConverter" />
@@ -77,21 +82,20 @@
 		</property>
 	</bean>
 
+	<!-- ********************************************************************************** -->
 	<!-- Used for service method result caching -->
-	<bean id="cacheManager" class="org.springframework.cache.support.SimpleCacheManager">
-		<property name="caches">
-			<set>
-				<bean
-					class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean"
-					p:name="default" />
-				<bean
-					class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean"
-					p:name="extensionFields" />
-			</set>
-		</property>
+	<!-- ********************************************************************************** -->
+	<bean id="cacheManager" class="com.yukthitech.webutils.cache.WebutilsSpringCacheManager">
 	</bean>
+
+	<bean id ="cahceKeyGenerator" class="com.yukthitech.webutils.cache.CacheKeyGenerator"/>
+	<bean id ="cahceEvictKeyGenerator" class="com.yukthitech.webutils.cache.CacheEvictKeyGenerator"/>
 	
+	<!-- ********************************************************************************** -->
+	<!-- ********************************************************************************** -->
+
 	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver" />
+
 	<!--  
 	<bean id="emailServiceConfig" class="com.yukthitech.webutils.mail.EmailServiceConfiguration">
 		<property name="smtpHost" value="${webutils.mail.smtp.host}"/>
@@ -102,7 +106,6 @@
 		<property name="enableTtls" value="${webutils.mail.smtp.enableTtls:false}"/>
 	</bean>
 	-->
-	<aop:aspectj-autoproxy/>
 
 	<bean id="webutilsConfiguration" class="com.yukthitech.webutils.WebutilsConfiguration">
 		<property name="extensionsRequired" value="${app.extensions.enabled:false}"/>

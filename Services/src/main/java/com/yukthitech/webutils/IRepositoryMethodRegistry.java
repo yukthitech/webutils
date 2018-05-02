@@ -31,20 +31,20 @@ import com.yukthitech.webutils.services.dynamic.DynamicMethod;
 
 /**
  * Implementing classes should provide registry functionality for dynamic repository method 
- * annotated with particular annotation
+ * annotated with particular annotation.
  * @author akiran
  */
 public interface IRepositoryMethodRegistry<A extends Annotation>
 {
 	/**
-	 * Invoked to register a dynamic method marked by specified annotation
+	 * Invoked to register a dynamic method marked by specified annotation.
 	 * @param method Dynamic method being registered
 	 * @param annotation Annotation to mark target method as dynamic method
 	 */
 	public void registerDynamicMethod(DynamicMethod method, A annotation);
 	
 	/**
-	 * Invoked to register non-dynamic method marked by specified annotation
+	 * Invoked to register non-dynamic method marked by specified annotation.
 	 * @param method Repository method to register
 	 * @param annotation Annotation used to mark method as registry method
 	 * @param repository Repository in which method is defined

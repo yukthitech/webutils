@@ -23,6 +23,9 @@
 
 package com.yukthitech.webutils;
 
+import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
@@ -77,4 +80,13 @@ public interface IWebUtilsInternalConstants
 	 */
 	public String EXTENSIONS_FIELD_NAME = "extendedFields";
 
+	/**
+	 * Spring expression parser for parsing SPEL expressions.
+	 */
+	public ExpressionParser SPRING_EXPRESSION_PARSER = new SpelExpressionParser();
+	
+	/**
+	 * Cache group to be used when dealing with more than one entity (or group of entities).
+	 */
+	public String CACHE_GROUP_GROUPED = "'groupedData'";
 }

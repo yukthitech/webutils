@@ -7,6 +7,7 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -20,6 +21,7 @@ import com.yukthitech.webutils.annotations.ActionName;
 import com.yukthitech.webutils.annotations.AttachmentsExpected;
 import com.yukthitech.webutils.common.IWebUtilsCommonConstants;
 import com.yukthitech.webutils.common.alerts.AlertDetails;
+import com.yukthitech.webutils.common.alerts.AlertProcessedDetails;
 import com.yukthitech.webutils.common.alerts.IAlertController;
 import com.yukthitech.webutils.common.alerts.PullAlertStatus;
 import com.yukthitech.webutils.common.client.IRequestCustomizer;
@@ -45,7 +47,7 @@ public class AlertController extends BaseController implements IAlertController<
 	/**
 	 * Alert engine to send alerts.
 	 */
-	@Autowired
+	@Autowired(required = false)
 	private AlertEngine alertEngine;
 	
 	@AttachmentsExpected
@@ -79,13 +81,13 @@ public class AlertController extends BaseController implements IAlertController<
 	@RequestMapping(value = "/markProcessed/{alertId}", method = RequestMethod.POST)
 	@ResponseBody
 	@Override
-	public BaseResponse markProcessed(@PathVariable("alertId") long id, @RequestParam(value = "action", required = false) String action)
+	public BaseResponse markProcessed(@PathVariable("alertId") long id, @RequestBody @Valid AlertProcessedDetails alertProcessedDetails)
 	{
 		AlertDetails alert = pullAlertService.fetchFullModel(id, AlertDetails.class);
 		
 		if(alert == null)
 		{
-			throw new InvalidRequestParameterException("No alert found with id: " + id);
+			throw new InvalidRequestParameterException("No pull alert found with id: " + id);
 		}
 		
 		if(alert.getStatus() != PullAlertStatus.NOT_PROCESSED)
@@ -93,11 +95,12 @@ public class AlertController extends BaseController implements IAlertController<
 			throw new InvalidRequestParameterException("Specified alert is already processed.");
 		}
 		
-		pullAlertService.updateStatus(id, PullAlertStatus.PROCESSED, action);
+		pullAlertService.updateStatus(id, PullAlertStatus.PROCESSED, alertProcessedDetails);
 		
 		//Send confirmation alert if needed
 		if(alert.isConfirmationRequired())
 		{
+			alert.setAlertProcessedDetails(alertProcessedDetails);
 			alertEngine.sendConfirmationAlert(alert);
 		}
 		

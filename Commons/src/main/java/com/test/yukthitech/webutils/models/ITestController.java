@@ -1,9 +1,11 @@
 package com.test.yukthitech.webutils.models;
 
+import com.yukthitech.webutils.common.controllers.IClientController;
 import com.yukthitech.webutils.common.models.BaseResponse;
 import com.yukthitech.webutils.common.models.BasicReadListResponse;
+import com.yukthitech.webutils.common.models.BasicReadResponse;
 
-public interface ITestController
+public interface ITestController extends IClientController<ITestController>
 {
 
 	/**
@@ -21,5 +23,13 @@ public interface ITestController
 	BaseResponse sendMail(TestMailModel model) throws Exception;
 	
 	BasicReadListResponse<TestMailModel> readMails() throws Exception;
+	
+	public BasicReadResponse<TestBean> getTestBean(int id);
+	
+	public BaseResponse deleteBean(int id);
+	
+	public BasicReadResponse<Integer> count();
+	
+	public BaseResponse reset();
 
 }

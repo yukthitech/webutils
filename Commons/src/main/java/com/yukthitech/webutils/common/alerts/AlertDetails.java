@@ -1,15 +1,22 @@
 package com.yukthitech.webutils.common.alerts;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.yukthitech.utils.BitHelper;
 import com.yukthitech.webutils.common.FileInfo;
 import com.yukthitech.webutils.common.IWebUtilsCommonConstants;
+import com.yukthitech.webutils.common.action.IAgentAction;
 import com.yukthitech.webutils.common.annotations.IgnoreField;
 import com.yukthitech.webutils.common.annotations.Model;
+import com.yukthitech.webutils.common.annotations.json.JsonWithTypeSerializer;
 
 /**
  * Represents an alert.
@@ -22,6 +29,11 @@ public class AlertDetails
 	 * Id of the alert.
 	 */
 	private long id;
+	
+	/**
+	 * Used to identify alert and its confirmation uniquely.
+	 */
+	private String name;
 	
 	/**
 	 * Source which is generating this alert.
@@ -46,12 +58,14 @@ public class AlertDetails
 	/**
 	 * Data to be sent along with alert.
 	 */
+	@JsonSerialize(using = JsonWithTypeSerializer.class, as = String.class)
 	@IgnoreField
 	private Object data;
 	
 	/**
 	 * Alert type.
 	 */
+	@JsonSerialize(using = JsonWithTypeSerializer.class, as = String.class)
 	@IgnoreField
 	private Object alertType;
 	
@@ -82,15 +96,16 @@ public class AlertDetails
 	private PullAlertStatus status;
 	
 	/**
-	 * Actions available with this alert.
+	 * Actions to be associated with this task.
 	 */
-	private List<String> actions;
-
+	@JsonSerialize(using = JsonWithTypeSerializer.class, as = String.class)
+	private List<IAgentAction> actions;
+	
 	/**
-	 * Action used to close alert.
+	 * Alert processing details, used internally.
 	 */
-	private String closeAction;
-
+	private AlertProcessedDetails alertProcessedDetails;
+	
 	/**
 	 * Gets the id of the alert.
 	 *
@@ -109,6 +124,26 @@ public class AlertDetails
 	public void setId(long id)
 	{
 		this.id = id;
+	}
+	
+	/**
+	 * Gets the used to identify alert and its confirmation uniquely.
+	 *
+	 * @return the used to identify alert and its confirmation uniquely
+	 */
+	public String getName()
+	{
+		return name;
+	}
+
+	/**
+	 * Sets the used to identify alert and its confirmation uniquely.
+	 *
+	 * @param name the new used to identify alert and its confirmation uniquely
+	 */
+	public void setName(String name)
+	{
+		this.name = name;
 	}
 
 	/**
@@ -490,44 +525,67 @@ public class AlertDetails
 	{
 		this.status = status;
 	}
-
+	
 	/**
-	 * Gets the actions available with this alert.
+	 * Gets the actions to be associated with this task.
 	 *
-	 * @return the actions available with this alert
+	 * @return the actions to be associated with this task
 	 */
-	public List<String> getActions()
+	public List<IAgentAction> getActions()
 	{
 		return actions;
 	}
 
 	/**
-	 * Sets the actions available with this alert.
+	 * Sets the actions to be associated with this task.
 	 *
-	 * @param actions the new actions available with this alert
+	 * @param actions the new actions to be associated with this task
 	 */
-	public void setActions(List<String> actions)
+	public void setActions(List<IAgentAction> actions)
 	{
 		this.actions = actions;
 	}
-
+	
 	/**
-	 * Gets the action used to close alert.
-	 *
-	 * @return the action used to close alert
+	 * Adds specified action to underlying list.
+	 * @param action action to add
 	 */
-	public String getCloseAction()
+	public void addAction(IAgentAction action)
 	{
-		return closeAction;
+		if(this.actions == null)
+		{
+			this.actions = new ArrayList<>();
+		}
+		
+		this.actions.add(action);
 	}
 
 	/**
-	 * Sets the action used to close alert.
+	 * Gets the alert processing details, used internally.
 	 *
-	 * @param closeAction the new action used to close alert
+	 * @return the alert processing details, used internally
 	 */
-	public void setCloseAction(String closeAction)
+	public AlertProcessedDetails getAlertProcessedDetails()
 	{
-		this.closeAction = closeAction;
+		return alertProcessedDetails;
+	}
+
+	/**
+	 * Sets the alert processing details, used internally.
+	 *
+	 * @param alertProcessedDetails the new alert processing details, used internally
+	 */
+	public void setAlertProcessedDetails(AlertProcessedDetails alertProcessedDetails)
+	{
+		this.alertProcessedDetails = alertProcessedDetails;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString()
+	{
+		return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
 	}
 }

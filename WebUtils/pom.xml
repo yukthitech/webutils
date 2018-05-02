@@ -156,6 +156,5 @@
 		<module>../Commons</module>
 		<module>../Services</module>
 		<module>../Client</module>
-		<module>../TestWebApp</module>
 	</modules>
 </project>

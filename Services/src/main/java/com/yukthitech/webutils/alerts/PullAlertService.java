@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.yukthitech.utils.exceptions.InvalidStateException;
 import com.yukthitech.webutils.common.alerts.AlertDetails;
+import com.yukthitech.webutils.common.alerts.AlertProcessedDetails;
 import com.yukthitech.webutils.common.alerts.PullAlertStatus;
 import com.yukthitech.webutils.services.BaseCrudService;
 
@@ -56,11 +57,11 @@ public class PullAlertService extends BaseCrudService<PullAlertEntity, IPullAler
 	/**
 	 * Updates the status of specified alert.
 	 * @param id id of alert to update
-	 * @param action action used to close alert
+	 * @param alertProcessedDetails Alert processing details
 	 * @param status status to update
 	 */
-	public void updateStatus(long id, PullAlertStatus status, String action)
+	public void updateStatus(long id, PullAlertStatus status, AlertProcessedDetails alertProcessedDetails)
 	{
-		super.repository.updateStatus(id, status, action);
+		super.repository.updateStatus(id, status, alertProcessedDetails);
 	}
 }

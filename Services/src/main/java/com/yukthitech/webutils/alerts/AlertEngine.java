@@ -22,9 +22,11 @@ import com.yukthitech.utils.exceptions.InvalidArgumentException;
 import com.yukthitech.webutils.alerts.agent.IAlertingAgent;
 import com.yukthitech.webutils.alerts.event.EventAlertRuleEntity;
 import com.yukthitech.webutils.alerts.event.EventAlertRuleService;
+import com.yukthitech.webutils.common.action.IAgentAction;
+import com.yukthitech.webutils.common.alerts.AlertConfirmationInfo;
 import com.yukthitech.webutils.common.alerts.AlertDetails;
-import com.yukthitech.webutils.services.AsyncTaskService;
 import com.yukthitech.webutils.services.freemarker.FreeMarkerService;
+import com.yukthitech.webutils.services.task.AsyncTaskService;
 
 /**
  * Service to register alerts and push alerts to agents.
@@ -70,7 +72,7 @@ public class AlertEngine
 	/**
 	 * List of registered alerting agents.
 	 */
-	@Autowired
+	@Autowired(required = false)
 	private List<IAlertingAgent> alertingAgents;
 	
 	/**
@@ -150,13 +152,14 @@ public class AlertEngine
 		alertDetails.setConfirmationAlert(true);
 		alertDetails.setSilentAlert(true);
 		alertDetails.setMessage("Alert with title '" + closedAlert.getTitle() + "' is processed successfully!");
+		alertDetails.setName(closedAlert.getName());
 		
 		//reverse source and target
 		alertDetails.setSource(closedAlert.getTarget());
 		alertDetails.setTarget(closedAlert.getSource());
 		
 		//set closed alert id as data on confirmation alert
-		alertDetails.setData(closedAlert.getId());
+		alertDetails.setData( new AlertConfirmationInfo(closedAlert.getData(), closedAlert.getAlertProcessedDetails()) );
 		
 		sendAlert(alertDetails);
 	}
@@ -180,9 +183,9 @@ public class AlertEngine
 				throw new InvalidArgumentException("Max of 3 actions supported per alert.");
 			}
 			
-			for(String action : alertDetails.getActions())
+			for(IAgentAction action : alertDetails.getActions())
 			{
-				if(action.length() > MAX_ACTION_LENGTH)
+				if(action.getLabel().length() > MAX_ACTION_LENGTH)
 				{
 					throw new InvalidArgumentException("Action length should be less than or equal to 10. Invalid action specified: {}", action);
 				}

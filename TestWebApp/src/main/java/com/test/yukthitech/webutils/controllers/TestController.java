@@ -30,6 +30,7 @@ import javax.validation.Valid;
 
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -43,8 +44,10 @@ import com.test.yukthitech.webutils.models.ITestController;
 import com.test.yukthitech.webutils.models.TestBean;
 import com.test.yukthitech.webutils.models.TestMailModel;
 import com.yukthitech.webutils.annotations.ActionName;
+import com.yukthitech.webutils.common.client.IRequestCustomizer;
 import com.yukthitech.webutils.common.models.BaseResponse;
 import com.yukthitech.webutils.common.models.BasicReadListResponse;
+import com.yukthitech.webutils.common.models.BasicReadResponse;
 import com.yukthitech.webutils.common.models.mails.EmailServerSettings;
 import com.yukthitech.webutils.controllers.BaseController;
 import com.yukthitech.webutils.mail.EmailService;
@@ -67,6 +70,9 @@ public class TestController extends BaseController implements ITestController
 	
 	@Autowired
 	private EmailServerSettings emailServerSettings;
+	
+	@Autowired
+	private TestService testService;
 	
 	/* (non-Javadoc)
 	 * @see com.test.yukthi.webutils.controllers.ITestController#test(com.test.yukthi.webutils.models.TestBean)
@@ -164,5 +170,49 @@ public class TestController extends BaseController implements ITestController
 		emailService.readMails(emailServerSettings, processor);
 		
 		return new BasicReadListResponse<TestMailModel>(mails);
+	}
+
+	@ResponseBody
+	@RequestMapping(value = "/getTestBean/{id}", method = RequestMethod.GET)
+	@ActionName("getTestBean")
+	@Override
+	public BasicReadResponse<TestBean> getTestBean(@PathVariable("id") int id)
+	{
+		return new BasicReadResponse<>(testService.getTestBean(id));
+	}
+
+	@ResponseBody
+	@RequestMapping(value = "/deleteBean/{id}", method = RequestMethod.DELETE)
+	@ActionName("deleteBean")
+	@Override
+	public BaseResponse deleteBean(@PathVariable("id") int id)
+	{
+		testService.deleteBean(id);
+		return new BaseResponse();
+	}
+
+	@ResponseBody
+	@RequestMapping(value = "/count", method = RequestMethod.GET)
+	@ActionName("count")
+	@Override
+	public BasicReadResponse<Integer> count()
+	{
+		return new BasicReadResponse<>(testService.count());
+	}
+	
+	@ResponseBody
+	@RequestMapping(value = "/reset", method = RequestMethod.GET)
+	@ActionName("reset")
+	@Override
+	public BaseResponse reset()
+	{
+		testService.reset();
+		return new BaseResponse();
+	}
+
+	@Override
+	public ITestController setRequestCustomizer(IRequestCustomizer customizer)
+	{
+		return null;
 	}
 }

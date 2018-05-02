@@ -29,8 +29,8 @@ public interface IAlertController<R> extends IClientController<IAlertController<
 	/**
 	 * Marks the specified alert as processed.
 	 * @param id alert id to be processed.
-	 * @param action Action used to close alert
+	 * @param alertProcessedDetails Alert processing details
 	 * @return success or failure response.
 	 */
-	public BaseResponse markProcessed(long id, String action);
+	public BaseResponse markProcessed(long id, AlertProcessedDetails alertProcessedDetails);
 }

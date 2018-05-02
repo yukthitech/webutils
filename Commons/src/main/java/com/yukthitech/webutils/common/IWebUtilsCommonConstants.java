@@ -26,6 +26,9 @@ package com.yukthitech.webutils.common;
 import java.text.SimpleDateFormat;
 import java.util.regex.Pattern;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 /**
  * Different response codes.
  * @author akiran
@@ -197,4 +200,15 @@ public interface IWebUtilsCommonConstants
 	 * Alert Flag (3 of 3) that can be used for app specific purpose.
 	 */
 	public int ALERT_FLAG_APP_SPECIFIC_3 = 0b100000;
+
+	/**
+	 * Mapper that will be used to convert tasks to and from json.
+	 */
+	public ObjectMapper OBJECT_MAPPER_WITH_TYPE = new ObjectMapper()
+	{
+		private static final long serialVersionUID = 1L;
+		{
+			enableDefaultTyping(DefaultTyping.NON_FINAL, As.PROPERTY);
+		}
+	};
 }

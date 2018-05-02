@@ -63,7 +63,7 @@ public class MessageParsingRuleController extends BaseCrudController<MessagePars
 	/**
 	 * Used to send alerts based on parsed rules.
 	 */
-	@Autowired
+	@Autowired(required = false)
 	private AlertEngine alertEngine;
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })

@@ -38,6 +38,9 @@ import com.yukthitech.persistence.ITransaction;
 import com.yukthitech.persistence.PersistenceException;
 import com.yukthitech.persistence.repository.RepositoryFactory;
 import com.yukthitech.utils.exceptions.InvalidStateException;
+import com.yukthitech.webutils.IWebUtilsInternalConstants;
+import com.yukthitech.webutils.cache.WebutilsCacheEvict;
+import com.yukthitech.webutils.cache.WebutilsCacheable;
 import com.yukthitech.webutils.common.IExtendableModel;
 import com.yukthitech.webutils.repository.IWebutilsRepository;
 import com.yukthitech.webutils.repository.WebutilsEntity;
@@ -107,20 +110,6 @@ public abstract class BaseCrudService<E extends WebutilsEntity, R extends IWebut
 	protected R repository;
 	
 	/**
-	 * Instantiates a new base crud service.
-	 *
-	 * @param entityType Entity type for which this service is being created.
-	 * @param repositoryType the repository type
-	 */
-	/*
-	public BaseCrudService(Class<E> entityType, Class<R> repositoryType)
-	{
-		this.entityType = entityType;
-		this.repositoryType = repositoryType;
-	}
-	*/
-	
-	/**
 	 * Used to fetch repository from autowired factory. 
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -141,6 +130,7 @@ public abstract class BaseCrudService<E extends WebutilsEntity, R extends IWebut
 	 * @param model Model to be converted and saved
 	 * @return Converted and saved entity
 	 */
+	@WebutilsCacheEvict(groups = IWebUtilsInternalConstants.CACHE_GROUP_GROUPED)
 	public E save(Object model)
 	{
 		//convert to entity
@@ -157,6 +147,7 @@ public abstract class BaseCrudService<E extends WebutilsEntity, R extends IWebut
 	 * @param entity Entity field to save
 	 * @param model Model with extension fields and file informations to save. Optional, can be null
 	 */
+	@WebutilsCacheEvict(groups = IWebUtilsInternalConstants.CACHE_GROUP_GROUPED)
 	public void save(E entity, Object model)
 	{
 		try(ITransaction transaction = repository.newOrExistingTransaction())
@@ -211,6 +202,7 @@ public abstract class BaseCrudService<E extends WebutilsEntity, R extends IWebut
 	 * @param model Model to be converted and updated
 	 * @return Converted entity
 	 */
+	@WebutilsCacheEvict(groups = {IWebUtilsInternalConstants.CACHE_GROUP_GROUPED, "#p0.id"})
 	public E update(Object model)
 	{
 		//convert to entity
@@ -227,6 +219,7 @@ public abstract class BaseCrudService<E extends WebutilsEntity, R extends IWebut
 	 * @param entity Entity field to update
 	 * @param model Model with extension field values and files to save. Optional, can be null
 	 */
+	@WebutilsCacheEvict(groups = {IWebUtilsInternalConstants.CACHE_GROUP_GROUPED, "#p0.id"})
 	public void update(E entity, Object model)
 	{
 		WebUtils.validateEntityForUpdate(entity);
@@ -278,6 +271,7 @@ public abstract class BaseCrudService<E extends WebutilsEntity, R extends IWebut
 	 * @param id Entity id
 	 * @return Matching entity
 	 */
+	@WebutilsCacheable(groups = "#p0")
 	public E fetch(long id)
 	{
 		E entity = repository.findByIdAndUserSpace(id, securityService.getUserSpaceIdentity());
@@ -293,6 +287,7 @@ public abstract class BaseCrudService<E extends WebutilsEntity, R extends IWebut
 	 * @param <M> Model type
 	 * @return Converted model with extension fields
 	 */
+	@WebutilsCacheable(groups = "#p0")
 	public <M> M fetchFullModel(long id, Class<M> modelType)
 	{
 		E entity = repository.findByIdAndUserSpace(id, securityService.getUserSpaceIdentity());
@@ -344,6 +339,7 @@ public abstract class BaseCrudService<E extends WebutilsEntity, R extends IWebut
 	 * Fetches number of entities in DB.
 	 * @return entity count
 	 */
+	@WebutilsCacheEvict(groups = IWebUtilsInternalConstants.CACHE_GROUP_GROUPED)
 	public long getCount()
 	{
 		long count = repository.getCount();
@@ -357,6 +353,7 @@ public abstract class BaseCrudService<E extends WebutilsEntity, R extends IWebut
 	 * @param id Entity id to delete
 	 * @return returns true if delete was successful.
 	 */
+	@WebutilsCacheEvict(groups = {IWebUtilsInternalConstants.CACHE_GROUP_GROUPED, "#p0"})
 	public boolean deleteById(long id)
 	{
 		try(ITransaction transaction = repository.newOrExistingTransaction())

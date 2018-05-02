@@ -8,6 +8,7 @@ import javax.persistence.Table;
 import com.yukthitech.persistence.annotations.DataType;
 import com.yukthitech.persistence.annotations.DataTypeMapping;
 import com.yukthitech.persistence.conversion.impl.JsonWithTypeConverter;
+import com.yukthitech.webutils.common.alerts.AlertProcessedDetails;
 import com.yukthitech.webutils.common.alerts.PullAlertStatus;
 import com.yukthitech.webutils.repository.WebutilsEntity;
 
@@ -17,6 +18,12 @@ import com.yukthitech.webutils.repository.WebutilsEntity;
 @Table(name = "WEBUTILS_PULL_ALERTS")
 public class PullAlertEntity extends WebutilsEntity
 {
+	/**
+	 * Used to identify alert and its confirmation uniquely.
+	 */
+	@Column(name = "NAME", length = 100)
+	private String name;
+
 	/**
 	 * Source which is generating this alert.
 	 */
@@ -76,10 +83,31 @@ public class PullAlertEntity extends WebutilsEntity
 	private List<String> actions;
 	
 	/**
-	 * Action used to close alert.
+	 * Alert processing details provided by client agent.
 	 */
-	@Column(name = "CLOSE_ACTION", length = 15)
-	private String closeAction;
+	@Column(name = "PROCESS_DETAILS", length = 1000)
+	@DataTypeMapping(converterType = JsonWithTypeConverter.class, type = DataType.STRING)
+	private AlertProcessedDetails alertProcessedDetails;
+
+	/**
+	 * Gets the used to identify alert and its confirmation uniquely.
+	 *
+	 * @return the used to identify alert and its confirmation uniquely
+	 */
+	public String getName()
+	{
+		return name;
+	}
+
+	/**
+	 * Sets the used to identify alert and its confirmation uniquely.
+	 *
+	 * @param name the new used to identify alert and its confirmation uniquely
+	 */
+	public void setName(String name)
+	{
+		this.name = name;
+	}
 
 	/**
 	 * Gets the source which is generating this alert.
@@ -262,22 +290,22 @@ public class PullAlertEntity extends WebutilsEntity
 	}
 
 	/**
-	 * Gets the action used to close alert.
+	 * Gets the alert processing details provided by client agent.
 	 *
-	 * @return the action used to close alert
+	 * @return the alert processing details provided by client agent
 	 */
-	public String getCloseAction()
+	public AlertProcessedDetails getAlertProcessedDetails()
 	{
-		return closeAction;
+		return alertProcessedDetails;
 	}
 
 	/**
-	 * Sets the action used to close alert.
+	 * Sets the alert processing details provided by client agent.
 	 *
-	 * @param closeAction the new action used to close alert
+	 * @param alertProcessedDetails the new alert processing details provided by client agent
 	 */
-	public void setCloseAction(String closeAction)
+	public void setAlertProcessedDetails(AlertProcessedDetails alertProcessedDetails)
 	{
-		this.closeAction = closeAction;
+		this.alertProcessedDetails = alertProcessedDetails;
 	}
 }
