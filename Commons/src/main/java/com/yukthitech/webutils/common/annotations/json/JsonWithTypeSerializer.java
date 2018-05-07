@@ -27,7 +27,7 @@ public class JsonWithTypeSerializer extends JsonSerializer<Object>
 		}
 		else
 		{
-			IWebUtilsCommonConstants.OBJECT_MAPPER_WITH_TYPE.writeValueAsString(value);
+			str = IWebUtilsCommonConstants.OBJECT_MAPPER_WITH_TYPE.writeValueAsString(value);
 		}
 		
 		gen.writeObject(str);

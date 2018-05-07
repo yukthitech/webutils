@@ -6,9 +6,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
+import org.apache.commons.collections4.map.LRUMap;
 import org.springframework.cache.Cache;
 
 import com.yukthitech.utils.ConvertUtils;
+import com.yukthitech.utils.exceptions.InvalidArgumentException;
 
 /**
  * Custom spring cache implementation.
@@ -52,7 +54,7 @@ public class WebutilsCache implements Cache
 	/**
 	 * Map used for caching.
 	 */
-	private Map<Object, CacheValueWrapper> cacheMap = new HashMap<>();
+	private Map<Object, CacheValueWrapper> cacheMap = null;
 	
 	/**
 	 * Mapping from group to keys. Which in turn is used during eviction.
@@ -63,10 +65,62 @@ public class WebutilsCache implements Cache
 	 * Instantiates a new webutils cache.
 	 *
 	 * @param name the name
+	 * @param cacheSize size of lru size to maintain
 	 */
-	public WebutilsCache(String name)
+	public WebutilsCache(String name, int cacheSize)
 	{
+		if(cacheSize < 1)
+		{
+			throw new InvalidArgumentException("Cache size can not be less than 1. Specified size: {}", cacheSize);
+		}
+		
 		this.name = name;
+		
+		cacheMap = new LRUMap<Object, CacheValueWrapper>(cacheSize)
+		{
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected boolean removeLRU(LinkEntry<Object, CacheValueWrapper> entry)
+			{
+				cleanKeyGroups(entry.getKey());
+				return true;
+			}
+		};
+	}
+	
+	/**
+	 * Cleans up groups linked with this key.
+	 * @param key key being removed
+	 */
+	private void cleanKeyGroups(Object key)
+	{
+		if(!(key instanceof CacheKey))
+		{
+			return;
+		}
+		
+		CacheKey cacheKey = (CacheKey) key;
+		Set<String> groups = cacheKey.getGroups();
+		
+		if(groups == null || groups.isEmpty())
+		{
+			return;
+		}
+		
+		Set<Object> groupKeys = null;
+		
+		for(String group : groups)
+		{
+			groupKeys = groupToKeys.get(group);
+			
+			if(groupKeys == null)
+			{
+				continue;
+			}
+			
+			groupKeys.remove(group);
+		}
 	}
 
 	@Override
@@ -207,6 +261,7 @@ public class WebutilsCache implements Cache
 		}
 		
 		cacheMap.remove(key);
+		cleanKeyGroups(key);
 	}
 
 	@Override

@@ -13,7 +13,7 @@ import org.springframework.cache.annotation.Cacheable;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
-@Cacheable(keyGenerator = "cahceKeyGenerator")
+@Cacheable(keyGenerator = "cahceKeyGenerator", cacheResolver = "cacheResolver")
 public @interface WebutilsCacheable
 {
 	/**
@@ -21,7 +21,7 @@ public @interface WebutilsCacheable
 	 * By default method name is also used along with generated key.
 	 * @return spel expression representing key.
 	 */
-	public String key() default "";
+	public String cachekey() default "";
 	
 	/**
 	 * Defines the group under which current data will be cached. This can be used again in eviction. This is SPEL expression.

@@ -8,6 +8,8 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.yukthitech.utils.exceptions.InvalidStateException;
@@ -21,6 +23,8 @@ import com.yukthitech.webutils.common.alerts.PullAlertStatus;
  */
 public abstract class AbstractPullAlertingAgent implements IAlertingAgent
 {
+	private static Logger logger = LogManager.getLogger(AbstractPullAlertingAgent.class);
+	
 	/**
 	 * Service to save alerts.
 	 */
@@ -70,6 +74,7 @@ public abstract class AbstractPullAlertingAgent implements IAlertingAgent
 		
 		if(recipients == null || recipients.isEmpty())
 		{
+			logger.debug("No recipient found based on target '{}' and alert-type '{}' for alert with title: {}", alertDetails.getTarget(), alertDetails.getAlertType(), alertDetails.getTitle());
 			return false;
 		}
 		

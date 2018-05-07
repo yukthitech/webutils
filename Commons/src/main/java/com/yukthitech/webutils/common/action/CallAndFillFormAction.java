@@ -10,6 +10,11 @@ import java.util.List;
 public class CallAndFillFormAction implements IAgentAction
 {
 	/**
+	 * Name of the action to be sent back if this action is performed.
+	 */
+	private String name;
+	
+	/**
 	 * Label to be used for action.
 	 */
 	private String label;
@@ -33,6 +38,25 @@ public class CallAndFillFormAction implements IAgentAction
 	 * List of action buttons which user can click once form is filled.
 	 */
 	private List<String> actionItems;
+
+	/* (non-Javadoc)
+	 * @see com.yukthitech.webutils.common.action.IAgentAction#getName()
+	 */
+	@Override
+	public String getName()
+	{
+		return name;
+	}
+
+	/**
+	 * Sets the name of the action to be sent back if this action is performed.
+	 *
+	 * @param name the new name of the action to be sent back if this action is performed
+	 */
+	public void setName(String name)
+	{
+		this.name = name;
+	}
 
 	/**
 	 * Gets the label to be used for action.

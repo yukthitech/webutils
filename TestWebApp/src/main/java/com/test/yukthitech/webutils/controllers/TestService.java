@@ -12,7 +12,6 @@ import com.yukthitech.webutils.IWebUtilsInternalConstants;
 import com.yukthitech.webutils.cache.WebutilsCacheEvict;
 import com.yukthitech.webutils.cache.WebutilsCacheable;
 
-@CacheConfig(cacheNames = "TestService")
 @Service
 public class TestService
 {

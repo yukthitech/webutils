@@ -38,6 +38,12 @@ public interface ISystemAlertContextAttrRepository extends IWebutilsRepository<S
 	public void updateAccessTime(@Condition("name") String name, @Field("updatedOn") Date date);
 	
 	/**
+	 * Deletes attribute with specified name.
+	 * @param name name of attribute to remove.
+	 */
+	public void deleteAttribute(@Condition("name") String name);
+
+	/**
 	 * Deletes attributes whose updated-on date is less than specified date.
 	 * @param olderThan date to compare with
 	 * @return number of records deleted.

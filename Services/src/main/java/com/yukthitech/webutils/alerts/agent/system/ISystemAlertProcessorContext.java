@@ -19,4 +19,10 @@ public interface ISystemAlertProcessorContext
 	 * @return value of attr.
 	 */
 	public Object getAttribute(String name);
+	
+	/**
+	 * Removes specified attribute.
+	 * @param name name of attribute to remove.
+	 */
+	public void removeAttribte(String name);
 }

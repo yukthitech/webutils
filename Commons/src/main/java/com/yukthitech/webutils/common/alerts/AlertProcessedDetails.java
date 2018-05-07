@@ -1,10 +1,10 @@
 package com.yukthitech.webutils.common.alerts;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.yukthitech.validation.annotations.NotEmpty;
 import com.yukthitech.validation.annotations.Required;
+import com.yukthitech.webutils.common.annotations.IgnoreField;
 import com.yukthitech.webutils.common.annotations.Model;
-import com.yukthitech.webutils.common.annotations.json.JsonWithTypeSerializer;
+import com.yukthitech.webutils.common.annotations.json.DataWithDynamicTypes;
 
 /**
  * Used to send details while marking alert as processed.
@@ -21,9 +21,16 @@ public class AlertProcessedDetails
 	private String action;
 	
 	/**
+	 * Subaction choosen by user within the form geneated
+	 * by main action.
+	 */
+	private String subaction;
+	
+	/**
 	 * Data accepted from user as part of alert processing.
 	 */
-	@JsonSerialize(using = JsonWithTypeSerializer.class, as = String.class)
+	@IgnoreField
+	@DataWithDynamicTypes
 	private Object data;
 
 	/**
@@ -64,5 +71,25 @@ public class AlertProcessedDetails
 	public void setData(Object data)
 	{
 		this.data = data;
+	}
+
+	/**
+	 * Gets the subaction choosen by user within the form geneated by main action.
+	 *
+	 * @return the subaction choosen by user within the form geneated by main action
+	 */
+	public String getSubaction()
+	{
+		return subaction;
+	}
+
+	/**
+	 * Sets the subaction choosen by user within the form geneated by main action.
+	 *
+	 * @param subaction the new subaction choosen by user within the form geneated by main action
+	 */
+	public void setSubaction(String subaction)
+	{
+		this.subaction = subaction;
 	}
 }

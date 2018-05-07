@@ -1,5 +1,6 @@
 package com.yukthitech.webutils.common.action;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -9,6 +10,11 @@ import java.util.List;
  */
 public class FillFormAction implements IAgentAction
 {
+	/**
+	 * Name of the action to be sent back if this action is performed.
+	 */
+	private String name;
+
 	/**
 	 * Label to be used for action.
 	 */
@@ -25,9 +31,33 @@ public class FillFormAction implements IAgentAction
 	private String event;
 	
 	/**
+	 * Title to be used for the form (on the top).
+	 */
+	private String title;
+	
+	/**
 	 * List of action buttons which user can click once form is filled.
 	 */
 	private List<String> actionItems;
+	
+	/* (non-Javadoc)
+	 * @see com.yukthitech.webutils.common.action.IAgentAction#getName()
+	 */
+	@Override
+	public String getName()
+	{
+		return name;
+	}
+
+	/**
+	 * Sets the name of the action to be sent back if this action is performed.
+	 *
+	 * @param name the new name of the action to be sent back if this action is performed
+	 */
+	public void setName(String name)
+	{
+		this.name = name;
+	}
 
 	/**
 	 * Gets the label to be used for action.
@@ -107,5 +137,39 @@ public class FillFormAction implements IAgentAction
 	public void setActionItems(List<String> actionItems)
 	{
 		this.actionItems = actionItems;
+	}
+	
+	/**
+	 * Adds the specified item to this fill-form action.
+	 * @param item item to add
+	 */
+	public void addActionItem(String item)
+	{
+		if(this.actionItems == null)
+		{
+			this.actionItems = new ArrayList<>();
+		}
+		
+		this.actionItems.add(item);
+	}
+
+	/**
+	 * Gets the title to be used for the form (on the top).
+	 *
+	 * @return the title to be used for the form (on the top)
+	 */
+	public String getTitle()
+	{
+		return title;
+	}
+
+	/**
+	 * Sets the title to be used for the form (on the top).
+	 *
+	 * @param title the new title to be used for the form (on the top)
+	 */
+	public void setTitle(String title)
+	{
+		this.title = title;
 	}
 }

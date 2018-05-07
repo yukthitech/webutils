@@ -85,6 +85,10 @@ public abstract class AbstractSystemAlertingAgent implements IAlertingAgent
 			{
 				return appAlertContextService.getAttribute((String) args[0]);
 			}
+			else if("removeAttribte".equals(method.getName()))
+			{
+				appAlertContextService.removeAttribute((String) args[0]);
+			}
 			
 			return null;
 		}
@@ -105,6 +109,7 @@ public abstract class AbstractSystemAlertingAgent implements IAlertingAgent
 	/**
 	 * Service to manage context attributes.
 	 */
+	@Autowired
 	private SystemAlertContextAttrService appAlertContextService;
 
 	/**
@@ -201,13 +206,7 @@ public abstract class AbstractSystemAlertingAgent implements IAlertingAgent
 		
 		customize(alertDetails);
 		
-		if(StringUtils.isEmpty(alertDetails.getTarget()))
-		{
-			logger.warn("Application alert is ignored as no target is specified. Alert received: {}", alertDetails);
-			return false;
-		}
-		
-		List<AlertProcessor> alertProcessors = nameToProcessors.get(alertDetails.getTarget());
+		List<AlertProcessor> alertProcessors = nameToProcessors.get(alertDetails.getName());
 		
 		if(alertProcessors == null || alertProcessors.isEmpty())
 		{

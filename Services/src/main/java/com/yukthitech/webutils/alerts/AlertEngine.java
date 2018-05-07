@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.PostConstruct;
@@ -18,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.yukthitech.ccg.xml.XMLBeanParser;
+import com.yukthitech.utils.CommonUtils;
 import com.yukthitech.utils.exceptions.InvalidArgumentException;
 import com.yukthitech.webutils.alerts.agent.IAlertingAgent;
 import com.yukthitech.webutils.alerts.event.EventAlertRuleEntity;
@@ -98,6 +100,11 @@ public class AlertEngine
 	private String systemAgentName;
 	
 	/**
+	 * System agent type, which will be used to send system alert events.
+	 */
+	private String systemAgentType;
+	
+	/**
 	 * Sets the alert type enum to be used in current application. Required to enable error based alerts.
 	 *
 	 * @param alertTypeEnum the new alert type enum to be used in current application
@@ -125,6 +132,16 @@ public class AlertEngine
 	public void setSystemAgentName(String systemAgentName)
 	{
 		this.systemAgentName = systemAgentName;
+	}
+	
+	/**
+	 * Sets the system agent type, which will be used to send system alert events.
+	 *
+	 * @param systemAgentType the new system agent type, which will be used to send system alert events
+	 */
+	public void setSystemAgentType(String systemAgentType)
+	{
+		this.systemAgentType = systemAgentType;
 	}
 	
 	/**
@@ -271,17 +288,41 @@ public class AlertEngine
 	/**
 	 * Evaluates specified template and converts the result into alert details and returns the same.
 	 * @param template template to process
-	 * @param eventObject object to be used as context
+	 * @param eventObject object to be used in context
+	 * @param event event rule to be used in context
 	 * @return result alert details.
 	 */
-	private AlertDetails parseAlertDetails(String template, Object eventObject) throws JsonParseException, JsonMappingException, IOException
+	private AlertDetails parseAlertDetails(String template, Object eventObject, EventAlertRuleEntity event) throws JsonParseException, JsonMappingException, IOException
 	{
-		String xml = freeMarkerService.processTemplate("AlertDetails-xml", template, eventObject);
+		Map<String, Object> context = CommonUtils.toMap(
+				"eventData", eventObject,
+				"event", event
+		);
+		
+		String xml = freeMarkerService.processTemplate("AlertDetails-xml", template, context);
 		
 		AlertDetails alertDetails = new AlertDetails();
 		XMLBeanParser.parse(new ByteArrayInputStream(xml.getBytes()), alertDetails);
 		
 		return alertDetails;
+	}
+	
+	/**
+	 * Sends simple system event alert by using specified alert type, event object as alert data
+	 * and alert name as name of alert. Thereby calling any registered alert processors by this name.
+	 * @param systemAlertType alert type to be used
+	 * @param eventObject event object which needs to be sent as alert data
+	 * @param alertName name of alert
+	 */
+	public void sendSystemEventAlert(Object systemAlertType, Object eventObject, String alertName)
+	{
+		AlertDetails alertDetails = new AlertDetails();
+		alertDetails.setData(eventObject);
+		alertDetails.setAlertType(systemAlertType);
+		alertDetails.setName(alertName);
+		alertDetails.setTargetAgentTypes(CommonUtils.toSet(systemAgentType));
+		
+		sendAlert(alertDetails);
 	}
 	
 	/**
@@ -324,7 +365,7 @@ public class AlertEngine
 							continue;
 						}
 						
-						AlertDetails alertDetails = parseAlertDetails(rule.getAlertDetailsTemplate(), eventObject);
+						AlertDetails alertDetails = parseAlertDetails(rule.getAlertDetailsTemplate(), eventObject, rule);
 						sendAlert(alertDetails);
 					}catch(Exception ex)
 					{

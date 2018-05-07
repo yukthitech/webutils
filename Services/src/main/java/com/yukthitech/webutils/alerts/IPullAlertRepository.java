@@ -34,5 +34,5 @@ public interface IPullAlertRepository extends IWebutilsRepository<PullAlertEntit
 	 * @param status status to update
 	 * @param alertProcessedDetails Alert process details.
 	 */
-	public void updateStatus(@Condition("id") long id, @Field("status") PullAlertStatus status, @Field("closeAction") AlertProcessedDetails alertProcessedDetails);
+	public void updateStatus(@Condition("id") long id, @Field("status") PullAlertStatus status, @Field("alertProcessedDetails") AlertProcessedDetails alertProcessedDetails);
 }

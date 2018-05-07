@@ -78,7 +78,7 @@ public class PullAlertEntity extends WebutilsEntity
 	/**
 	 * Actions that can be taken on this alert.
 	 */
-	@Column(name = "ACTIONS", length = 100)
+	@Column(name = "ACTIONS", length = 1000)
 	@DataTypeMapping(converterType = JsonWithTypeConverter.class, type = DataType.STRING)
 	private List<String> actions;
 	

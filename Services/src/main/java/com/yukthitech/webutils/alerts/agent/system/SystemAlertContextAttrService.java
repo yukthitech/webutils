@@ -5,8 +5,12 @@ import java.util.Date;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.stereotype.Service;
 
+import com.yukthitech.webutils.IWebUtilsInternalConstants;
+import com.yukthitech.webutils.cache.WebutilsCacheEvict;
+import com.yukthitech.webutils.cache.WebutilsCacheable;
 import com.yukthitech.webutils.services.BaseCrudService;
 import com.yukthitech.webutils.services.task.ScheduledTask;
 
@@ -14,6 +18,7 @@ import com.yukthitech.webutils.services.task.ScheduledTask;
  * Service for app alert context.
  * @author akiran
  */
+@CacheConfig(cacheNames = "SystemAlertContextAttr[100]")
 @Service
 public class SystemAlertContextAttrService extends BaseCrudService<SystemAlertContextEntity, ISystemAlertContextAttrRepository>
 {
@@ -29,6 +34,7 @@ public class SystemAlertContextAttrService extends BaseCrudService<SystemAlertCo
 	 * @param name name of attribute
 	 * @param value value of attribute
 	 */
+	@WebutilsCacheEvict(groups = "#p0")
 	public void setAttribute(String name, Object value)
 	{
 		if(super.repository.updateValue(name, value, new Date()))
@@ -49,6 +55,7 @@ public class SystemAlertContextAttrService extends BaseCrudService<SystemAlertCo
 	 * @param name name of attr to fetch
 	 * @return matching value
 	 */
+	@WebutilsCacheable(groups = {"#p0", IWebUtilsInternalConstants.CACHE_GROUP_GROUPED})
 	public Object getAttribute(String name)
 	{
 		Object value = super.repository.fetchValue(name);
@@ -58,14 +65,24 @@ public class SystemAlertContextAttrService extends BaseCrudService<SystemAlertCo
 			return null;
 		}
 		
-		super.repository.updateAccessTime(name, new Date());
 		return value;
+	}
+	
+	/**
+	 * Removes specified attribute.
+	 * @param name name of attribute to remove.
+	 */
+	@WebutilsCacheEvict(groups = "#p0")
+	public void removeAttribute(String name)
+	{
+		super.repository.deleteAttribute(name);
 	}
 	
 	/**
 	 * Scheduled task method which would delete old unused attributes. Attributes which 
 	 * are not update for more than week time would be deleted.
 	 */
+	@WebutilsCacheEvict(groups = IWebUtilsInternalConstants.CACHE_GROUP_GROUPED)
 	@ScheduledTask(time = "01:00 am")
 	public void deleteUnusedAttributes()
 	{

@@ -20,7 +20,7 @@ public class CacheEvictKeyGenerator extends AbstractCacheKeyGenerator
 		if(webutilsCacheEvict != null)
 		{
 			CacheKey key = constructKey(
-					webutilsCacheEvict.key(), 
+					webutilsCacheEvict.cacheKey(), 
 					webutilsCacheEvict.groups(), 
 					webutilsCacheEvict.excludeMethodName(), 
 					webutilsCacheEvict.excludeParams(), 

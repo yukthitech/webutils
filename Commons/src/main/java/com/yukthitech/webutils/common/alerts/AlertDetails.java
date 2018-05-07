@@ -9,14 +9,13 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.yukthitech.utils.BitHelper;
 import com.yukthitech.webutils.common.FileInfo;
 import com.yukthitech.webutils.common.IWebUtilsCommonConstants;
 import com.yukthitech.webutils.common.action.IAgentAction;
 import com.yukthitech.webutils.common.annotations.IgnoreField;
 import com.yukthitech.webutils.common.annotations.Model;
-import com.yukthitech.webutils.common.annotations.json.JsonWithTypeSerializer;
+import com.yukthitech.webutils.common.annotations.json.DataWithDynamicTypes;
 
 /**
  * Represents an alert.
@@ -58,14 +57,14 @@ public class AlertDetails
 	/**
 	 * Data to be sent along with alert.
 	 */
-	@JsonSerialize(using = JsonWithTypeSerializer.class, as = String.class)
+	@DataWithDynamicTypes
 	@IgnoreField
 	private Object data;
 	
 	/**
 	 * Alert type.
 	 */
-	@JsonSerialize(using = JsonWithTypeSerializer.class, as = String.class)
+	@DataWithDynamicTypes
 	@IgnoreField
 	private Object alertType;
 	
@@ -98,12 +97,14 @@ public class AlertDetails
 	/**
 	 * Actions to be associated with this task.
 	 */
-	@JsonSerialize(using = JsonWithTypeSerializer.class, as = String.class)
+	@DataWithDynamicTypes
+	@IgnoreField
 	private List<IAgentAction> actions;
 	
 	/**
 	 * Alert processing details, used internally.
 	 */
+	@IgnoreField
 	private AlertProcessedDetails alertProcessedDetails;
 	
 	/**
@@ -578,6 +579,29 @@ public class AlertDetails
 	public void setAlertProcessedDetails(AlertProcessedDetails alertProcessedDetails)
 	{
 		this.alertProcessedDetails = alertProcessedDetails;
+	}
+	
+	/**
+	 * In case if this is confirmation alert and action taken is available, the confirmation
+	 * action will be returned. Otherwise null will be returned.
+	 * @return confirmation action
+	 */
+	@JsonIgnore
+	public String getConfirmationAction()
+	{
+		if(!(data instanceof AlertConfirmationInfo))
+		{
+			return null;
+		}
+		
+		AlertConfirmationInfo confirmation = (AlertConfirmationInfo) data;
+		
+		if(confirmation.getAlertProcessedDetails() == null)
+		{
+			return null;
+		}
+		
+		return confirmation.getAlertProcessedDetails().getAction();
 	}
 
 	/* (non-Javadoc)

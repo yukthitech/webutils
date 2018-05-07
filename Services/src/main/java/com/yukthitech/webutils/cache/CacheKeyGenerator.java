@@ -20,7 +20,7 @@ public class CacheKeyGenerator extends AbstractCacheKeyGenerator
 		if(webutilsCacheable != null)
 		{
 			return constructKey(
-					webutilsCacheable.key(), 
+					webutilsCacheable.cachekey(), 
 					webutilsCacheable.groups(), 
 					webutilsCacheable.excludeMethodName(), 
 					webutilsCacheable.excludeParams(), 

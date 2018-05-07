@@ -88,6 +88,7 @@
 	<bean id="cacheManager" class="com.yukthitech.webutils.cache.WebutilsSpringCacheManager">
 	</bean>
 
+	<bean id ="cacheResolver" class="com.yukthitech.webutils.cache.WebutilsCacheResolver"/>
 	<bean id ="cahceKeyGenerator" class="com.yukthitech.webutils.cache.CacheKeyGenerator"/>
 	<bean id ="cahceEvictKeyGenerator" class="com.yukthitech.webutils.cache.CacheEvictKeyGenerator"/>
 	
