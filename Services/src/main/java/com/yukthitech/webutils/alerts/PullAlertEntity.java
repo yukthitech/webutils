@@ -7,6 +7,7 @@ import javax.persistence.Table;
 
 import com.yukthitech.persistence.annotations.DataType;
 import com.yukthitech.persistence.annotations.DataTypeMapping;
+import com.yukthitech.persistence.conversion.impl.JsonConverter;
 import com.yukthitech.persistence.conversion.impl.JsonWithTypeConverter;
 import com.yukthitech.webutils.common.alerts.AlertProcessedDetails;
 import com.yukthitech.webutils.common.alerts.PullAlertStatus;
@@ -53,7 +54,7 @@ public class PullAlertEntity extends WebutilsEntity
 	 * Alert type.
 	 */
 	@Column(name = "ALERT_TYPE", length = 100)
-	@DataTypeMapping(type = DataType.STRING)
+	@DataTypeMapping(converterType = JsonWithTypeConverter.class, type = DataType.STRING)
 	private Object alertType;
 
 	/**
@@ -86,7 +87,7 @@ public class PullAlertEntity extends WebutilsEntity
 	 * Alert processing details provided by client agent.
 	 */
 	@Column(name = "PROCESS_DETAILS", length = 1000)
-	@DataTypeMapping(converterType = JsonWithTypeConverter.class, type = DataType.STRING)
+	@DataTypeMapping(converterType = JsonConverter.class, type = DataType.STRING)
 	private AlertProcessedDetails alertProcessedDetails;
 
 	/**

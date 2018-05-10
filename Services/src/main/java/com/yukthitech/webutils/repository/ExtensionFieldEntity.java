@@ -38,7 +38,7 @@ import com.yukthitech.persistence.annotations.DeleteWithParent;
 import com.yukthitech.persistence.annotations.NotUpdateable;
 import com.yukthitech.persistence.annotations.UniqueConstraint;
 import com.yukthitech.persistence.annotations.UniqueConstraints;
-import com.yukthitech.persistence.conversion.impl.JsonConverter;
+import com.yukthitech.persistence.conversion.impl.JsonWithTypeConverter;
 import com.yukthitech.webutils.common.extensions.ExtensionFieldType;
 import com.yukthitech.webutils.common.extensions.LovOption;
 
@@ -106,7 +106,7 @@ public class ExtensionFieldEntity extends WebutilsEntity
 	 * LOV options for fields of LOV type.
 	 */
 	@Column(name = "LOV_OPTIONS", length = 2000)
-	@DataTypeMapping(type = DataType.STRING, converterType = JsonConverter.class)
+	@DataTypeMapping(type = DataType.STRING, converterType = JsonWithTypeConverter.class)
 	private List<LovOption> lovOptions;
 
 	/**

@@ -1,9 +1,7 @@
 package com.yukthitech.webutils.common.alerts;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -66,7 +64,7 @@ public class AlertDetails
 	 */
 	@DataWithDynamicTypes
 	@IgnoreField
-	private Object alertType;
+	private IAlertType alertType;
 	
 	/**
 	 * Used by pull alerts.
@@ -82,12 +80,6 @@ public class AlertDetails
 	 * Flags indicating different flags for alert.
 	 */
 	private int flags;
-	
-	/**
-	 * Non persistent internal field. Target agent types, if specified, only those will be invoked to process
-	 * the alert.
-	 */
-	private Set<String> targetAgentTypes;
 	
 	/**
 	 * Status of the alert.
@@ -232,7 +224,7 @@ public class AlertDetails
 	 *
 	 * @return the alert type
 	 */
-	public Object getAlertType()
+	public IAlertType getAlertType()
 	{
 		return alertType;
 	}
@@ -242,7 +234,7 @@ public class AlertDetails
 	 *
 	 * @param alertType the new alert type
 	 */
-	public void setAlertType(Object alertType)
+	public void setAlertType(IAlertType alertType)
 	{
 		this.alertType = alertType;
 	}
@@ -470,41 +462,6 @@ public class AlertDetails
 	public void setLongMessage(String longMessage)
 	{
 		this.longMessage = longMessage;
-	}
-
-	/**
-	 * Gets the target agent types, if specified, only those will be invoked to process the alert.
-	 *
-	 * @return the target agent types, if specified, only those will be invoked to process the alert
-	 */
-	public Set<String> getTargetAgentTypes()
-	{
-		return targetAgentTypes;
-	}
-
-	/**
-	 * Sets the target agent types, if specified, only those will be invoked to process the alert.
-	 *
-	 * @param targetAgentTypes the new target agent types, if specified, only those will be invoked to process the alert
-	 */
-	public void setTargetAgentTypes(Set<String> targetAgentTypes)
-	{
-		this.targetAgentTypes = targetAgentTypes;
-	}
-	
-	/**
-	 * Adds specified target agent type.
-	 *
-	 * @param type type to add
-	 */
-	public void addTargetAgentType(String type)
-	{
-		if(this.targetAgentTypes == null)
-		{
-			this.targetAgentTypes = new HashSet<>();
-		}
-		
-		this.targetAgentTypes.add(type);
 	}
 
 	/**

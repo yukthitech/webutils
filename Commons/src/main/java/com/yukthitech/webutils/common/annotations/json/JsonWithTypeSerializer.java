@@ -15,6 +15,7 @@ import com.yukthitech.webutils.common.IWebUtilsCommonConstants;
  */
 public class JsonWithTypeSerializer extends JsonSerializer<Object>
 {
+	@SuppressWarnings("rawtypes")
 	@Override
 	public void serialize(Object value, JsonGenerator gen, SerializerProvider serializers) throws IOException, JsonProcessingException
 	{
@@ -23,7 +24,7 @@ public class JsonWithTypeSerializer extends JsonSerializer<Object>
 		if(value instanceof Enum)
 		{
 			Enum<?> en = (Enum<?>) value;
-			str = String.format("[\"%s\", \"%s\"]", en.getClass().getSigners(), en.name());
+			str = String.format("[\"%s\", \"%s\"]", ((Enum) en).getDeclaringClass().getName(), en.name());
 		}
 		else
 		{

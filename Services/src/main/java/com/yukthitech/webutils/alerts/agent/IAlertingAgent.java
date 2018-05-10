@@ -1,8 +1,7 @@
 package com.yukthitech.webutils.alerts.agent;
 
-import java.util.Set;
-
 import com.yukthitech.webutils.common.alerts.AlertDetails;
+import com.yukthitech.webutils.common.alerts.AlertingAgentType;
 
 /**
  * Abstraction of alerting agent which would be responsible of sending alerts on 
@@ -12,11 +11,10 @@ import com.yukthitech.webutils.common.alerts.AlertDetails;
 public interface IAlertingAgent
 {
 	/**
-	 * Checks whether current agent is compatible with specified types.
-	 * @param targetTypes target types specified by alert.
-	 * @return true if current agent is compatible with target type.
+	 * Retuns the type of agent.
+	 * @return agent type
 	 */
-	public boolean isCompatible(Set<String> targetTypes);
+	public AlertingAgentType getType();
 	
 	/**
 	 * Process and send the alert to appropriate members. Based on different factors alerting

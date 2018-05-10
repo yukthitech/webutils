@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -11,22 +12,24 @@ import java.util.Set;
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.yukthitech.ccg.xml.XMLBeanParser;
 import com.yukthitech.utils.CommonUtils;
 import com.yukthitech.utils.exceptions.InvalidArgumentException;
+import com.yukthitech.webutils.alerts.agent.IAlertSupport;
 import com.yukthitech.webutils.alerts.agent.IAlertingAgent;
 import com.yukthitech.webutils.alerts.event.EventAlertRuleEntity;
 import com.yukthitech.webutils.alerts.event.EventAlertRuleService;
 import com.yukthitech.webutils.common.action.IAgentAction;
 import com.yukthitech.webutils.common.alerts.AlertConfirmationInfo;
 import com.yukthitech.webutils.common.alerts.AlertDetails;
+import com.yukthitech.webutils.common.alerts.AlertingAgentType;
 import com.yukthitech.webutils.services.freemarker.FreeMarkerService;
 import com.yukthitech.webutils.services.task.AsyncTaskService;
 
@@ -34,6 +37,7 @@ import com.yukthitech.webutils.services.task.AsyncTaskService;
  * Service to register alerts and push alerts to agents.
  * @author akiran
  */
+@Service
 public class AlertEngine
 {
 	/**
@@ -74,88 +78,37 @@ public class AlertEngine
 	/**
 	 * List of registered alerting agents.
 	 */
-	@Autowired(required = false)
+	@Autowired
 	private List<IAlertingAgent> alertingAgents;
 	
 	/**
-	 * Alert type enum to be used in current application. Required
-	 * to enable error based alerts.
+	 * Support provided by applications.
 	 */
-	private String alertTypeEnum;
+	@Autowired
+	private IAlertSupport alertSupport;
+
+	/**
+	 * Mapping from alerting agent type to agent.
+	 */
+	private Map<AlertingAgentType, IAlertingAgent> typeToAgent = new HashMap<>();
 	
 	/**
-	 * Enum constant name to be used when sending alerts. Required
-	 * to enable error based alerts.
-	 */
-	private String errorAlertTypeName;
-	
-	/**
-	 * Alert type to be used when sending alerts.
-	 */
-	private Object errorAlertTypeConstant;
-	
-	/**
-	 * Name of the system to be used when sending system alerts.
+	 * Name of system agent.
 	 */
 	private String systemAgentName;
 	
 	/**
-	 * System agent type, which will be used to send system alert events.
-	 */
-	private String systemAgentType;
-	
-	/**
-	 * Sets the alert type enum to be used in current application. Required to enable error based alerts.
-	 *
-	 * @param alertTypeEnum the new alert type enum to be used in current application
-	 */
-	public void setAlertTypeEnum(String alertTypeEnum)
-	{
-		this.alertTypeEnum = alertTypeEnum;
-	}
-	
-	/**
-	 * Sets the enum constant name to be used when sending alerts. Required to enable error based alerts.
-	 *
-	 * @param errorAlertType the new enum constant name to be used when sending alerts
-	 */
-	public void setErrorAlertType(String errorAlertType)
-	{
-		this.errorAlertTypeName = errorAlertType;
-	}
-	
-	/**
-	 * Sets the name of the system to be used when sending system alerts.
-	 *
-	 * @param systemAgentName the new name of the system to be used when sending system alerts
-	 */
-	public void setSystemAgentName(String systemAgentName)
-	{
-		this.systemAgentName = systemAgentName;
-	}
-	
-	/**
-	 * Sets the system agent type, which will be used to send system alert events.
-	 *
-	 * @param systemAgentType the new system agent type, which will be used to send system alert events
-	 */
-	public void setSystemAgentType(String systemAgentType)
-	{
-		this.systemAgentType = systemAgentType;
-	}
-	
-	/**
 	 * Post construct method to fetch agents.
 	 */
-	@SuppressWarnings({"unchecked", "rawtypes"})
 	@PostConstruct
 	private void init() throws Exception
 	{
-		if(StringUtils.isNotBlank(alertTypeEnum) && StringUtils.isNotBlank(errorAlertTypeName))
+		for(IAlertingAgent agent : alertingAgents)
 		{
-			Class<?> enumType = Class.forName(alertTypeEnum);
-			errorAlertTypeConstant = Enum.valueOf( (Class) enumType, errorAlertTypeName);
+			typeToAgent.put(agent.getType(), agent);
 		}
+		
+		systemAgentName = alertSupport.getSystemAgentName();
 	}
 	
 	/**
@@ -174,6 +127,15 @@ public class AlertEngine
 		//reverse source and target
 		alertDetails.setSource(closedAlert.getTarget());
 		alertDetails.setTarget(closedAlert.getSource());
+		
+		if(systemAgentName.equals(closedAlert.getSource()))
+		{
+			alertDetails.setAlertType(alertSupport.getSystemAlertType());
+		}
+		else
+		{
+			alertDetails.setAlertType(alertSupport.getConfirmationAlertType());
+		}
 		
 		//set closed alert id as data on confirmation alert
 		alertDetails.setData( new AlertConfirmationInfo(closedAlert.getData(), closedAlert.getAlertProcessedDetails()) );
@@ -209,19 +171,21 @@ public class AlertEngine
 			}
 		}
 		
+		final Set<AlertingAgentType> targetTypes = alertDetails.getAlertType().getAlertingAgentTypes();
+		
+		if(targetTypes == null || targetTypes.isEmpty())
+		{
+			logger.warn("As not target-agent-type is specified ignoring sending alert: {}", alertDetails);
+		}
+		
 		asyncTaskService.executeTask(new Runnable()   
 		{
 			public void run()
 			{
-				Set<String> targetTypes = alertDetails.getTargetAgentTypes();
 				
-				for(IAlertingAgent agent : alertingAgents)
+				for(AlertingAgentType type : targetTypes)
 				{
-					if(targetTypes != null && !agent.isCompatible(targetTypes))
-					{
-						continue;
-					}
-					
+					IAlertingAgent agent = typeToAgent.get(type);
 					agent.sendAlert(alertDetails);
 				}
 			}
@@ -237,7 +201,7 @@ public class AlertEngine
 	public void alertSystemError(String title, String message, Throwable th)
 	{
 		AlertDetails alertDetails = new AlertDetails();
-		alertDetails.setAlertType(errorAlertTypeConstant);
+		alertDetails.setAlertType(alertSupport.getErrorAlertType());
 		alertDetails.setTitle(title);
 		alertDetails.setMessage(message);
 		alertDetails.setSource(systemAgentName);
@@ -310,17 +274,15 @@ public class AlertEngine
 	/**
 	 * Sends simple system event alert by using specified alert type, event object as alert data
 	 * and alert name as name of alert. Thereby calling any registered alert processors by this name.
-	 * @param systemAlertType alert type to be used
 	 * @param eventObject event object which needs to be sent as alert data
 	 * @param alertName name of alert
 	 */
-	public void sendSystemEventAlert(Object systemAlertType, Object eventObject, String alertName)
+	public void sendSystemEventAlert(Object eventObject, String alertName)
 	{
 		AlertDetails alertDetails = new AlertDetails();
 		alertDetails.setData(eventObject);
-		alertDetails.setAlertType(systemAlertType);
+		alertDetails.setAlertType(alertSupport.getSystemAlertType());
 		alertDetails.setName(alertName);
-		alertDetails.setTargetAgentTypes(CommonUtils.toSet(systemAgentType));
 		
 		sendAlert(alertDetails);
 	}

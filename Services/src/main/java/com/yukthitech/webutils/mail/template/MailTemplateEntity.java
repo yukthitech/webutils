@@ -30,7 +30,7 @@ import com.yukthitech.persistence.annotations.DataType;
 import com.yukthitech.persistence.annotations.DataTypeMapping;
 import com.yukthitech.persistence.annotations.UniqueConstraint;
 import com.yukthitech.persistence.annotations.UniqueConstraints;
-import com.yukthitech.persistence.conversion.impl.JsonConverter;
+import com.yukthitech.persistence.conversion.impl.JsonWithTypeConverter;
 import com.yukthitech.webutils.repository.WebutilsEntity;
 
 /**
@@ -85,7 +85,7 @@ public class MailTemplateEntity extends WebutilsEntity
 	 * Customization object that can be use by application to set customization
 	 * parameters that will be used for template processing.
 	 */
-	@DataTypeMapping(type = DataType.CLOB, converterType = JsonConverter.class)
+	@DataTypeMapping(type = DataType.CLOB, converterType = JsonWithTypeConverter.class)
 	private Object customization;
 
 	/**

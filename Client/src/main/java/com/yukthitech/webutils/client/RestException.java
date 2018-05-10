@@ -26,7 +26,7 @@ package com.yukthitech.webutils.client;
 import com.yukthitech.webutils.common.models.BaseResponse;
 
 /**
- * Exception to be thrown when an error occurs while invoking apis
+ * Exception to be thrown when an error occurs while invoking apis.
  * @author akiran
  */
 public class RestException extends RuntimeException

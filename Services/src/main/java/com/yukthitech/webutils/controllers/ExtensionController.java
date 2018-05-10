@@ -49,7 +49,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.yukthitech.persistence.annotations.DataType;
-import com.yukthitech.persistence.conversion.impl.JsonConverter;
+import com.yukthitech.persistence.conversion.impl.JsonWithTypeConverter;
 import com.yukthitech.utils.exceptions.InvalidArgumentException;
 import com.yukthitech.utils.exceptions.InvalidStateException;
 import com.yukthitech.webutils.IWebUtilsInternalConstants;
@@ -89,7 +89,7 @@ public class ExtensionController extends BaseController implements IExtensionCon
 	@Autowired
 	private ISecurityService securityService;
 	
-	private JsonConverter jsonConverter = new JsonConverter();
+	private JsonWithTypeConverter jsonConverter = new JsonWithTypeConverter();
 	
 	@Autowired(required = false)
 	private IExtensionContextProvider extensionContextProvider;

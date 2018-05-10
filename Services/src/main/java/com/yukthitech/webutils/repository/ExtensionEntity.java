@@ -31,7 +31,7 @@ import com.yukthitech.persistence.annotations.DataTypeMapping;
 import com.yukthitech.persistence.annotations.NotUpdateable;
 import com.yukthitech.persistence.annotations.UniqueConstraint;
 import com.yukthitech.persistence.annotations.UniqueConstraints;
-import com.yukthitech.persistence.conversion.impl.JsonConverter;
+import com.yukthitech.persistence.conversion.impl.JsonWithTypeConverter;
 
 /**
  * Entity to keep track of the extensions of other entities. 
@@ -76,7 +76,7 @@ public class ExtensionEntity extends WebutilsEntity
 	 */
 	@NotUpdateable
 	@Column(name = "CUSTOM_ATTR", length = 2000)
-	@DataTypeMapping(type = DataType.STRING, converterType = JsonConverter.class)
+	@DataTypeMapping(type = DataType.STRING, converterType = JsonWithTypeConverter.class)
 	private Object attributes;
 
 	/**

@@ -4,22 +4,19 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.yukthitech.webutils.alerts.agent.IAlertingAgent;
 import com.yukthitech.webutils.common.alerts.AlertDetails;
+import com.yukthitech.webutils.common.alerts.AlertingAgentType;
 import com.yukthitech.webutils.services.ServiceMethod;
 import com.yukthitech.webutils.services.SpringUtilsService;
 import com.yukthitech.webutils.services.freemarker.FreeMarkerService;
@@ -28,9 +25,10 @@ import com.yukthitech.webutils.services.freemarker.FreeMarkerService;
  * Abstract class alerting agent which invokes alert processors within the application.
  * @author akiran
  */
-public abstract class AbstractSystemAlertingAgent implements IAlertingAgent
+@Service
+public class SystemAlertingAgent implements IAlertingAgent
 {
-	private static Logger logger = LogManager.getLogger(AbstractSystemAlertingAgent.class);
+	private static Logger logger = LogManager.getLogger(SystemAlertingAgent.class);
 	
 	/**
 	 * Details of alert processor.
@@ -118,44 +116,16 @@ public abstract class AbstractSystemAlertingAgent implements IAlertingAgent
 	private Map<String, List<AlertProcessor>> nameToProcessors;
 	
 	/**
-	 * Indicates type of agent.
-	 */
-	private Set<String> types;
-	
-	/**
 	 * Invocation handler that will be used proxy context objects.
 	 */
 	private ContextInvocationHandler contextInvocationHandler = new ContextInvocationHandler();
 
-	/**
-	 * Instantiates a new abstract mail alerting agent.
-	 */
-	public AbstractSystemAlertingAgent()
+	@Override
+	public AlertingAgentType getType()
 	{
-		this.types = new HashSet<>();
-	}
-	
-	/**
-	 * Instantiates a new abstract mail alerting agent.
-	 *
-	 * @param types types of agent
-	 */
-	public AbstractSystemAlertingAgent(Object... types)
-	{
-		List<String> typesAsStr = Arrays.asList(types)
-				.stream()
-				.map(type -> type.toString())
-				.collect(Collectors.toList());
-		
-		this.types = new HashSet<>(typesAsStr);
+		return AlertingAgentType.SYSTEM_ALERT;
 	}
 
-	@Override
-	public boolean isCompatible(Set<String> targetTypes)
-	{
-		return CollectionUtils.containsAny(types, targetTypes);
-	}
-	
 	/**
 	 * Fetches application alert processors from spring context.
 	 */
@@ -204,8 +174,6 @@ public abstract class AbstractSystemAlertingAgent implements IAlertingAgent
 			fetchAlertProcessors();
 		}
 		
-		customize(alertDetails);
-		
 		List<AlertProcessor> alertProcessors = nameToProcessors.get(alertDetails.getName());
 		
 		if(alertProcessors == null || alertProcessors.isEmpty())
@@ -215,7 +183,7 @@ public abstract class AbstractSystemAlertingAgent implements IAlertingAgent
 		}
 		
 		ISystemAlertProcessorContext context = (ISystemAlertProcessorContext) Proxy.newProxyInstance(
-				AbstractSystemAlertingAgent.class.getClassLoader(), 
+				SystemAlertingAgent.class.getClassLoader(), 
 				new Class[] {ISystemAlertProcessorContext.class}, 
 				contextInvocationHandler);
 		
@@ -248,11 +216,4 @@ public abstract class AbstractSystemAlertingAgent implements IAlertingAgent
 		
 		return true;
 	}
-	
-	/**
-	 * Can be overridden by child classes to customize alert details before sending.
-	 * @param alertDetails details to be sent
-	 */
-	protected void customize(AlertDetails alertDetails)
-	{}
 }

@@ -127,11 +127,11 @@ class ControllerProxy implements InvocationHandler
 					typeParams[i] = toRawType(varToType, genericTypeParams[i]);
 				}
 				
-				returnType = TypeFactory.defaultInstance().constructParametrizedType(rawReturnType, rawReturnType, typeParams);
+				returnType = TypeFactory.defaultInstance().constructParametricType(rawReturnType, typeParams);
 			}
 			else
 			{
-				returnType = TypeFactory.defaultInstance().uncheckedSimpleType( toRawType(varToType, genericReturnType) );
+				returnType = TypeFactory.defaultInstance().constructType( toRawType(varToType, genericReturnType) );
 			}
 
 			return returnType;

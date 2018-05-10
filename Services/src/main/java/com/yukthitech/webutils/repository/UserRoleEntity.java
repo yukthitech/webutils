@@ -31,7 +31,7 @@ import com.yukthitech.persistence.annotations.DataType;
 import com.yukthitech.persistence.annotations.DataTypeMapping;
 import com.yukthitech.persistence.annotations.UniqueConstraint;
 import com.yukthitech.persistence.annotations.UniqueConstraints;
-import com.yukthitech.persistence.conversion.impl.JsonConverter;
+import com.yukthitech.persistence.conversion.impl.JsonWithTypeConverter;
 
 /**
  * Represents roles assigned to an user.
@@ -54,7 +54,7 @@ public class UserRoleEntity extends WebutilsEntity
 	/**
 	 * Role being assigned.
 	 */
-	@DataTypeMapping(type = DataType.STRING, converterType = JsonConverter.class)
+	@DataTypeMapping(type = DataType.STRING, converterType = JsonWithTypeConverter.class)
 	@Column(name = "ROLE", nullable = false, length = 200)
 	private Object role;
 	

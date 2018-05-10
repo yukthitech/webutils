@@ -5,6 +5,8 @@ import java.util.Date;
 
 import org.apache.commons.lang3.time.DateUtils;
 
+import com.yukthitech.webutils.common.IWebUtilsCommonConstants;
+
 /**
  * Default functions for free marker templates.
  * @author akiran
@@ -21,6 +23,16 @@ public class DefaultFunctions
 	{
 		SimpleDateFormat dataFormat = new SimpleDateFormat(format);
 		return dataFormat.format(new Date());
+	}
+	
+	/**
+	 * Fetches current date as string.
+	 * @return current date as string.
+	 */
+	@FreemarkerMethod
+	public static String today()
+	{
+		return IWebUtilsCommonConstants.DEFAULT_DATE_FORMAT.format(new Date());
 	}
 	
 	/**

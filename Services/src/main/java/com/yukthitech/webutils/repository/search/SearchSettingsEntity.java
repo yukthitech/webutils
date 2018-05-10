@@ -11,7 +11,7 @@ import com.yukthitech.persistence.annotations.DataTypeMapping;
 import com.yukthitech.persistence.annotations.NotUpdateable;
 import com.yukthitech.persistence.annotations.UniqueConstraint;
 import com.yukthitech.persistence.annotations.UniqueConstraints;
-import com.yukthitech.persistence.conversion.impl.JsonConverter;
+import com.yukthitech.persistence.conversion.impl.JsonWithTypeConverter;
 import com.yukthitech.webutils.common.search.SearchSettingsColumn;
 import com.yukthitech.webutils.repository.UserEntity;
 import com.yukthitech.webutils.repository.WebutilsEntity;
@@ -44,7 +44,7 @@ public class SearchSettingsEntity extends WebutilsEntity
 	 * Search column order with display flags.
 	 */
 	@Column(name = "SEARCH_COLUMNS", nullable = false, length = 4000)
-	@DataTypeMapping(type = DataType.STRING, converterType = JsonConverter.class)
+	@DataTypeMapping(type = DataType.STRING, converterType = JsonWithTypeConverter.class)
 	private List<SearchSettingsColumn> searchColumns;
 	
 	/**

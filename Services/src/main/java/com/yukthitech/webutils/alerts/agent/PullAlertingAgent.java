@@ -1,76 +1,50 @@
 package com.yukthitech.webutils.alerts.agent;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.yukthitech.utils.exceptions.InvalidStateException;
 import com.yukthitech.webutils.alerts.PullAlertService;
 import com.yukthitech.webutils.common.alerts.AlertDetails;
+import com.yukthitech.webutils.common.alerts.AlertingAgentType;
 import com.yukthitech.webutils.common.alerts.PullAlertStatus;
 
 /**
  * Abstract class for all pull based alerting agents.
  * @author akiran
  */
-public abstract class AbstractPullAlertingAgent implements IAlertingAgent
+@Service
+public class PullAlertingAgent implements IAlertingAgent
 {
-	private static Logger logger = LogManager.getLogger(AbstractPullAlertingAgent.class);
+	private static Logger logger = LogManager.getLogger(PullAlertingAgent.class);
 	
 	/**
 	 * Service to save alerts.
 	 */
 	@Autowired
 	private PullAlertService pullAlertService;
-
-	/**
-	 * Indicates type of agent.
-	 */
-	private Set<String> types;
 	
 	/**
-	 * Instantiates a new abstract mail alerting agent.
+	 * Alert support provided by applications.
 	 */
-	public AbstractPullAlertingAgent()
-	{
-		this.types = new HashSet<>();
-	}
+	@Autowired
+	private IAlertSupport alertSupport;
 	
-	/**
-	 * Instantiates a new abstract mail alerting agent.
-	 *
-	 * @param types types of agent
-	 */
-	public AbstractPullAlertingAgent(Object... types)
-	{
-		List<String> typesAsStr = Arrays.asList(types)
-				.stream()
-				.map(type -> type.toString())
-				.collect(Collectors.toList());
-		
-		this.types = new HashSet<>(typesAsStr);
-	}
-
 	@Override
-	public boolean isCompatible(Set<String> targetTypes)
+	public AlertingAgentType getType()
 	{
-		return CollectionUtils.containsAny(types, targetTypes);
+		return AlertingAgentType.PULL_ALERTING_AGENT;
 	}
 
 	@Override
 	public boolean sendAlert(AlertDetails alertDetails)
 	{
-		customize(alertDetails);
-		
-		Set<String> recipients = fetchRecipients(alertDetails);
+		Set<String> recipients = alertSupport.fetchPullRecipients(alertDetails);
 		
 		if(recipients == null || recipients.isEmpty())
 		{
@@ -100,18 +74,4 @@ public abstract class AbstractPullAlertingAgent implements IAlertingAgent
 				
 		return true;
 	}
-	
-	/**
-	 * Can be overridden by child classes to customize alert details before sending.
-	 * @param alertDetails details to be sent
-	 */
-	protected void customize(AlertDetails alertDetails)
-	{}
-
-	/**
-	 * Child classes needs to fetch recipients based on alert being processed.
-	 * @param alertDetails alert being sent
-	 * @return recipients to which notification will be sent.
-	 */
-	protected abstract Set<String> fetchRecipients(AlertDetails alertDetails);
 }
