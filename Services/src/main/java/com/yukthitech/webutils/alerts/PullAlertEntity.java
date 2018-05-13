@@ -87,7 +87,7 @@ public class PullAlertEntity extends WebutilsEntity
 	 * Alert processing details provided by client agent.
 	 */
 	@Column(name = "PROCESS_DETAILS", length = 1000)
-	@DataTypeMapping(converterType = JsonConverter.class, type = DataType.STRING)
+	@DataTypeMapping(converterType = JsonConverter.class, type = DataType.CLOB)
 	private AlertProcessedDetails alertProcessedDetails;
 
 	/**

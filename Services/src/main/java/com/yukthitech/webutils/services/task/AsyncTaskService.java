@@ -205,23 +205,32 @@ public class AsyncTaskService
 	}
 
 	/**
-	 * Wrapps runnable object so that on exception it is printed in log.
+	 * Wraps runnable object so that on exception it is printed in log.
+	 * @param name Name of the execution
 	 * @param runnable runnable to execute
 	 * @return wrapped runnable
 	 */
-	private Runnable wrap(Runnable runnable)
+	private Runnable wrap(String name, Runnable runnable)
 	{
 		Runnable wrapper = new Runnable()
 		{
 			@Override
 			public void run()
 			{
+				Thread thread = Thread.currentThread();
+				String currentName = thread.getName();
+				
+				thread.setName(name);
+				
 				try
 				{
 					runnable.run();
 				}catch(Exception ex)
 				{
 					logger.error("An error occurred while executing task in background.", ex);
+				}finally
+				{
+					thread.setName(currentName);
 				}
 			}
 		};
@@ -231,34 +240,37 @@ public class AsyncTaskService
 	
 	/**
 	 * Executes specified runnable object in background.
+	 * @param name Name of the execution
 	 * @param runnable runnable to execute
 	 * @param delay time in millis after which task should be executed.
 	 * @param timeUnit Time unit in which delay is specified.
 	 * @return future object to track the execution.
 	 */
-	public Future<?> executeTask(Runnable runnable, long delay, TimeUnit timeUnit)
+	public Future<?> executeTask(String name, Runnable runnable, long delay, TimeUnit timeUnit)
 	{
-		return threadPool.schedule( wrap(runnable), delay, timeUnit );
+		return threadPool.schedule( wrap(name, runnable), delay, timeUnit );
 	}
 
 	/**
 	 * Executes specified runnable object in background.
+	 * @param name Name of the execution
 	 * @param runnable runnable to execute
 	 * @param delay time in millis after which task should be executed.
 	 * @return future object to track the execution.
 	 */
-	public Future<?> executeTask(Runnable runnable, long delay)
+	public Future<?> executeTask(String name, Runnable runnable, long delay)
 	{
-		return threadPool.schedule( wrap(runnable), delay, TimeUnit.MILLISECONDS );
+		return threadPool.schedule( wrap(name, runnable), delay, TimeUnit.MILLISECONDS );
 	}
 
 	/**
 	 * Executes specified runnable object in background.
+	 * @param name Name of the execution
 	 * @param runnable runnable to execute
 	 * @return future object to track the execution.
 	 */
-	public Future<?> executeTask(Runnable runnable)
+	public Future<?> executeTask(String name, Runnable runnable)
 	{
-		return threadPool.submit( wrap(runnable) );
+		return threadPool.submit( wrap(name, runnable) );
 	}
 }

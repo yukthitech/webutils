@@ -21,7 +21,9 @@
 	<aop:aspectj-autoproxy proxy-target-class="true"/>
 	<aop:config proxy-target-class="true"/>
 
+	<!--  
 	<cache:annotation-driven />
+	-->
 	
 	<mvc:annotation-driven>
 		<mvc:message-converters register-defaults="true">

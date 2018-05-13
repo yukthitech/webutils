@@ -98,6 +98,41 @@ public class AlertDetails
 	 */
 	@IgnoreField
 	private AlertProcessedDetails alertProcessedDetails;
+
+	/**
+	 * Factory method to created silent alert with specified details.
+	 * @param source source of alert
+	 * @param alertType type of alert
+	 * @param title title to use
+	 * @param message message to display
+	 * @return new alert details
+	 */
+	public static AlertDetails newAlert(String source, IAlertType alertType, String title, String message)
+	{
+		AlertDetails alertDetails = new AlertDetails();
+		alertDetails.setSource(source);
+		alertDetails.setTitle(title);
+		alertDetails.setMessage(message);
+		alertDetails.setAlertType(alertType);
+		
+		return alertDetails;
+	}
+
+	/**
+	 * Factory method to created silent alert with specified details.
+	 * @param source source of alert
+	 * @param alertType type of alert
+	 * @param title title to use
+	 * @param message message to display
+	 * @return new alert details
+	 */
+	public static AlertDetails newSilentAlert(String source, IAlertType alertType, String title, String message)
+	{
+		AlertDetails alertDetails = newAlert(source, alertType, title, message);
+		alertDetails.setSilentAlert(true);
+		
+		return alertDetails;
+	}
 	
 	/**
 	 * Gets the id of the alert.
@@ -559,6 +594,29 @@ public class AlertDetails
 		}
 		
 		return confirmation.getAlertProcessedDetails().getAction();
+	}
+	
+	/**
+	 * In case if this is confirmation alert and action taken is available, the confirmation
+	 * action's sub-action will be returned. Otherwise null will be returned.
+	 * @return confirmation action
+	 */
+	@JsonIgnore
+	public String getConfirmationSubaction()
+	{
+		if(!(data instanceof AlertConfirmationInfo))
+		{
+			return null;
+		}
+		
+		AlertConfirmationInfo confirmation = (AlertConfirmationInfo) data;
+		
+		if(confirmation.getAlertProcessedDetails() == null)
+		{
+			return null;
+		}
+		
+		return confirmation.getAlertProcessedDetails().getSubaction();
 	}
 
 	/* (non-Javadoc)

@@ -138,32 +138,80 @@ public class SystemAlertingAgent implements IAlertingAgent
 		
 		nameToProcessors = new HashMap<>();
 		
+		List<ServiceMethod> fullServiceMethods = new ArrayList<>();
+		
+		//fetch service method with direct SystemAlertProcessor annotations
 		List<ServiceMethod> serviceMethods = springUtilsService.fetchServiceMethods("App-alert-processor", 
 				SystemAlertProcessor.class, //expected annotation 
 				ISystemAlertProcessorContext.class, AlertDetails.class //expected arguments
 				);
 		
-		if(serviceMethods == null || serviceMethods.isEmpty())
+		if(serviceMethods != null)
+		{
+			fullServiceMethods.addAll(serviceMethods);
+		}
+		
+		//fetch service method with direct SystemAlertProcessor annotations
+		serviceMethods = springUtilsService.fetchServiceMethods("App-alert-processor", 
+				SystemAlertProcessors.class, //expected annotation 
+				ISystemAlertProcessorContext.class, AlertDetails.class //expected arguments
+				);
+		
+		if(serviceMethods != null)
+		{
+			fullServiceMethods.addAll(serviceMethods);
+		}
+		
+		if(fullServiceMethods.isEmpty())
+		{
+			return;
+		}
+
+		SystemAlertProcessor sysAlertProcessor = null;
+		SystemAlertProcessors systemAlertProcessors = null;
+		
+		for(ServiceMethod serviceMethod : fullServiceMethods)
+		{
+			sysAlertProcessor = serviceMethod.getMethod().getAnnotation(SystemAlertProcessor.class);
+			addSystemAlertProcssor(serviceMethod, sysAlertProcessor);
+			
+			systemAlertProcessors = serviceMethod.getMethod().getAnnotation(SystemAlertProcessors.class);
+			
+			if(systemAlertProcessors == null)
+			{
+				continue;
+			}
+			
+			for(SystemAlertProcessor processor : systemAlertProcessors.value())
+			{
+				addSystemAlertProcssor(serviceMethod, processor);
+			}
+		}
+	}
+	
+	/**
+	 * Adds the specified service method to processors list.
+	 * @param serviceMethod method to add
+	 * @param sysAlertProcessor processor on method for meta data
+	 */
+	private void addSystemAlertProcssor(ServiceMethod serviceMethod, SystemAlertProcessor sysAlertProcessor)
+	{
+		if(sysAlertProcessor == null)
 		{
 			return;
 		}
 		
-		SystemAlertProcessor sysAlertProcessor = null;
 		List<AlertProcessor> serviceMethodLst = null;
 		
-		for(ServiceMethod serviceMethod : serviceMethods)
+		serviceMethodLst = nameToProcessors.get(sysAlertProcessor.name());
+		
+		if(serviceMethodLst == null)
 		{
-			sysAlertProcessor = serviceMethod.getMethod().getAnnotation(SystemAlertProcessor.class);
-			serviceMethodLst = nameToProcessors.get(sysAlertProcessor.name());
-			
-			if(serviceMethodLst == null)
-			{
-				serviceMethodLst = new ArrayList<>();
-				nameToProcessors.put(sysAlertProcessor.name(), serviceMethodLst);
-			}
-			
-			serviceMethodLst.add(new AlertProcessor(serviceMethod, sysAlertProcessor.confirmation(), sysAlertProcessor.condition()));
+			serviceMethodLst = new ArrayList<>();
+			nameToProcessors.put(sysAlertProcessor.name(), serviceMethodLst);
 		}
+		
+		serviceMethodLst.add(new AlertProcessor(serviceMethod, sysAlertProcessor.confirmation(), sysAlertProcessor.condition()));
 	}
 
 	@Override

@@ -55,6 +55,11 @@ public class AlertEngine
 	 */
 	private static final int MAX_ACTION_LENGTH = 10;
 	
+	/**
+	 * Name of the component.
+	 */
+	private static final String COMP_NAME = "AlertEngine";
+	
 	private static Logger logger = LogManager.getLogger(AlertEngine.class);
 	
 	/**
@@ -149,6 +154,8 @@ public class AlertEngine
 	 */
 	public void sendAlert(AlertDetails alertDetails)
 	{
+		logger.debug("Sending alert: {}", alertDetails);
+
 		if(alertingAgents == null || alertingAgents.isEmpty())
 		{
 			logger.warn("No alerting agent is configured to send alerts. Hence ignoring send alert request.");
@@ -178,7 +185,7 @@ public class AlertEngine
 			logger.warn("As not target-agent-type is specified ignoring sending alert: {}", alertDetails);
 		}
 		
-		asyncTaskService.executeTask(new Runnable()   
+		asyncTaskService.executeTask(COMP_NAME, new Runnable()   
 		{
 			public void run()
 			{
@@ -200,6 +207,7 @@ public class AlertEngine
 	 */
 	public void alertSystemError(String title, String message, Throwable th)
 	{
+		logger.debug("Sending system error [Title: {}, Message: {}, Error: {]]", title, message, "" + th);
 		AlertDetails alertDetails = new AlertDetails();
 		alertDetails.setAlertType(alertSupport.getErrorAlertType());
 		alertDetails.setTitle(title);
@@ -268,6 +276,11 @@ public class AlertEngine
 		AlertDetails alertDetails = new AlertDetails();
 		XMLBeanParser.parse(new ByteArrayInputStream(xml.getBytes()), alertDetails);
 		
+		if(alertDetails.getData() == null)
+		{
+			alertDetails.setData(eventObject);
+		}
+		
 		return alertDetails;
 	}
 	
@@ -279,6 +292,8 @@ public class AlertEngine
 	 */
 	public void sendSystemEventAlert(Object eventObject, String alertName)
 	{
+		logger.debug("Sending system alert with name: {}", alertName);
+		
 		AlertDetails alertDetails = new AlertDetails();
 		alertDetails.setData(eventObject);
 		alertDetails.setAlertType(alertSupport.getSystemAlertType());
@@ -305,7 +320,9 @@ public class AlertEngine
 	 */
 	public void sendEventAlerts(Object eventObject, String eventType)
 	{
-		asyncTaskService.executeTask(new Runnable()
+		logger.debug("Sending event alert for event: {}", eventType);
+		
+		asyncTaskService.executeTask(COMP_NAME, new Runnable()
 		{
 			public void run()
 			{

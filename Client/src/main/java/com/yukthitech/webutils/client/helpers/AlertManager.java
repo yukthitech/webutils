@@ -6,9 +6,11 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.yukthitech.utils.ObjectWrapper;
 import com.yukthitech.utils.event.EventListenerManager;
 import com.yukthitech.webutils.client.ClientControllerFactory;
 import com.yukthitech.webutils.common.alerts.AlertDetails;
+import com.yukthitech.webutils.common.alerts.AlertProcessedDetails;
 import com.yukthitech.webutils.common.alerts.IAlertController;
 import com.yukthitech.webutils.common.models.BasicReadListResponse;
 
@@ -28,12 +30,12 @@ public class AlertManager
 	/**
 	 * Event listener manager for managing listeners.
 	 */
-	private EventListenerManager<IAlertListener> alertEventListenerManager = EventListenerManager.newEventListenerManager(IAlertListener.class, true);
+	private EventListenerManager<IAlertListener> alertEventListenerManager;
 	
 	/**
 	 * Proxy from listener manager which internally invokes listeners.
 	 */
-	private IAlertListener proxy = alertEventListenerManager.get();
+	private IAlertListener proxy;
 	
 	/**
 	 * Controller used to check for alerts.
@@ -58,14 +60,18 @@ public class AlertManager
 	/**
 	 * Instantiates a new alert manager.
 	 *
-	 * @param agentName Name of agent
+	 * @param agentName the agent name
 	 * @param clientControllerFactory the client controller factory
+	 * @param enableParallelExecution the enable parallel execution
 	 */
 	@SuppressWarnings("unchecked")
-	public AlertManager(String agentName, ClientControllerFactory clientControllerFactory)
+	public AlertManager(String agentName, ClientControllerFactory clientControllerFactory, boolean enableParallelExecution)
 	{
 		this.agentName = agentName;
 		this.alertController = clientControllerFactory.getController(IAlertController.class);
+		
+		alertEventListenerManager = EventListenerManager.newEventListenerManager(IAlertListener.class, enableParallelExecution);
+		proxy = alertEventListenerManager.get();
 		
 		alertCheckThread = new Thread("Alert Checker")
 		{
@@ -97,11 +103,13 @@ public class AlertManager
 			public void processResult(Object result, IAlertListener listener, Object data, Method listenerMethod, Object... params)
 			{
 				AlertDetails alertDetails = (AlertDetails) params[0];
+				ObjectWrapper<AlertProcessedDetails> confirmationData = (ObjectWrapper<AlertProcessedDetails>) params[1];
+				
 				Boolean resFlag = (Boolean) result;
 				
 				if(resFlag != null && resFlag)
 				{
-					markAsProcessed(alertDetails);
+					markAsProcessed(alertDetails, confirmationData.getValue());
 				}
 			}
 		};
@@ -145,7 +153,16 @@ public class AlertManager
 	 */
 	private void fetchAlerts()
 	{
-		BasicReadListResponse<AlertDetails> res = alertController.fetchAlerts(agentName);
+		BasicReadListResponse<AlertDetails> res = null;
+		
+		try
+		{
+			res = alertController.fetchAlerts(agentName);
+		}catch(Exception ex)
+		{
+			logger.error("An error occurred while fetching alerts for agent '{}'. Ignoring the alert for now.", ex);
+			return;
+		}
 		
 		if(CollectionUtils.isEmpty(res.getValues()))
 		{
@@ -156,17 +173,18 @@ public class AlertManager
 		
 		for(AlertDetails alertDetails : res.getValues())
 		{
-			proxy.onAlert(alertDetails);
+			proxy.onAlert(alertDetails, new ObjectWrapper<AlertProcessedDetails>());
 		}
 	}
 	
 	/**
 	 * Marks specified alert details as processed.
 	 * @param alertDetails alert to be marked.
+	 * @param confirmationData confirmation data to be sent to server back
 	 */
-	private void markAsProcessed(AlertDetails alertDetails)
+	private void markAsProcessed(AlertDetails alertDetails, AlertProcessedDetails confirmationData)
 	{
-		alertController.markProcessed(alertDetails.getId(), null);
+		alertController.markProcessed(alertDetails.getId(), confirmationData);
 	}
 	
 	/**

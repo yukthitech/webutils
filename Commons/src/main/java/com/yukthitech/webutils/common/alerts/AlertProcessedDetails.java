@@ -1,7 +1,5 @@
 package com.yukthitech.webutils.common.alerts;
 
-import com.yukthitech.validation.annotations.NotEmpty;
-import com.yukthitech.validation.annotations.Required;
 import com.yukthitech.webutils.common.annotations.IgnoreField;
 import com.yukthitech.webutils.common.annotations.Model;
 import com.yukthitech.webutils.common.annotations.json.DataWithDynamicTypes;
@@ -16,8 +14,6 @@ public class AlertProcessedDetails
 	/**
 	 * Action used to process alert.
 	 */
-	@Required
-	@NotEmpty
 	private String action;
 	
 	/**
@@ -32,6 +28,24 @@ public class AlertProcessedDetails
 	@IgnoreField
 	@DataWithDynamicTypes
 	private Object data;
+	
+	/**
+	 * Instantiates a new alert processed details.
+	 */
+	public AlertProcessedDetails()
+	{}
+	
+	/**
+	 * Instantiates a new alert processed details.
+	 *
+	 * @param action the action
+	 * @param data the data
+	 */
+	public AlertProcessedDetails(String action, Object data)
+	{
+		this.action = action;
+		this.data = data;
+	}
 
 	/**
 	 * Gets the action used to process alert.

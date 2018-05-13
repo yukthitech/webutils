@@ -1,7 +1,9 @@
 package com.yukthitech.webutils.common.action;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Action which displays the specified form, which user can fill. And after submission of 
@@ -39,6 +41,11 @@ public class FillFormAction implements IAgentAction
 	 * List of action buttons which user can click once form is filled.
 	 */
 	private List<String> actionItems;
+	
+	/**
+	 * Default values to be populated on the form.
+	 */
+	private Map<String, String> defaultValues = new HashMap<String, String>();
 	
 	/* (non-Javadoc)
 	 * @see com.yukthitech.webutils.common.action.IAgentAction#getName()
@@ -171,5 +178,41 @@ public class FillFormAction implements IAgentAction
 	public void setTitle(String title)
 	{
 		this.title = title;
+	}
+
+	/**
+	 * Gets the default values to be populated on the form.
+	 *
+	 * @return the default values to be populated on the form
+	 */
+	public Map<String, String> getDefaultValues()
+	{
+		return defaultValues;
+	}
+
+	/**
+	 * Sets the default values to be populated on the form.
+	 *
+	 * @param defaultValues the new default values to be populated on the form
+	 */
+	public void setDefaultValues(Map<String, String> defaultValues)
+	{
+		this.defaultValues = defaultValues;
+	}
+
+	/**
+	 * Adds the default value.
+	 *
+	 * @param name the name
+	 * @param value the value
+	 */
+	public void addDefaultValue(String name, String value)
+	{
+		if(this.defaultValues == null)
+		{
+			this.defaultValues = new HashMap<>();
+		}
+		
+		this.defaultValues.put(name, value);
 	}
 }
