@@ -1,4 +1,4 @@
-package com.yukthitech.webutils.alerts.message;
+package com.yukthitech.webutils.parserules.message;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -22,13 +22,14 @@ import com.yukthitech.utils.exceptions.InvalidStateException;
 import com.yukthitech.webutils.InvalidRequestParameterException;
 import com.yukthitech.webutils.alerts.AlertEngine;
 import com.yukthitech.webutils.annotations.ActionName;
-import com.yukthitech.webutils.common.alerts.BasicMessageParsingRuleModel;
-import com.yukthitech.webutils.common.alerts.IMessageParsingRuleController;
-import com.yukthitech.webutils.common.alerts.MessageParsingRuleModel;
-import com.yukthitech.webutils.common.alerts.ParsedMessage;
 import com.yukthitech.webutils.common.client.IRequestCustomizer;
 import com.yukthitech.webutils.common.models.BaseResponse;
 import com.yukthitech.webutils.common.models.BasicReadListResponse;
+import com.yukthitech.webutils.common.parserules.MessageParser;
+import com.yukthitech.webutils.common.parserules.mssg.BasicMessageParseRuleModel;
+import com.yukthitech.webutils.common.parserules.mssg.IMessageParseRuleController;
+import com.yukthitech.webutils.common.parserules.mssg.MessageParseRuleModel;
+import com.yukthitech.webutils.common.parserules.mssg.ParsedMessage;
 import com.yukthitech.webutils.controllers.BaseCrudController;
 import com.yukthitech.webutils.security.ISecurityService;
 import com.yukthitech.webutils.services.CurrentUserService;
@@ -38,9 +39,9 @@ import com.yukthitech.webutils.services.CurrentUserService;
  * @author akiran
  */
 @RestController
-@RequestMapping("/alerts/parsingRules")
-@ActionName("alertParsingRules")
-public class MessageParsingRuleController extends BaseCrudController<MessageParsingRuleModel, MessageParsingRuleService, IMessageParsingRuleController> implements IMessageParsingRuleController
+@RequestMapping("/parseRules/mssg")
+@ActionName("mssgParseRules")
+public class MessageParseRuleController extends BaseCrudController<MessageParseRuleModel, MessageParseRuleService, IMessageParseRuleController> implements IMessageParseRuleController
 {
 	/**
 	 * Used to access current user roles.
@@ -51,8 +52,7 @@ public class MessageParsingRuleController extends BaseCrudController<MessagePars
 	/**
 	 * Used to parse incoming messages.
 	 */
-	@Autowired
-	private MessageParser messageParser;
+	private MessageParser messageParser = new MessageParser();
 	
 	/**
 	 * Used to fetch target user contact details.
@@ -71,18 +71,18 @@ public class MessageParsingRuleController extends BaseCrudController<MessagePars
 	@RequestMapping(value = "/fetchParsingRules", method = RequestMethod.GET)
 	@ResponseBody
 	@Override
-	public BasicReadListResponse<BasicMessageParsingRuleModel> fetchParsingRules()
+	public BasicReadListResponse<BasicMessageParseRuleModel> fetchParsingRules()
 	{
 		Set<Object> roles = (Set) currentUserService.getCurrentUserDetails().getRoles();
 		
-		List<BasicMessageParsingRuleModel> rules = super.getService().fetchParsingRules(roles);
+		List<BasicMessageParseRuleModel> rules = super.getService().fetchParsingRules(roles);
 		
 		if(rules == null)
 		{
 			rules = Collections.emptyList();
 		}
 		
-		for(BasicMessageParsingRuleModel rule : rules)
+		for(BasicMessageParseRuleModel rule : rules)
 		{
 			if(rule.getTargetUserRole() == null)
 			{
@@ -102,14 +102,14 @@ public class MessageParsingRuleController extends BaseCrudController<MessagePars
 	@Override
 	public BaseResponse matchFound(@PathVariable("parsingRuleId") long parsingRuleId, @RequestBody @Valid ParsedMessage parsedMessage)
 	{
-		MessageParsingRuleEntity parsingRuleEntity = super.getService().fetch(parsingRuleId);
+		MessageParseRuleEntity parsingRuleEntity = super.getService().fetch(parsingRuleId);
 		
 		if(parsingRuleEntity == null)
 		{
 			throw new InvalidRequestParameterException("No parsing rule found with id: " + parsingRuleId);
 		}
 		
-		BasicMessageParsingRuleModel basicRule = new BasicMessageParsingRuleModel();
+		BasicMessageParseRuleModel basicRule = new BasicMessageParseRuleModel();
 		
 		try
 		{
@@ -152,7 +152,7 @@ public class MessageParsingRuleController extends BaseCrudController<MessagePars
 	}
 	
 	@Override
-	public IMessageParsingRuleController setRequestCustomizer(IRequestCustomizer customizer)
+	public IMessageParseRuleController setRequestCustomizer(IRequestCustomizer customizer)
 	{
 		return null;
 	}

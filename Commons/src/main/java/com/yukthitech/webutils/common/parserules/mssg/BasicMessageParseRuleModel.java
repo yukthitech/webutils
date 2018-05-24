@@ -1,6 +1,7 @@
-package com.yukthitech.webutils.common.alerts;
+package com.yukthitech.webutils.common.parserules.mssg;
 
 import java.util.List;
+import java.util.Set;
 
 import com.yukthitech.persistence.repository.annotations.Field;
 import com.yukthitech.webutils.common.BaseModel;
@@ -13,7 +14,7 @@ import com.yukthitech.webutils.common.annotations.Model;
  * @author akiran
  */
 @Model
-public class BasicMessageParsingRuleModel extends BaseModel
+public class BasicMessageParseRuleModel extends BaseModel
 {
 	/**
 	 * If specified, when sending this rule to agent, employee contact details with
@@ -46,8 +47,8 @@ public class BasicMessageParsingRuleModel extends BaseModel
 	/**
 	 * Filter pattern only when matched, the target message will be processed to alert.
 	 */
-	@Field("messageFilterPattern")
-	private String messageFilterPattern;
+	@Field("messageFilterPatterns")
+	private Set<String> messageFilterPatterns;
 	
 	/**
 	 * Target users for this rule, which can be used by client agent directly.
@@ -80,19 +81,19 @@ public class BasicMessageParsingRuleModel extends BaseModel
 	 *
 	 * @return the filter pattern only when matched, the target message will be processed to alert
 	 */
-	public String getMessageFilterPattern()
+	public Set<String> getMessageFilterPatterns()
 	{
-		return messageFilterPattern;
+		return messageFilterPatterns;
 	}
 
 	/**
 	 * Sets the filter pattern only when matched, the target message will be processed to alert.
 	 *
-	 * @param messageFilterPattern the new filter pattern only when matched, the target message will be processed to alert
+	 * @param messageFilterPatterns the new filter pattern only when matched, the target message will be processed to alert
 	 */
-	public void setMessageFilterPattern(String messageFilterPattern)
+	public void setMessageFilterPatterns(Set<String> messageFilterPatterns)
 	{
-		this.messageFilterPattern = messageFilterPattern;
+		this.messageFilterPatterns = messageFilterPatterns;
 	}
 
 	/**

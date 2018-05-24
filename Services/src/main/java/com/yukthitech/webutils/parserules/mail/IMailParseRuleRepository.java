@@ -1,4 +1,4 @@
-package com.yukthitech.webutils.alerts.message;
+package com.yukthitech.webutils.parserules.mail;
 
 import java.util.List;
 import java.util.Set;
@@ -9,14 +9,14 @@ import com.yukthitech.persistence.repository.annotations.MethodConditions;
 import com.yukthitech.persistence.repository.annotations.NullCheck;
 import com.yukthitech.persistence.repository.annotations.Operator;
 import com.yukthitech.persistence.repository.annotations.SearchResult;
-import com.yukthitech.webutils.common.alerts.BasicMessageParsingRuleModel;
+import com.yukthitech.webutils.common.parserules.mail.MailParseRuleModel;
 import com.yukthitech.webutils.repository.IWebutilsRepository;
 
 /**
- * Repository for message parsing rules.
+ * Repository for mail parsing rules.
  * @author akiran
  */
-public interface IMessageParsingRuleRepository extends IWebutilsRepository<MessageParsingRuleEntity>
+public interface IMailParseRuleRepository extends IWebutilsRepository<MailParseRuleEntity>
 {
 	/**
 	 * Fetch parsing rules applicable for specified roles.
@@ -28,5 +28,5 @@ public interface IMessageParsingRuleRepository extends IWebutilsRepository<Messa
 		@NullCheck(field = "userRole", joinOperator = JoinOperator.OR)
 		})
 	@SearchResult
-	public List<BasicMessageParsingRuleModel> fetchParsingRules(@Condition(value = "userRoleString", op = Operator.IN) Set<String> roles);
+	public List<MailParseRuleModel> fetchParsingRules(@Condition(value = "userRoleString", op = Operator.IN) Set<String> roles);
 }

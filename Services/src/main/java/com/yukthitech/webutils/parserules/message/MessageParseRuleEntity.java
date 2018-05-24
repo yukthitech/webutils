@@ -1,4 +1,4 @@
-package com.yukthitech.webutils.alerts.message;
+package com.yukthitech.webutils.parserules.message;
 
 import java.util.Map;
 import java.util.Set;
@@ -15,8 +15,8 @@ import com.yukthitech.webutils.repository.WebutilsEntity;
  * Indicates rule which is used to convert message (sms or mail) into an alert.
  * @author akiran
  */
-@Table(name = "WEBUTILS_ALERT_MSSG_PARSING_RULE")
-public class MessageParsingRuleEntity extends WebutilsEntity
+@Table(name = "WEBUTILS_MSSG_PARSING_RULE")
+public class MessageParseRuleEntity extends WebutilsEntity
 {
 	/**
 	 * Agent of user with this role only
@@ -56,8 +56,9 @@ public class MessageParsingRuleEntity extends WebutilsEntity
 	/**
 	 * Filter pattern only when matched, the target message will be processed to alert.
 	 */
-	@Column(name = "MSG_FILTER_PTRN", length = 1000)
-	private String messageFilterPattern;
+	@Column(name = "MSG_FILTER_PTRN", length = 2000)
+	@DataTypeMapping(converterType = JsonWithTypeConverter.class, type = DataType.STRING)
+	private Set<String> messageFilterPatterns;
 	
 	/**
 	 * This pattern will be searched with in pattern. And the named groups found in the message
@@ -126,19 +127,19 @@ public class MessageParsingRuleEntity extends WebutilsEntity
 	 *
 	 * @return the filter pattern only when matched, the target message will be processed to alert
 	 */
-	public String getMessageFilterPattern()
+	public Set<String> getMessageFilterPatterns()
 	{
-		return messageFilterPattern;
+		return messageFilterPatterns;
 	}
 
 	/**
 	 * Sets the filter pattern only when matched, the target message will be processed to alert.
 	 *
-	 * @param messageFilterPattern the new filter pattern only when matched, the target message will be processed to alert
+	 * @param messageFilterPatterns the new filter pattern only when matched, the target message will be processed to alert
 	 */
-	public void setMessageFilterPattern(String messageFilterPattern)
+	public void setMessageFilterPatterns(Set<String> messageFilterPatterns)
 	{
-		this.messageFilterPattern = messageFilterPattern;
+		this.messageFilterPatterns = messageFilterPatterns;
 	}
 
 	/**

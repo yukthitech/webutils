@@ -1,4 +1,4 @@
-package com.yukthitech.webutils.alerts.message;
+package com.yukthitech.webutils.parserules.message;
 
 import java.util.List;
 import java.util.Set;
@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import com.yukthitech.webutils.common.alerts.BasicMessageParsingRuleModel;
+import com.yukthitech.webutils.common.parserules.mssg.BasicMessageParseRuleModel;
 import com.yukthitech.webutils.services.BaseCrudService;
 
 /**
@@ -14,7 +14,7 @@ import com.yukthitech.webutils.services.BaseCrudService;
  * @author akiran
  */
 @Service
-public class MessageParsingRuleService extends BaseCrudService<MessageParsingRuleEntity, IMessageParsingRuleRepository>
+public class MessageParseRuleService extends BaseCrudService<MessageParseRuleEntity, IMessageParseRuleRepository>
 {
 	/**
 	 * Fetch parsing rules applicable for specified roles.
@@ -22,7 +22,7 @@ public class MessageParsingRuleService extends BaseCrudService<MessageParsingRul
 	 * @param roles the roles
 	 * @return the list of applicable rules.
 	 */
-	public List<BasicMessageParsingRuleModel> fetchParsingRules(Set<Object> roles)
+	public List<BasicMessageParseRuleModel> fetchParsingRules(Set<Object> roles)
 	{
 		Set<String> roleStrSet = roles.stream()
 				.map(role -> role.toString())

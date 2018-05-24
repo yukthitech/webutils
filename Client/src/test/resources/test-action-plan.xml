@@ -1,0 +1,38 @@
+<action-plan xmlns:ccg="/fw/ccg/XMLBeanParser" xmlns:wrap="/fw/ccg/XMLBeanParser/wrap">
+	<ccg:exprPattern enabled="false"/>
+	
+	<step name="test">
+		
+		<invoke-api name="testAction" action="test.test">
+			<modelJson><![CDATA[
+				{
+					"name": "Kranthi",
+					"age": 28,
+					"password": "PassworD2124",
+					"confirmPassword": "PassworD2124"
+				}
+			]]></modelJson>
+		</invoke-api>
+		
+		<send-alert name="testAlert">
+		
+			<alert name="TestAlert" source="TestAgent">
+				<title>Api invocation was done with msg - ${testAction.message}</title>
+				<message>Api invocation was done with msg - ${testAction.message}</message>
+				<target>test@test.com</target>
+				<alertType ccg:beanExpr="com.test.yukthitech.webutils.models.TestAlertType.TEST_ALERT"/>
+			</alert>
+			
+			<alertDataJson><![CDATA[
+				{
+					"name": "TestAlert",
+					"source": "TestAgent",
+					"title": "",
+					"message": "Api invocation was done with msg - ${testAction.message}",
+					"target" : "test@test.com"
+				}
+			]]></alertDataJson>
+		</send-alert>
+		
+	</step>
+</action-plan>

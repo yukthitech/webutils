@@ -1,4 +1,4 @@
-package com.yukthitech.webutils.alerts.message;
+package com.yukthitech.webutils.common.parserules;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -7,13 +7,10 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.springframework.stereotype.Service;
-
 /**
  * Message parsing for parsing incoming messages based on rules.
  * @author akiran
  */
-@Service
 public class MessageParser
 {
 	/**
@@ -108,7 +105,7 @@ public class MessageParser
 
 		for(String grp : patternWithGroups.groups)
 		{
-			context.put(grp, matcher.group(grp));
+			context.put(grp, matcher.group(grp).trim());
 		}
 		
 		return true;

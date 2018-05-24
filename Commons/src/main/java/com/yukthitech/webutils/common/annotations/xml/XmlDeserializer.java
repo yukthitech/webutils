@@ -1,12 +1,13 @@
-package com.yukthitech.webutils.common.annotations.json;
+package com.yukthitech.webutils.common.annotations.xml;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.yukthitech.webutils.common.IWebUtilsCommonConstants;
+import com.yukthitech.ccg.xml.XMLBeanParser;
 
 /**
  * Used to mark a field to be converted to json-with-type string during deserialization.
@@ -14,14 +15,14 @@ import com.yukthitech.webutils.common.IWebUtilsCommonConstants;
  * 
  * @author akiran
  */
-public class JsonWithTypeDeserializer extends StdDeserializer<Object>
+public class XmlDeserializer extends StdDeserializer<Object>
 {
 	private static final long serialVersionUID = 1L;
 
 	/**
 	 * Instantiates a new json with type deserializer.
 	 */
-	public JsonWithTypeDeserializer()
+	public XmlDeserializer()
 	{
 		super((Class<?>) null);
 	}
@@ -30,6 +31,8 @@ public class JsonWithTypeDeserializer extends StdDeserializer<Object>
 	public Object deserialize(JsonParser parser, DeserializationContext ctxt) throws IOException, JsonProcessingException
 	{
 		String text = parser.getText();
-		return JsonWithTypeSerializer.OBJECT_MAPPER_WITH_TYPE.readValue(text, Object.class);
+		
+		ByteArrayInputStream bis = new ByteArrayInputStream(text.getBytes());
+		return XMLBeanParser.parse(bis);
 	}
 }

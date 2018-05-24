@@ -1,4 +1,4 @@
-package com.yukthitech.webutils.common.alerts;
+package com.yukthitech.webutils.common.parserules.mssg;
 
 import java.util.Map;
 import java.util.Set;
@@ -13,7 +13,7 @@ import com.yukthitech.webutils.common.annotations.Model;
  * @author akiran
  */
 @Model
-public class MessageParsingRuleModel extends BaseModel
+public class MessageParseRuleModel extends BaseModel
 {
 	/**
 	 * Agent of user with this role only
@@ -32,8 +32,8 @@ public class MessageParsingRuleModel extends BaseModel
 	/**
 	 * Filter pattern only when matched, the target message will be processed to alert.
 	 */
-	@Field("messageFilterPattern")
-	private String messageFilterPattern;
+	@Field("messageFilterPatterns")
+	private Set<String> messageFilterPatterns;
 	
 	/**
 	 * This pattern will be searched with in message. And the named groups found in the message
@@ -122,19 +122,19 @@ public class MessageParsingRuleModel extends BaseModel
 	 *
 	 * @return the filter pattern only when matched, the target message will be processed to alert
 	 */
-	public String getMessageFilterPattern()
+	public Set<String> getMessageFilterPattern()
 	{
-		return messageFilterPattern;
+		return messageFilterPatterns;
 	}
 
 	/**
 	 * Sets the filter pattern only when matched, the target message will be processed to alert.
 	 *
-	 * @param messageFilterPattern the new filter pattern only when matched, the target message will be processed to alert
+	 * @param messageFilterPatterns the new filter pattern only when matched, the target message will be processed to alert
 	 */
-	public void setMessageFilterPattern(String messageFilterPattern)
+	public void setMessageFilterPatterns(Set<String> messageFilterPatterns)
 	{
-		this.messageFilterPattern = messageFilterPattern;
+		this.messageFilterPatterns = messageFilterPatterns;
 	}
 
 	/**

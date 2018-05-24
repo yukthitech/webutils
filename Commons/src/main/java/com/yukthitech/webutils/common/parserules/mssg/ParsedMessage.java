@@ -1,7 +1,8 @@
-package com.yukthitech.webutils.common.alerts;
+package com.yukthitech.webutils.common.parserules.mssg;
 
 import java.util.regex.Pattern;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.yukthitech.utils.ObjectWrapper;
@@ -130,7 +131,7 @@ public class ParsedMessage
 	 * @param matchError Wrapper which will hold approp error message if current message is not matching with specified rule. 
 	 * @return true if message is matched
 	 */
-	public boolean isMatchingWith(BasicMessageParsingRuleModel basicRule, ObjectWrapper<String> matchError)
+	public boolean isMatchingWith(BasicMessageParseRuleModel basicRule, ObjectWrapper<String> matchError)
 	{
 		if(StringUtils.isNotBlank(basicRule.getFromType()))
 		{
@@ -155,20 +156,23 @@ public class ParsedMessage
 			}
 		}
 
-		if(StringUtils.isNotBlank(basicRule.getMessageFilterPattern()))
+		if(CollectionUtils.isNotEmpty(basicRule.getMessageFilterPatterns()))
 		{
 			if(StringUtils.isBlank(message))
 			{
-				matchError.setValue(String.format("Rule's message pattern '%s' is not matching input blank message", basicRule.getMessageFilterPattern()));
+				matchError.setValue(String.format("Rule's message pattern '%s' is not matching input blank message", basicRule.getMessageFilterPatterns()));
 				return false;
 			}
 			
-			Pattern msgPattern = Pattern.compile(basicRule.getMessageFilterPattern());
-			
-			if(!msgPattern.matcher(message).find())
+			for(String messgPtrn : basicRule.getMessageFilterPatterns())
 			{
-				matchError.setValue(String.format("Rule's message pattern '%s' is not matching input message: %s", basicRule.getMessageFilterPattern(), message));
-				return false;
+				Pattern msgPattern = Pattern.compile(messgPtrn);
+				
+				if(!msgPattern.matcher(message).find())
+				{
+					matchError.setValue(String.format("Rule's message pattern '%s' is not matching input message: %s", messgPtrn, message));
+					return false;
+				}
 			}
 		}
 		

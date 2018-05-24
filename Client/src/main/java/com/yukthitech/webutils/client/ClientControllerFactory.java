@@ -17,6 +17,11 @@ public class ClientControllerFactory
 		this.clientContext = clientContext;
 	}
 	
+	public ClientContext getClientContext()
+	{
+		return clientContext;
+	}
+	
 	@SuppressWarnings("unchecked")
 	public <T> T getController(Class<T> controllerType)
 	{

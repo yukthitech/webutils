@@ -23,7 +23,6 @@
 
 package com.test.yukthitech.webutils.services;
 
-import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Set;
 
@@ -120,8 +119,16 @@ public class TestAuthenticationService implements ISecurityService, IAuthenticat
 	@Override
 	public String getUserSpaceIdentity()
 	{
-		String custId = request.getHeader("customerId");
-		return (custId != null && custId.trim().length() > 0) ? "Cust-" + custId : "admin";
+		try
+		{
+			String custId = request.getHeader("customerId");
+			return (custId != null && custId.trim().length() > 0) ? "Cust-" + custId : "admin";
+		}catch(IllegalStateException ex)
+		{
+			//this exception may be thrown when request is not availabe and this is called 
+			// in back ground thread
+			return "";
+		}
 	}
 
 	@Override

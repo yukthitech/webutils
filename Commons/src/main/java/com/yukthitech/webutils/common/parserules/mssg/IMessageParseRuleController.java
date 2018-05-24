@@ -1,4 +1,4 @@
-package com.yukthitech.webutils.common.alerts;
+package com.yukthitech.webutils.common.parserules.mssg;
 
 import com.yukthitech.webutils.common.controllers.ICrudController;
 import com.yukthitech.webutils.common.models.BaseResponse;
@@ -8,13 +8,13 @@ import com.yukthitech.webutils.common.models.BasicReadListResponse;
  * Controller to access alerts.
  * @author akiran
 */
-public interface IMessageParsingRuleController extends ICrudController<MessageParsingRuleModel, IMessageParsingRuleController>
+public interface IMessageParseRuleController extends ICrudController<MessageParseRuleModel, IMessageParseRuleController>
 {
 	/**
 	 * Fetches parsing rules for current user.
 	 * @return matching rules.
 	 */
-	public BasicReadListResponse<BasicMessageParsingRuleModel> fetchParsingRules();
+	public BasicReadListResponse<BasicMessageParseRuleModel> fetchParsingRules();
 	
 	/**
 	 * Indicates a match is found for specified rule and also specifies parsed message.
