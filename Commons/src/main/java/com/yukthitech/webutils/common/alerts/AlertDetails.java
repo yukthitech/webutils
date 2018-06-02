@@ -11,9 +11,11 @@ import com.yukthitech.utils.BitHelper;
 import com.yukthitech.webutils.common.FileInfo;
 import com.yukthitech.webutils.common.IWebUtilsCommonConstants;
 import com.yukthitech.webutils.common.action.IAgentAction;
+import com.yukthitech.webutils.common.actionplan.ActionPlan;
 import com.yukthitech.webutils.common.annotations.IgnoreField;
 import com.yukthitech.webutils.common.annotations.Model;
 import com.yukthitech.webutils.common.annotations.json.DataWithDynamicTypes;
+import com.yukthitech.webutils.common.annotations.xml.DataWithXml;
 
 /**
  * Represents an alert.
@@ -98,6 +100,13 @@ public class AlertDetails
 	 */
 	@IgnoreField
 	private AlertProcessedDetails alertProcessedDetails;
+	
+	/**
+	 * Action plan to be execute when match is found.
+	 */
+	@DataWithXml
+	@IgnoreField
+	private ActionPlan actionPlan;
 
 	/**
 	 * Factory method to created silent alert with specified details.
@@ -617,6 +626,26 @@ public class AlertDetails
 		}
 		
 		return confirmation.getAlertProcessedDetails().getSubaction();
+	}
+
+	/**
+	 * Gets the action plan to be execute when match is found.
+	 *
+	 * @return the action plan to be execute when match is found
+	 */
+	public ActionPlan getActionPlan()
+	{
+		return actionPlan;
+	}
+
+	/**
+	 * Sets the action plan to be execute when match is found.
+	 *
+	 * @param actionPlan the new action plan to be execute when match is found
+	 */
+	public void setActionPlan(ActionPlan actionPlan)
+	{
+		this.actionPlan = actionPlan;
 	}
 
 	/* (non-Javadoc)

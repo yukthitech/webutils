@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yukthitech.utils.exceptions.InvalidStateException;
 import com.yukthitech.webutils.client.ClientContext;
 import com.yukthitech.webutils.client.ClientControllerFactory;
+import com.yukthitech.webutils.client.actionplan.executor.ActionCompletedEvent;
 import com.yukthitech.webutils.client.actionplan.executor.IActionExecutor;
 import com.yukthitech.webutils.client.actionplan.executor.IActionPlanExecutorCallback;
 import com.yukthitech.webutils.common.action.IAgentAction;
@@ -155,12 +156,24 @@ public class ActionPlanExecutionContext
 	 */
 	public boolean executeNextAction(Object result)
 	{
-		if(currentAction != null && result != null)
-		{
-			context.put(currentAction.getName(), result);
-		}
-		
 		List<ActionPlanStep> steps = actionPlan.getSteps();
+		
+		if(currentAction != null)
+		{
+			if(result != null)
+			{
+				logger.debug("For action '{}' setting action result as: {}", currentAction.getName(), result);
+				context.put(currentAction.getName(), result);
+			}
+			
+			if(callback != null)
+			{
+				ActionPlanStep activeStep = steps.get(stepIndex);
+				callback.actionCompleted(new ActionCompletedEvent(activeStep.getName(), currentAction.getName()));
+			}
+			
+			currentAction = null;
+		}
 		
 		if(stepIndex >= steps.size())
 		{
@@ -212,6 +225,29 @@ public class ActionPlanExecutionContext
 	}
 	
 	/**
+	 * Finalizes the execution. If finalize action is specified the same will be executed.
+	 * This will take execution to the end of action plan.
+	 */
+	public void finalizeExecution()
+	{
+		stepIndex = actionPlan.getSteps().size();
+		
+		if(actionPlan.getFinalAction() != null)
+		{
+			logger.debug("Executing finalization action: {}", actionPlan.getFinalAction().getName());
+			
+			executeAction(actionPlan.getFinalAction());
+		}
+		else
+		{
+			if(callback != null)
+			{
+				callback.actionPlanExecuted(this.context);
+			}
+		}
+	}
+	
+	/**
 	 * Executes the specified action.
 	 * @param action action to execute.
 	 */
@@ -246,9 +282,10 @@ public class ActionPlanExecutionContext
 			return true;
 		}
 		
-		logger.trace("Evaluating condition with expression: " + condition.getExpression());
-		
 		String condValue = this.templateProcessor.processTemplate("Condition", condition.getExpression(), context);
+		
+		logger.trace("Condition expression '{}' is evaluated as: {}", condition.getExpression(), condValue);
+		
 		boolean conditionSatisfied = false;
 		
 		if(StringUtils.isNotBlank(condition.getValue()))
@@ -290,6 +327,16 @@ public class ActionPlanExecutionContext
 	public Object getContextAttribute(String name)
 	{
 		return context.get(name);
+	}
+	
+	/**
+	 * Sets the context attribute with specified name and value.
+	 * @param name name of attr
+	 * @param value value of attr
+	 */
+	public void setContextAttribute(String name, Object value)
+	{
+		context.put(name, value);
 	}
 	
 	/**

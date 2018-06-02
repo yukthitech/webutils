@@ -1,6 +1,6 @@
 package com.yukthitech.webutils.client.actionplan;
 
-import com.yukthi.utils.fmarker.FreeMarkerEngine;
+import com.yukthitech.utils.fmarker.FreeMarkerEngine;
 
 /**
  * Template processor based on free marker engine.

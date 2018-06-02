@@ -20,4 +20,11 @@
 		<nature>org.eclipse.jdt.core.javanature</nature>
 		<nature>org.eclipse.m2e.core.maven2Nature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>freemarker-2.3.23-sources</name>
+			<type>2</type>
+			<location>C:/Users/akiran/.m2/repository/org/freemarker/freemarker/2.3.23/freemarker-2.3.23-sources</location>
+		</link>
+	</linkedResources>
 </projectDescription>

@@ -8,11 +8,13 @@ import com.yukthitech.webutils.client.ClientControllerFactory;
 import com.yukthitech.webutils.client.actionplan.executor.AlertActionExecutor;
 import com.yukthitech.webutils.client.actionplan.executor.ApiActionExecutor;
 import com.yukthitech.webutils.client.actionplan.executor.ConditionalActionExecutor;
+import com.yukthitech.webutils.client.actionplan.executor.FinalizeExecutionActionExecutor;
 import com.yukthitech.webutils.client.actionplan.executor.IActionExecutor;
 import com.yukthitech.webutils.client.actionplan.executor.IActionPlanExecutorCallback;
 import com.yukthitech.webutils.client.actionplan.executor.SetAttributeActionExecutor;
 import com.yukthitech.webutils.common.action.AlertAgentAction;
 import com.yukthitech.webutils.common.action.ApiAgentAction;
+import com.yukthitech.webutils.common.action.FinalizeExecutionAction;
 import com.yukthitech.webutils.common.action.IAgentAction;
 import com.yukthitech.webutils.common.actionplan.ActionPlan;
 import com.yukthitech.webutils.common.actionplan.ConditionalAction;
@@ -35,6 +37,7 @@ public class ActionPlanExecutor
 		actionExecutors.put(AlertAgentAction.class, new AlertActionExecutor());
 		actionExecutors.put(ConditionalAction.class, new ConditionalActionExecutor());
 		actionExecutors.put(SetAttributeAction.class, new SetAttributeActionExecutor());
+		actionExecutors.put(FinalizeExecutionAction.class, new FinalizeExecutionActionExecutor());
 	}
 	
 	/**

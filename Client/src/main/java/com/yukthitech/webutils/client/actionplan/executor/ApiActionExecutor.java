@@ -61,14 +61,16 @@ public class ApiActionExecutor implements IActionExecutor<ApiAgentAction>
 	public void executeAction(ActionPlanExecutionContext context, ApiAgentAction action) throws Exception
 	{
 		String paramsJson = context.processTemplate(action.getParameterJson());
+		String entityJson = context.processTemplate(action.getModelJson());
 		Map<String, String> params = null;
+		
+		logger.debug("Executing api-action with \nParam Json: {}\nEntity Json: {}", paramsJson, entityJson);
 		
 		if(StringUtils.isNotBlank(paramsJson))
 		{
 			params = objectMapper.readValue(paramsJson, new TypeReference<Map<String, String>>(){});
 		}
 		
-		String entityJson = context.processTemplate(action.getModelJson());
 		Map<String, Object> entity = null;
 		
 		if(StringUtils.isNotBlank(entityJson))
@@ -174,7 +176,7 @@ public class ApiActionExecutor implements IActionExecutor<ApiAgentAction>
 			for(String param : actionModel.getUrlParameters())
 			{
 				//if required url param is not provided
-				if(!parameters.containsKey(param))
+				if(parameters == null || !parameters.containsKey(param))
 				{
 					throw new IllegalArgumentException("Required url-param is not specified with name - " + param);
 				}

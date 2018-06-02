@@ -5,8 +5,10 @@ import java.util.Set;
 
 import com.yukthitech.persistence.repository.annotations.Field;
 import com.yukthitech.webutils.common.BaseModel;
+import com.yukthitech.webutils.common.actionplan.ActionPlan;
 import com.yukthitech.webutils.common.annotations.IgnoreField;
 import com.yukthitech.webutils.common.annotations.Model;
+import com.yukthitech.webutils.common.annotations.xml.DataWithXml;
 
 /**
  * Indicates rule which is used to convert message (sms or mail) into an alert.
@@ -76,6 +78,14 @@ public class MessageParseRuleModel extends BaseModel
 	@IgnoreField
 	@Field("defaultAttributes")
 	private Map<String, String> defaultAttributes;
+	
+	/**
+	 * Action plan to be execute when match is found.
+	 */
+	@DataWithXml
+	@IgnoreField
+	@Field("actionPlan")
+	private ActionPlan actionPlan;
 
 	/**
 	 * Gets the agent of user with this role only will be used to use this rule.
@@ -255,5 +265,25 @@ public class MessageParseRuleModel extends BaseModel
 	public void setDefaultAttributes(Map<String, String> defaultAttributes)
 	{
 		this.defaultAttributes = defaultAttributes;
+	}
+
+	/**
+	 * Gets the action plan to be execute when match is found.
+	 *
+	 * @return the action plan to be execute when match is found
+	 */
+	public ActionPlan getActionPlan()
+	{
+		return actionPlan;
+	}
+
+	/**
+	 * Sets the action plan to be execute when match is found.
+	 *
+	 * @param actionPlan the new action plan to be execute when match is found
+	 */
+	public void setActionPlan(ActionPlan actionPlan)
+	{
+		this.actionPlan = actionPlan;
 	}
 }

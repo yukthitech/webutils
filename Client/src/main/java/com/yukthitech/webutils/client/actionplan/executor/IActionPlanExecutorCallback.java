@@ -10,6 +10,12 @@ import java.util.Map;
 public interface IActionPlanExecutorCallback
 {
 	/**
+	 * Called when an action execution is completed.
+	 * @param event details of action completed
+	 */
+	public void actionCompleted(ActionCompletedEvent event);
+	
+	/**
 	 * Called by action plan executor with current context once action plan is executed successfully.
 	 * @param context context used for execution.
 	 */

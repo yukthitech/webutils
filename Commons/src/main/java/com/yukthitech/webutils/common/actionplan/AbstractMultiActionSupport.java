@@ -4,6 +4,7 @@ import com.yukthitech.webutils.common.action.AlertAgentAction;
 import com.yukthitech.webutils.common.action.ApiAgentAction;
 import com.yukthitech.webutils.common.action.CallAndFillFormAction;
 import com.yukthitech.webutils.common.action.FillFormAction;
+import com.yukthitech.webutils.common.action.FinalizeExecutionAction;
 import com.yukthitech.webutils.common.action.IAgentAction;
 import com.yukthitech.webutils.common.action.ViewAndConfirmAction;
 
@@ -72,6 +73,15 @@ public abstract class AbstractMultiActionSupport
 	 * @param action action to add.
 	 */
 	public void addSetAttribute(SetAttributeAction action)
+	{
+		addAction(action);
+	}
+	
+	/**
+	 * Adds action to current step.
+	 * @param action action to add.
+	 */
+	public void addFinalizeExecution(FinalizeExecutionAction action)
 	{
 		addAction(action);
 	}

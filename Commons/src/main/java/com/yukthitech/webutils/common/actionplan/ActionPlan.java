@@ -3,6 +3,8 @@ package com.yukthitech.webutils.common.actionplan;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.yukthitech.webutils.common.action.IAgentAction;
+
 /**
  * Represents action plan.
  * @author akiran
@@ -10,9 +12,40 @@ import java.util.List;
 public class ActionPlan
 {
 	/**
+	 * Name of the action plan. That can be used as label for action which in turn
+	 * wil execute action plan.
+	 */
+	private String name;
+	
+	/**
 	 * Steps to execute as part of this plan.
 	 */
 	private List<ActionPlanStep> steps;
+	
+	/**
+	 * If specified, this action will be executed when action plan execution is finalized.
+	 */
+	private IAgentAction finalAction;
+
+	/**
+	 * Gets the name of the action plan. That can be used as label for action which in turn wil execute action plan.
+	 *
+	 * @return the name of the action plan
+	 */
+	public String getName()
+	{
+		return name;
+	}
+
+	/**
+	 * Sets the name of the action plan. That can be used as label for action which in turn wil execute action plan.
+	 *
+	 * @param name the new name of the action plan
+	 */
+	public void setName(String name)
+	{
+		this.name = name;
+	}
 
 	/**
 	 * Gets the steps to execute as part of this plan.
@@ -46,5 +79,25 @@ public class ActionPlan
 		}
 		
 		steps.add(step);
+	}
+
+	/**
+	 * Gets the if specified, this action will be executed when action plan execution is finalized.
+	 *
+	 * @return the if specified, this action will be executed when action plan execution is finalized
+	 */
+	public IAgentAction getFinalAction()
+	{
+		return finalAction;
+	}
+
+	/**
+	 * Sets the if specified, this action will be executed when action plan execution is finalized.
+	 *
+	 * @param finalAction the new if specified, this action will be executed when action plan execution is finalized
+	 */
+	public void setFinalAction(IAgentAction finalAction)
+	{
+		this.finalAction = finalAction;
 	}
 }

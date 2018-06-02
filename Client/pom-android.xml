@@ -28,10 +28,21 @@
 
 		<dependency>
 			<groupId>com.yukthitech</groupId>
+			<artifactId>yukthi-free-marker</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.yukthitech</groupId>
 			<artifactId>yukthi-utils</artifactId>
 			<version>1.0-SNAPSHOT</version>
 		</dependency>
-		
+
+		<dependency>
+			<groupId>com.yukthitech</groupId>
+			<artifactId>yukthi-xml-mapper</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -66,9 +77,10 @@
 								<include>com.fasterxml.jackson.core:jackson-core</include>
 								<include>com.fasterxml.jackson.core:jackson-annotations</include>
 								<include>com.fasterxml.jackson.core:jackson-databind</include>
-
+								
 								<include>com.yukthitech:yukthi-utils</include>
 								<include>com.yukthitech.webutils:webutils-commons</include>
+								<include>com.yukthitech:yukthi-xml-mapper</include>
 							</includes>
 							<rules>
 								<rule>

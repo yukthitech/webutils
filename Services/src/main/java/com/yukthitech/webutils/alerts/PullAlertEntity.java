@@ -9,6 +9,8 @@ import com.yukthitech.persistence.annotations.DataType;
 import com.yukthitech.persistence.annotations.DataTypeMapping;
 import com.yukthitech.persistence.conversion.impl.JsonConverter;
 import com.yukthitech.persistence.conversion.impl.JsonWithTypeConverter;
+import com.yukthitech.persistence.conversion.impl.XmlConverter;
+import com.yukthitech.webutils.common.actionplan.ActionPlan;
 import com.yukthitech.webutils.common.alerts.AlertProcessedDetails;
 import com.yukthitech.webutils.common.alerts.PullAlertStatus;
 import com.yukthitech.webutils.repository.WebutilsEntity;
@@ -89,6 +91,13 @@ public class PullAlertEntity extends WebutilsEntity
 	@Column(name = "PROCESS_DETAILS", length = 1000)
 	@DataTypeMapping(converterType = JsonConverter.class, type = DataType.CLOB)
 	private AlertProcessedDetails alertProcessedDetails;
+
+	/**
+	 * Action plan to be execute when match is found.
+	 */
+	@Column(name = "ACTION_PLAN_XML")
+	@DataTypeMapping(type = DataType.CLOB, converterType = XmlConverter.class)
+	private ActionPlan actionPlan;
 
 	/**
 	 * Gets the used to identify alert and its confirmation uniquely.
@@ -308,5 +317,25 @@ public class PullAlertEntity extends WebutilsEntity
 	public void setAlertProcessedDetails(AlertProcessedDetails alertProcessedDetails)
 	{
 		this.alertProcessedDetails = alertProcessedDetails;
+	}
+
+	/**
+	 * Gets the action plan to be execute when match is found.
+	 *
+	 * @return the action plan to be execute when match is found
+	 */
+	public ActionPlan getActionPlan()
+	{
+		return actionPlan;
+	}
+
+	/**
+	 * Sets the action plan to be execute when match is found.
+	 *
+	 * @param actionPlan the new action plan to be execute when match is found
+	 */
+	public void setActionPlan(ActionPlan actionPlan)
+	{
+		this.actionPlan = actionPlan;
 	}
 }

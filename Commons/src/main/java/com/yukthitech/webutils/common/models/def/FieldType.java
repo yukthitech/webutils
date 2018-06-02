@@ -38,41 +38,41 @@ public enum FieldType
 	/**
 	 * Simple string field.
 	 */
-	STRING("string", String.class),
+	STRING("string", String.class, String.class),
 	
 	/**
 	 * Multi lined string.
 	 */
-	MULTI_LINE_STRING("multiLine"),
+	MULTI_LINE_STRING("multiLine", String.class),
 	
 	/**
 	 * Type to be used for password fields.
 	 */
-	PASSWORD("password"),
+	PASSWORD("password", String.class),
 	
 	/**
 	 * Type to be used when formatted html text is expected.
 	 */
-	HTML("html"),
+	HTML("html", String.class),
 	
-	INTEGER("int", Integer.class, int.class, Long.class, long.class, Short.class, short.class),
+	INTEGER("int", int.class, Integer.class, int.class, Long.class, long.class, Short.class, short.class),
 	
-	FLOAT("float", Float.class, float.class, Double.class, double.class),
+	FLOAT("float", float.class, Float.class, float.class, Double.class, double.class),
 	
-	BOOLEAN("boolean", Boolean.class, boolean.class),
+	BOOLEAN("boolean", boolean.class, Boolean.class, boolean.class),
 	
-	DATE("date", Date.class),
+	DATE("date", Date.class, Date.class),
 	
-	LIST_OF_VALUES("lov"),
+	LIST_OF_VALUES("lov", long.class),
 	
-	FILE("file", FileInfo.class),
+	FILE("file", FileInfo.class, FileInfo.class),
 	
 	/**
 	 * Represent image type file data. 
 	 */
-	IMAGE("image", ImageInfo.class),
+	IMAGE("image", ImageInfo.class, ImageInfo.class),
 	
-	COLOR("color")
+	COLOR("color", Color.class)
 	;
 	
 	/**
@@ -91,12 +91,17 @@ public enum FieldType
 	private Class<?> javaTypes[];
 	
 	/**
+	 * Defatult java type to be used for this type of fields.
+	 */
+	private Class<?> defaultJavaType;
+	
+	/**
 	 * Instantiates a new field type.
 	 *
 	 * @param name Name of the type
 	 * @param javaTypes List of java types that can be mapped to current type
 	 */
-	private FieldType(String name, Class<?>... javaTypes)
+	private FieldType(String name, Class<?> defaultJavaType, Class<?>... javaTypes)
 	{
 		this.name = name;
 		
@@ -105,6 +110,7 @@ public enum FieldType
 			javaTypes = null;
 		}
 		
+		this.defaultJavaType = defaultJavaType;
 		this.javaTypes = javaTypes;
 	}
 	
@@ -155,5 +161,15 @@ public enum FieldType
 		}
 
 		return typeMap.get(javaType);
+	}
+	
+	/**
+	 * Gets the defatult java type to be used for this type of fields.
+	 *
+	 * @return the defatult java type to be used for this type of fields
+	 */
+	public Class<?> getDefaultJavaType()
+	{
+		return defaultJavaType;
 	}
 }
