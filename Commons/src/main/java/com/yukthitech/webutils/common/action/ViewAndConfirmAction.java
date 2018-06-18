@@ -1,5 +1,6 @@
 package com.yukthitech.webutils.common.action;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -131,5 +132,20 @@ public class ViewAndConfirmAction implements IAgentAction
 	public void setActionItems(List<String> actionItems)
 	{
 		this.actionItems = actionItems;
+	}
+	
+	/**
+	 * Adds the action item.
+	 *
+	 * @param item the item
+	 */
+	public void addActionItem(String item)
+	{
+		if(this.actionItems == null)
+		{
+			this.actionItems = new ArrayList<>();
+		}
+		
+		this.actionItems.add(item);
 	}
 }

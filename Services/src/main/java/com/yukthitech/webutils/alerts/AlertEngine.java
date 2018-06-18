@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.yukthitech.ccg.xml.XMLBeanParser;
 import com.yukthitech.utils.CommonUtils;
 import com.yukthitech.utils.exceptions.InvalidArgumentException;
+import com.yukthitech.utils.exceptions.InvalidStateException;
 import com.yukthitech.webutils.alerts.agent.IAlertSupport;
 import com.yukthitech.webutils.alerts.agent.IAlertingAgent;
 import com.yukthitech.webutils.alerts.event.EventAlertRuleEntity;
@@ -91,6 +92,12 @@ public class AlertEngine
 	 */
 	@Autowired
 	private IAlertSupport alertSupport;
+	
+	/**
+	 * Custom alert event handler if any.
+	 */
+	@Autowired(required = false)
+	private ICustomAlertEventHandler customAlertEventHandler;
 
 	/**
 	 * Mapping from alerting agent type to agent.
@@ -182,14 +189,14 @@ public class AlertEngine
 		
 		if(targetTypes == null || targetTypes.isEmpty())
 		{
-			logger.warn("As not target-agent-type is specified ignoring sending alert: {}", alertDetails);
+			logger.warn("As no target-agent-type is specified ignoring sending alert: {}", alertDetails);
+			return;
 		}
 		
 		asyncTaskService.executeTask(COMP_NAME, new Runnable()   
 		{
 			public void run()
 			{
-				
 				for(AlertingAgentType type : targetTypes)
 				{
 					IAlertingAgent agent = typeToAgent.get(type);
@@ -264,7 +271,7 @@ public class AlertEngine
 	 * @param event event rule to be used in context
 	 * @return result alert details.
 	 */
-	private AlertDetails parseAlertDetails(String template, Object eventObject, EventAlertRuleEntity event) throws JsonParseException, JsonMappingException, IOException
+	private <T> T parseAlertDetails(String template, Object eventObject, EventAlertRuleEntity event, Class<T> type) throws JsonParseException, JsonMappingException, IOException
 	{
 		Map<String, Object> context = CommonUtils.toMap(
 				"eventData", eventObject,
@@ -273,15 +280,27 @@ public class AlertEngine
 		
 		String xml = freeMarkerService.processTemplate("AlertDetails-xml", template, context);
 		
-		AlertDetails alertDetails = new AlertDetails();
-		XMLBeanParser.parse(new ByteArrayInputStream(xml.getBytes()), alertDetails);
+		T result = null;
 		
-		if(alertDetails.getData() == null)
+		try
+		{
+			result = type.newInstance();
+		}catch(Exception ex)
+		{
+			throw new InvalidStateException("An error occurred while creating instance of result type: {}", type.getName());
+		}
+		
+		XMLBeanParser.parse(new ByteArrayInputStream(xml.getBytes()), result);
+		
+		
+		AlertDetails alertDetails = (result instanceof AlertDetails) ? (AlertDetails) result : null;
+		
+		if(alertDetails != null && alertDetails.getData() == null)
 		{
 			alertDetails.setData(eventObject);
 		}
 		
-		return alertDetails;
+		return result;
 	}
 	
 	/**
@@ -344,8 +363,20 @@ public class AlertEngine
 							continue;
 						}
 						
-						AlertDetails alertDetails = parseAlertDetails(rule.getAlertDetailsTemplate(), eventObject, rule);
-						sendAlert(alertDetails);
+						if(rule.getAlertDetailsTemplate() != null)
+						{
+							AlertDetails alertDetails = parseAlertDetails(rule.getAlertDetailsTemplate(), eventObject, rule, AlertDetails.class);
+							sendAlert(alertDetails);
+						}
+						
+						//handle rules with custom data
+						if(customAlertEventHandler != null && rule.getCustomData() != null)
+						{
+							Class<?> type = customAlertEventHandler.getCustomDataType(rule);
+							Object customData = parseAlertDetails(rule.getCustomData(), eventObject, rule, type);
+							
+							customAlertEventHandler.handleCustomRule(rule, customData);
+						}
 					}catch(Exception ex)
 					{
 						logger.error("An error occurred while processing event-alert rule - {}", rule.getName(), ex);

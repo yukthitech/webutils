@@ -7,6 +7,8 @@ import com.yukthitech.webutils.common.action.FillFormAction;
 import com.yukthitech.webutils.common.action.FinalizeExecutionAction;
 import com.yukthitech.webutils.common.action.IAgentAction;
 import com.yukthitech.webutils.common.action.ViewAndConfirmAction;
+import com.yukthitech.webutils.common.action.mobile.EditAndSendSmsAction;
+import com.yukthitech.webutils.common.action.mobile.SendSmsAction;
 
 /**
  * Base class to support different type of actions by implementing single action method.
@@ -82,6 +84,26 @@ public abstract class AbstractMultiActionSupport
 	 * @param action action to add.
 	 */
 	public void addFinalizeExecution(FinalizeExecutionAction action)
+	{
+		addAction(action);
+	}
+	
+	/**
+	 * Adds the send sms.
+	 *
+	 * @param action the action
+	 */
+	public void addSendSms(SendSmsAction action)
+	{
+		addAction(action);
+	}
+
+	/**
+	 * Adds the send sms.
+	 *
+	 * @param action the action
+	 */
+	public void addEditAndSendSms(EditAndSendSmsAction action)
 	{
 		addAction(action);
 	}

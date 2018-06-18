@@ -3,6 +3,8 @@ package com.yukthitech.webutils.alerts.event;
 import javax.persistence.Column;
 import javax.persistence.Table;
 
+import com.yukthitech.persistence.annotations.DataType;
+import com.yukthitech.persistence.annotations.DataTypeMapping;
 import com.yukthitech.webutils.repository.WebutilsEntity;
 
 /**
@@ -35,7 +37,15 @@ public class EventAlertRuleEntity extends WebutilsEntity
 	 * If condition is satisfied, the result alert would be sent.
 	 */
 	@Column(name = "ALERT_DETAILS_TEMPLATE", length = 3000)
+	@DataTypeMapping(type = DataType.CLOB)
 	private String alertDetailsTemplate;
+
+	/**
+	 * Custom details free marker template which should result in custom details json. 
+	 * If condition is satisfied, custom event handler is invoked with rule and parsed custom data.
+	 */
+	@Column(name = "CUSTOM_DATA_TEMPLATE", length = 3000)
+	private String customData;
 
 	/**
 	 * Gets the event type for which this rule should be evaluated.
@@ -115,5 +125,25 @@ public class EventAlertRuleEntity extends WebutilsEntity
 	public void setName(String name)
 	{
 		this.name = name;
+	}
+
+	/**
+	 * Gets the custom details free marker template which should result in custom details json. If condition is satisfied, custom event handler is invoked with rule and parsed custom data.
+	 *
+	 * @return the custom details free marker template which should result in custom details json
+	 */
+	public String getCustomData()
+	{
+		return customData;
+	}
+
+	/**
+	 * Sets the custom details free marker template which should result in custom details json. If condition is satisfied, custom event handler is invoked with rule and parsed custom data.
+	 *
+	 * @param customData the new custom details free marker template which should result in custom details json
+	 */
+	public void setCustomData(String customData)
+	{
+		this.customData = customData;
 	}
 }

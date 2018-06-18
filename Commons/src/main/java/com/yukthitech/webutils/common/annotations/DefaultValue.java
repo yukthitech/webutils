@@ -24,4 +24,10 @@ public @interface DefaultValue
 	 * @return property name to be used from default-values
 	 */
 	public String property() default "";
+	
+	/**
+	 * Resource text file from which default value should be fetched for this field.
+	 * @return resource path.
+	 */
+	public String resource() default "";
 }

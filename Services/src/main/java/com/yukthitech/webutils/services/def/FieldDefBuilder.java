@@ -31,6 +31,7 @@ import java.util.Collection;
 import java.util.HashSet;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -42,6 +43,7 @@ import com.yukthitech.utils.exceptions.InvalidStateException;
 import com.yukthitech.webutils.common.LovType;
 import com.yukthitech.webutils.common.annotations.Color;
 import com.yukthitech.webutils.common.annotations.DefaultValue;
+import com.yukthitech.webutils.common.annotations.FullWidth;
 import com.yukthitech.webutils.common.annotations.Html;
 import com.yukthitech.webutils.common.annotations.LOV;
 import com.yukthitech.webutils.common.annotations.MultilineText;
@@ -212,6 +214,22 @@ public class FieldDefBuilder
 					fieldDef.setDefaultValue(value);
 				}
 			}
+			else if(StringUtils.isNotBlank(defaultValue.resource()))
+			{
+				try
+				{
+					String value = IOUtils.toString(FieldDefBuilder.class.getResourceAsStream(defaultValue.resource()));
+	
+					if(StringUtils.isNotBlank(value))
+					{
+						fieldDef.setDefaultValue(value);
+					}
+				}catch(Exception ex)
+				{
+					throw new InvalidStateException("An error occurred while fetching default value for field {} from configured resource: {}", 
+							fqn, defaultValue.resource());
+				}
+			}
 		}
 		
 		Class<?> fieldType = field.getType();
@@ -294,6 +312,12 @@ public class FieldDefBuilder
 		//set other flags of field def
 		fieldDef.setReadOnly( field.getAnnotation(ReadOnly.class) != null );
 		fieldDef.setDisplayable( field.getAnnotation(NonDisplayable.class) == null );
+		
+		//if full width is not set because of data type, then check for FullWidth annotation
+		if(!fieldDef.isFullWidth())
+		{
+			fieldDef.setFullWidth( field.getAnnotation(FullWidth.class) != null );
+		}
 		
 		//fetch validation details
 		Collection<ValidationDef> validations = validationDefBuilder.getValidations(field);
