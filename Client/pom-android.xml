@@ -81,6 +81,7 @@
 								<include>com.yukthitech:yukthi-utils</include>
 								<include>com.yukthitech.webutils:webutils-commons</include>
 								<include>com.yukthitech:yukthi-xml-mapper</include>
+								<include>com.yukthitech:yukthi-free-marker</include>
 							</includes>
 							<rules>
 								<rule>

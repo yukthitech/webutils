@@ -1,5 +1,6 @@
 package com.yukthitech.webutils.common.actionplan;
 
+import com.yukthitech.webutils.common.action.AlertAction;
 import com.yukthitech.webutils.common.action.AlertAgentAction;
 import com.yukthitech.webutils.common.action.ApiAgentAction;
 import com.yukthitech.webutils.common.action.CallAndFillFormAction;
@@ -104,6 +105,16 @@ public abstract class AbstractMultiActionSupport
 	 * @param action the action
 	 */
 	public void addEditAndSendSms(EditAndSendSmsAction action)
+	{
+		addAction(action);
+	}
+
+	/**
+	 * Adds the alert.
+	 *
+	 * @param action the action
+	 */
+	public void addAlert(AlertAction action)
 	{
 		addAction(action);
 	}
