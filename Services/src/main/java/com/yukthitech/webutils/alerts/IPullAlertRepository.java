@@ -29,6 +29,18 @@ public interface IPullAlertRepository extends IWebutilsRepository<PullAlertEntit
 	public List<PullAlertEntity> fetchAlerts(@Condition("target") String target);
 	
 	/**
+	 * Fetches non-processed alert with specified dynamic id.
+	 * @param target Target for which alert to be fetched.
+	 * @param dynamicId dynamic id of alert to be fetched.
+	 * @return matching alert.
+	 */
+	@OrderBy("id")
+	@MethodConditions(conditions = {
+		@DefaultCondition(field = "status", value = "NOT_PROCESSED")
+		})
+	public PullAlertEntity fetchAlertByDynamicId(@Condition("target") String target, @Condition("dynamicId") String dynamicId);
+
+	/**
 	 * Updates the status of specified alert.
 	 * @param id id of alert to update
 	 * @param status status to update

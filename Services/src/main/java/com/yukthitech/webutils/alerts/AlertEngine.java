@@ -339,18 +339,17 @@ public class AlertEngine
 	 */
 	public void sendEventAlerts(Object eventObject, String eventType)
 	{
-		logger.debug("Sending event alert for event: {}", eventType);
+		logger.debug("Sending alerts for event: {}", eventType);
 		
 		asyncTaskService.executeTask(COMP_NAME, new Runnable()
 		{
 			public void run()
 			{
-				logger.debug("Sending alerts for event type: " + eventType);
-				
 				List<EventAlertRuleEntity> rules = eventAlertRuleService.fetchAlerts(eventType);
 				
 				if(rules == null || rules.isEmpty())
 				{
+					logger.debug("For alert event '{}' no rules found to execute", eventType);
 					return;
 				}
 				
@@ -360,22 +359,37 @@ public class AlertEngine
 					{
 						if(!checkConditionFunction(rule.getConditionFunction(), eventObject))
 						{
+							logger.debug("For alert event '{}' rule '{}' is skipped as pre condition is not met", eventType, rule.getName());
 							continue;
 						}
 						
+						boolean processed = false;
+						
 						if(rule.getAlertDetailsTemplate() != null)
 						{
+							logger.debug("For alert event '{}' processing rule '{}' and sending alert", eventType, rule.getName());
+							
 							AlertDetails alertDetails = parseAlertDetails(rule.getAlertDetailsTemplate(), eventObject, rule, AlertDetails.class);
 							sendAlert(alertDetails);
+							
+							processed = true;
 						}
 						
 						//handle rules with custom data
-						if(customAlertEventHandler != null && rule.getCustomData() != null)
+						if(customAlertEventHandler != null && rule.getCustomData() != null && rule.getCustomDataType() != null)
 						{
-							Class<?> type = customAlertEventHandler.getCustomDataType(rule);
+							logger.debug("For alert event '{}' processing rule '{}' invoking custom alert event handler", eventType, rule.getName());
+							
+							Class<?> type = Class.forName(rule.getCustomDataType());
 							Object customData = parseAlertDetails(rule.getCustomData(), eventObject, rule, type);
 							
 							customAlertEventHandler.handleCustomRule(rule, customData);
+							processed = true;
+						}
+						
+						if(!processed)
+						{
+							logger.warn("For alert event '{}' for rule '{}' neither alert was sent not custom event handling was done", eventType, rule.getName());
 						}
 					}catch(Exception ex)
 					{

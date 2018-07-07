@@ -30,6 +30,11 @@ public class AlertDetails
 	private long id;
 	
 	/**
+	 * Used to identify alert uniquely.
+	 */
+	private String dynamicId;
+	
+	/**
 	 * Used to identify alert and its confirmation uniquely.
 	 */
 	private String name;
@@ -646,6 +651,26 @@ public class AlertDetails
 	public void setActionPlan(ActionPlan actionPlan)
 	{
 		this.actionPlan = actionPlan;
+	}
+
+	/**
+	 * Gets the used to identify alert uniquely.
+	 *
+	 * @return the used to identify alert uniquely
+	 */
+	public String getDynamicId()
+	{
+		return dynamicId;
+	}
+
+	/**
+	 * Sets the used to identify alert uniquely.
+	 *
+	 * @param dynamicId the new used to identify alert uniquely
+	 */
+	public void setDynamicId(String dynamicId)
+	{
+		this.dynamicId = dynamicId;
 	}
 
 	/* (non-Javadoc)

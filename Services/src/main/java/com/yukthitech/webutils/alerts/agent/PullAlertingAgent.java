@@ -69,7 +69,7 @@ public class PullAlertingAgent implements IAlertingAgent
 			alertWithTarget.setStatus(PullAlertStatus.NOT_PROCESSED);
 			alertWithTarget.setTarget(recipient);
 			
-			pullAlertService.save(alertWithTarget);
+			pullAlertService.saveOrUpdate(alertWithTarget);
 		}
 				
 		return true;

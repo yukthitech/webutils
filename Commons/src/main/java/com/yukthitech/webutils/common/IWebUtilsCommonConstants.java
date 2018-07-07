@@ -202,7 +202,7 @@ public interface IWebUtilsCommonConstants
 	public int ALERT_FLAG_APP_SPECIFIC_3 = 0b100000;
 
 	/**
-	 * Mapper that will be used to convert tasks to and from json.
+	 * Mapper that will be used to convert objects to and from json.
 	 */
 	public ObjectMapper OBJECT_MAPPER_WITH_TYPE = new ObjectMapper()
 	{
@@ -211,4 +211,9 @@ public interface IWebUtilsCommonConstants
 			enableDefaultTyping(DefaultTyping.NON_FINAL, As.PROPERTY);
 		}
 	};
+
+	/**
+	 * Mapper that will be used to convert objects to and from json.
+	 */
+	public ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 }

@@ -10,13 +10,6 @@ import com.yukthitech.webutils.alerts.event.EventAlertRuleEntity;
 public interface ICustomAlertEventHandler
 {
 	/**
-	 * Fetches custom data type for specified rule.
-	 * @param rule rule with custom data for which custom type needs to be fetched.
-	 * @return custom data type.
-	 */
-	public Class<?> getCustomDataType(EventAlertRuleEntity rule);
-	
-	/**
 	 * Invoked to invoke custom logic for the matched rule with specified custom data.
 	 * @param rule rule to be processed
 	 * @param customData custom data present with rule.

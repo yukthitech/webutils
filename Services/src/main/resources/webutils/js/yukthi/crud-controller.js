@@ -44,6 +44,10 @@
  * 
  * onNewSearch() - 
  * 				Event method. If specified, this method will be called whenever search is re-exected.
+ * 
+ * ======================================================================
+ * On selection of a row following attributes are set on $scope
+ * 	selectedId - Selected row id
  */
 $.application.factory('crudController', ["logger", "actionHelper", "utils", "validator", "modelDefService", 
                 function(logger, actionHelper, utils, validator, modelDefService){
@@ -107,6 +111,52 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 				$("#" + $scope.crudConfig.modelDailogId +" input[type='file']").val("");
 			};
 			
+			/**
+			 * Cleans the value by parsing it to approp type. If not parsible makes it null.
+			 */
+			$scope.cleanValue = function(value, type) {
+				if(!value)
+				{
+					return null;
+				}	
+				
+				if(type == 'INTEGER')
+				{
+					try
+					{
+						return parseInt( value );
+					}catch(ex)
+					{
+						return null;
+					}
+				}
+				else if(type == 'DECIMAL')
+				{
+					try
+					{
+						return parseFloat( value );
+					}catch(ex)
+					{
+						return null;
+					}
+				}
+				else if(type == 'BOOLEAN')
+				{
+					try
+					{
+						if(val)
+						{
+							return ( ("" + value).toLowerCase() == "true" ) ? true : false;
+						}
+					}catch(ex)
+					{
+						return null;
+					}
+				}
+				
+				return value;
+			};
+			
 			$scope.addEntry = function(e) {
 				logger.trace("Add {} is triggered..", $scope.crudConfig.name);
 				$scope.initErrors("model", true);
@@ -119,6 +169,21 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 				$scope[$scope.dlgModeField] = true;
 				$("#" + $scope.crudConfig.modelDailogId +" [yk-read-only='true']").prop('disabled', false);
 				$scope.model = {};
+				
+				//load the default values
+				var modelDef = $scope.modelDef;
+				var fields = modelDef.fields;
+				
+				for(var i = 0 ; i < fields.length; i++)
+				{
+					if(!fields[i].defaultValue || fields[i].defaultValue.length == "")
+					{
+						continue;
+					}
+					
+					$scope.model[fields[i].name] =  $scope.cleanValue( fields[i].defaultValue, fields[i].fieldType );
+				}
+				//end of loading default values
 				
 				$scope.resetModelForm();
 				
@@ -194,42 +259,7 @@ $.application.factory('crudController', ["logger", "actionHelper", "utils", "val
 						for(var name in modelDef.extensionFieldMap)
 						{
 							extendedField = modelDef.extensionFieldMap[name];
-							
-							if(extendedField.type == 'INTEGER')
-							{
-								try
-								{
-									model.extendedFields[name] = parseInt( model.extendedFields[name] );
-								}catch(ex)
-								{
-									model.extendedFields[name] = null;
-								}
-							}
-							else if(extendedField.type == 'DECIMAL')
-							{
-								try
-								{
-									model.extendedFields[name] = parseFloat( model.extendedFields[name] );
-								}catch(ex)
-								{
-									model.extendedFields[name] = null;
-								}
-							}
-							else if(extendedField.type == 'BOOLEAN')
-							{
-								try
-								{
-									var val = model.extendedFields[name];
-									
-									if(val)
-									{
-										model.extendedFields[name] = ( ("" + val).toLowerCase() == "true" ) ? true : false;
-									}
-								}catch(ex)
-								{
-									model.extendedFields[name] = null;
-								}
-							}
+							model.extendedFields[name] = $scope.cleanValue( model.extendedFields[name], extendedField.type );
 						}
 					}
 					

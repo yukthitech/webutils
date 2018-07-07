@@ -178,7 +178,7 @@ public class ValidationDefBuilder
 		Map<String, Object> valueMap = new HashMap<>();
 		Class<?> fieldType = field.getType();
 		
-		logger.debug("Loading validations of field {}.{}", field.getDeclaringClass().getName(), field.getName());
+		logger.trace("Loading validations of field {}.{}", field.getDeclaringClass().getName(), field.getName());
 		
 		//if field type id primitive, convert type to corresponding wrapper type
 		if(fieldType.isPrimitive())

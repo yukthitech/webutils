@@ -325,11 +325,18 @@
 				}
 				
 				context["export-action"] = true;
+				context["export-action-role"] = "";
 				
 				if(context.attr("export-action") == 'false')
 				{
 					context["export-action"] = false;
 				}
+				
+				if(context.attr("export-action-role"))
+				{
+					context["export-action-role"] = context.attr("export-action-role");
+				}
+				
 				
 				///////////////////////////////
 				//check if custom results displayer is present
@@ -487,7 +494,7 @@
 						<div style="text-align: right; padding-bottom: 0.4em;">
 							<if test="context['export-action']">
 								<yk-icon-link icon="fa fa-building" ng-click="exportResults()" 
-										color="green" label="Export Excel" ng-show="searchResults.length != 0"></yk-icon-link>
+										color="green" label="Export Excel" ng-show="searchResults.length != 0" yk-for-role="context._action.attr('export-action-role')"></yk-icon-link>
 							</if>
 							
 							<for-each data="${actions}" loop-var="action" index-var="actionIdx">
@@ -706,6 +713,7 @@
 			<set-var name="_footer" expr="context.element.find('footer').html()"/>
 			
 			<set-var name="_widthStyle" expr="context.attr('width') ? ('width:' + context.attr('width') + ';') : ''"/>
+			<set-var name="_height" expr="context.attr('height') ? ('height:' + context.attr('height') + ';') : ''"/>
 			
 			<div class="modal fade" id="${attr('id')}" tabindex="-1" role="dialog" data-backdrop="static">
 				<div class="modal-dialog ${_size}" role="document" style="${_widthStyle}">
@@ -724,7 +732,7 @@
 						</if>
 						
 						<!-- Content -->
-						<div class="modal-body">
+						<div class="modal-body" style="overflow: auto;  ${_height}">
 							${_content}
 						</div>
 						
@@ -767,6 +775,7 @@
 		
 			<set-var name="_size" expr="(context.attr('size') == 'small') ? 'modal-sm' : 'modal-lg'"/>
 			<set-var name="_widthStyle" expr="context.attr('width') ? ('width:' + context.attr('width') + ';') : ''"/>
+			<set-var name="_height" expr="context.attr('height') ? ('height:' + context.attr('height') + ';') : ''"/>
 			
 			<div class="modal fade" id="${attr('id')}" tabindex="-1" role="dialog" data-backdrop="static">
 				<div class="modal-dialog ${_size}" role="document" style="${_widthStyle}">
@@ -782,7 +791,7 @@
 						</div>
 						
 						<!-- Content -->
-						<div class="modal-body" yk-model="${attr('name')}">
+						<div class="modal-body" yk-model="${attr('name')}" style="overflow: auto; ${_height}">
 							<yk-model-form name="${attr('name')}" columns="${attr('columns')}" modelObj="${modelObj}" extension="${extension}">
 								<for-each data="${fieldCustomizers}" loop-var="customizer" index-var="idx"><![CDATA[
 									<field-customizer ${attrStr(context.customizer)}/>
@@ -804,6 +813,13 @@
 		</content>
 	</directive>
 
+	<!--
+		Used to display model form. The definition of model form is fetched from server.
+		
+		This directive supports following attributes:
+			modelObj - Defaults to "model". Scope field name to which current form data should be mapped.
+		 
+	 -->
 	<directive name="ykModelForm" required-attr="name, columns">
 		<pre-process>
 			context.executeAsyncSteps({"context": context, "processTemplate": processTemplate}, [

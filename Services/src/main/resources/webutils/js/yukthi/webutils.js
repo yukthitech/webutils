@@ -1,4 +1,5 @@
 var LOGIN_URI = "/auth/login";
+var LOGOUT_URI = "/auth/logout";
 var ACTIONS_URI = "/actions/fetch";
 var URL_PARAM_PATTERN = /\{(\w+)\}/g;
 
@@ -164,6 +165,7 @@ $.application.factory('utils', [function(){
 		
 		"alert" : function(message, callback) {
 			message = $.isArray(message) ? this.format(message[0], message, 1) : message;
+			message = message.replace(/\\n/g, "<br/>");
 			this.callback = callback;
 			
 			$('#' + ALERTS_DLG_ID + ' .modal-body').html(message);
@@ -653,6 +655,7 @@ $.application.factory('clientContext', ['logger', 'utils', '$cookies', function(
 				paramsObj, 
 				{
 					"methodType": "DELETE", 
+					"contentType" : "application/json",
 					"async": (config && (config.async == false)) ? false : true
 				},
 				callback,
@@ -819,6 +822,28 @@ $.application.factory('clientContext', ['logger', 'utils', '$cookies', function(
 			{
 				logger.debug("Ignoring redirectToLogin() as currently login page itself is active..");
 			}
+		},
+		
+		"logout": function() {
+			console.log("Invoking logout...");
+			
+    		this.invokePostApi(
+    				$.appConfiguration.apiBaseUrl + LOGOUT_URI,
+    				{},
+    				
+    				function(resData, config) {
+    					this.authToken = null;
+    					localStorage.removeItem("authToken");
+    					$cookies.remove("AUTH_TOKEN");
+    					
+    					console.log("Logout process completed...");
+    					
+    					window.location.href = $.appConfiguration.loginPageUrl;
+    				},
+    				
+    				{"async": false}
+        		);
+			
 		},
 		
 		"discardSession" : function(reason) {

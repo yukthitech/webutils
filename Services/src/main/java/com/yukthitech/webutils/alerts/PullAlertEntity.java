@@ -22,6 +22,12 @@ import com.yukthitech.webutils.repository.WebutilsEntity;
 public class PullAlertEntity extends WebutilsEntity
 {
 	/**
+	 * Used to identify alert uniquely.
+	 */
+	@Column(name = "DYNAMIC_ID", length = 100)
+	private String dynamicId;
+
+	/**
 	 * Used to identify alert and its confirmation uniquely.
 	 */
 	@Column(name = "NAME", length = 100)
@@ -337,5 +343,25 @@ public class PullAlertEntity extends WebutilsEntity
 	public void setActionPlan(ActionPlan actionPlan)
 	{
 		this.actionPlan = actionPlan;
+	}
+
+	/**
+	 * Gets the used to identify alert uniquely.
+	 *
+	 * @return the used to identify alert uniquely
+	 */
+	public String getDynamicId()
+	{
+		return dynamicId;
+	}
+
+	/**
+	 * Sets the used to identify alert uniquely.
+	 *
+	 * @param dynamicId the new used to identify alert uniquely
+	 */
+	public void setDynamicId(String dynamicId)
+	{
+		this.dynamicId = dynamicId;
 	}
 }

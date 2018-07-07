@@ -61,6 +61,7 @@ import com.yukthitech.webutils.WebutilsConfiguration;
 import com.yukthitech.webutils.WebutilsContext;
 import com.yukthitech.webutils.annotations.SearchQueryMethod;
 import com.yukthitech.webutils.common.IExtendedSearchResult;
+import com.yukthitech.webutils.common.IWebUtilsCommonConstants;
 import com.yukthitech.webutils.common.SearchExecutionModel;
 import com.yukthitech.webutils.common.annotations.ContextAttribute;
 import com.yukthitech.webutils.common.annotations.Model;
@@ -690,7 +691,14 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 					value = webutilsConfiguration.getDateFormat().format(value);
 				}
 
-				searchRow.addValue(value.toString());
+				if(column.getFieldDef() != null && column.getFieldDef().getFieldType() == FieldType.CUSTOM_TYPE)
+				{
+					searchRow.addValue( IWebUtilsCommonConstants.OBJECT_MAPPER.writeValueAsString(value) );
+				}
+				else
+				{
+					searchRow.addValue(value.toString());
+				}
 			}
 
 			response.addSearchResult(searchRow);

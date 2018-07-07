@@ -98,7 +98,7 @@ public class ModelDetailsService
 				continue;
 			}
 			
-			logger.debug("Loading model type - " + type.getName());
+			logger.trace("Loading model type - " + type.getName());
 			
 			modelDef = modelDefBuilder.getModelDefinition(type);
 			

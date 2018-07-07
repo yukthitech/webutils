@@ -131,6 +131,7 @@ public class SearchSettingsService extends BaseCrudService<SearchSettingsEntity,
 				searchSettingsColumn.setRequired(true);
 			}
 			
+			searchSettingsColumn.setFieldDef(field);
 			searchColumns.put(searchSettingsColumn, searchSettingsColumn);
 		}
 		

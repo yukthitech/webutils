@@ -42,6 +42,7 @@ import com.yukthitech.utils.exceptions.InvalidConfigurationException;
 import com.yukthitech.utils.exceptions.InvalidStateException;
 import com.yukthitech.webutils.common.LovType;
 import com.yukthitech.webutils.common.annotations.Color;
+import com.yukthitech.webutils.common.annotations.CustomType;
 import com.yukthitech.webutils.common.annotations.DefaultValue;
 import com.yukthitech.webutils.common.annotations.FullWidth;
 import com.yukthitech.webutils.common.annotations.Html;
@@ -261,6 +262,11 @@ public class FieldDefBuilder
 		if(field.getAnnotation(LOV.class) != null)
 		{
 			getCustomLovDetails(modelType, fieldDef, field);
+		}
+		//if field type is enum
+		else if(field.getAnnotation(CustomType.class) != null)
+		{
+			fieldDef.setFieldType(FieldType.CUSTOM_TYPE);
 		}
 		//if field type is enum
 		else if(fieldType.isEnum())

@@ -72,7 +72,10 @@ public enum FieldType
 	 */
 	IMAGE("image", ImageInfo.class, ImageInfo.class),
 	
-	COLOR("color", Color.class)
+	COLOR("color", Color.class),
+	
+	CUSTOM_TYPE("custom_type", Object.class)
+	
 	;
 	
 	/**

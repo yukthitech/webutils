@@ -21,6 +21,28 @@ import com.yukthitech.webutils.services.BaseCrudService;
 public class PullAlertService extends BaseCrudService<PullAlertEntity, IPullAlertRepository>
 {
 	/**
+	 * Save or update specified alert.
+	 *
+	 * @param alertDetails the alert details
+	 */
+	public void saveOrUpdate(AlertDetails alertDetails)
+	{
+		if(alertDetails.getDynamicId() != null)
+		{
+			PullAlertEntity alerEntity = super.repository.fetchAlertByDynamicId(alertDetails.getTarget(), alertDetails.getDynamicId());
+			
+			if(alerEntity != null)
+			{
+				alertDetails.setId(alerEntity.getId());
+				super.update(alertDetails);
+				return;
+			}
+		}
+		
+		super.save(alertDetails);
+	}
+	
+	/**
 	 * Fetches alerts for specified source. 
 	 * @param target target for which alerts to be fetched
 	 * @return matching alerts.

@@ -10,6 +10,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.yukthitech.webutils.common.annotations.SearchResultType;
+import com.yukthitech.webutils.common.models.def.FieldDef;
 
 /**
  * Represents a search column settings for search settings.
@@ -51,6 +52,11 @@ public class SearchSettingsColumn
 	 * Represent the search result field type for special rendering.
 	 */
 	private SearchResultType searchResultType = SearchResultType.NONE;
+	
+	/**
+	 * Source field def.
+	 */
+	private FieldDef fieldDef;
 	
 	/**
 	 * Instantiates a new search settings column.
@@ -309,6 +315,26 @@ public class SearchSettingsColumn
 	public void setSearchResultType(SearchResultType searchResultType)
 	{
 		this.searchResultType = searchResultType;
+	}
+	
+	/**
+	 * Gets the source field def.
+	 *
+	 * @return the source field def
+	 */
+	public FieldDef getFieldDef()
+	{
+		return fieldDef;
+	}
+
+	/**
+	 * Sets the source field def.
+	 *
+	 * @param fieldDef the new source field def
+	 */
+	public void setFieldDef(FieldDef fieldDef)
+	{
+		this.fieldDef = fieldDef;
 	}
 
 	/**

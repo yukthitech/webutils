@@ -48,6 +48,12 @@ public class EventAlertRuleEntity extends WebutilsEntity
 	private String customData;
 
 	/**
+	 * Custom data type to be used for parsing custom data.
+	 */
+	@Column(name = "CUSTOM_DATA_TYPE", length = 100)
+	private String customDataType;
+
+	/**
 	 * Gets the event type for which this rule should be evaluated.
 	 *
 	 * @return the event type for which this rule should be evaluated
@@ -145,5 +151,25 @@ public class EventAlertRuleEntity extends WebutilsEntity
 	public void setCustomData(String customData)
 	{
 		this.customData = customData;
+	}
+
+	/**
+	 * Gets the custom data type to be used for parsing custom data.
+	 *
+	 * @return the custom data type to be used for parsing custom data
+	 */
+	public String getCustomDataType()
+	{
+		return customDataType;
+	}
+
+	/**
+	 * Sets the custom data type to be used for parsing custom data.
+	 *
+	 * @param customDataType the new custom data type to be used for parsing custom data
+	 */
+	public void setCustomDataType(String customDataType)
+	{
+		this.customDataType = customDataType;
 	}
 }
