@@ -89,6 +89,11 @@ public class ActionPlanExecutionContext
 	private IActionPlanExecutorCallback callback;
 	
 	/**
+	 * Flag indicating if action plan execution is completed or not. 
+	 */
+	private boolean executionCompleted = false;
+	
+	/**
 	 * Instantiates a new action plan execution context.
 	 *
 	 * @param templateProcessor the template processor
@@ -156,6 +161,11 @@ public class ActionPlanExecutionContext
 	 */
 	public boolean executeNextAction(Object result)
 	{
+		if(executionCompleted)
+		{
+			return true;
+		}
+		
 		List<ActionPlanStep> steps = actionPlan.getSteps();
 		
 		if(currentAction != null)
@@ -182,6 +192,7 @@ public class ActionPlanExecutionContext
 				callback.actionPlanExecuted(this.context);
 			}
 			
+			executionCompleted = true;
 			return true;
 		}
 		

@@ -255,7 +255,7 @@ public class FreeMarkerService
 			return writer.toString();
 		} catch(Exception ex)
 		{
-			throw new IllegalStateException("An exception occurred while processing template: " + name, ex);
+			throw new IllegalStateException("An exception occurred while processing template: " + name + "\n Input Template: " + templateString, ex);
 		}
 	}
 	

@@ -24,6 +24,7 @@
 package com.yukthitech.webutils.client;
 
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -35,6 +36,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.tika.Tika;
 
+import com.yukthitech.utils.beans.BeanInfo;
+import com.yukthitech.utils.beans.PropertyMapper;
 import com.yukthitech.utils.exceptions.InvalidStateException;
 import com.yukthitech.utils.rest.DeleteRestRequest;
 import com.yukthitech.utils.rest.GetRestRequest;
@@ -55,6 +58,18 @@ public class ActionRequestBuilder
 	
 	private static final Tika tika = new Tika();
 	
+	@SuppressWarnings("rawtypes")
+	private static Object getFieldValue(Object entity, String field) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException
+	{
+		if(entity instanceof Map)
+		{
+			return ((Map)entity).get(field);
+		}
+		
+		BeanInfo beanInfo = PropertyMapper.getBeanInfo(entity.getClass());
+		return beanInfo.getProperty(field).getProperty().getValue(entity);		
+	}
+	
 	/**
 	 * Process each file field. Removes files from fields and add them as attachments (multi parts) to request
 	 * @param requestEntity
@@ -65,7 +80,7 @@ public class ActionRequestBuilder
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private static void processFileField(Object requestEntity, String field, IdentityHashMap<String, File> fileMap) throws Exception
 	{
-		Object fileFieldValue = PropertyUtils.getProperty(requestEntity, field);
+		Object fileFieldValue = getFieldValue(requestEntity, field);
 		
 		//if field value is null, ignore
 		if(fileFieldValue == null)

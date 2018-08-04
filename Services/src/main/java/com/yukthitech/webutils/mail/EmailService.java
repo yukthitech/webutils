@@ -23,6 +23,7 @@ import javax.mail.Address;
 import javax.mail.Authenticator;
 import javax.mail.BodyPart;
 import javax.mail.Flags;
+import javax.mail.Flags.Flag;
 import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -282,6 +283,24 @@ public class EmailService
 		String arr[] = str.trim().split("\\s*\\,\\s*");
 		return Arrays.asList(arr);
 	}
+	
+	/**
+	 * Used to process template. If context is null, template will be returned directly without
+	 * processing.
+	 * @param name
+	 * @param template
+	 * @param context
+	 * @return
+	 */
+	private String processTemplate(String name, String template, Object context)
+	{
+		if(context == null)
+		{
+			return template;
+		}
+		
+		return freeMarkerService.processTemplate(name, template, context);
+	}
 
 	/**
 	 * Builds the mail message from specified email data.
@@ -297,12 +316,12 @@ public class EmailService
 	private Message buildMessage(EmailServerSettings settings, MailTemplateEntity emailTemplate, Object context) throws AddressException, MessagingException
 	{
 		// get the list of mail recipients
-		String toStr = freeMarkerService.processTemplate(emailTemplate.getTemplateName() + ".to", emailTemplate.getToListTemplate(), context);
-		String ccStr = freeMarkerService.processTemplate(emailTemplate.getTemplateName() + ".cc", emailTemplate.getCcListTemplate(), context);
-		String bccStr = freeMarkerService.processTemplate(emailTemplate.getTemplateName() + ".cc", emailTemplate.getBccListTemplate(), context);
+		String toStr = processTemplate(emailTemplate.getTemplateName() + ".to", emailTemplate.getToListTemplate(), context);
+		String ccStr = processTemplate(emailTemplate.getTemplateName() + ".cc", emailTemplate.getCcListTemplate(), context);
+		String bccStr = processTemplate(emailTemplate.getTemplateName() + ".cc", emailTemplate.getBccListTemplate(), context);
 
-		String subject = freeMarkerService.processTemplate(emailTemplate.getTemplateName() + ".subject", emailTemplate.getSubjectTemplate(), context);
-		String content = freeMarkerService.processTemplate(emailTemplate.getTemplateName() + ".content", emailTemplate.getContentTemplate(), context);
+		String subject = processTemplate(emailTemplate.getTemplateName() + ".subject", emailTemplate.getSubjectTemplate(), context);
+		String content = processTemplate(emailTemplate.getTemplateName() + ".content", emailTemplate.getContentTemplate(), context);
 
 		List<String> toStrLst = toList(toStr);
 		List<String> ccStrLst = toList(ccStr);
@@ -389,6 +408,44 @@ public class EmailService
 
 		return message;
 	}
+	
+	/**
+	 * Copies message to sent folder.
+	 *
+	 * @param settings the settings
+	 * @param message the message
+	 */
+	private void copyToSentFolder(EmailServerSettings settings, Message message)
+	{
+		Session mailSession = newSession(settings);
+		
+		try
+		{
+			Store store = mailSession.getStore("imap");
+			String folderPath[] = settings.getSentFolder().split("/");
+			Folder folder = null;
+			
+			for(int i = 0; i < folderPath.length; i++)
+			{
+				if(folder == null)
+				{
+					folder = store.getFolder(folderPath[i]);
+				}
+				else
+				{
+					folder = folder.getFolder(folderPath[i]);
+				}
+			}
+			
+		    folder.open(Folder.READ_WRITE);
+		    message.setFlag(Flag.SEEN, true);
+		    folder.appendMessages(new Message[] {message});
+		    store.close();
+		}catch(Exception ex)
+		{
+			throw new InvalidStateException("Failed to copy mail to sent folder");
+		}
+	}
 
 	/**
 	 * Sends the specified email message.
@@ -402,10 +459,12 @@ public class EmailService
 	 */
 	public void sendEmail(EmailServerSettings settings, MailTemplateEntity email, Object context)
 	{
+		Message message = null;
+		
 		try
 		{
 			// Build mail message object
-			Message message = buildMessage(settings, email, context);
+			message = buildMessage(settings, email, context);
 
 			// send the message
 			Transport.send(message);
@@ -413,6 +472,8 @@ public class EmailService
 		{
 			throw new InvalidStateException(ex, "An error occurred while sending email - {}", email);
 		}
+		
+		copyToSentFolder(settings, message);
 	}
 
 	/**

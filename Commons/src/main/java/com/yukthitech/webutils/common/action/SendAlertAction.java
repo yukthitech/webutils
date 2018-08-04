@@ -5,7 +5,7 @@ import com.yukthitech.webutils.common.alerts.AlertDetails;
 /**
  * Action for sending alert.
  */
-public class AlertAgentAction extends AbstractAgentAction
+public class SendAlertAction extends AbstractAgentAction
 {
 	/**
 	 * Alert details.
@@ -16,6 +16,11 @@ public class AlertAgentAction extends AbstractAgentAction
 	 * Alerts data json.
 	 */
 	private String alertDataJson;
+	
+	/**
+	 * Flag to indicate that message being sent is also displayed on client.
+	 */
+	private boolean displayAtClient;
 
 	/**
 	 * Gets the alert details.
@@ -55,5 +60,25 @@ public class AlertAgentAction extends AbstractAgentAction
 	public void setAlertDataJson(String alertDataJson)
 	{
 		this.alertDataJson = alertDataJson;
+	}
+
+	/**
+	 * Checks if is flag to indicate that message being sent is also displayed on client.
+	 *
+	 * @return the flag to indicate that message being sent is also displayed on client
+	 */
+	public boolean isDisplayAtClient()
+	{
+		return displayAtClient;
+	}
+
+	/**
+	 * Sets the flag to indicate that message being sent is also displayed on client.
+	 *
+	 * @param displayAtClient the new flag to indicate that message being sent is also displayed on client
+	 */
+	public void setDisplayAtClient(boolean displayAtClient)
+	{
+		this.displayAtClient = displayAtClient;
 	}
 } 

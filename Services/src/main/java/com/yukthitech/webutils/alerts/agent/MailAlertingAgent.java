@@ -1,6 +1,5 @@
 package com.yukthitech.webutils.alerts.agent;
 
-import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -79,7 +78,7 @@ public class MailAlertingAgent implements IAlertingAgent
 		
 		mailTemplateEntity.setContentTemplate(message);
 		
-		emailService.sendEmail(emailServerSettings, mailTemplateEntity, Collections.emptyMap());
+		emailService.sendEmail(emailServerSettings, mailTemplateEntity, null);
 		return true;
 	}
 }

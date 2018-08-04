@@ -71,8 +71,10 @@
 								<include>org.apache.httpcomponents:httpclient</include>
 								<include>commons-beanutils:commons-beanutils</include>
 								<include>org.apache.commons:commons-lang3</include>
+								<include>commons-collections:commons-collections</include>
 								<include>org.apache.httpcomponents:httpcore</include>
 								<include>org.apache.tika:tika-core</include>
+								<include>org.apache.httpcomponents:httpmime</include>
 
 								<include>com.fasterxml.jackson.core:jackson-core</include>
 								<include>com.fasterxml.jackson.core:jackson-annotations</include>

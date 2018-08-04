@@ -5,14 +5,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.yukthitech.webutils.client.ClientControllerFactory;
-import com.yukthitech.webutils.client.actionplan.executor.AlertActionExecutor;
+import com.yukthitech.webutils.client.actionplan.executor.SendAlertExecutor;
 import com.yukthitech.webutils.client.actionplan.executor.ApiActionExecutor;
 import com.yukthitech.webutils.client.actionplan.executor.ConditionalActionExecutor;
 import com.yukthitech.webutils.client.actionplan.executor.FinalizeExecutionActionExecutor;
 import com.yukthitech.webutils.client.actionplan.executor.IActionExecutor;
 import com.yukthitech.webutils.client.actionplan.executor.IActionPlanExecutorCallback;
 import com.yukthitech.webutils.client.actionplan.executor.SetAttributeActionExecutor;
-import com.yukthitech.webutils.common.action.AlertAgentAction;
+import com.yukthitech.webutils.common.action.SendAlertAction;
 import com.yukthitech.webutils.common.action.ApiAgentAction;
 import com.yukthitech.webutils.common.action.FinalizeExecutionAction;
 import com.yukthitech.webutils.common.action.IAgentAction;
@@ -34,7 +34,7 @@ public class ActionPlanExecutor
 	static
 	{
 		actionExecutors.put(ApiAgentAction.class, new ApiActionExecutor());
-		actionExecutors.put(AlertAgentAction.class, new AlertActionExecutor());
+		actionExecutors.put(SendAlertAction.class, new SendAlertExecutor());
 		actionExecutors.put(ConditionalAction.class, new ConditionalActionExecutor());
 		actionExecutors.put(SetAttributeAction.class, new SetAttributeActionExecutor());
 		actionExecutors.put(FinalizeExecutionAction.class, new FinalizeExecutionActionExecutor());

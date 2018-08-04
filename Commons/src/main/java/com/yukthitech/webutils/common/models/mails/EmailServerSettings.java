@@ -120,6 +120,11 @@ public class EmailServerSettings
 	private List<String> folderNames = Arrays.asList("INBOX");
 	
 	/**
+	 * Sent folder to which mails being sent should be copied.
+	 */
+	private String sentFolder = "Sent";
+	
+	/**
 	 * Gets the smtp host.
 	 *
 	 * @return the smtp host
@@ -297,6 +302,26 @@ public class EmailServerSettings
 	public void setFolderNames(List<String> folderNames)
 	{
 		this.folderNames = folderNames;
+	}
+	
+	/**
+	 * Gets the sent folder to which mails being sent should be copied.
+	 *
+	 * @return the sent folder to which mails being sent should be copied
+	 */
+	public String getSentFolder()
+	{
+		return sentFolder;
+	}
+
+	/**
+	 * Sets the sent folder to which mails being sent should be copied.
+	 *
+	 * @param sentFolder the new sent folder to which mails being sent should be copied
+	 */
+	public void setSentFolder(String sentFolder)
+	{
+		this.sentFolder = sentFolder;
 	}
 
 	/**

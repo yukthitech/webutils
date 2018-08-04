@@ -6,10 +6,8 @@ import java.util.Set;
 import com.yukthitech.persistence.repository.annotations.Field;
 import com.yukthitech.webutils.common.BaseModel;
 import com.yukthitech.webutils.common.ContactDetails;
-import com.yukthitech.webutils.common.actionplan.ActionPlan;
 import com.yukthitech.webutils.common.annotations.IgnoreField;
 import com.yukthitech.webutils.common.annotations.Model;
-import com.yukthitech.webutils.common.annotations.xml.DataWithXml;
 
 /**
  * Indicates basic details of rule which is used to convert message (sms or mail) into an alert.
@@ -57,14 +55,6 @@ public class BasicMessageParseRuleModel extends BaseModel
 	 */
 	@IgnoreField
 	private List<ContactDetails> targetUsers;
-	
-	/**
-	 * Action plan to be execute when match is found.
-	 */
-	@DataWithXml
-	@IgnoreField
-	@Field("actionPlan")
-	private ActionPlan actionPlan;
 
 	/**
 	 * Gets the from address pattern to be used.
@@ -184,25 +174,5 @@ public class BasicMessageParseRuleModel extends BaseModel
 	public void setFromType(String fromType)
 	{
 		this.fromType = fromType;
-	}
-
-	/**
-	 * Gets the action plan to be execute when match is found.
-	 *
-	 * @return the action plan to be execute when match is found
-	 */
-	public ActionPlan getActionPlan()
-	{
-		return actionPlan;
-	}
-
-	/**
-	 * Sets the action plan to be execute when match is found.
-	 *
-	 * @param actionPlan the new action plan to be execute when match is found
-	 */
-	public void setActionPlan(ActionPlan actionPlan)
-	{
-		this.actionPlan = actionPlan;
 	}
 }

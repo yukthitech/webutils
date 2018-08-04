@@ -110,6 +110,11 @@ public class AlertEngine
 	private String systemAgentName;
 	
 	/**
+	 * Used to cache phase alert objects.
+	 */
+	private Map<String, PhasedAlert> phasedAlerts = new HashMap<>();
+	
+	/**
 	 * Post construct method to fetch agents.
 	 */
 	@PostConstruct
@@ -214,7 +219,7 @@ public class AlertEngine
 	 */
 	public void alertSystemError(String title, String message, Throwable th)
 	{
-		logger.debug("Sending system error [Title: {}, Message: {}, Error: {]]", title, message, "" + th);
+		logger.debug("Sending system error [Title: {}, Message: {}, Error: {}]", title, message, "" + th);
 		AlertDetails alertDetails = new AlertDetails();
 		alertDetails.setAlertType(alertSupport.getErrorAlertType());
 		alertDetails.setTitle(title);
@@ -330,6 +335,40 @@ public class AlertEngine
 	public void sendEventAlerts(Object eventObject)
 	{
 		sendEventAlerts(eventObject, eventObject.getClass().getName());
+	}
+	
+	/**
+	 * Schedules alert to be sent after 30 sec. So that if phased alert comes again with same id, old alert is reaplced
+	 * with new one.
+	 * @param dynamicId id based on which alert should be grouped
+	 * @param eventObject event object to be used
+	 * @param eventType event type to be used.
+	 */
+	public synchronized void sendPhasedEventAlert(final String dynamicId, Object eventObject, String eventType)
+	{
+		boolean existingAlert = phasedAlerts.containsKey(dynamicId);
+		phasedAlerts.put(dynamicId, new PhasedAlert(eventObject, eventType));
+		
+		if(existingAlert)
+		{
+			return;
+		}
+		
+		asyncTaskService.executeTask(COMP_NAME, new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				PhasedAlert phasedAlert = null;
+				
+				synchronized(AlertEngine.this)
+				{
+					phasedAlert = phasedAlerts.remove(dynamicId);
+				}
+				
+				sendEventAlerts(phasedAlert.getEventObject(), phasedAlert.getEventType());
+			}
+		}, 30000);
 	}
 	
 	/**

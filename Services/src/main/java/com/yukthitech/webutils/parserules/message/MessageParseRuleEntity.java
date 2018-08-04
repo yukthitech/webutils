@@ -8,9 +8,8 @@ import javax.persistence.Table;
 
 import com.yukthitech.persistence.annotations.DataType;
 import com.yukthitech.persistence.annotations.DataTypeMapping;
+import com.yukthitech.persistence.annotations.UniqueConstraint;
 import com.yukthitech.persistence.conversion.impl.JsonWithTypeConverter;
-import com.yukthitech.persistence.conversion.impl.XmlConverter;
-import com.yukthitech.webutils.common.actionplan.ActionPlan;
 import com.yukthitech.webutils.repository.WebutilsEntity;
 
 /**
@@ -20,6 +19,13 @@ import com.yukthitech.webutils.repository.WebutilsEntity;
 @Table(name = "WEBUTILS_MSSG_PARSING_RULE")
 public class MessageParseRuleEntity extends WebutilsEntity
 {
+	/**
+	 * Name to uniquely identify the parsing rulr.
+	 */
+	@Column(name = "NAME", length = 50)
+	@UniqueConstraint(name = "NAME")
+	private String name;
+	
 	/**
 	 * Agent of user with this role only
 	 * will be having access to use this rule.
@@ -85,11 +91,24 @@ public class MessageParseRuleEntity extends WebutilsEntity
 	private Map<String, Object> defaultAttributes;
 
 	/**
-	 * Action plan to be execute when match is found.
+	 * Gets the name to uniquely identify the parsing rulr.
+	 *
+	 * @return the name to uniquely identify the parsing rulr
 	 */
-	@Column(name = "ACTION_PLAN_XML")
-	@DataTypeMapping(type = DataType.CLOB, converterType = XmlConverter.class)
-	private ActionPlan actionPlan;
+	public String getName()
+	{
+		return name;
+	}
+
+	/**
+	 * Sets the name to uniquely identify the parsing rulr.
+	 *
+	 * @param name the new name to uniquely identify the parsing rulr
+	 */
+	public void setName(String name)
+	{
+		this.name = name;
+	}
 
 	/**
 	 * Gets the agent of user with this role only will be used to use this rule.
@@ -269,25 +288,5 @@ public class MessageParseRuleEntity extends WebutilsEntity
 	public void setUserRoleString(String userRoleString)
 	{
 		this.userRoleString = userRoleString;
-	}
-
-	/**
-	 * Gets the action plan to be execute when match is found.
-	 *
-	 * @return the action plan to be execute when match is found
-	 */
-	public ActionPlan getActionPlan()
-	{
-		return actionPlan;
-	}
-
-	/**
-	 * Sets the action plan to be execute when match is found.
-	 *
-	 * @param actionPlan the new action plan to be execute when match is found
-	 */
-	public void setActionPlan(ActionPlan actionPlan)
-	{
-		this.actionPlan = actionPlan;
 	}
 }

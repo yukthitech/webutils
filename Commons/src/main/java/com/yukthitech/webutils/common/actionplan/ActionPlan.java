@@ -2,6 +2,7 @@ package com.yukthitech.webutils.common.actionplan;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import com.yukthitech.webutils.common.action.IAgentAction;
 
@@ -26,6 +27,11 @@ public class ActionPlan
 	 * If specified, this action will be executed when action plan execution is finalized.
 	 */
 	private IAgentAction finalAction;
+	
+	/**
+	 * Context being used to execute action plan.
+	 */
+	private Map<String, Object> context;
 
 	/**
 	 * Gets the name of the action plan. That can be used as label for action which in turn wil execute action plan.
@@ -99,5 +105,25 @@ public class ActionPlan
 	public void setFinalAction(IAgentAction finalAction)
 	{
 		this.finalAction = finalAction;
+	}
+
+	/**
+	 * Gets the context being used to execute action plan.
+	 *
+	 * @return the context being used to execute action plan
+	 */
+	public Map<String, Object> getContext()
+	{
+		return context;
+	}
+
+	/**
+	 * Sets the context being used to execute action plan.
+	 *
+	 * @param context the new context being used to execute action plan
+	 */
+	public void setContext(Map<String, Object> context)
+	{
+		this.context = context;
 	}
 }

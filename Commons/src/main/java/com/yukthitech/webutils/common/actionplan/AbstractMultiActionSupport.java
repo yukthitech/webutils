@@ -1,8 +1,10 @@
 package com.yukthitech.webutils.common.actionplan;
 
 import com.yukthitech.webutils.common.action.AlertAction;
-import com.yukthitech.webutils.common.action.AlertAgentAction;
+import com.yukthitech.webutils.common.action.SendAlertAction;
+import com.yukthitech.webutils.common.action.SendInputAlertAction;
 import com.yukthitech.webutils.common.action.ApiAgentAction;
+import com.yukthitech.webutils.common.action.CallAction;
 import com.yukthitech.webutils.common.action.CallAndFillFormAction;
 import com.yukthitech.webutils.common.action.FillFormAction;
 import com.yukthitech.webutils.common.action.FinalizeExecutionAction;
@@ -30,7 +32,7 @@ public abstract class AbstractMultiActionSupport
 	 * Adds action to current step.
 	 * @param action action to add.
 	 */
-	public void addSendAlert(AlertAgentAction action)
+	public void addSendAlert(SendAlertAction action)
 	{
 		addAction(action);
 	}
@@ -115,6 +117,26 @@ public abstract class AbstractMultiActionSupport
 	 * @param action the action
 	 */
 	public void addAlert(AlertAction action)
+	{
+		addAction(action);
+	}
+
+	/**
+	 * Adds the call.
+	 *
+	 * @param action the action
+	 */
+	public void addCall(CallAction action)
+	{
+		addAction(action);
+	}
+
+	/**
+	 * Adds the send input alert.
+	 *
+	 * @param action the action
+	 */
+	public void addSendInputAlert(SendInputAlertAction action)
 	{
 		addAction(action);
 	}

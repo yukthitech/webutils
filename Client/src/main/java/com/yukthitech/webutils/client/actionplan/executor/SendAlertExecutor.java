@@ -3,7 +3,7 @@ package com.yukthitech.webutils.client.actionplan.executor;
 import org.apache.commons.lang3.StringUtils;
 
 import com.yukthitech.webutils.client.actionplan.ActionPlanExecutionContext;
-import com.yukthitech.webutils.common.action.AlertAgentAction;
+import com.yukthitech.webutils.common.action.SendAlertAction;
 import com.yukthitech.webutils.common.alerts.AlertDetails;
 import com.yukthitech.webutils.common.alerts.IAlertController;
 
@@ -11,11 +11,11 @@ import com.yukthitech.webutils.common.alerts.IAlertController;
  * Alert action executor.
  * @author akiran
  */
-public class AlertActionExecutor implements IActionExecutor<AlertAgentAction>
+public class SendAlertExecutor implements IActionExecutor<SendAlertAction>
 {
 	@SuppressWarnings({ "unchecked" })
 	@Override
-	public void executeAction(ActionPlanExecutionContext context, AlertAgentAction action) throws Exception
+	public void executeAction(ActionPlanExecutionContext context, SendAlertAction action) throws Exception
 	{
 		AlertDetails alertDetails = action.getAlert();
 		
@@ -31,6 +31,22 @@ public class AlertActionExecutor implements IActionExecutor<AlertAgentAction>
 		IAlertController<Object> alertController = (IAlertController<Object>) context.getClientControllerFactory().getController(IAlertController.class);
 		alertController.sendAlert(alertDetails, null);
 		
+		if(action.isDisplayAtClient())
+		{
+			displayClientAlert(context, action);
+		}
+		else
+		{
+			context.executeNextAction(null);
+		}
+	}
+	
+	/**
+	 * Invoked when message needs to be displayed on client side.
+	 * @param context
+	 */
+	protected void displayClientAlert(ActionPlanExecutionContext context, SendAlertAction action)
+	{
 		context.executeNextAction(null);
 	}
 }
