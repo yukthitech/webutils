@@ -100,7 +100,11 @@ public class ApiActionExecutor implements IActionExecutor<ApiAgentAction>
 		}
 		
 		Object resposeValue = methodResult.getValue();
-		context.executeNextAction(resposeValue);
+		
+		if(!processResponse(context, action, resposeValue))
+		{
+			context.executeNextAction(resposeValue);
+		}
 	}
 	
 	/**
@@ -278,5 +282,15 @@ public class ApiActionExecutor implements IActionExecutor<ApiAgentAction>
 				}
 			}
 		}
+	}
+	
+	/**
+	 * Child classes are expected to override this method and handle any custom errors.
+	 * @param response
+	 * @return should return true, if next action execution is handled by child class implementation.
+	 */
+	protected boolean processResponse(ActionPlanExecutionContext context, ApiAgentAction action, Object response)
+	{
+		return false;
 	}
 }
