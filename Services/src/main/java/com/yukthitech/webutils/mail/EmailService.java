@@ -422,6 +422,8 @@ public class EmailService
 		try
 		{
 			Store store = mailSession.getStore("imap");
+			store.connect();
+			
 			String folderPath[] = settings.getSentFolder().split("/");
 			Folder folder = null;
 			
@@ -443,7 +445,7 @@ public class EmailService
 		    store.close();
 		}catch(Exception ex)
 		{
-			throw new InvalidStateException("Failed to copy mail to sent folder");
+			throw new InvalidStateException("Failed to copy mail to sent folder", ex);
 		}
 	}
 
@@ -473,7 +475,13 @@ public class EmailService
 			throw new InvalidStateException(ex, "An error occurred while sending email - {}", email);
 		}
 		
-		copyToSentFolder(settings, message);
+		try
+		{
+			copyToSentFolder(settings, message);
+		} catch(Exception ex)
+		{
+			logger.debug("An error occurred while copying mail to sent folder.", ex);
+		}
 	}
 
 	/**

@@ -603,7 +603,7 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 	 */
 	private ExecuteSearchResponse toResponse(String searchQueryName, List<Object> results, SearchSettingsEntity searchSettings, SearchExecutionModel searchExecutionModel, long count) throws Exception
 	{
-		ExecuteSearchResponse response = new ExecuteSearchResponse();
+		ExecuteSearchResponse response = new ExecuteSearchResponse(results);
 		response.setPageNumber(searchExecutionModel.getPageNumber());
 
 		response.setTotalCount(count);

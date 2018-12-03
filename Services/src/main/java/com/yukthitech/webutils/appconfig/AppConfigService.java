@@ -27,6 +27,7 @@ public class AppConfigService extends BaseCrudService<AppConfigEntity, IAppConfi
 		}
 		else
 		{
+			config.setValue(value);
 			super.update(config, null);
 		}
 	}

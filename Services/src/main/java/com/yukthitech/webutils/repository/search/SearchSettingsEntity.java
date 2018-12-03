@@ -43,8 +43,8 @@ public class SearchSettingsEntity extends WebutilsEntity
 	/**
 	 * Search column order with display flags.
 	 */
-	@Column(name = "SEARCH_COLUMNS", nullable = false, length = 4000)
-	@DataTypeMapping(type = DataType.STRING, converterType = JsonWithTypeConverter.class)
+	@Column(name = "SEARCH_COLUMNS", nullable = false)
+	@DataTypeMapping(type = DataType.CLOB, converterType = JsonWithTypeConverter.class)
 	private List<SearchSettingsColumn> searchColumns;
 	
 	/**
