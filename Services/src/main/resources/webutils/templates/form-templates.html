@@ -10,7 +10,7 @@
 				expr="context.attr('ng-change')? context.attr('ng-change') : ''"/>
 
 			<div class="form-group" style="margin-bottom: 0px;">
-				<div class="model-form-date input-group date">
+				<div class="model-form-date input-group date" dt-format="${attr('format')}">
 					<input type="text" class="form-control" name="${attr('name')}" placeholder="${attr('label')}" 
 						ng-model="${attr('ng-model')}" yk-read-only="${_readOnly}" ng-change="${_onChange}"></input>
 					<span class="input-group-addon">
@@ -21,18 +21,27 @@
 		</content>
 
 		<post-script>
-			var dateFormat = context.$scope.activeUser.jsDateFormat;
+			var dateFormat = context.attr('format')? context.attr('format') : context.$scope.activeUser.jsDateFormat;
+			
 			var element = $(context.$result).find("div.date");
 			element = $(element);
 			
 			element.datetimepicker({
-				"format" : dateFormat
+				"format" : dateFormat,
+				"showTodayButton": true,
+				showClear: true,
+				"widgetParent": element
 			});
 			
 			element.off("dp.change").on("dp.change", $.proxy(function(event){
 				this.element.find("input").trigger("change");
 			}, {"element": element, "$scope" : context.$scope}));
 			
+			element.off("dp.show").on("dp.show", $.proxy(function(){
+				var elemPos = this.element.offset();
+				$(".bootstrap-datetimepicker-widget").offset( {"top": elemPos.top + this.element.height(), "left": elemPos.left} );
+			}, {"element": element, "$scope" : context.$scope}));
+
 			context.$scope.$on('activeUserIsReady', $.proxy(function(event, data){
 				this.element.datetimepicker({
 					"format" : this.$scope.activeUser.jsDateFormat

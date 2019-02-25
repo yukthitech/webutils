@@ -15,7 +15,7 @@ import com.yukthitech.webutils.repository.WebutilsEntity;
  */
 @Table(name = "WEBUTILS_APP_ALERT_CONTEXT")
 @UniqueConstraints(
-	@UniqueConstraint(name = "ATTR_NAME", fields = {"name"})
+	@UniqueConstraint(name = "ATTR_NAME", fields = {"name"}, finalName = false)
 )
 public class SystemAlertContextEntity extends WebutilsEntity
 {

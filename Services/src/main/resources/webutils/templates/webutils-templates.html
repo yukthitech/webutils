@@ -17,17 +17,6 @@
 		</content>
 	</directive>
 	
-	<directive name="ykTabButton" required-attr="id, label, icon">
-		<content>
-			<set-var name="_forRole" expr="context.attr('yk-for-role', null) ? context.attr('yk-for-role', null) : ''"/>
-			
-			<a id="${attr('id','')}"  class="yk-tab-button" style="white-space: nowrap; color: ${attr('color','')}; text-decoration: none;" yk-for-role="${_forRole}" ui-sref="${attr('state')}">
-				<i class="${attr('icon','')}" style="color: ${attr('icon-color','')};" aria-hidden="true"></i>
-				${attributes.label}
-			</a>
-		</content>
-	</directive>
-
 	<directive name="ykImageSlider" required-attr="id, dataattr, width, height">
 		<content>
 			<set-var name="_idAttr" expr="context.attributes.id"/>
@@ -324,17 +313,17 @@
 					context["actions"] = null;
 				}
 				
-				context["export-action"] = true;
-				context["export-action-role"] = "";
+				context["export-action"] = false;
+				context["exportActionRole"] = "";
 				
-				if(context.attr("export-action") == 'false')
+				if(context.attr("export-action") == 'true')
 				{
-					context["export-action"] = false;
+					context["export-action"] = true;
 				}
 				
 				if(context.attr("export-action-role"))
 				{
-					context["export-action-role"] = context.attr("export-action-role");
+					context["exportActionRole"] = context.attr("export-action-role");
 				}
 				
 				
@@ -494,7 +483,7 @@
 						<div style="text-align: right; padding-bottom: 0.4em;">
 							<if test="context['export-action']">
 								<yk-icon-link icon="fa fa-building" ng-click="exportResults()" 
-										color="green" label="Export Excel" ng-show="searchResults.length != 0" yk-for-role="context._action.attr('export-action-role')"></yk-icon-link>
+										color="green" label="Export Excel" ng-show="searchResults.length != 0" yk-for-role="${exportActionRole}"></yk-icon-link>
 							</if>
 							
 							<for-each data="${actions}" loop-var="action" index-var="actionIdx">

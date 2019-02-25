@@ -27,6 +27,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -637,6 +638,7 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 		SearchRow searchRow = null;
 		Object value = null;
 		String extensionName = null;
+		Map<String, SimpleDateFormat> dateFormats = new HashMap<>();
 
 		for(Object result : results)
 		{
@@ -688,7 +690,22 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 
 				if(value instanceof Date)
 				{
-					value = webutilsConfiguration.getDateFormat().format(value);
+					if(column.getFieldDef() != null && column.getFieldDef().getFormat() != null)
+					{
+						SimpleDateFormat dateFormat = dateFormats.get(column.getFieldDef().getFormat());
+						
+						if(dateFormat == null)
+						{
+							dateFormat = new SimpleDateFormat(column.getFieldDef().getFormat());
+							dateFormats.put(column.getFieldDef().getFormat(), dateFormat);
+						}
+						
+						value = dateFormat.format(value);
+					}
+					else
+					{
+						value = webutilsConfiguration.getDateFormat().format(value);
+					}
 				}
 
 				if(column.getFieldDef() != null && column.getFieldDef().getFieldType() == FieldType.CUSTOM_TYPE)

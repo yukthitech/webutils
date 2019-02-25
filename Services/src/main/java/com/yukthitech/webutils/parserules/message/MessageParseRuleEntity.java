@@ -23,7 +23,7 @@ public class MessageParseRuleEntity extends WebutilsEntity
 	 * Name to uniquely identify the parsing rulr.
 	 */
 	@Column(name = "NAME", length = 50)
-	@UniqueConstraint(name = "NAME")
+	@UniqueConstraint(name = "NAME", finalName = false)
 	private String name;
 	
 	/**

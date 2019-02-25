@@ -39,8 +39,8 @@ import com.yukthitech.persistence.conversion.impl.JsonWithTypeConverter;
  */
 @Table(name = "WEBUTILS_ENTITY_EXTENSIONS")
 @UniqueConstraints({
-	@UniqueConstraint(name = "TARGET_OWNER", fields = {"targetEntityType", "ownerEntityType", "ownerEntityId"}),
-	@UniqueConstraint(name = "NAME", fields = {"spaceIdentity", "name"})
+	@UniqueConstraint(name = "TARGET_OWNER", fields = {"targetEntityType", "ownerEntityType", "ownerEntityId"}, finalName = false),
+	@UniqueConstraint(name = "NAME", fields = {"spaceIdentity", "name"}, finalName = false)
 	})
 public class ExtensionEntity extends WebutilsEntity
 {

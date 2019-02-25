@@ -26,6 +26,7 @@ package com.yukthitech.webutils.common.search;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.yukthitech.webutils.common.models.BaseResponse;
 
 /**
@@ -54,11 +55,18 @@ public class ExecuteSearchResponse extends BaseResponse
 	 */
 	private long totalCount;
 	
+	private List<Object> actualResults;
+	
 	/**
 	 * Instantiates a new execute search response.
 	 */
 	public ExecuteSearchResponse()
 	{}
+
+	public ExecuteSearchResponse(List<Object> actualResults)
+	{
+		this.actualResults = actualResults;
+	}
 
 	/**
 	 * Gets the list of search column details of the search results.
@@ -166,5 +174,11 @@ public class ExecuteSearchResponse extends BaseResponse
 	public void setTotalCount(long totalCount)
 	{
 		this.totalCount = totalCount;
+	}
+	
+	@JsonIgnore
+	public List<Object> getActualResults()
+	{
+		return actualResults;
 	}
 }

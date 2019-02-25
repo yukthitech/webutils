@@ -45,7 +45,6 @@ public class SearchSettingsModel
 	 * Search results page size.
 	 */
 	@Min(1)
-	@Max(100)
 	private int pageSize;
 	
 	/**

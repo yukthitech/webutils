@@ -15,7 +15,7 @@ import com.yukthitech.webutils.repository.WebutilsEntity;
  */
 @Table(name = "WEBUTILS_USER_NOTIFICATION")
 @UniqueConstraints({
-	@UniqueConstraint(name = "USER_NOTIFICATION", fields = {"user", "notificationType"})
+	@UniqueConstraint(name = "USER_NOTIFICATION", fields = {"user", "notificationType"}, finalName = false)
 	})
 public class UserNotificationEntity extends WebutilsEntity
 {

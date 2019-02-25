@@ -107,6 +107,11 @@ public class FieldDef
 	private boolean fullWidth;
 	
 	/**
+	 * Format to be used for this field.
+	 */
+	private String format;
+	
+	/**
 	 * Instantiates a new field def.
 	 */
 	public FieldDef()
@@ -391,6 +396,26 @@ public class FieldDef
 	public void setFullWidth(boolean fullWidth)
 	{
 		this.fullWidth = fullWidth;
+	}
+	
+	/**
+	 * Gets the format to be used for this field.
+	 *
+	 * @return the format to be used for this field
+	 */
+	public String getFormat()
+	{
+		return format;
+	}
+
+	/**
+	 * Sets the format to be used for this field.
+	 *
+	 * @param format the new format to be used for this field
+	 */
+	public void setFormat(String format)
+	{
+		this.format = format;
 	}
 
 	/* (non-Javadoc)

@@ -1,4 +1,17 @@
-$.application = angular.module("application", ["ngSanitize", "ui.router", "ngCookies"]);
+$.application = angular.module("application", [
+	"ngSanitize", 
+	
+	/*
+	 * Used to route to different sub pages based on url. Needed for single page application.
+	 */
+	"ui.router",
+	
+	/*
+	 * Used to manage cookies.
+	 */
+	"ngCookies"
+]);
+
 $.application["directiveTemplateEngine"] = new TemplateEngine();
 
 $.application.filter('unsafe', ["$sce", function($sce) { 

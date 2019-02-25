@@ -39,7 +39,7 @@ import com.yukthitech.webutils.repository.WebutilsEntity;
  * @author akiran
  */
 @UniqueConstraints({
-	@UniqueConstraint(name = "TEMPLATE_NAME", fields = {"templateName", "ownerEntityType", "ownerEntityId"})
+	@UniqueConstraint(name = "TEMPLATE_NAME", fields = {"templateName", "ownerEntityType", "ownerEntityId"}, finalName = false)
 	})
 @Table(name = "WEBUTILS_MAIL_TEMPLATE")
 public class MailTemplateEntity extends WebutilsEntity

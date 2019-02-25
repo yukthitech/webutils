@@ -69,14 +69,21 @@
 		</property>
 	</bean>
 
+	<bean id="timezone" class="java.util.TimeZone" factory-method="getTimeZone">
+		<constructor-arg type="java.lang.String" value="IST"/>
+	</bean>
+
 	<bean id="objectMapper" class="com.fasterxml.jackson.databind.ObjectMapper">
 		<property name="dateFormat">
 			<bean class="java.text.SimpleDateFormat">
 				<constructor-arg type="java.lang.String" value="dd/MM/yyyy"></constructor-arg>
 			</bean>
 		</property>
+		<property name="timeZone">
+			<ref bean="timezone"/>
+		</property>
 	</bean>
-
+	
 	<bean id="jsonMessageConverter"
 		class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
 		<property name="objectMapper">

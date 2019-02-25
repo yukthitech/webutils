@@ -330,13 +330,3 @@ button.yk-info-close-button:hover
 	background-repeat: no-repeat;
 }
 
-.yk-tab-button
-{
-	font-weight: 1.2em;
-	font-weight: bold;
-	padding-left: 0.5em;
-	padding-right: 0.5em;
-	text-decoration: none;
-	border-left: 1px solid;
-	border-right: 1px solid;
-}

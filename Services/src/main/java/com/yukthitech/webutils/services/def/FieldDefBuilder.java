@@ -44,6 +44,7 @@ import com.yukthitech.webutils.common.LovType;
 import com.yukthitech.webutils.common.annotations.Color;
 import com.yukthitech.webutils.common.annotations.CustomType;
 import com.yukthitech.webutils.common.annotations.DefaultValue;
+import com.yukthitech.webutils.common.annotations.Format;
 import com.yukthitech.webutils.common.annotations.FullWidth;
 import com.yukthitech.webutils.common.annotations.Html;
 import com.yukthitech.webutils.common.annotations.LOV;
@@ -323,6 +324,17 @@ public class FieldDefBuilder
 		if(!fieldDef.isFullWidth())
 		{
 			fieldDef.setFullWidth( field.getAnnotation(FullWidth.class) != null );
+		}
+		
+		//set format if it is specified
+		if(field.getAnnotation(Format.class) != null)
+		{
+			String format = field.getAnnotation(Format.class).value();
+			
+			if(StringUtils.isNotBlank(format))
+			{
+				fieldDef.setFormat(format);
+			}
 		}
 		
 		//fetch validation details

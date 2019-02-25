@@ -40,8 +40,8 @@ import com.yukthitech.persistence.conversion.impl.PasswordEncryptionConverter;
  */
 @Table(name = "WEBUTILS_USERS")
 @UniqueConstraints({
-	@UniqueConstraint(name = "UQ_USERS_OWNR_UNAME", fields = {"spaceIdentity", "userName"}),
-	@UniqueConstraint(name = "UQ_USERS_BASE_DET", fields = {"baseEntityType", "baseEntityId"})
+	@UniqueConstraint(name = "UQ_USERS_OWNR_UNAME", fields = {"spaceIdentity", "userName"}, finalName = false),
+	@UniqueConstraint(name = "UQ_USERS_BASE_DET", fields = {"baseEntityType", "baseEntityId"}, finalName = false)
 	})
 public class UserEntity extends WebutilsEntity
 {

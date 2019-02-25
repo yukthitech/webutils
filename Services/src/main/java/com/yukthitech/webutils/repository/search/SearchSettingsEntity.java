@@ -21,7 +21,7 @@ import com.yukthitech.webutils.repository.WebutilsEntity;
  */
 @Table(name = "WEBUTILS_SEARCH_SETTINGS")
 @UniqueConstraints({
-	@UniqueConstraint(name = "UQ_USER_QUERY_NAME", fields = {"user", "searchQueryName"})
+	@UniqueConstraint(name = "UQ_USER_QUERY_NAME", fields = {"user", "searchQueryName"}, finalName = false)
 	})
 public class SearchSettingsEntity extends WebutilsEntity
 {
