@@ -3,12 +3,14 @@ package com.yukthitech.webutils.common.actionplan;
 import com.yukthitech.webutils.common.action.AlertAction;
 import com.yukthitech.webutils.common.action.SendAlertAction;
 import com.yukthitech.webutils.common.action.SendInputAlertAction;
+import com.yukthitech.webutils.common.action.SendMailAction;
 import com.yukthitech.webutils.common.action.ApiAgentAction;
 import com.yukthitech.webutils.common.action.CallAction;
 import com.yukthitech.webutils.common.action.CallAndFillFormAction;
 import com.yukthitech.webutils.common.action.FillFormAction;
 import com.yukthitech.webutils.common.action.FinalizeExecutionAction;
 import com.yukthitech.webutils.common.action.IAgentAction;
+import com.yukthitech.webutils.common.action.InputAction;
 import com.yukthitech.webutils.common.action.ViewAndConfirmAction;
 import com.yukthitech.webutils.common.action.mobile.EditAndSendSmsAction;
 import com.yukthitech.webutils.common.action.mobile.SendSmsAction;
@@ -121,6 +123,11 @@ public abstract class AbstractMultiActionSupport
 		addAction(action);
 	}
 
+	public void addInput(InputAction action)
+	{
+		addAction(action);
+	}
+
 	/**
 	 * Adds the call.
 	 *
@@ -137,6 +144,11 @@ public abstract class AbstractMultiActionSupport
 	 * @param action the action
 	 */
 	public void addSendInputAlert(SendInputAlertAction action)
+	{
+		addAction(action);
+	}
+	
+	public void addSendMail(SendMailAction action)
 	{
 		addAction(action);
 	}

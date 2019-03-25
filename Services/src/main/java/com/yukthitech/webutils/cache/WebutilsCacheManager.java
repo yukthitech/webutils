@@ -5,6 +5,8 @@ import java.util.Map;
 
 import org.springframework.stereotype.Component;
 
+import com.yukthitech.utils.ObjectLockManager;
+
 /**
  * Cache manager for managing caches.
  * TODO: Use ignite here
@@ -17,6 +19,11 @@ public class WebutilsCacheManager
 	 * Map to manage cache.
 	 */
 	private Map<String, Object> cacheMap = new HashMap<>();
+
+	/**
+	 * Used to support dynamic locks.
+	 */
+	private ObjectLockManager objectLockManager = new ObjectLockManager();
 	
 	/**
 	 * Sets specified value on cache with specified key.
@@ -46,5 +53,15 @@ public class WebutilsCacheManager
 	public Object remove(String key)
 	{
 		return cacheMap.remove(key);
+	}
+	
+	public void lock(String key)
+	{
+		objectLockManager.lockObject(key);
+	}
+	
+	public void unlock(String key)
+	{
+		objectLockManager.releaseObject(key);
 	}
 }

@@ -15,7 +15,7 @@ public @interface ScheduledTask
 {
 	/**
 	 * Initial delay after which first time execution should happen after startup. Negative value indicates
-	 * not to execute during startup. Defaults to -1.
+	 * not to execute during startup. Defaults to -1. This time should be in millis.
 	 * @return initial delay
 	 */
 	public long initialDelay() default -1;
