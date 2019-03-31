@@ -8,18 +8,8 @@ import java.util.List;
  * can read and confirm to proceed further or not. 
  * @author akiran
  */
-public class ViewAndConfirmAction implements IAgentAction
+public class ViewAndConfirmAction extends AbstractAgentAction implements IAgentAction
 {
-	/**
-	 * Name of the action to be sent back if this action is performed.
-	 */
-	private String name;
-
-	/**
-	 * Label to be used for action.
-	 */
-	private String label;
-
 	/**
 	 * Content to be displayed to the user.
 	 */
@@ -34,45 +24,6 @@ public class ViewAndConfirmAction implements IAgentAction
 	 * List of action buttons which user can click once form is filled.
 	 */
 	private List<String> actionItems;
-
-	/* (non-Javadoc)
-	 * @see com.yukthitech.webutils.common.action.IAgentAction#getName()
-	 */
-	@Override
-	public String getName()
-	{
-		return name;
-	}
-
-	/**
-	 * Sets the name of the action to be sent back if this action is performed.
-	 *
-	 * @param name the new name of the action to be sent back if this action is performed
-	 */
-	public void setName(String name)
-	{
-		this.name = name;
-	}
-
-	/**
-	 * Gets the label to be used for action.
-	 *
-	 * @return the label to be used for action
-	 */
-	public String getLabel()
-	{
-		return label;
-	}
-
-	/**
-	 * Sets the label to be used for action.
-	 *
-	 * @param label the new label to be used for action
-	 */
-	public void setLabel(String label)
-	{
-		this.label = label;
-	}
 
 	/**
 	 * Gets the content to be displayed to the user.

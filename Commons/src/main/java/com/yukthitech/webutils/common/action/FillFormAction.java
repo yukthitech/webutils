@@ -10,18 +10,8 @@ import java.util.Map;
  * form, specified event will be generated.
  * @author akiran
  */
-public class FillFormAction implements IAgentAction
+public class FillFormAction extends AbstractAgentAction implements IAgentAction
 {
-	/**
-	 * Name of the action to be sent back if this action is performed.
-	 */
-	private String name;
-
-	/**
-	 * Label to be used for action.
-	 */
-	private String label;
-
 	/**
 	 * Name of the model class based on which dynamic form needs to be displayed.
 	 */
@@ -47,45 +37,6 @@ public class FillFormAction implements IAgentAction
 	 */
 	private Map<String, String> defaultValues = new HashMap<String, String>();
 	
-	/* (non-Javadoc)
-	 * @see com.yukthitech.webutils.common.action.IAgentAction#getName()
-	 */
-	@Override
-	public String getName()
-	{
-		return name;
-	}
-
-	/**
-	 * Sets the name of the action to be sent back if this action is performed.
-	 *
-	 * @param name the new name of the action to be sent back if this action is performed
-	 */
-	public void setName(String name)
-	{
-		this.name = name;
-	}
-
-	/**
-	 * Gets the label to be used for action.
-	 *
-	 * @return the label to be used for action
-	 */
-	public String getLabel()
-	{
-		return label;
-	}
-
-	/**
-	 * Sets the label to be used for action.
-	 *
-	 * @param label the new label to be used for action
-	 */
-	public void setLabel(String label)
-	{
-		this.label = label;
-	}
-
 	/**
 	 * Gets the name of the model class based on which dynamic form needs to be displayed.
 	 *

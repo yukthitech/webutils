@@ -5,18 +5,8 @@ package com.yukthitech.webutils.common.action;
  *  
  * @author akiran
  */
-public class InputAction implements IAgentAction
+public class InputAction extends AbstractAgentAction implements IAgentAction
 {
-	/**
-	 * Name of the action to be sent back if this action is performed.
-	 */
-	private String name;
-	
-	/**
-	 * Label to be used for action.
-	 */
-	private String label;
-
 	/**
 	 * Message to be displayed.
 	 */
@@ -36,47 +26,7 @@ public class InputAction implements IAgentAction
 	 */
 	public InputAction(String name, String label)
 	{
-		this.name = name;
-		this.label = label;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthitech.webutils.common.action.IAgentAction#getName()
-	 */
-	@Override
-	public String getName()
-	{
-		return name;
-	}
-
-	/**
-	 * Sets the name of the action to be sent back if this action is performed.
-	 *
-	 * @param name the new name of the action to be sent back if this action is performed
-	 */
-	public void setName(String name)
-	{
-		this.name = name;
-	}
-
-	/**
-	 * Gets the label to be used for action.
-	 *
-	 * @return the label to be used for action
-	 */
-	public String getLabel()
-	{
-		return label;
-	}
-
-	/**
-	 * Sets the label to be used for action.
-	 *
-	 * @param label the new label to be used for action
-	 */
-	public void setLabel(String label)
-	{
-		this.label = label;
+		super(name, label);
 	}
 
 	/**

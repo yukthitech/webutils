@@ -63,6 +63,8 @@ public enum FieldType
 	
 	DATE("date", Date.class, Date.class),
 	
+	DATE_TIME("datetime", Date.class, Date.class),
+	
 	LIST_OF_VALUES("lov", long.class),
 	
 	FILE("file", FileInfo.class, FileInfo.class),

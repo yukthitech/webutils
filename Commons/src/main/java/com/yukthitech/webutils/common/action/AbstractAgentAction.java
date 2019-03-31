@@ -16,6 +16,15 @@ public class AbstractAgentAction implements IAgentAction
 	 */
 	private String label;
 	
+	public AbstractAgentAction()
+	{}
+	
+	public AbstractAgentAction(String name, String label)
+	{
+		this.name = name;
+		this.label = label;
+	}
+
 	/**
 	 * Sets the name of the action.
 	 *
@@ -53,4 +62,18 @@ public class AbstractAgentAction implements IAgentAction
 	{
 		return label;
 	}
+	
+	@Override
+	public String getType()
+	{
+		return this.getClass().getSimpleName();
+	}
+	
+	/**
+	 * A dummy setter to ensure during deserialization "type" property will not 
+	 * create problem.
+	 * @param type type of this action.
+	 */
+	public void setType(String type)
+	{}
 }

@@ -12,11 +12,6 @@ import com.yukthitech.webutils.common.action.IAgentAction;
 public class ActionPlanStep extends AbstractMultiActionSupport
 {
 	/**
-	 * Name of the step.
-	 */
-	private String name;
-	
-	/**
 	 * Condition to be satisfied for execution of this steps.
 	 */
 	private StepCondition condition;
@@ -25,26 +20,6 @@ public class ActionPlanStep extends AbstractMultiActionSupport
 	 * List of actions to be executed as part of this step.
 	 */
 	private List<IAgentAction> actions;
-
-	/**
-	 * Gets the name of the step.
-	 *
-	 * @return the name of the step
-	 */
-	public String getName()
-	{
-		return name;
-	}
-
-	/**
-	 * Sets the name of the step.
-	 *
-	 * @param name the new name of the step
-	 */
-	public void setName(String name)
-	{
-		this.name = name;
-	}
 
 	/**
 	 * Gets the condition to be satisfied for execution of this steps.

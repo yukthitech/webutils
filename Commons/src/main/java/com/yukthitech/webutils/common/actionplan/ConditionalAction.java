@@ -1,5 +1,8 @@
 package com.yukthitech.webutils.common.actionplan;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.yukthitech.webutils.common.action.IAgentAction;
 
 /**
@@ -12,21 +15,21 @@ public class ConditionalAction extends AbstractMultiActionSupport implements IAg
 	/**
 	 * Main action.
 	 */
-	private IAgentAction action;
+	private List<IAgentAction> actions;
 	
 	/**
 	 * Condition to be used for executing main action.
 	 */
 	private StepCondition condition;
-	
-	/**
-	 * Gets the main action.
-	 *
-	 * @return the main action
-	 */
-	public IAgentAction getAction()
+
+	public List<IAgentAction> getActions()
 	{
-		return action;
+		return actions;
+	}
+
+	public void setActions(List<IAgentAction> actions)
+	{
+		this.actions = actions;
 	}
 
 	/**
@@ -34,18 +37,15 @@ public class ConditionalAction extends AbstractMultiActionSupport implements IAg
 	 *
 	 * @param action the new main action
 	 */
-	public void setAction(IAgentAction action)
-	{
-		this.action = action;
-	}
-	
-	/* (non-Javadoc)
-	 * @see com.yukthitech.webutils.common.actionplan.AbstractMultiActionSupport#addAction(com.yukthitech.webutils.common.action.IAgentAction)
-	 */
 	@Override
 	public void addAction(IAgentAction action)
 	{
-		setAction(action);
+		if(this.actions == null)
+		{
+			this.actions = new ArrayList<>();
+		}
+		
+		this.actions.add(action);
 	}
 
 	/**
@@ -66,23 +66,5 @@ public class ConditionalAction extends AbstractMultiActionSupport implements IAg
 	public void setCondition(StepCondition condition)
 	{
 		this.condition = condition;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthitech.webutils.common.action.IAgentAction#getName()
-	 */
-	@Override
-	public String getName()
-	{
-		return action.getName();
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthitech.webutils.common.action.IAgentAction#getLabel()
-	 */
-	@Override
-	public String getLabel()
-	{
-		return action.getName();
 	}
 }

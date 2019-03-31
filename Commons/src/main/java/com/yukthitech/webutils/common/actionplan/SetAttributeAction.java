@@ -1,19 +1,14 @@
 package com.yukthitech.webutils.common.actionplan;
 
+import com.yukthitech.webutils.common.action.AbstractAgentAction;
 import com.yukthitech.webutils.common.action.IAgentAction;
 
 /**
  * Sets the attribute on context if execution is successful.
  * @author akiran
  */
-public class SetAttributeAction implements IAgentAction
+public class SetAttributeAction extends AbstractAgentAction implements IAgentAction
 {
-	/**
-	 * Name of the action which also will be used to set context 
-	 * attribute of result.
-	 */
-	private String name;
-	
 	/**
 	 * Value to set.
 	 */
@@ -44,24 +39,6 @@ public class SetAttributeAction implements IAgentAction
 		this.condition = condition;
 	}
 
-	/* (non-Javadoc)
-	 * @see com.yukthitech.webutils.common.action.IAgentAction#getName()
-	 */
-	@Override
-	public String getName()
-	{
-		return name;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.yukthitech.webutils.common.action.IAgentAction#getLabel()
-	 */
-	@Override
-	public String getLabel()
-	{
-		return name;
-	}
-
 	/**
 	 * Gets the value to set.
 	 *
@@ -80,15 +57,5 @@ public class SetAttributeAction implements IAgentAction
 	public void setValue(String value)
 	{
 		this.value = value;
-	}
-
-	/**
-	 * Sets the name of the action which also will be used to set context attribute of result.
-	 *
-	 * @param name the new name of the action which also will be used to set context attribute of result
-	 */
-	public void setName(String name)
-	{
-		this.name = name;
 	}
 }

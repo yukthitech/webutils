@@ -1,5 +1,6 @@
 package com.yukthitech.webutils.common.actionplan;
 
+import com.yukthitech.webutils.common.action.AbstractAgentAction;
 import com.yukthitech.webutils.common.action.AlertAction;
 import com.yukthitech.webutils.common.action.SendAlertAction;
 import com.yukthitech.webutils.common.action.SendInputAlertAction;
@@ -19,7 +20,7 @@ import com.yukthitech.webutils.common.action.mobile.SendSmsAction;
  * Base class to support different type of actions by implementing single action method.
  * @author akiran
  */
-public abstract class AbstractMultiActionSupport
+public abstract class AbstractMultiActionSupport extends AbstractAgentAction
 {
 	/**
 	 * Adds action to current step.

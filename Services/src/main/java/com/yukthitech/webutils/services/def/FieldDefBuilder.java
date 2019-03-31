@@ -43,6 +43,7 @@ import com.yukthitech.utils.exceptions.InvalidStateException;
 import com.yukthitech.webutils.common.LovType;
 import com.yukthitech.webutils.common.annotations.Color;
 import com.yukthitech.webutils.common.annotations.CustomType;
+import com.yukthitech.webutils.common.annotations.DateTime;
 import com.yukthitech.webutils.common.annotations.DefaultValue;
 import com.yukthitech.webutils.common.annotations.Format;
 import com.yukthitech.webutils.common.annotations.FullWidth;
@@ -268,6 +269,10 @@ public class FieldDefBuilder
 		else if(field.getAnnotation(CustomType.class) != null)
 		{
 			fieldDef.setFieldType(FieldType.CUSTOM_TYPE);
+		}
+		else if(field.getAnnotation(DateTime.class) != null)
+		{
+			fieldDef.setFieldType(FieldType.DATE_TIME);
 		}
 		//if field type is enum
 		else if(fieldType.isEnum())
