@@ -115,6 +115,12 @@ public class MailParseRuleModel extends BaseModel
 	private int flags;
 
 	/**
+	 * Direct action to be performed on the mail.
+	 */
+	@Field("directAction")
+	private String directAction;
+
+	/**
 	 * Gets the name of the rule.
 	 *
 	 * @return the name of the rule
@@ -411,5 +417,25 @@ public class MailParseRuleModel extends BaseModel
 	public boolean isDeleteMail()
 	{
 		return BitHelper.isSet(flags, FLAG_DELETE_MAIL);
+	}
+
+	/**
+	 * Gets the direct action to be performed on the mail.
+	 *
+	 * @return the direct action to be performed on the mail
+	 */
+	public String getDirectAction()
+	{
+		return directAction;
+	}
+
+	/**
+	 * Sets the direct action to be performed on the mail.
+	 *
+	 * @param directAction the new direct action to be performed on the mail
+	 */
+	public void setDirectAction(String directAction)
+	{
+		this.directAction = directAction;
 	}
 }

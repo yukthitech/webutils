@@ -108,6 +108,12 @@ public class MailParseRuleEntity extends WebutilsEntity
 	 */
 	@Column(name = "FLAGS")
 	private int flags;
+	
+	/**
+	 * Direct action to be performed on the mail.
+	 */
+	@Column(name = "DIRECT_ACTION")
+	private String directAction;
 
 	/**
 	 * Gets the name of the rule.
@@ -367,5 +373,25 @@ public class MailParseRuleEntity extends WebutilsEntity
 	public void setFlags(int flags)
 	{
 		this.flags = flags;
+	}
+
+	/**
+	 * Gets the direct action to be performed on the mail.
+	 *
+	 * @return the direct action to be performed on the mail
+	 */
+	public String getDirectAction()
+	{
+		return directAction;
+	}
+
+	/**
+	 * Sets the direct action to be performed on the mail.
+	 *
+	 * @param directAction the new direct action to be performed on the mail
+	 */
+	public void setDirectAction(String directAction)
+	{
+		this.directAction = directAction;
 	}
 }
