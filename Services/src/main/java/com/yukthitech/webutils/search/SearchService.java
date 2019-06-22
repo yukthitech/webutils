@@ -49,6 +49,7 @@ import org.springframework.stereotype.Service;
 import com.yukthitech.persistence.ICrudRepository;
 import com.yukthitech.persistence.OrderByField;
 import com.yukthitech.persistence.repository.annotations.Condition;
+import com.yukthitech.persistence.repository.annotations.Conditions;
 import com.yukthitech.persistence.repository.annotations.Operator;
 import com.yukthitech.persistence.repository.annotations.OrderBy;
 import com.yukthitech.persistence.repository.annotations.OrderByType;
@@ -346,6 +347,32 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 
 		return modelDetailsService.getModelDef(searchQueryDetails.resultTypeModelName);
 	}
+	
+	private boolean isLikeOperator(Condition condition, Conditions conditions)
+	{
+		if(condition != null)
+		{
+			return (condition.op() == Operator.LIKE);
+		}
+		
+		if(conditions != null)
+		{
+			boolean isLike = true;
+					
+			for(Condition cond : conditions.value())
+			{
+				if(cond.op() != Operator.LIKE)
+				{
+					isLike = false;
+					break;
+				}
+			}
+			
+			return isLike;
+		}
+		
+		return false;
+	}
 
 	/**
 	 * Executes search with specified criteria and returns the matching objects.
@@ -392,6 +419,7 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 		
 		Field queryFields[] = searchQueryDetails.queryType.getDeclaredFields();
 		Condition condition = null;
+		Conditions conditions = null;
 		Object value = null;
 		String strValue = null;
 
@@ -404,8 +432,9 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 		for(Field field : queryFields)
 		{
 			condition = field.getAnnotation(Condition.class);
+			conditions = field.getAnnotation(Conditions.class);
 
-			if(condition == null)
+			if(condition == null && conditions == null)
 			{
 				continue;
 			}
@@ -451,6 +480,12 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 				}
 
 				strValue = strValue.replace("*", "%");
+				
+				if(isLikeOperator(condition, conditions) && !strValue.contains("%"))
+				{
+					strValue = "%" + strValue + "%";
+				}
+
 				value = strValue;
 			}
 
@@ -459,8 +494,32 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 				value = value.toString();
 			}
 
-			searchCondition = new SearchCondition(condition.value(), condition.op(), value);
-			searchCondition.setIgnoreCase(condition.ignoreCase());
+			if(condition != null)
+			{
+				searchCondition = new SearchCondition(condition.value(), condition.op(), value);
+				searchCondition.setIgnoreCase(condition.ignoreCase());
+			}
+			else
+			{
+				searchCondition = null;
+				SearchCondition subcond = null;
+				
+				for(Condition cond : conditions.value())
+				{
+					subcond = new SearchCondition(cond.value(), cond.op(), value);
+					subcond.setIgnoreCase(cond.ignoreCase());
+					
+					if(searchCondition == null)
+					{
+						searchCondition = subcond;
+					}
+					else
+					{
+						subcond.setJoinOperator(cond.joinWith());
+						searchCondition.addCondition(subcond);
+					}
+				}
+			}
 
 			repoSearchQuery.addCondition(searchCondition);
 		}
