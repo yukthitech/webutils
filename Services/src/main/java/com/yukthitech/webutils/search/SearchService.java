@@ -242,7 +242,7 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 		logger.info("Loading search method - {}.{}", method.getDeclaringClass().getName(), method.getName());
 
 		OrderBy orderByAnnot = method.getAnnotation(OrderBy.class);
-		OrderByField orderByFields[] = null;
+		List<OrderByField> orderByFields = new ArrayList<>();
 
 		if(orderByAnnot != null)
 		{
@@ -250,31 +250,25 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 
 			if(fieldsAnnot != null)
 			{
-				orderByFields = new OrderByField[fieldsAnnot.length];
-				int idx = 0;
-
 				for(com.yukthitech.persistence.repository.annotations.OrderByField annot : fieldsAnnot)
 				{
-					orderByFields[idx] = new OrderByField(annot.name(), annot.type());
-					idx++;
+					orderByFields.add( new OrderByField(annot.name(), annot.type()) );
 				}
 			}
-			else
+			
+			String fieldNames[] = orderByAnnot.value();
+			
+			if(fieldNames != null)
 			{
-				orderByFields = new OrderByField[orderByAnnot.value().length];
-				int idx = 0;
-				String fieldNames[] = orderByAnnot.value();
-
 				for(String field : fieldNames)
 				{
-					orderByFields[idx] = new OrderByField(field, OrderByType.ASC);
-					idx++;
+					orderByFields.add( new OrderByField(field, OrderByType.ASC) );
 				}
 			}
 		}
 		else
 		{
-			orderByFields = new OrderByField[] { new OrderByField("id", OrderByType.ASC) };
+			orderByFields.add( new OrderByField("id", OrderByType.ASC) );
 		}
 
 		// customizer
@@ -282,7 +276,9 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 		Class<? extends ISearchResultCustomizer> customizer = annotation.customizer();
 
 		// register the annotation
-		nameToSearchMet.put(annotation.name(), new SearchQueryDetails(method, repository, returnModelType, queryModelType, orderByFields, (Class) customizer));
+		nameToSearchMet.put(annotation.name(), new SearchQueryDetails(method, repository, 
+				returnModelType, queryModelType, 
+				orderByFields.toArray(new OrderByField[0]), (Class) customizer));
 	}
 
 	@Override
