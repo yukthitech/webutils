@@ -1,6 +1,7 @@
 package com.yukthitech.webutils.client.actionplan.executor;
 
 import com.yukthitech.webutils.client.actionplan.ActionPlanExecutionContext;
+import com.yukthitech.webutils.common.action.IAgentAction;
 import com.yukthitech.webutils.common.actionplan.ConditionalAction;
 
 /**
@@ -20,6 +21,9 @@ public class ConditionalActionExecutor implements IActionExecutor<ConditionalAct
 		}
 		
 		//if condition is satisfied executed actual action
-		context.executeAction(action.getAction());
+		for(IAgentAction subaction : action.getActions())
+		{
+			context.executeAction(subaction);
+		}
 	}
 }
