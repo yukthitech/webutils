@@ -360,6 +360,7 @@ public class EmailService
 		try
 		{
 			message.setFrom(new InternetAddress(fromId));
+			message.setReplyTo(new Address[] {new InternetAddress(fromId)});
 		} catch(Exception ex)
 		{
 			throw new InvalidArgumentException("An error occurred while parsing from mail id - {}", fromId);
