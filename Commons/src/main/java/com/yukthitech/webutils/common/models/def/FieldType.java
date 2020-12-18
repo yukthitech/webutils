@@ -61,10 +61,10 @@ public enum FieldType
 	
 	BOOLEAN("boolean", boolean.class, Boolean.class, boolean.class),
 	
-	DATE("date", Date.class, Date.class),
-	
 	DATE_TIME("datetime", Date.class, Date.class),
 	
+	DATE("date", Date.class, Date.class),
+
 	LIST_OF_VALUES("lov", long.class),
 	
 	FILE("file", FileInfo.class, FileInfo.class),
