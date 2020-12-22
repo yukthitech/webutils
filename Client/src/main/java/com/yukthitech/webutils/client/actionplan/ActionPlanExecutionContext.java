@@ -15,6 +15,7 @@ import com.yukthitech.webutils.client.ClientControllerFactory;
 import com.yukthitech.webutils.client.actionplan.executor.ActionCompletedEvent;
 import com.yukthitech.webutils.client.actionplan.executor.IActionExecutor;
 import com.yukthitech.webutils.client.actionplan.executor.IActionPlanExecutorCallback;
+import com.yukthitech.webutils.common.action.ActionPlanFailedException;
 import com.yukthitech.webutils.common.action.IAgentAction;
 import com.yukthitech.webutils.common.actionplan.ActionPlan;
 import com.yukthitech.webutils.common.actionplan.ActionPlanStep;
@@ -277,6 +278,11 @@ public class ActionPlanExecutionContext
 			executor.executeAction(this, action);
 		}catch(Exception ex)
 		{
+			if(ex instanceof ActionPlanFailedException)
+			{
+				throw (ActionPlanFailedException) ex;
+			}
+			
 			throw new InvalidStateException("An error occurred while execution of action: {}", action.getName(), ex);
 		}
 	}

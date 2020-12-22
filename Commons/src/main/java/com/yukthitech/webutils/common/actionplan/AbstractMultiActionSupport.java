@@ -8,6 +8,7 @@ import com.yukthitech.webutils.common.action.SendMailAction;
 import com.yukthitech.webutils.common.action.ApiAgentAction;
 import com.yukthitech.webutils.common.action.CallAction;
 import com.yukthitech.webutils.common.action.CallAndFillFormAction;
+import com.yukthitech.webutils.common.action.FailAction;
 import com.yukthitech.webutils.common.action.FillFormAction;
 import com.yukthitech.webutils.common.action.FinalizeExecutionAction;
 import com.yukthitech.webutils.common.action.IAgentAction;
@@ -125,6 +126,11 @@ public abstract class AbstractMultiActionSupport extends AbstractAgentAction
 	}
 
 	public void addInput(InputAction action)
+	{
+		addAction(action);
+	}
+	
+	public void addFail(FailAction action)
 	{
 		addAction(action);
 	}
