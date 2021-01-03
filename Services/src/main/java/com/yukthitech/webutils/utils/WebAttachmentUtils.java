@@ -67,6 +67,8 @@ public class WebAttachmentUtils
 	public static final String MIME_MS_EXCEL_FILE = "application/vnd.ms-excel";
 	public static final String MIME_MS_WORD_FILE = "application/msword";
 	
+	public static final String MIME_EML_FILE = "message/rfc822";
+	
 	public static final String MIME_ZIP_FILE = "application/zip";
 	
 	public static final String EXTENSION_MS_EXCEL_FILE = ".xls";

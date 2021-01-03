@@ -5,6 +5,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.awt.image.renderable.RenderableImage;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -468,12 +469,12 @@ public class EmailService
 		{
 			// Build mail message object
 			message = buildMessage(settings, email, context);
-
+			
 			// send the message
 			Transport.send(message);
 		} catch(Exception ex)
 		{
-			throw new InvalidStateException(ex, "An error occurred while sending email - {}", email);
+			throw new InvalidStateException(ex, "An error occurred while sending email - {}", email, ex);
 		}
 		
 		try
@@ -482,6 +483,29 @@ public class EmailService
 		} catch(Exception ex)
 		{
 			logger.debug("An error occurred while copying mail to sent folder.", ex);
+		}
+	}
+
+	public File generateEmlFile(EmailServerSettings settings, MailTemplateEntity email, Object context)
+	{
+		Message message = null;
+		
+		try
+		{
+			// Build mail message object
+			message = buildMessage(settings, email, context);
+			
+			File emlFile = File.createTempFile("sample", ".eml");
+			FileOutputStream fos = new FileOutputStream(emlFile);
+			
+			message.writeTo(fos);
+			fos.flush();
+			fos.close();
+			
+			return emlFile;
+		} catch(Exception ex)
+		{
+			throw new InvalidStateException(ex, "An error occurred while generating eml file - {}", email, ex);
 		}
 	}
 
