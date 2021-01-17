@@ -23,7 +23,9 @@
 
 package com.yukthitech.webutils.controllers;
 
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -141,7 +143,7 @@ public class BaseController
 
 		response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		
-		return new BaseResponse(IWebUtilsCommonConstants.RESPONSE_CODE_INVALID_REQUEST, ex.getMessage());
+		return new BaseResponse(IWebUtilsCommonConstants.RESPONSE_CODE_INVALID_REQUEST, fetchMessage(ex));
 	}
 	
 	/**
@@ -159,7 +161,7 @@ public class BaseController
 
 		response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 		
-		return new BaseResponse(IWebUtilsCommonConstants.RESPONSE_CODE_AUTHORIZATION_ERROR, ex.getMessage());
+		return new BaseResponse(IWebUtilsCommonConstants.RESPONSE_CODE_AUTHORIZATION_ERROR, fetchMessage(ex));
 	}
 
 	/**
@@ -176,7 +178,7 @@ public class BaseController
 
 		response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		
-		return new BaseResponse(IWebUtilsCommonConstants.RESPONSE_CODE_INVALID_REQUEST, ex.getMessage());
+		return new BaseResponse(IWebUtilsCommonConstants.RESPONSE_CODE_INVALID_REQUEST, fetchMessage(ex));
 	}
 
 	/**
@@ -193,6 +195,34 @@ public class BaseController
 		
 		response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		
-		return new BaseResponse(IWebUtilsCommonConstants.RESPONSE_CODE_UNHANDLED_SERVER_ERROR, "Unknown server error - " + ex.getMessage());
+		return new BaseResponse(IWebUtilsCommonConstants.RESPONSE_CODE_UNHANDLED_SERVER_ERROR, "Unknown server error - " + fetchMessage(ex));
+	}
+	
+	private String fetchMessage(Throwable ex)
+	{
+		StringBuilder builder = new StringBuilder();
+		Map<Throwable, Throwable> processed = new IdentityHashMap<>();
+		boolean first = true;
+		
+		while(ex != null)
+		{
+			if(!first)
+			{
+				builder.append("\nCaused by: ");
+			}
+			
+			builder.append(ex.getMessage());
+			ex = ex.getCause();
+			
+			if(processed.containsKey(ex))
+			{
+				break;
+			}
+			
+			processed.put(ex, ex);
+			first = false;
+		}
+		
+		return builder.toString().trim();
 	}
 }

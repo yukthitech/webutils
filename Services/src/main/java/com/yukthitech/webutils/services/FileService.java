@@ -23,14 +23,18 @@
 
 package com.yukthitech.webutils.services;
 
+import java.io.File;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +42,7 @@ import org.springframework.stereotype.Service;
 
 import com.yukthitech.persistence.ITransaction;
 import com.yukthitech.persistence.repository.RepositoryFactory;
+import com.yukthitech.utils.exceptions.InvalidArgumentException;
 import com.yukthitech.utils.exceptions.InvalidStateException;
 import com.yukthitech.webutils.common.FileInfo;
 import com.yukthitech.webutils.common.models.def.FieldDef;
@@ -117,7 +122,7 @@ public class FileService
 		
 		//if no new file is specified, retain existing file (though id is changed it will be ignored
 		//	 as id change is not expected from client)
-		if(fileInfo.getFile() == null)
+		if(fileInfo.getFile() == null && fileInfo.getContent() == null)
 		{
 			return -1;
 		}
@@ -282,6 +287,31 @@ public class FileService
 		logger.trace("Saving file {} under owner - {}, {}, {}", file, ownerEntityType.getName(), ownerEntityField, ownerEntityId);
 		
 		FileEntity fileEntity = WebUtils.convertBean(file, FileEntity.class);
+		
+		//if file is specified as content instead of file, convert content to file
+		
+		if(file.getFile() == null)
+		{
+			if(StringUtils.isNotBlank(file.getContent()))
+			{
+				try
+				{
+					File tempFile = File.createTempFile(file.getFileName(), ".tmp");
+					byte data[] = Base64.getDecoder().decode(file.getContent());
+					
+					FileUtils.writeByteArrayToFile(tempFile, data);
+					file.setFile(tempFile);
+					fileEntity.setFile(tempFile);
+				}catch(Exception ex)
+				{
+					throw new InvalidStateException("Failed to create file from content", ex);
+				}
+			}
+			else
+			{
+				throw new InvalidArgumentException("Both file and content is empty");
+			}
+		}
 		
 		//get auditing fields
 		userService.populateTrackingFieldForCreate(fileEntity);

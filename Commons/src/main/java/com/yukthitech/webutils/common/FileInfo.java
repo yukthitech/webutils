@@ -79,6 +79,11 @@ public class FileInfo
 	private boolean secured = true;
 	
 	/**
+	 * Content in base64 format.
+	 */
+	private String content;
+	
+	/**
 	 * Instantiates a new file entity.
 	 */
 	public FileInfo()
@@ -217,8 +222,6 @@ public class FileInfo
 	{
 		this.contentType = contentType;
 	}
-	
-	
 
 	/**
 	 * Checks if is indicates if this is secured file or not.
@@ -238,6 +241,26 @@ public class FileInfo
 	public void setSecured(boolean secured)
 	{
 		this.secured = secured;
+	}
+	
+	/**
+	 * Gets the content in base64 format.
+	 *
+	 * @return the content in base64 format
+	 */
+	public String getContent()
+	{
+		return content;
+	}
+
+	/**
+	 * Sets the content in base64 format.
+	 *
+	 * @param content the new content in base64 format
+	 */
+	public void setContent(String content)
+	{
+		this.content = content;
 	}
 
 	/* (non-Javadoc)
