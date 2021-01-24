@@ -51,6 +51,7 @@ import com.yukthitech.utils.ObjectWrapper;
 import com.yukthitech.utils.ReflectionUtils;
 import com.yukthitech.utils.exceptions.InvalidArgumentException;
 import com.yukthitech.utils.exceptions.InvalidStateException;
+import com.yukthitech.webutils.common.mail.IMailCustomizer;
 import com.yukthitech.webutils.common.mailtemplate.MailTemplateConfiguration;
 import com.yukthitech.webutils.common.models.mails.EmailServerSettings;
 import com.yukthitech.webutils.mail.template.MailTemplateConfigService;
@@ -339,8 +340,6 @@ public class EmailService
 		
 		if(context instanceof IMailCustomizer)
 		{
-			((IMailCustomizer) context).customize(mailMessage, emailTemplate.getCustomization());
-			
 			String customFromId = ((IMailCustomizer) context).getFromId();
 			fromId = (customFromId != null) ? customFromId : fromId;
 		}
