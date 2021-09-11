@@ -1,0 +1,194 @@
+#ykApp
+{
+	position: absolute;
+	left: 0px;
+	right: 0px;
+	top: 0px;
+	bottom: 0px;
+	display: none;
+}
+
+#webutilsPageLoading
+{
+	position: absolute;
+	left: 0px;
+	right: 0px;
+	top: 0px;
+	bottom: 0px;
+	background: white;
+}
+
+#webutilsPageLoading img
+{
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 5rem;
+}
+
+.webutil-field-label
+{
+	margin-bottom: 0px !important;
+	font-size: 0.75rem;
+	font-weight: bold;
+	color: blue;
+}
+
+.webutil-field
+{
+	margin-bottom: 0.2rem !important;
+	font-size: 1rem;
+	padding: 0.2rem  !important;
+}
+
+.webutil-button
+{
+	font-size: 0.75rem !important;
+	font-weight: bold !important;
+	border-radius: 0.6rem !important;
+}
+
+.webutil-dropdown
+{
+	background: none;
+	border: 1px solid #ced4da !important;
+	padding: 0.35rem !important;
+	font-size: 0.8rem !important;
+}
+
+a.dropdown-item
+{
+	font-size: 0.8rem !important;
+}
+
+.dropdown-menu input
+{
+	font-size: 0.8rem !important;
+	padding: 0.4rem  !important;
+	margin-bottom: 0.2rem !important;
+} 
+
+.webutils-img-button
+{
+	font-size: 1.2rem;
+	padding: 0.3rem;
+	border: solid 1px white;
+	cursor: pointer;
+}
+
+.webutils-img-button-disabled
+{
+	font-size: 1.2rem;
+	padding: 0.3rem;
+	border: solid 1px white;
+	color: rgb(175, 175, 175) !important;
+}
+
+.webutils-img-button:hover 
+{
+	border: solid 1px blue;	
+}
+
+.webutils-info-message
+{
+	margin-left: auto;
+	margin-right: auto;
+	padding: 0.6em;
+	padding-right: 3em;
+	padding-left: 2em;
+	font: bold 12px "Times New Roman", Times, serif;
+	background-color: yellow;
+	color: black;
+	border: solid 1px black;
+	position: absolute;
+	top: 0.1em;
+	z-index: 1000;
+	left: 50%;
+	transform: translate(-50%, 0px);
+	display: none;
+	border-radius: 0.8em;
+	max-width: 40em;
+	position: fixed;
+}
+
+.webutils-info-close-button
+{
+	position: absolute; 
+	right: 0.5em; 
+	top: 0.2em;
+	border: none;
+	background: none;
+	font-size: 1.5em;
+	font-weight: bold;
+}
+
+button.webutils-info-close-button:hover
+{
+	background-color: red;
+	border-radius: 1em;
+	color: white;
+}
+
+.webutils-search-box
+{
+	width: 100%;
+	padding: 0.8rem;
+	background: #f2f2f2;
+	border-radius: 1rem;
+}
+
+.webutils-search-results-container
+{
+	width: 100%;
+	border: 1px solid #f2f2f2;
+}
+
+.webutils-search-results-container>.content
+{
+	width: 100%;
+	max-height: 15rem;
+	overflow: auto;
+}
+
+.webutils-search-results-container>.footer
+{
+	width: 100%;
+	padding: 0.3rem;
+	background: #f2f2f2;
+	font-weight: bold;
+	font-size: 0.9rem;
+}
+
+.webutils-search-results
+{
+	border: 1px solid #dddddd;
+	width: 100%;
+}
+
+.webutils-search-results tr:hover
+{
+	background: rgb(173, 177, 233);
+}
+
+.webutils-search-results tr.selected
+{
+	color: white;
+	background: rgb(103, 73, 180);
+}
+
+.webutils-search-results th
+{
+	border: 1px solid #dddddd;
+	font-weight: bold;
+	font-size: 0.9rem;
+	background: #f2f2f2;
+	text-align: center;
+	padding: 0.3rem;
+}
+
+.webutils-search-results td
+{
+	border: 1px solid #dddddd;
+	font-size: 0.9rem;
+	padding: 0.3rem;
+}
