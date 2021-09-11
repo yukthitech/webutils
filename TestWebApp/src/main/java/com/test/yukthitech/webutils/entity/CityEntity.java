@@ -4,13 +4,13 @@ import javax.persistence.Column;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import com.yukthitech.webutils.repository.WebutilsEntity;
+import com.yukthitech.webutils.repository.WebutilsBaseEntity;
 
 /**
  * The Class CityEntity.
  */
 @Table(name = "CITY")
-public class CityEntity extends WebutilsEntity
+public class CityEntity extends WebutilsBaseEntity
 {
 	/**
 	 * Name.
@@ -24,11 +24,10 @@ public class CityEntity extends WebutilsEntity
 	public CityEntity()
 	{}
 	
-	public CityEntity(String name, StateEntity state, String spaceIdentity)
+	public CityEntity(String name, StateEntity state)
 	{
 		this.name = name;
 		this.state = state;
-		setSpaceIdentity(spaceIdentity);
 	}
 
 	public StateEntity getState()

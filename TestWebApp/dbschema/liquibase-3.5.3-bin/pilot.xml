@@ -1,0 +1,1940 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<databaseChangeLog     xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd
+    http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+    <changeSet author="ramum (generated)" id="1488968675846-1">
+        <createTable tableName="SDP_APP_CONFIG">
+            <column autoIncrement="true" name="ID" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column autoIncrement="false" name="CONFIG_KEY" type="VARCHAR(100)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="CONFIG_VALUE" type="LONGTEXT"/>
+        </createTable>
+        <addUniqueConstraint columnNames="ID" constraintName="UQ_APP_CONFIG_ID" tableName="SDP_APP_CONFIG"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-2">
+        <createTable tableName="SDP_ASYNCHRONOUS_EXECUTION">
+            <column autoIncrement="false" name="ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="CREATED_ON" type="datetime(6)"/>
+            <column autoIncrement="false" name="ENDED_ON" type="datetime(6)"/>
+            <column autoIncrement="false" name="STATUS" type="VARCHAR(255)"/>
+            <column autoIncrement="false" name="STATUS_MESSAGE" type="LONGTEXT"/>
+        </createTable>
+        <addPrimaryKey columnNames="ID" constraintName="PRIMARY" tableName="SDP_ASYNCHRONOUS_EXECUTION"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-3">
+        <createTable tableName="SDP_BRANCH">
+            <column autoIncrement="true" name="BRANCH_ID" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column autoIncrement="false" name="DESCRIPTION" type="LONGTEXT"/>
+            <column autoIncrement="false" name="VERSION" type="INT"/>
+            <column autoIncrement="false" name="NAME" type="VARCHAR(100)"/>
+            <column autoIncrement="false" name="PERFORCE_PATH" type="LONGTEXT"/>
+        </createTable>
+        <addUniqueConstraint columnNames="NAME" constraintName="UQ_BRANCH_NAME" tableName="SDP_BRANCH"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-4">
+        <createTable tableName="SDP_CERTIFICATE">
+            <column autoIncrement="true" name="ID" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column autoIncrement="false" name="DESCRIPTION" type="LONGTEXT"/>
+            <column autoIncrement="false" name="NAME" type="VARCHAR(100)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="PROFILE" type="VARCHAR(100)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint columnNames="ID" constraintName="UQ_CERTIF_ID" tableName="SDP_CERTIFICATE"/>
+        <addUniqueConstraint columnNames="NAME" constraintName="UQ_CERTIF_NAME" tableName="SDP_CERTIFICATE"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-5">
+        <createTable tableName="SDP_COBRAND">
+            <column autoIncrement="false" name="ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="COB_PASSWORD" type="LONGTEXT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="COB_USER" type="VARCHAR(100)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="IS_CHANNEL" type="BIT(1)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="NAME" type="VARCHAR(255)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="DEPLOYMENT_MODE" type="INT"/>
+            <column autoIncrement="false" name="PRODUCT_IDS" type="LONGTEXT"/>
+            <column autoIncrement="false" name="IS_PUBLISHED" type="BIT(1)"/>
+        </createTable>
+        <addPrimaryKey columnNames="ID" constraintName="PRIMARY" tableName="SDP_COBRAND"/>
+        <addUniqueConstraint columnNames="ID" constraintName="UQ_COBRAN_ID" tableName="SDP_COBRAND"/>
+        <addUniqueConstraint columnNames="NAME" constraintName="UQ_COBRAN_NAME" tableName="SDP_COBRAND"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-36">
+        <createTable tableName="SDP_FLAVOUR">
+            <column autoIncrement="true" name="ID" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column autoIncrement="false" name="HARD_DISK_SIZE" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="NAME" type="VARCHAR(100)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="NO_OF_CPUS" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="RAM_SIZE" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint columnNames="NAME" constraintName="UQ_FLAVOU_NAME" tableName="SDP_FLAVOUR"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-46">
+        <createTable tableName="SDP_OS_TEMPLATE">
+            <column autoIncrement="true" name="ID" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column autoIncrement="false" name="DESCRIPTION" type="LONGTEXT"/>
+            <column autoIncrement="false" name="FIREWALL_ENABLED" type="BIT(1)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="KERNEL_PARAMS" type="LONGTEXT"/>
+            <column autoIncrement="false" name="KEY_BOARD" type="VARCHAR(255)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="VERSION" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="NAME" type="VARCHAR(100)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="OS_IMAGE_PATH" type="LONGTEXT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="OS_PACKAGES" type="LONGTEXT"/>
+            <column autoIncrement="false" name="SWAP_SIZE" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="TIME_ZONE" type="VARCHAR(255)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint columnNames="ID" constraintName="UQ_OS_TEMPLA_ID" tableName="SDP_OS_TEMPLATE"/>
+        <addUniqueConstraint columnNames="NAME" constraintName="UQ_OS_TEMPLA_NAME" tableName="SDP_OS_TEMPLATE"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-13">
+        <createTable tableName="SDP_COMPONENT">
+            <column autoIncrement="true" name="ID" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column autoIncrement="false" name="IS_CLIENT_FACING" type="BIT(1)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="CLIENT_PROFILE" type="VARCHAR(100)"/>
+            <column autoIncrement="false" name="IS_COBRAND_CUSTOMIZABLE" type="BIT(1)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="CONTEXT_NAME" type="VARCHAR(100)"/>
+            <column autoIncrement="false" name="DESCRIPTION" type="LONGTEXT"/>
+            <column autoIncrement="false" name="IS_EXTENSION_SUPPORTED" type="BIT(1)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="HEALTH_MONITOR_TYPE" type="VARCHAR(200)"/>
+            <column autoIncrement="false" name="IS_INDEPENDENT_APP_ID_REQUIRED" type="BIT(1)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="IS_LOAD_BALANCER" type="BIT(1)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="LOAD_BALANCER_METHOD" type="VARCHAR(100)"/>
+            <column autoIncrement="false" name="VERSION" type="INT"/>
+            <column autoIncrement="false" name="NAME" type="VARCHAR(100)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="NETWORK_NAME" type="VARCHAR(200)"/>
+            <column autoIncrement="false" name="PERSISTENCE" type="VARCHAR(200)"/>
+            <column autoIncrement="false" name="PROTOCOL" type="VARCHAR(100)"/>
+            <column autoIncrement="false" name="SECURITY_GROUP" type="VARCHAR(200)"/>
+            <column autoIncrement="false" name="SERVER_PROFILE" type="VARCHAR(100)"/>
+            <column autoIncrement="false" name="URL_TEMPLATE" type="VARCHAR(255)"/>
+            <column autoIncrement="false" name="VIP_PORT" type="INT"/>
+            <column autoIncrement="false" name="FLAVOUR_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="OS_TEMPLATE_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint columnNames="ID" constraintName="UQ_COMPON_ID" tableName="SDP_COMPONENT"/>
+        <addUniqueConstraint columnNames="NAME" constraintName="UQ_COMPON_NAME" tableName="SDP_COMPONENT"/>
+        <createIndex indexName="COMPON_FLAVOU_ID" tableName="SDP_COMPONENT">
+            <column autoIncrement="false" name="FLAVOUR_ID"/>
+        </createIndex>
+        <createIndex indexName="COMPON_OS_TEMPLA_ID" tableName="SDP_COMPONENT">
+            <column autoIncrement="false" name="OS_TEMPLATE_ID"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="FLAVOUR_ID" baseTableName="SDP_COMPONENT" constraintName="FK_COMPON_FLAVOU_FLAVOU_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_FLAVOUR"/>
+        <addForeignKeyConstraint baseColumnNames="OS_TEMPLATE_ID" baseTableName="SDP_COMPONENT" constraintName="FK_COMPON_OS_TEMPLA_OS_TEMPLA_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_OS_TEMPLATE"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-6">
+        <createTable tableName="SDP_COBRAND_APP">
+            <column autoIncrement="true" name="ID" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column autoIncrement="false" name="APP_ID" type="LONGTEXT"/>
+            <column autoIncrement="false" name="EXTENSION_NAME" type="LONGTEXT"/>
+            <column autoIncrement="false" name="COBRAND_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="COMPONENT_ID" type="INT"/>
+        </createTable>
+        <addUniqueConstraint columnNames="ID" constraintName="UQ_COBRAN_APP_ID" tableName="SDP_COBRAND_APP"/>
+        <createIndex indexName="COBRAN_APP_COBRAN_ID" tableName="SDP_COBRAND_APP">
+            <column autoIncrement="false" name="COBRAND_ID"/>
+        </createIndex>
+        <createIndex indexName="COBRAN_APP_COMPON_ID" tableName="SDP_COBRAND_APP">
+            <column autoIncrement="false" name="COMPONENT_ID"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="COBRAND_ID" baseTableName="SDP_COBRAND_APP" constraintName="FK_COBRAN_APP_COBRAN_COBRAN_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_COBRAND"/>
+        <addForeignKeyConstraint baseColumnNames="COMPONENT_ID" baseTableName="SDP_COBRAND_APP" constraintName="FK_COBRAN_APP_COMPON_COMPON_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_COMPONENT"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-7">
+        <createTable tableName="SDP_COBRAND_SNAP_SHOT">
+            <column autoIncrement="true" name="ID" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column autoIncrement="false" name="NAME" type="VARCHAR(100)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="COBRAND_CONFIG_LABEL_NAMES" type="LONGTEXT"/>
+            <column autoIncrement="false" name="DEPLOYMENT_MODE" type="VARCHAR(100)"/>
+            <column autoIncrement="false" name="IS_CHANNEL" type="BIT(1)"/>
+            <column autoIncrement="false" name="PASSWORD" type="LONGTEXT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="PRODUCT_NAMES" type="LONGTEXT"/>
+            <column autoIncrement="false" name="RESOURCE_POOL_NAME" type="LONGTEXT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="STACK_NAME" type="LONGTEXT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="SWIMLANE_NAME" type="LONGTEXT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="USER_NAME" type="LONGTEXT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint columnNames="ID" constraintName="UQ_COBRAN_SNAP_SHOT_ID" tableName="SDP_COBRAND_SNAP_SHOT"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-8">
+        <createTable tableName="SDP_COMMON_RESOUCE_TYPE">
+            <column autoIncrement="true" name="ID" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column autoIncrement="false" name="DESCRIPTION" type="LONGTEXT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="NAME" type="VARCHAR(100)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-9">
+        <createTable tableName="SDP_COMP_CUST_SNAP_SHOT">
+            <column autoIncrement="true" name="ID" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column autoIncrement="false" name="CDN_LIST" type="LONGTEXT"/>
+            <column autoIncrement="false" name="NAME" type="LONGTEXT"/>
+            <column autoIncrement="false" name="DNS_LIST" type="LONGTEXT"/>
+            <column autoIncrement="false" name="LABEL_FILE_NAMES_LIST" type="LONGTEXT"/>
+        </createTable>
+        <addUniqueConstraint columnNames="ID" constraintName="UQ_COMP_CUST_SNAP_SHOT_ID" tableName="SDP_COMP_CUST_SNAP_SHOT"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-17">
+        <createTable tableName="SDP_COMPONENT_VERSION">
+            <column autoIncrement="true" name="ID" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column autoIncrement="false" name="LOCK_VERSION" type="INT"/>
+            <column autoIncrement="false" name="COMP_MAJOR_VERSION" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="COMP_MINOR_VERSION" type="INT"/>
+            <column autoIncrement="false" name="COMP_PATCH_VERSION" type="INT"/>
+            <column autoIncrement="false" name="COMPONENT_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint columnNames="COMPONENT_ID, COMP_MAJOR_VERSION, COMP_MINOR_VERSION, COMP_PATCH_VERSION" constraintName="COMPONENT_ID" tableName="SDP_COMPONENT_VERSION"/>
+        <addUniqueConstraint columnNames="ID" constraintName="UQ_COMPON_VERSIO_ID" tableName="SDP_COMPONENT_VERSION"/>
+        <createIndex indexName="COMPON_VERSIO_COMPON_ID" tableName="SDP_COMPONENT_VERSION">
+            <column autoIncrement="false" name="COMPONENT_ID"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="COMPONENT_ID" baseTableName="SDP_COMPONENT_VERSION" constraintName="FK_COMPON_VERSIO_COMPON_COMPON_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_COMPONENT"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-10">
+        <createTable tableName="SDP_COMP_INTER_DEPENDENCY_MAPPING">
+            <column autoIncrement="false" name="COMP_VERSION_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="DEPENDENT_COMP_VER_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+        </createTable>
+        <addPrimaryKey columnNames="COMP_VERSION_ID, DEPENDENT_COMP_VER_ID" constraintName="PRIMARY" tableName="SDP_COMP_INTER_DEPENDENCY_MAPPING"/>
+        <createIndex indexName="COMP_INTER_DEPEND_MAPPIN_DEPEND_COMP_VER_ID" tableName="SDP_COMP_INTER_DEPENDENCY_MAPPING">
+            <column autoIncrement="false" name="DEPENDENT_COMP_VER_ID"/>
+        </createIndex>
+        <createIndex indexName="COMP_INTER_DEPEND_MAPPIN_COMP_VERSIO_ID" tableName="SDP_COMP_INTER_DEPENDENCY_MAPPING">
+            <column autoIncrement="false" name="COMP_VERSION_ID"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="DEPENDENT_COMP_VER_ID" baseTableName="SDP_COMP_INTER_DEPENDENCY_MAPPING" constraintName="FK_COMP_INTER_DEPEND_MAPPIN_COMPON_VERSIO_DEPEND_COMP_VER_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_COMPONENT_VERSION"/>
+        <addForeignKeyConstraint baseColumnNames="COMP_VERSION_ID" baseTableName="SDP_COMP_INTER_DEPENDENCY_MAPPING" constraintName="FK_COMP_INTER_DEPEND_MAPPIN_COMPON_VERSIO_COMP_VERSIO_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_COMPONENT_VERSION"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-59">
+        <createTable tableName="SDP_SOFTWARE_PACKAGE">
+            <column autoIncrement="true" name="ID" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column autoIncrement="false" name="DESCRIPTION" type="LONGTEXT"/>
+            <column autoIncrement="false" name="LOCATION" type="LONGTEXT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="VERSION" type="INT"/>
+            <column autoIncrement="false" name="NAME" type="VARCHAR(100)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint columnNames="ID" constraintName="UQ_SOFTWA_PACKAG_ID" tableName="SDP_SOFTWARE_PACKAGE"/>
+        <addUniqueConstraint columnNames="NAME" constraintName="UQ_SOFTWA_PACKAG_NAME" tableName="SDP_SOFTWARE_PACKAGE"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-11">
+        <createTable tableName="SDP_COMP_VERSION_SOFT_PACK_MAP">
+            <column autoIncrement="false" name="COMP_VERSION_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="PACKAGE_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+        </createTable>
+        <addPrimaryKey columnNames="COMP_VERSION_ID, PACKAGE_ID" constraintName="PRIMARY" tableName="SDP_COMP_VERSION_SOFT_PACK_MAP"/>
+        <createIndex indexName="COMP_VERSIO_SOFT_PACK_MAP_PACKAG_ID" tableName="SDP_COMP_VERSION_SOFT_PACK_MAP">
+            <column autoIncrement="false" name="PACKAGE_ID"/>
+        </createIndex>
+        <createIndex indexName="COMP_VERSIO_SOFT_PACK_MAP_COMP_VERSIO_ID" tableName="SDP_COMP_VERSION_SOFT_PACK_MAP">
+            <column autoIncrement="false" name="COMP_VERSION_ID"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="PACKAGE_ID" baseTableName="SDP_COMP_VERSION_SOFT_PACK_MAP" constraintName="FK_COMP_VERSIO_SOFT_PACK_MAP_SOFTWA_PACKAG_PACKAG_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_SOFTWARE_PACKAGE"/>
+        <addForeignKeyConstraint baseColumnNames="COMP_VERSION_ID" baseTableName="SDP_COMP_VERSION_SOFT_PACK_MAP" constraintName="FK_COMP_VERSIO_SOFT_PACK_MAP_COMPON_VERSIO_COMP_VERSIO_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_COMPONENT_VERSION"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-43">
+        <createTable tableName="SDP_NETWORK_RESOURCE">
+            <column autoIncrement="true" name="ID" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column autoIncrement="false" name="ADDRESS" type="LONGTEXT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="VERSION" type="INT"/>
+            <column autoIncrement="false" name="PASSWORD" type="LONGTEXT"/>
+            <column autoIncrement="false" name="USER_NAME" type="VARCHAR(200)"/>
+        </createTable>
+        <addUniqueConstraint columnNames="ID" constraintName="UQ_NETWOR_RESOUR_ID" tableName="SDP_NETWORK_RESOURCE"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-20">
+        <createTable tableName="SDP_DATA_CENTER">
+            <column autoIncrement="true" name="ID" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column autoIncrement="false" name="APP_SECURITY_ZONE" type="VARCHAR(200)"/>
+            <column autoIncrement="false" name="AVAILABILITY_ZONE" type="VARCHAR(200)"/>
+            <column autoIncrement="false" name="BACKEND_SECURITY_ZONE" type="VARCHAR(200)"/>
+            <column autoIncrement="false" name="DESCRIPTION" type="VARCHAR(200)"/>
+            <column autoIncrement="false" name="EXTERNAL_LOAD_BALANCER_DETAILS" type="LONGTEXT"/>
+            <column autoIncrement="false" name="INGRAIN_HOST" type="VARCHAR(200)"/>
+            <column autoIncrement="false" name="INGRAIN_PORT" type="INT"/>
+            <column autoIncrement="false" name="INTERNAL_LOAD_BALANCER_DETAILS" type="LONGTEXT"/>
+            <column autoIncrement="false" name="IP_POOL" type="LONGTEXT"/>
+            <column autoIncrement="false" name="JENKIN_PASSWORD" type="VARCHAR(255)"/>
+            <column autoIncrement="false" name="JENKIN_URL" type="VARCHAR(255)"/>
+            <column autoIncrement="false" name="JENKIN_USER_NAME" type="VARCHAR(255)"/>
+            <column autoIncrement="false" name="VERSION" type="INT"/>
+            <column autoIncrement="false" name="NAME" type="VARCHAR(100)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="NETWORK_DETAILS" type="LONGTEXT"/>
+            <column autoIncrement="false" name="OPEN_STACK_PASSWORD" type="LONGTEXT"/>
+            <column autoIncrement="false" name="OPEN_STACK_URL" type="VARCHAR(200)"/>
+            <column autoIncrement="false" name="OPEN_STACK_USER" type="VARCHAR(200)"/>
+            <column autoIncrement="false" name="PROXY_HOST" type="VARCHAR(100)"/>
+            <column autoIncrement="false" name="PROXY_PORT" type="INT"/>
+            <column autoIncrement="false" name="SSH_KEY" type="VARCHAR(200)"/>
+            <column autoIncrement="false" name="TENANT_NAME" type="VARCHAR(200)"/>
+            <column autoIncrement="false" name="FIREWALL_NT_RES_ID" type="INT"/>
+        </createTable>
+        <addUniqueConstraint columnNames="ID" constraintName="UQ_DATA_CENTER_ID" tableName="SDP_DATA_CENTER"/>
+        <addUniqueConstraint columnNames="NAME" constraintName="UQ_DATA_CENTER_NAME" tableName="SDP_DATA_CENTER"/>
+        <createIndex indexName="DATA_CENTER_FIREWA_NT_RES_ID" tableName="SDP_DATA_CENTER">
+            <column autoIncrement="false" name="FIREWALL_NT_RES_ID"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="FIREWALL_NT_RES_ID" baseTableName="SDP_DATA_CENTER" constraintName="FK_DATA_CENTER_NETWOR_RESOUR_FIREWA_NT_RES_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_NETWORK_RESOURCE"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-12">
+        <createTable tableName="SDP_COMP_VM_IMAGE">
+            <column autoIncrement="true" name="ID" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column autoIncrement="false" name="BASE_FILE_PERFORCE_REVISION" type="BIGINT"/>
+            <column autoIncrement="false" name="BINARY_NAME" type="VARCHAR(500)"/>
+            <column autoIncrement="false" name="BUILD_NUMBER" type="LONGTEXT"/>
+            <column autoIncrement="false" name="LOCATION" type="LONGTEXT"/>
+            <column autoIncrement="false" name="VERSION" type="INT"/>
+            <column autoIncrement="false" name="NAME" type="VARCHAR(100)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="BRANCH_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="COMPONENT_VERSION_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="DATA_CENTER_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="CREATED_BY" type="VARCHAR(100)"/>
+            <column autoIncrement="false" name="CREATED_ON" type="date"/>
+        </createTable>
+        <addUniqueConstraint columnNames="ID" constraintName="UQ_COMP_VM_IMAGE_ID" tableName="SDP_COMP_VM_IMAGE"/>
+        <addUniqueConstraint columnNames="NAME" constraintName="UQ_COMP_VM_IMAGE_NAME" tableName="SDP_COMP_VM_IMAGE"/>
+        <createIndex indexName="COMP_VM_IMAGE_BRANCH_ID" tableName="SDP_COMP_VM_IMAGE">
+            <column autoIncrement="false" name="BRANCH_ID"/>
+        </createIndex>
+        <createIndex indexName="COMP_VM_IMAGE_COMPON_VERSIO_ID" tableName="SDP_COMP_VM_IMAGE">
+            <column autoIncrement="false" name="COMPONENT_VERSION_ID"/>
+        </createIndex>
+        <createIndex indexName="COMP_VM_IMAGE_DATA_CENTER_ID" tableName="SDP_COMP_VM_IMAGE">
+            <column autoIncrement="false" name="DATA_CENTER_ID"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="BRANCH_ID" baseTableName="SDP_COMP_VM_IMAGE" constraintName="FK_COMP_VM_IMAGE_BRANCH_BRANCH_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="BRANCH_ID" referencedTableName="SDP_BRANCH"/>
+        <addForeignKeyConstraint baseColumnNames="COMPONENT_VERSION_ID" baseTableName="SDP_COMP_VM_IMAGE" constraintName="FK_COMP_VM_IMAGE_COMPON_VERSIO_COMPON_VERSIO_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_COMPONENT_VERSION"/>
+        <addForeignKeyConstraint baseColumnNames="DATA_CENTER_ID" baseTableName="SDP_COMP_VM_IMAGE" constraintName="FK_COMP_VM_IMAGE_DATA_CENTER_DATA_CENTER_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_DATA_CENTER"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-14">
+        <createTable tableName="SDP_COMPONENT_DEF_CONFIG">
+            <column autoIncrement="true" name="ID" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column autoIncrement="false" name="DEFAULT_VALUE" type="LONGTEXT"/>
+            <column autoIncrement="false" name="DESCRIPTION" type="LONGTEXT"/>
+            <column autoIncrement="false" name="CONFIG_GROUP" type="VARCHAR(255)"/>
+            <column autoIncrement="false" name="NAME" type="VARCHAR(100)"/>
+            <column autoIncrement="false" name="OPTIONS" type="VARCHAR(255)"/>
+            <column autoIncrement="false" name="IS_REQUIRED" type="BIT(1)"/>
+            <column autoIncrement="false" name="TYPE" type="VARCHAR(255)"/>
+            <column autoIncrement="false" name="COMPONENT_VERSION_ID" type="INT"/>
+        </createTable>
+        <addUniqueConstraint columnNames="COMPONENT_VERSION_ID, NAME" constraintName="UQ_COMPON_DEF_CONFIG_COMPON_VERSIO_ID_NAME" tableName="SDP_COMPONENT_DEF_CONFIG"/>
+        <createIndex indexName="COMPON_DEF_CONFIG_COMPON_VERSIO_ID" tableName="SDP_COMPONENT_DEF_CONFIG">
+            <column autoIncrement="false" name="COMPONENT_VERSION_ID"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="COMPONENT_VERSION_ID" baseTableName="SDP_COMPONENT_DEF_CONFIG" constraintName="FK_COMPON_DEF_CONFIG_COMPON_VERSIO_COMPON_VERSIO_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_COMPONENT_VERSION"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-67">
+        <createTable tableName="SDP_STACK_SNAP_SHOT">
+            <column autoIncrement="true" name="ID" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column autoIncrement="false" name="CONFIG_KEYS_LABEL_NAME" type="LONGTEXT"/>
+            <column autoIncrement="false" name="DESCRIPTION" type="LONGTEXT"/>
+            <column autoIncrement="false" name="VERSION" type="INT"/>
+            <column autoIncrement="false" name="NAME" type="VARCHAR(100)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="PRODUCT_NAMES" type="LONGTEXT"/>
+            <column autoIncrement="false" name="SHARED_COMPONENT_NAMES" type="LONGTEXT"/>
+        </createTable>
+        <addUniqueConstraint columnNames="ID" constraintName="UQ_STACK_SNAP_SHOT_ID" tableName="SDP_STACK_SNAP_SHOT"/>
+        <addUniqueConstraint columnNames="NAME" constraintName="UQ_STACK_SNAP_SHOT_NAME" tableName="SDP_STACK_SNAP_SHOT"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-16">
+        <createTable tableName="SDP_COMPONENT_SNAP_SHOT">
+            <column autoIncrement="true" name="ID" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column autoIncrement="false" name="COMP_CONFIG" type="LONGTEXT"/>
+            <column autoIncrement="false" name="DYNAMIC_CONFIG" type="LONGTEXT"/>
+            <column autoIncrement="false" name="FLAVOUR_NAME" type="VARCHAR(100)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="JVM_ARGS" type="LONGTEXT"/>
+            <column autoIncrement="false" name="MAX_CAPACITY" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="MIN_CAPACITY" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="COMPONENT_NAME" type="VARCHAR(100)"/>
+            <column autoIncrement="false" name="STACK_SNAPSHOT_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint columnNames="ID" constraintName="UQ_COMPON_SNAP_SHOT_ID" tableName="SDP_COMPONENT_SNAP_SHOT"/>
+        <createIndex indexName="COMPON_SNAP_SHOT_STACK_SNAPSH_ID" tableName="SDP_COMPONENT_SNAP_SHOT">
+            <column autoIncrement="false" name="STACK_SNAPSHOT_ID"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="STACK_SNAPSHOT_ID" baseTableName="SDP_COMPONENT_SNAP_SHOT" constraintName="FK_COMPON_SNAP_SHOT_STACK_SNAP_SHOT_STACK_SNAPSH_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_STACK_SNAP_SHOT"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-15">
+        <createTable tableName="SDP_COMPONENT_IMAGE_SNAP_SHOT">
+            <column autoIncrement="true" name="ID" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column autoIncrement="false" name="BINARY_NAME" type="LONGTEXT"/>
+            <column autoIncrement="false" name="BUILD_NUMBER" type="VARCHAR(100)"/>
+            <column autoIncrement="false" name="LOCATION" type="LONGTEXT"/>
+            <column autoIncrement="false" name="IMAGE_NAME" type="VARCHAR(100)"/>
+            <column autoIncrement="false" name="BRANCH_NAME" type="VARCHAR(100)"/>
+            <column autoIncrement="false" name="COMPONENT_SNAPSHOT_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint columnNames="ID" constraintName="UQ_COMPON_IMAGE_SNAP_SHOT_ID" tableName="SDP_COMPONENT_IMAGE_SNAP_SHOT"/>
+        <createIndex indexName="COMPON_IMAGE_SNAP_SHOT_COMPON_SNAPSH_ID" tableName="SDP_COMPONENT_IMAGE_SNAP_SHOT">
+            <column autoIncrement="false" name="COMPONENT_SNAPSHOT_ID"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="COMPONENT_SNAPSHOT_ID" baseTableName="SDP_COMPONENT_IMAGE_SNAP_SHOT" constraintName="FK_COMPON_IMAGE_SNAP_SHOT_COMPON_SNAP_SHOT_COMPON_SNAPSH_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_COMPONENT_SNAP_SHOT"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-18">
+        <createTable tableName="SDP_COMPONENT_VERSION_SNAP_SHOT">
+            <column autoIncrement="true" name="ID" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column autoIncrement="false" name="COMP_CONFIG_DEF" type="LONGTEXT"/>
+            <column autoIncrement="false" name="LOCK_VERSION" type="INT"/>
+            <column autoIncrement="false" name="COMP_MAJOR_VERSION" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="COMP_MINOR_VERSION" type="INT"/>
+            <column autoIncrement="false" name="COMP_PATCH_VERSION" type="INT"/>
+            <column autoIncrement="false" name="SOFTWARE_PACKAGES" type="LONGTEXT"/>
+            <column autoIncrement="false" name="COMPONENT_IMAGE_SNAPSHOT_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint columnNames="ID" constraintName="UQ_COMPON_VERSIO_SNAP_SHOT_ID" tableName="SDP_COMPONENT_VERSION_SNAP_SHOT"/>
+        <createIndex indexName="COMPON_VERSIO_SNAP_SHOT_COMPON_IMAGE_SNAPSH_ID" tableName="SDP_COMPONENT_VERSION_SNAP_SHOT">
+            <column autoIncrement="false" name="COMPONENT_IMAGE_SNAPSHOT_ID"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="COMPONENT_IMAGE_SNAPSHOT_ID" baseTableName="SDP_COMPONENT_VERSION_SNAP_SHOT" constraintName="FK_COM_VERS_SNAP_SHOT_COM_IMA_SNAP_SHOT_COM_IMAGE_SNAP_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_COMPONENT_IMAGE_SNAP_SHOT"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-19">
+        <createTable tableName="SDP_CONFIGURATIONS">
+            <column autoIncrement="true" name="ID" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column autoIncrement="false" name="KEY_NAME" type="VARCHAR(100)"/>
+            <column autoIncrement="false" name="SECURED" type="BIT(1)"/>
+            <column autoIncrement="false" name="VALUE" type="VARCHAR(100)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-21">
+        <createTable tableName="SDP_DATA_CENTER_EXT_DNS_MAP">
+            <column autoIncrement="false" name="DATA_CENTER_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="RESOURCE_POOL_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint columnNames="RESOURCE_POOL_ID" constraintName="UQ_DATA_CENTER_EXT_DNS_MAP_RESOUR_POOL_ID" tableName="SDP_DATA_CENTER_EXT_DNS_MAP"/>
+        <createIndex indexName="DATA_CENTER_EXT_DNS_MAP_DATA_CENTER_ID" tableName="SDP_DATA_CENTER_EXT_DNS_MAP">
+            <column autoIncrement="false" name="DATA_CENTER_ID"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="RESOURCE_POOL_ID" baseTableName="SDP_DATA_CENTER_EXT_DNS_MAP" constraintName="FK_DATA_CENTER_EXT_DNS_MAP_NETWOR_RESOUR_RESOUR_POOL_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_NETWORK_RESOURCE"/>
+        <addForeignKeyConstraint baseColumnNames="DATA_CENTER_ID" baseTableName="SDP_DATA_CENTER_EXT_DNS_MAP" constraintName="FK_DATA_CENTER_EXT_DNS_MAP_DATA_CENTER_DATA_CENTER_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_DATA_CENTER"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-22">
+        <createTable tableName="SDP_DATA_CENTER_INT_DNS_MAP">
+            <column autoIncrement="false" name="DATA_CENTER_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="RESOURCE_POOL_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint columnNames="RESOURCE_POOL_ID" constraintName="UQ_DATA_CENTER_INT_DNS_MAP_RESOUR_POOL_ID" tableName="SDP_DATA_CENTER_INT_DNS_MAP"/>
+        <createIndex indexName="DATA_CENTER_INT_DNS_MAP_DATA_CENTER_ID" tableName="SDP_DATA_CENTER_INT_DNS_MAP">
+            <column autoIncrement="false" name="DATA_CENTER_ID"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="RESOURCE_POOL_ID" baseTableName="SDP_DATA_CENTER_INT_DNS_MAP" constraintName="FK_DATA_CENTER_INT_DNS_MAP_NETWOR_RESOUR_RESOUR_POOL_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_NETWORK_RESOURCE"/>
+        <addForeignKeyConstraint baseColumnNames="DATA_CENTER_ID" baseTableName="SDP_DATA_CENTER_INT_DNS_MAP" constraintName="FK_DATA_CENTER_INT_DNS_MAP_DATA_CENTER_DATA_CENTER_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_DATA_CENTER"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-23">
+        <createTable tableName="SDP_DATA_CENTER_INT_DNS_SLAVE_MAP">
+            <column autoIncrement="false" name="DATA_CENTER_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="RESOURCE_POOL_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+        </createTable>
+        <createIndex indexName="DATA_CENTER_INT_DNS_SLAVE_MAP_RESOUR_POOL_ID" tableName="SDP_DATA_CENTER_INT_DNS_SLAVE_MAP">
+            <column autoIncrement="false" name="RESOURCE_POOL_ID"/>
+        </createIndex>
+        <createIndex indexName="DATA_CENTER_INT_DNS_SLAVE_MAP_DATA_CENTER_ID" tableName="SDP_DATA_CENTER_INT_DNS_SLAVE_MAP">
+            <column autoIncrement="false" name="DATA_CENTER_ID"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="RESOURCE_POOL_ID" baseTableName="SDP_DATA_CENTER_INT_DNS_SLAVE_MAP" constraintName="FK_DATA_CENTER_INT_DNS_SLAVE_MAP_NETWOR_RESOUR_RESOUR_POOL_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_NETWORK_RESOURCE"/>
+        <addForeignKeyConstraint baseColumnNames="DATA_CENTER_ID" baseTableName="SDP_DATA_CENTER_INT_DNS_SLAVE_MAP" constraintName="FK_DATA_CENTER_INT_DNS_SLAVE_MAP_DATA_CENTER_DATA_CENTER_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_DATA_CENTER"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-24">
+        <createTable tableName="SDP_DATA_CENTER_IP_POOL">
+            <column autoIncrement="true" name="ID" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column autoIncrement="false" name="IP" type="VARCHAR(255)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="STACK_NAME" type="VARCHAR(100)"/>
+            <column autoIncrement="false" name="STATUS" type="VARCHAR(255)"/>
+            <column autoIncrement="false" name="TYPE" type="VARCHAR(255)"/>
+            <column autoIncrement="false" name="DATA_CENTER_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint columnNames="ID" constraintName="UQ_DATA_CENTER_IP_POOL_ID" tableName="SDP_DATA_CENTER_IP_POOL"/>
+        <addUniqueConstraint columnNames="IP" constraintName="UQ_DATA_CENTER_IP_POOL_IP" tableName="SDP_DATA_CENTER_IP_POOL"/>
+        <createIndex indexName="DATA_CENTER_IP_POOL_DATA_CENTER_ID" tableName="SDP_DATA_CENTER_IP_POOL">
+            <column autoIncrement="false" name="DATA_CENTER_ID"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="DATA_CENTER_ID" baseTableName="SDP_DATA_CENTER_IP_POOL" constraintName="FK_DATA_CENTER_IP_POOL_DATA_CENTER_DATA_CENTER_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_DATA_CENTER"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-25">
+        <createTable tableName="SDP_DB_RESOURCE">
+            <column autoIncrement="true" name="ID" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column autoIncrement="false" name="ADMIN_PASSWORD" type="LONGTEXT"/>
+            <column autoIncrement="false" name="ADMIN_USER" type="VARCHAR(50)"/>
+            <column autoIncrement="false" name="DB_NAME" type="VARCHAR(100)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="EXTRA_PROPERTIES" type="LONGTEXT"/>
+            <column autoIncrement="false" name="HOST" type="VARCHAR(100)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="VERSION" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="NAME" type="VARCHAR(100)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="PASSWORD" type="LONGTEXT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="PORT" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="SCAN_ENABLED" type="BIT(1)"/>
+            <column autoIncrement="false" name="DB_TYPE" type="VARCHAR(50)"/>
+            <column autoIncrement="false" name="USER_NAME" type="VARCHAR(100)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint columnNames="NAME" constraintName="UQ_DB_RESOUR_NAME" tableName="SDP_DB_RESOURCE"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-26">
+        <createTable tableName="SDP_DEPLOYMENT_COBRAND_DETAILS">
+            <column autoIncrement="true" name="ID" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column autoIncrement="false" name="APP_ID" type="VARCHAR(100)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="COBRAND_ID" type="BIGINT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="FLAVOUR_APP_IDS" type="LONGTEXT"/>
+            <column autoIncrement="false" name="VERSION" type="INT"/>
+            <column autoIncrement="false" name="REQUEST_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-57">
+        <createTable tableName="SDP_ROOT_WAR_BUILD">
+            <column autoIncrement="true" name="ID" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column autoIncrement="false" name="LOCATION" type="LONGTEXT"/>
+            <column autoIncrement="false" name="VERSION" type="INT"/>
+            <column autoIncrement="false" name="NAME" type="LONGTEXT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-32">
+        <createTable tableName="SDP_ENVIRONMENT">
+            <column autoIncrement="true" name="ID" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column autoIncrement="false" name="DESCRIPTION" type="LONGTEXT"/>
+            <column autoIncrement="false" name="EXT_DOMAIN_NAME" type="LONGTEXT"/>
+            <column autoIncrement="false" name="INTERNAL_DOMAIN_NAME" type="LONGTEXT"/>
+            <column autoIncrement="false" name="KEY_STORE_PASSWORD" type="LONGTEXT"/>
+            <column autoIncrement="false" name="KEY_STORE_PATH" type="LONGTEXT"/>
+            <column autoIncrement="false" name="VERSION" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="NAME" type="VARCHAR(100)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="PERFORCE_PATH" type="LONGTEXT"/>
+            <column autoIncrement="false" name="PROPERTIES" type="LONGTEXT"/>
+            <column autoIncrement="false" name="SDP_REMOTE_HOST_URL" type="LONGTEXT"/>
+            <column autoIncrement="false" name="SDP_REMOTE_USER_PASSWORD" type="LONGTEXT"/>
+            <column autoIncrement="false" name="SDP_REMOTE_USER_NAME" type="LONGTEXT"/>
+            <column autoIncrement="false" name="GATHER_DB_ENTITY_ID" type="INT"/>
+            <column autoIncrement="false" name="REPORTS_DB_CONFIG_ENTITY_ID" type="INT"/>
+            <column autoIncrement="false" name="REPRTS_DB_ENTITY_ID" type="INT"/>
+            <column autoIncrement="false" name="REPRTS_OR_APP_DB_ENTITY_ID" type="INT"/>
+            <column autoIncrement="false" name="SITEP_DB_ENTITY_ID" type="INT"/>
+            <column autoIncrement="false" name="TOOL_DB_ENTITY_ID" type="INT"/>
+            <column autoIncrement="false" name="TYPE" type="VARCHAR(100)"/>
+            <column autoIncrement="false" name="NEXUS_DATA_LOCATION" type="VARCHAR(300)"/>
+            <column autoIncrement="false" name="NEXUS_USER_NAME" type="VARCHAR(300)"/>
+            <column autoIncrement="false" name="NEXUS_PASSWORD" type="VARCHAR(300)"/>
+        </createTable>
+        <addUniqueConstraint columnNames="ID" constraintName="UQ_ENVIRO_ID" tableName="SDP_ENVIRONMENT"/>
+        <addUniqueConstraint columnNames="NAME" constraintName="UQ_ENVIRO_NAME" tableName="SDP_ENVIRONMENT"/>
+        <createIndex indexName="ENVIRO_GATHER_DB_ENTITY_ID" tableName="SDP_ENVIRONMENT">
+            <column autoIncrement="false" name="GATHER_DB_ENTITY_ID"/>
+        </createIndex>
+        <createIndex indexName="ENVIRO_TOOL_DB_ENTITY_ID" tableName="SDP_ENVIRONMENT">
+            <column autoIncrement="false" name="TOOL_DB_ENTITY_ID"/>
+        </createIndex>
+        <createIndex indexName="ENVIRO_REPORT_DB_CONFIG_ENTITY_ID" tableName="SDP_ENVIRONMENT">
+            <column autoIncrement="false" name="REPORTS_DB_CONFIG_ENTITY_ID"/>
+        </createIndex>
+        <createIndex indexName="ENVIRO_SITEP_DB_ENTITY_ID" tableName="SDP_ENVIRONMENT">
+            <column autoIncrement="false" name="SITEP_DB_ENTITY_ID"/>
+        </createIndex>
+        <createIndex indexName="ENVIRO_REPRTS_DB_ENTITY_ID" tableName="SDP_ENVIRONMENT">
+            <column autoIncrement="false" name="REPRTS_DB_ENTITY_ID"/>
+        </createIndex>
+        <createIndex indexName="ENVIRO_REPRTS_OR_APP_DB_ENTITY_ID" tableName="SDP_ENVIRONMENT">
+            <column autoIncrement="false" name="REPRTS_OR_APP_DB_ENTITY_ID"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="GATHER_DB_ENTITY_ID" baseTableName="SDP_ENVIRONMENT" constraintName="FK_ENVIRO_DB_RESOUR_GATHER_DB_ENTITY_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_DB_RESOURCE"/>
+        <addForeignKeyConstraint baseColumnNames="TOOL_DB_ENTITY_ID" baseTableName="SDP_ENVIRONMENT" constraintName="FK_ENVIRO_DB_RESOUR_TOOL_DB_ENTITY_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_DB_RESOURCE"/>
+        <addForeignKeyConstraint baseColumnNames="REPORTS_DB_CONFIG_ENTITY_ID" baseTableName="SDP_ENVIRONMENT" constraintName="FK_ENVIRO_DB_RESOUR_REPORT_DB_CONFIG_ENTITY_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_DB_RESOURCE"/>
+        <addForeignKeyConstraint baseColumnNames="SITEP_DB_ENTITY_ID" baseTableName="SDP_ENVIRONMENT" constraintName="FK_ENVIRO_DB_RESOUR_SITEP_DB_ENTITY_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_DB_RESOURCE"/>
+        <addForeignKeyConstraint baseColumnNames="REPRTS_DB_ENTITY_ID" baseTableName="SDP_ENVIRONMENT" constraintName="FK_ENVIRO_DB_RESOUR_REPRTS_DB_ENTITY_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_DB_RESOURCE"/>
+        <addForeignKeyConstraint baseColumnNames="REPRTS_OR_APP_DB_ENTITY_ID" baseTableName="SDP_ENVIRONMENT" constraintName="FK_ENVIRO_DB_RESOUR_REPRTS_OR_APP_DB_ENTITY_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_DB_RESOURCE"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-73">
+        <createTable tableName="SDP_SWIM_LANE_TYPE">
+            <column autoIncrement="true" name="ID" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column autoIncrement="false" name="DESCRIPTION" type="LONGTEXT"/>
+            <column autoIncrement="false" name="HDD_REQUIRED" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="KEY_ATTRIBUTE" type="VARCHAR(100)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="VERSION" type="INT"/>
+            <column autoIncrement="false" name="MEMORY_REQUIRED" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="NAME" type="VARCHAR(100)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="VIRTUAL_CPUS_REQUIRED" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-70">
+        <createTable tableName="SDP_SWIM_LANE">
+            <column autoIncrement="true" name="ID" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column autoIncrement="false" name="NAME" type="VARCHAR(100)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="SUBNET_ID" type="VARCHAR(200)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="ENVIRONMENT_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="PRIMARY_DATA_CENTER_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="SECONDARY_DATA_CENTER_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="SWIM_LANE_TYPE_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+        </createTable>
+        <createIndex indexName="SWIM_LANE_ENVIRO_ID" tableName="SDP_SWIM_LANE">
+            <column autoIncrement="false" name="ENVIRONMENT_ID"/>
+        </createIndex>
+        <createIndex indexName="SWIM_LANE_SECOND_DATA_CENTER_ID" tableName="SDP_SWIM_LANE">
+            <column autoIncrement="false" name="SECONDARY_DATA_CENTER_ID"/>
+        </createIndex>
+        <createIndex indexName="SWIM_LANE_PRIMAR_DATA_CENTER_ID" tableName="SDP_SWIM_LANE">
+            <column autoIncrement="false" name="PRIMARY_DATA_CENTER_ID"/>
+        </createIndex>
+        <createIndex indexName="SWIM_LANE_SWIM_LANE_TYPE_ID" tableName="SDP_SWIM_LANE">
+            <column autoIncrement="false" name="SWIM_LANE_TYPE_ID"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="ENVIRONMENT_ID" baseTableName="SDP_SWIM_LANE" constraintName="FK_SWIM_LANE_ENVIRO_ENVIRO_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_ENVIRONMENT"/>
+        <addForeignKeyConstraint baseColumnNames="SECONDARY_DATA_CENTER_ID" baseTableName="SDP_SWIM_LANE" constraintName="FK_SWIM_LANE_DATA_CENTER_SECOND_DATA_CENTER_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_DATA_CENTER"/>
+        <addForeignKeyConstraint baseColumnNames="PRIMARY_DATA_CENTER_ID" baseTableName="SDP_SWIM_LANE" constraintName="FK_SWIM_LANE_DATA_CENTER_PRIMAR_DATA_CENTER_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_DATA_CENTER"/>
+        <addForeignKeyConstraint baseColumnNames="SWIM_LANE_TYPE_ID" baseTableName="SDP_SWIM_LANE" constraintName="FK_SWIM_LANE_SWIM_LANE_TYPE_SWIM_LANE_TYPE_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_SWIM_LANE_TYPE"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-55">
+        <createTable tableName="SDP_RESOURCE_POOL">
+            <column autoIncrement="true" name="ID" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column autoIncrement="false" name="DESCRIPTION" type="LONGTEXT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="NAME" type="VARCHAR(100)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="ENVIRONMENT_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint columnNames="NAME" constraintName="UQ_RESOUR_POOL_NAME" tableName="SDP_RESOURCE_POOL"/>
+        <createIndex indexName="RESOUR_POOL_ENVIRO_ID" tableName="SDP_RESOURCE_POOL">
+            <column autoIncrement="false" name="ENVIRONMENT_ID"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="ENVIRONMENT_ID" baseTableName="SDP_RESOURCE_POOL" constraintName="FK_RESOUR_POOL_ENVIRO_ENVIRO_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_ENVIRONMENT"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-29">
+        <createTable tableName="SDP_DEPLOYMENT_REQUEST">
+            <column autoIncrement="true" name="ID" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column autoIncrement="false" name="CLIENT_NAME" type="VARCHAR(100)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="COMP_CONFIG" type="LONGTEXT"/>
+            <column autoIncrement="false" name="COMPONENT_EXTENSION" type="LONGTEXT"/>
+            <column autoIncrement="false" name="DEPLOYMENT_MODE" type="VARCHAR(100)"/>
+            <column autoIncrement="false" name="DEPLOYMENT_STAGE" type="VARCHAR(100)"/>
+            <column autoIncrement="false" name="DYNAMIC_CONFIG" type="LONGTEXT"/>
+            <column autoIncrement="false" name="EXECUTION_ID" type="VARCHAR(255)"/>
+            <column autoIncrement="false" name="FILE" type="LONGBLOB"/>
+            <column autoIncrement="false" name="FINAPP_CONFIG" type="LONGTEXT"/>
+            <column autoIncrement="false" name="IS_CHANNEL" type="BIT(1)"/>
+            <column autoIncrement="false" name="JVM_ARG" type="LONGTEXT"/>
+            <column autoIncrement="false" name="PASSWORD" type="LONGTEXT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="REQ_UUID" type="LONGTEXT"/>
+            <column autoIncrement="false" name="SHARED_CONFIG" type="LONGTEXT"/>
+            <column autoIncrement="false" name="STACK_ID" type="INT"/>
+            <column autoIncrement="false" name="STACK_NAME" type="VARCHAR(100)"/>
+            <column autoIncrement="false" name="USERNAME" type="VARCHAR(100)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="COBRAND_ID" type="INT"/>
+            <column autoIncrement="false" name="RESOURCEPOOL_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="STACK_SNAPSHOT_ID" type="INT"/>
+            <column autoIncrement="false" name="SWIMLANE_ID" type="INT"/>
+            <column autoIncrement="false" name="COMPONENT_CONFIG_FILE" type="LONGBLOB"/>
+            <column autoIncrement="false" name="INFRA_COMPONENT_REQUEST" type="LONGBLOB"/>
+        </createTable>
+        <addUniqueConstraint columnNames="ID" constraintName="UQ_DEPLOY_REQUES_ID" tableName="SDP_DEPLOYMENT_REQUEST"/>
+        <createIndex indexName="DEPLOY_REQUES_COBRAN_ID" tableName="SDP_DEPLOYMENT_REQUEST">
+            <column autoIncrement="false" name="COBRAND_ID"/>
+        </createIndex>
+        <createIndex indexName="DEPLOY_REQUES_STACK_SNAPSH_ID" tableName="SDP_DEPLOYMENT_REQUEST">
+            <column autoIncrement="false" name="STACK_SNAPSHOT_ID"/>
+        </createIndex>
+        <createIndex indexName="DEPLOY_REQUES_SWIMLA_ID" tableName="SDP_DEPLOYMENT_REQUEST">
+            <column autoIncrement="false" name="SWIMLANE_ID"/>
+        </createIndex>
+        <createIndex indexName="DEPLOY_REQUES_RESOUR_ID" tableName="SDP_DEPLOYMENT_REQUEST">
+            <column autoIncrement="false" name="RESOURCEPOOL_ID"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="COBRAND_ID" baseTableName="SDP_DEPLOYMENT_REQUEST" constraintName="FK_DEPLOY_REQUES_COBRAN_COBRAN_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_COBRAND"/>
+        <addForeignKeyConstraint baseColumnNames="STACK_SNAPSHOT_ID" baseTableName="SDP_DEPLOYMENT_REQUEST" constraintName="FK_DEPLOY_REQUES_STACK_SNAP_SHOT_STACK_SNAPSH_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_STACK_SNAP_SHOT"/>
+        <addForeignKeyConstraint baseColumnNames="SWIMLANE_ID" baseTableName="SDP_DEPLOYMENT_REQUEST" constraintName="FK_DEPLOY_REQUES_SWIM_LANE_SWIMLA_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_SWIM_LANE"/>
+        <addForeignKeyConstraint baseColumnNames="RESOURCEPOOL_ID" baseTableName="SDP_DEPLOYMENT_REQUEST" constraintName="FK_DEPLOY_REQUES_RESOUR_POOL_RESOUR_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_RESOURCE_POOL"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-27">
+        <createTable tableName="SDP_DEPLOYMENT_REQ_COMPONENT">
+            <column autoIncrement="true" name="ID" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column autoIncrement="false" name="CDNPATH" type="LONGTEXT"/>
+            <column autoIncrement="false" name="CONTEXTPATH" type="LONGTEXT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="DNS" type="LONGTEXT"/>
+            <column autoIncrement="false" name="EXTENSION_NAME" type="LONGTEXT"/>
+            <column autoIncrement="false" name="FILE" type="LONGBLOB"/>
+            <column autoIncrement="false" name="WHITELIST_IPS" type="LONGTEXT"/>
+            <column autoIncrement="false" name="MAX_CAPACITY" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="MIN_CAPACITY" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="REQUEST_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="COMPONENT_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="COMP_IMAGE_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="FLAVOUR_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="ROOT_BUILD_ID" type="INT"/>
+            <column autoIncrement="false" name="CERTIFICATES" type="LONGTEXT"/>
+        </createTable>
+        <addUniqueConstraint columnNames="ID" constraintName="UQ_DEPLOY_REQ_COMPON_ID" tableName="SDP_DEPLOYMENT_REQ_COMPONENT"/>
+        <createIndex indexName="DEPLOY_REQ_COMPON_ROOT_BUILD_ID" tableName="SDP_DEPLOYMENT_REQ_COMPONENT">
+            <column autoIncrement="false" name="ROOT_BUILD_ID"/>
+        </createIndex>
+        <createIndex indexName="DEPLOY_REQ_COMPON_FLAVOU_ID" tableName="SDP_DEPLOYMENT_REQ_COMPONENT">
+            <column autoIncrement="false" name="FLAVOUR_ID"/>
+        </createIndex>
+        <createIndex indexName="DEPLOY_REQ_COMPON_REQUES_ID" tableName="SDP_DEPLOYMENT_REQ_COMPONENT">
+            <column autoIncrement="false" name="REQUEST_ID"/>
+        </createIndex>
+        <createIndex indexName="DEPLOY_REQ_COMPON_COMP_IMAGE_ID" tableName="SDP_DEPLOYMENT_REQ_COMPONENT">
+            <column autoIncrement="false" name="COMP_IMAGE_ID"/>
+        </createIndex>
+        <createIndex indexName="DEPLOY_REQ_COMPON_COMPON_ID" tableName="SDP_DEPLOYMENT_REQ_COMPONENT">
+            <column autoIncrement="false" name="COMPONENT_ID"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="ROOT_BUILD_ID" baseTableName="SDP_DEPLOYMENT_REQ_COMPONENT" constraintName="FK_DEPLOY_REQ_COMPON_ROOT_WAR_BUILD_ROOT_BUILD_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_ROOT_WAR_BUILD"/>
+        <addForeignKeyConstraint baseColumnNames="FLAVOUR_ID" baseTableName="SDP_DEPLOYMENT_REQ_COMPONENT" constraintName="FK_DEPLOY_REQ_COMPON_FLAVOU_FLAVOU_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_FLAVOUR"/>
+        <addForeignKeyConstraint baseColumnNames="REQUEST_ID" baseTableName="SDP_DEPLOYMENT_REQ_COMPONENT" constraintName="FK_DEPLOY_REQ_COMPON_DEPLOY_REQUES_REQUES_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_DEPLOYMENT_REQUEST"/>
+        <addForeignKeyConstraint baseColumnNames="COMP_IMAGE_ID" baseTableName="SDP_DEPLOYMENT_REQ_COMPONENT" constraintName="FK_DEPLOY_REQ_COMPON_COMP_VM_IMAGE_COMP_IMAGE_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_COMP_VM_IMAGE"/>
+        <addForeignKeyConstraint baseColumnNames="COMPONENT_ID" baseTableName="SDP_DEPLOYMENT_REQ_COMPONENT" constraintName="FK_DEPLOY_REQ_COMPON_COMPON_COMPON_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_COMPONENT"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-51">
+        <createTable tableName="SDP_PRODUCT">
+            <column autoIncrement="true" name="ID" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column autoIncrement="false" name="DEPLOYMENT_MODE" type="VARCHAR(100)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="DESCRIPTION" type="LONGTEXT"/>
+            <column autoIncrement="false" name="INTERNAL_NAME" type="VARCHAR(100)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="VERSION" type="INT"/>
+            <column autoIncrement="false" name="NAME" type="VARCHAR(100)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="VERSION_NAME" type="VARCHAR(100)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="YCC_PRODUCT_NAME" type="VARCHAR(100)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="YCC_TOOL_NAME" type="VARCHAR(100)"/>
+        </createTable>
+        <addUniqueConstraint columnNames="ID" constraintName="UQ_PRODUC_ID" tableName="SDP_PRODUCT"/>
+        <addUniqueConstraint columnNames="NAME" constraintName="UQ_PRODUC_NAME" tableName="SDP_PRODUCT"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-28">
+        <createTable tableName="SDP_DEPLOYMENT_REQ_PRODUCT_MAP">
+            <column autoIncrement="false" name="REQUEST_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="PRODUCT_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+        </createTable>
+        <addPrimaryKey columnNames="REQUEST_ID, PRODUCT_ID" constraintName="PRIMARY" tableName="SDP_DEPLOYMENT_REQ_PRODUCT_MAP"/>
+        <createIndex indexName="DEPLOY_REQ_PRODUC_MAP_REQUES_ID" tableName="SDP_DEPLOYMENT_REQ_PRODUCT_MAP">
+            <column autoIncrement="false" name="REQUEST_ID"/>
+        </createIndex>
+        <createIndex indexName="DEPLOY_REQ_PRODUC_MAP_PRODUC_ID" tableName="SDP_DEPLOYMENT_REQ_PRODUCT_MAP">
+            <column autoIncrement="false" name="PRODUCT_ID"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="REQUEST_ID" baseTableName="SDP_DEPLOYMENT_REQ_PRODUCT_MAP" constraintName="FK_DEPLOY_REQ_PRODUC_MAP_DEPLOY_REQUES_REQUES_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_DEPLOYMENT_REQUEST"/>
+        <addForeignKeyConstraint baseColumnNames="PRODUCT_ID" baseTableName="SDP_DEPLOYMENT_REQ_PRODUCT_MAP" constraintName="FK_DEPLOY_REQ_PRODUC_MAP_PRODUC_PRODUC_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_PRODUCT"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-30">
+        <createTable tableName="SDP_DESIGNATION">
+            <column autoIncrement="true" name="ID" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column autoIncrement="false" name="CREATED_BY" type="INT"/>
+            <column autoIncrement="false" name="CREATED_ON" type="datetime(6)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="DESIGNATION_DESC" type="LONGTEXT"/>
+            <column autoIncrement="false" name="VERSION" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="NAME" type="VARCHAR(100)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="IS_ENVIRONMENT_SPECIFIC" type="BIT(1)"/>
+            <column autoIncrement="false" name="UPDATED_ON" type="datetime(6)"/>
+            <column autoIncrement="false" name="UPDATED_BY" type="INT"/>
+        </createTable>
+        <addUniqueConstraint columnNames="ID" constraintName="UQ_DESIGN_ID" tableName="SDP_DESIGNATION"/>
+        <addUniqueConstraint columnNames="NAME" constraintName="UQ_DESIGN_NAME" tableName="SDP_DESIGNATION"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-31">
+        <createTable tableName="SDP_DESIGNATION_ROLE_MAP">
+            <column autoIncrement="false" name="DESIGNATION_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="ROLE" type="VARCHAR(255)"/>
+        </createTable>
+        <createIndex indexName="DESIGN_ROLE_MAP_DESIGN_ID" tableName="SDP_DESIGNATION_ROLE_MAP">
+            <column autoIncrement="false" name="DESIGNATION_ID"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="DESIGNATION_ID" baseTableName="SDP_DESIGNATION_ROLE_MAP" constraintName="FK_DESIGN_ROLE_MAP_DESIGN_DESIGN_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_DESIGNATION"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-33">
+        <createTable tableName="SDP_ENVIRONMENT_DATACENTER_MAP">
+            <column autoIncrement="false" name="ENVIRONMENT_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="DATACENTER_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+        </createTable>
+        <addPrimaryKey columnNames="ENVIRONMENT_ID, DATACENTER_ID" constraintName="PRIMARY" tableName="SDP_ENVIRONMENT_DATACENTER_MAP"/>
+        <createIndex indexName="ENVIRO_DATACE_MAP_ENVIRO_ID" tableName="SDP_ENVIRONMENT_DATACENTER_MAP">
+            <column autoIncrement="false" name="ENVIRONMENT_ID"/>
+        </createIndex>
+        <createIndex indexName="ENVIRO_DATACE_MAP_DATACE_ID" tableName="SDP_ENVIRONMENT_DATACENTER_MAP">
+            <column autoIncrement="false" name="DATACENTER_ID"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="ENVIRONMENT_ID" baseTableName="SDP_ENVIRONMENT_DATACENTER_MAP" constraintName="FK_ENVIRO_DATACE_MAP_ENVIRO_ENVIRO_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_ENVIRONMENT"/>
+        <addForeignKeyConstraint baseColumnNames="DATACENTER_ID" baseTableName="SDP_ENVIRONMENT_DATACENTER_MAP" constraintName="FK_ENVIRO_DATACE_MAP_DATA_CENTER_DATACE_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_DATA_CENTER"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-35">
+        <createTable tableName="SDP_FINAPP">
+            <column autoIncrement="true" name="ID" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column autoIncrement="false" name="NAME" type="VARCHAR(200)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="PLATFORM_FINAPP_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint columnNames="ID" constraintName="UQ_FINAPP_ID" tableName="SDP_FINAPP"/>
+        <addUniqueConstraint columnNames="NAME" constraintName="UQ_FINAPP_NAME" tableName="SDP_FINAPP"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-34">
+        <createTable tableName="SDP_FIANPP_PRODUCT_MAP">
+            <column autoIncrement="false" name="FIN_APP_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="PRODUCT_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+        </createTable>
+        <addPrimaryKey columnNames="FIN_APP_ID, PRODUCT_ID" constraintName="PRIMARY" tableName="SDP_FIANPP_PRODUCT_MAP"/>
+        <createIndex indexName="FIANPP_PRODUC_MAP_PRODUC_ID" tableName="SDP_FIANPP_PRODUCT_MAP">
+            <column autoIncrement="false" name="PRODUCT_ID"/>
+        </createIndex>
+        <createIndex indexName="FIANPP_PRODUC_MAP_FIN_APP_ID" tableName="SDP_FIANPP_PRODUCT_MAP">
+            <column autoIncrement="false" name="FIN_APP_ID"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="PRODUCT_ID" baseTableName="SDP_FIANPP_PRODUCT_MAP" constraintName="FK_FIANPP_PRODUC_MAP_PRODUC_PRODUC_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_PRODUCT"/>
+        <addForeignKeyConstraint baseColumnNames="FIN_APP_ID" baseTableName="SDP_FIANPP_PRODUCT_MAP" constraintName="FK_FIANPP_PRODUC_MAP_FINAPP_FIN_APP_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_FINAPP"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-37">
+        <createTable tableName="SDP_INFRA_COMPONENT">
+            <column autoIncrement="true" name="ID" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column autoIncrement="false" name="CLIENT_PROFILE" type="VARCHAR(100)"/>
+            <column autoIncrement="false" name="DESCRIPTION" type="LONGTEXT"/>
+            <column autoIncrement="false" name="HEALTH_MONITOR_TYPE" type="VARCHAR(200)"/>
+            <column autoIncrement="false" name="IMAGENAME" type="VARCHAR(255)"/>
+            <column autoIncrement="false" name="IS_LOAD_BALANCED" type="BIT(1)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="LOAD_BALANCER_METHOD" type="VARCHAR(100)"/>
+            <column autoIncrement="false" name="VERSION" type="INT"/>
+            <column autoIncrement="false" name="NAME" type="VARCHAR(100)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="NETWORK_NAME" type="VARCHAR(200)"/>
+            <column autoIncrement="false" name="PERSISTENCE" type="VARCHAR(200)"/>
+            <column autoIncrement="false" name="PROTOCOL" type="VARCHAR(100)"/>
+            <column autoIncrement="false" name="QUEUE_MANAGER_NAME" type="VARCHAR(255)"/>
+            <column autoIncrement="false" name="SECURITY_GROUP" type="VARCHAR(200)"/>
+            <column autoIncrement="false" name="SERVER_PROFILE" type="VARCHAR(100)"/>
+            <column autoIncrement="false" name="VIP_PORT" type="INT"/>
+            <column autoIncrement="false" name="FLAVOUR_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="OS_TEMPLATE_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="MAX_CAPACITY" type="INT"/>
+            <column autoIncrement="false" name="MIN_CAPACITY" type="INT"/>
+        </createTable>
+        <addUniqueConstraint columnNames="ID" constraintName="UQ_INFRA_COMPON_ID" tableName="SDP_INFRA_COMPONENT"/>
+        <addUniqueConstraint columnNames="NAME" constraintName="UQ_INFRA_COMPON_NAME" tableName="SDP_INFRA_COMPONENT"/>
+        <createIndex indexName="INFRA_COMPON_FLAVOU_ID" tableName="SDP_INFRA_COMPONENT">
+            <column autoIncrement="false" name="FLAVOUR_ID"/>
+        </createIndex>
+        <createIndex indexName="INFRA_COMPON_OS_TEMPLA_ID" tableName="SDP_INFRA_COMPONENT">
+            <column autoIncrement="false" name="OS_TEMPLATE_ID"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="FLAVOUR_ID" baseTableName="SDP_INFRA_COMPONENT" constraintName="FK_INFRA_COMPON_FLAVOU_FLAVOU_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_FLAVOUR"/>
+        <addForeignKeyConstraint baseColumnNames="OS_TEMPLATE_ID" baseTableName="SDP_INFRA_COMPONENT" constraintName="FK_INFRA_COMPON_OS_TEMPLA_OS_TEMPLA_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_OS_TEMPLATE"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-38">
+        <createTable tableName="SDP_KEY_VALUE">
+            <column autoIncrement="true" name="ID" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column autoIncrement="false" name="DATA_LOCK" type="BIT(1)"/>
+            <column autoIncrement="false" name="NAME" type="VARCHAR(200)"/>
+            <column autoIncrement="false" name="VALUE" type="LONGBLOB"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-39">
+        <createTable tableName="SDP_MACHINE">
+            <column autoIncrement="true" name="ID" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column autoIncrement="false" name="HARD_DISK_SIZE" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="NAME" type="VARCHAR(100)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="NUMBER_OF_CPUS" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="RAM_SIZE" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="DATA_CENTER_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+        </createTable>
+        <createIndex indexName="MACHIN_DATA_CENTER_ID" tableName="SDP_MACHINE">
+            <column autoIncrement="false" name="DATA_CENTER_ID"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="DATA_CENTER_ID" baseTableName="SDP_MACHINE" constraintName="FK_MACHIN_DATA_CENTER_DATA_CENTER_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_DATA_CENTER"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-40">
+        <createTable tableName="SDP_MAIL_TEMPLATE">
+            <column autoIncrement="true" name="ID" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column autoIncrement="false" name="BODY" type="LONGTEXT"/>
+            <column autoIncrement="false" name="NAME" type="LONGTEXT"/>
+            <column autoIncrement="false" name="SUBJECT" type="LONGTEXT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-76">
+        <createTable tableName="SDP_USER">
+            <column autoIncrement="true" name="ID" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column autoIncrement="false" name="DISPLAY_NAME" type="VARCHAR(100)"/>
+            <column autoIncrement="false" name="EMAIL" type="VARCHAR(100)"/>
+            <column autoIncrement="false" name="USER_NAME" type="VARCHAR(100)"/>
+        </createTable>
+        <addUniqueConstraint columnNames="ID" constraintName="UQ_USER_ID" tableName="SDP_USER"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-44">
+        <createTable tableName="SDP_NOTIFICATION">
+            <column autoIncrement="true" name="ID" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column autoIncrement="false" name="BODY" type="LONGTEXT"/>
+            <column autoIncrement="false" name="SUBJECT" type="LONGTEXT"/>
+            <column autoIncrement="false" name="USER_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+        </createTable>
+        <createIndex indexName="NOTIFI_USER_ID" tableName="SDP_NOTIFICATION">
+            <column autoIncrement="false" name="USER_ID"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="USER_ID" baseTableName="SDP_NOTIFICATION" constraintName="FK_NOTIFI_USER_USER_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_USER"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-41">
+        <createTable tableName="SDP_MAIL_USER">
+            <column autoIncrement="false" name="NOTIFICATION_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="USER_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+        </createTable>
+        <createIndex indexName="MAIL_USER_NOTIFI_ID" tableName="SDP_MAIL_USER">
+            <column autoIncrement="false" name="NOTIFICATION_ID"/>
+        </createIndex>
+        <createIndex indexName="MAIL_USER_USER_ID" tableName="SDP_MAIL_USER">
+            <column autoIncrement="false" name="USER_ID"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="NOTIFICATION_ID" baseTableName="SDP_MAIL_USER" constraintName="FK_MAIL_USER_NOTIFI_NOTIFI_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_NOTIFICATION"/>
+        <addForeignKeyConstraint baseColumnNames="USER_ID" baseTableName="SDP_MAIL_USER" constraintName="FK_MAIL_USER_USER_USER_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_USER"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-42">
+        <createTable tableName="SDP_MONGO_DB_RESOURCE">
+            <column autoIncrement="true" name="ID" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column autoIncrement="false" name="DB_NAME" type="VARCHAR(255)"/>
+            <column autoIncrement="false" name="DB_TYPE" type="VARCHAR(255)"/>
+            <column autoIncrement="false" name="MONGO_NODES" type="VARCHAR(255)"/>
+            <column autoIncrement="false" name="NAME" type="VARCHAR(100)"/>
+            <column autoIncrement="false" name="PASSWORD" type="VARCHAR(255)"/>
+            <column autoIncrement="false" name="USERNAME" type="VARCHAR(255)"/>
+            <column autoIncrement="false" name="EXTRA_PROPERTIES" type="LONGTEXT"/>
+            <column autoIncrement="false" name="VERSION" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="USER_NAME" type="VARCHAR(100)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint columnNames="NAME" constraintName="UQ_MONGO_DB_RESOUR_NAME" tableName="SDP_MONGO_DB_RESOURCE"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-45">
+        <createTable tableName="SDP_OS_CONFIG_FILE">
+            <column autoIncrement="true" name="ID" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column autoIncrement="false" name="DEST_PATH" type="LONGTEXT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="NAME" type="VARCHAR(100)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="SOURCE_PATH" type="LONGTEXT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="OS_TEMPLATE_ID" type="INT"/>
+        </createTable>
+        <addUniqueConstraint columnNames="ID" constraintName="UQ_OS_CONFIG_FILE_ID" tableName="SDP_OS_CONFIG_FILE"/>
+        <createIndex indexName="OS_CONFIG_FILE_OS_TEMPLA_ID" tableName="SDP_OS_CONFIG_FILE">
+            <column autoIncrement="false" name="OS_TEMPLATE_ID"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="OS_TEMPLATE_ID" baseTableName="SDP_OS_CONFIG_FILE" constraintName="FK_OS_CONFIG_FILE_OS_TEMPLA_OS_TEMPLA_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_OS_TEMPLATE"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-47">
+        <createTable tableName="SDP_OS_TEMPLATE_SOFT_PACK_MAP">
+            <column autoIncrement="false" name="OS_TEMP_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="SOFT_PACKAGE" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+        </createTable>
+        <createIndex indexName="OS_TEMPLA_SOFT_PACK_MAP_SOFT_PACKAG" tableName="SDP_OS_TEMPLATE_SOFT_PACK_MAP">
+            <column autoIncrement="false" name="SOFT_PACKAGE"/>
+        </createIndex>
+        <createIndex indexName="OS_TEMPLA_SOFT_PACK_MAP_OS_TEMP_ID" tableName="SDP_OS_TEMPLATE_SOFT_PACK_MAP">
+            <column autoIncrement="false" name="OS_TEMP_ID"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="SOFT_PACKAGE" baseTableName="SDP_OS_TEMPLATE_SOFT_PACK_MAP" constraintName="FK_OS_TEMPLA_SOFT_PACK_MAP_SOFTWA_PACKAG_SOFT_PACKAG" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_SOFTWARE_PACKAGE"/>
+        <addForeignKeyConstraint baseColumnNames="OS_TEMP_ID" baseTableName="SDP_OS_TEMPLATE_SOFT_PACK_MAP" constraintName="FK_OS_TEMPLA_SOFT_PACK_MAP_OS_TEMPLA_OS_TEMP_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_OS_TEMPLATE"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-48">
+        <createTable tableName="SDP_OS_USER">
+            <column autoIncrement="true" name="ID" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column autoIncrement="false" name="NAME" type="VARCHAR(100)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="PRIMARY_GROUP" type="VARCHAR(100)"/>
+            <column autoIncrement="false" name="SYS_USER" type="BIT(1)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="OS_TEMPLATE_ID" type="INT"/>
+        </createTable>
+        <addUniqueConstraint columnNames="ID" constraintName="UQ_OS_USER_ID" tableName="SDP_OS_USER"/>
+        <createIndex indexName="OS_USER_OS_TEMPLA_ID" tableName="SDP_OS_USER">
+            <column autoIncrement="false" name="OS_TEMPLATE_ID"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="OS_TEMPLATE_ID" baseTableName="SDP_OS_USER" constraintName="FK_OS_USER_OS_TEMPLA_OS_TEMPLA_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_OS_TEMPLATE"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-49">
+        <createTable tableName="SDP_OS_USER_GROUP">
+            <column autoIncrement="true" name="ID" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column autoIncrement="false" name="GROUP_ID" type="INT"/>
+            <column autoIncrement="false" name="NAME" type="VARCHAR(100)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="SYS_GROUP" type="BIT(1)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="OS_TEMPLATE_ID" type="INT"/>
+        </createTable>
+        <addUniqueConstraint columnNames="ID" constraintName="UQ_OS_USER_GROUP_ID" tableName="SDP_OS_USER_GROUP"/>
+        <createIndex indexName="OS_USER_GROUP_OS_TEMPLA_ID" tableName="SDP_OS_USER_GROUP">
+            <column autoIncrement="false" name="OS_TEMPLATE_ID"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="OS_TEMPLATE_ID" baseTableName="SDP_OS_USER_GROUP" constraintName="FK_OS_USER_GROUP_OS_TEMPLA_OS_TEMPLA_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_OS_TEMPLATE"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-50">
+        <createTable tableName="SDP_PERFORCE_LOCATION">
+            <column autoIncrement="true" name="ID" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column autoIncrement="false" name="CUR_COMP_VERSION" type="VARCHAR(50)"/>
+            <column autoIncrement="false" name="PERFORCE_PATH" type="VARCHAR(255)"/>
+            <column autoIncrement="false" name="BRANCH_ID" type="INT"/>
+            <column autoIncrement="false" name="COMP_ID" type="INT"/>
+        </createTable>
+        <addUniqueConstraint columnNames="ID" constraintName="UQ_PERFOR_LOCATI_ID" tableName="SDP_PERFORCE_LOCATION"/>
+        <createIndex indexName="PERFOR_LOCATI_COMP_ID" tableName="SDP_PERFORCE_LOCATION">
+            <column autoIncrement="false" name="COMP_ID"/>
+        </createIndex>
+        <createIndex indexName="PERFOR_LOCATI_BRANCH_ID" tableName="SDP_PERFORCE_LOCATION">
+            <column autoIncrement="false" name="BRANCH_ID"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="COMP_ID" baseTableName="SDP_PERFORCE_LOCATION" constraintName="FK_PERFOR_LOCATI_COMPON_COMP_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_COMPONENT"/>
+        <addForeignKeyConstraint baseColumnNames="BRANCH_ID" baseTableName="SDP_PERFORCE_LOCATION" constraintName="FK_PERFOR_LOCATI_BRANCH_BRANCH_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="BRANCH_ID" referencedTableName="SDP_BRANCH"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-52">
+        <createTable tableName="SDP_PRODUCT_COMPONENT_MAP">
+            <column autoIncrement="false" name="PRODUCT_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="COMPONENT_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+        </createTable>
+        <addPrimaryKey columnNames="PRODUCT_ID, COMPONENT_ID" constraintName="PRIMARY" tableName="SDP_PRODUCT_COMPONENT_MAP"/>
+        <createIndex indexName="PRODUC_COMPON_MAP_COMPON_ID" tableName="SDP_PRODUCT_COMPONENT_MAP">
+            <column autoIncrement="false" name="COMPONENT_ID"/>
+        </createIndex>
+        <createIndex indexName="PRODUC_COMPON_MAP_PRODUC_ID" tableName="SDP_PRODUCT_COMPONENT_MAP">
+            <column autoIncrement="false" name="PRODUCT_ID"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="COMPONENT_ID" baseTableName="SDP_PRODUCT_COMPONENT_MAP" constraintName="FK_PRODUC_COMPON_MAP_COMPON_COMPON_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_COMPONENT"/>
+        <addForeignKeyConstraint baseColumnNames="PRODUCT_ID" baseTableName="SDP_PRODUCT_COMPONENT_MAP" constraintName="FK_PRODUC_COMPON_MAP_PRODUC_PRODUC_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_PRODUCT"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-53">
+        <createTable tableName="SDP_RES_POOL_DB_MAP">
+            <column autoIncrement="false" name="COMMON_RESOURCE_POOL_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="DB_RESOURCE_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+        </createTable>
+        <createIndex indexName="RES_POOL_DB_MAP_DB_RESOUR_ID" tableName="SDP_RES_POOL_DB_MAP">
+            <column autoIncrement="false" name="DB_RESOURCE_ID"/>
+        </createIndex>
+        <createIndex indexName="RES_POOL_DB_MAP_COMMON_RESOUR_POOL_ID" tableName="SDP_RES_POOL_DB_MAP">
+            <column autoIncrement="false" name="COMMON_RESOURCE_POOL_ID"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="DB_RESOURCE_ID" baseTableName="SDP_RES_POOL_DB_MAP" constraintName="FK_RES_POOL_DB_MAP_DB_RESOUR_DB_RESOUR_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_DB_RESOURCE"/>
+        <addForeignKeyConstraint baseColumnNames="COMMON_RESOURCE_POOL_ID" baseTableName="SDP_RES_POOL_DB_MAP" constraintName="FK_RES_POOL_DB_MAP_RESOUR_POOL_COMMON_RESOUR_POOL_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_RESOURCE_POOL"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-54">
+        <createTable tableName="SDP_RES_POOL_MONGO_DB_MAP">
+            <column autoIncrement="false" name="COMMON_RESOURCE_POOL_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="MONGO_DB_RESOURCE_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+        </createTable>
+        <createIndex indexName="RES_POOL_MONGO_DB_MAP_MONGO_DB_RESOUR_ID" tableName="SDP_RES_POOL_MONGO_DB_MAP">
+            <column autoIncrement="false" name="MONGO_DB_RESOURCE_ID"/>
+        </createIndex>
+        <createIndex indexName="RES_POOL_MONGO_DB_MAP_COMMON_RESOUR_POOL_ID" tableName="SDP_RES_POOL_MONGO_DB_MAP">
+            <column autoIncrement="false" name="COMMON_RESOURCE_POOL_ID"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="MONGO_DB_RESOURCE_ID" baseTableName="SDP_RES_POOL_MONGO_DB_MAP" constraintName="FK_RES_POOL_MONGO_DB_MAP_MONGO_DB_RESOUR_MONGO_DB_RESOUR_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_MONGO_DB_RESOURCE"/>
+        <addForeignKeyConstraint baseColumnNames="COMMON_RESOURCE_POOL_ID" baseTableName="SDP_RES_POOL_MONGO_DB_MAP" constraintName="FK_RES_POOL_MONGO_DB_MAP_RESOUR_POOL_COMMON_RESOUR_POOL_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_RESOURCE_POOL"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-56">
+        <createTable tableName="SDP_ROLE_MAPPING">
+            <column autoIncrement="true" name="ROLE_ID" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column autoIncrement="false" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="CREATED_ON" type="datetime(6)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="ROLE_DESC" type="VARCHAR(255)"/>
+            <column autoIncrement="false" name="ROLE_NAME" type="VARCHAR(255)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint columnNames="ROLE_ID" constraintName="UQ_ROLE_MAPPIN_ROLE_ID" tableName="SDP_ROLE_MAPPING"/>
+        <addUniqueConstraint columnNames="ROLE_NAME" constraintName="UQ_ROLE_MAPPIN_ROLE_NAME" tableName="SDP_ROLE_MAPPING"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-58">
+        <createTable tableName="SDP_SEQUENCES">
+            <column autoIncrement="true" name="ID" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column autoIncrement="false" name="INCREMENT_VALUE" type="INT"/>
+            <column autoIncrement="false" name="VERSION" type="INT"/>
+            <column autoIncrement="false" name="SEQUENCE_NAME" type="VARCHAR(200)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="SEQUENCE_CUR_VALUE" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint columnNames="SEQUENCE_NAME" constraintName="UQ_SEQUEN_SEQUEN_NAME" tableName="SDP_SEQUENCES"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-60">
+        <createTable tableName="SDP_STACK">
+            <column autoIncrement="true" name="ID" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column autoIncrement="false" name="STACK_VERSION" type="INT"/>
+            <column autoIncrement="false" name="CONFIG_JSON_LABEL_NAME" type="LONGTEXT"/>
+            <column autoIncrement="false" name="CREATED_ON" type="datetime(6)"/>
+            <column autoIncrement="false" name="EXECUTION_ID" type="VARCHAR(255)"/>
+            <column autoIncrement="false" name="FINAPP_CONFIG" type="LONGTEXT"/>
+            <column autoIncrement="false" name="NAME" type="VARCHAR(30)"/>
+            <column autoIncrement="false" name="SHARED_CONFIG" type="LONGTEXT"/>
+            <column autoIncrement="false" name="STATUS" type="VARCHAR(255)"/>
+            <column autoIncrement="false" name="WORK_FLOW_TYPE" type="VARCHAR(255)"/>
+            <column autoIncrement="false" name="DATA_CENTER_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="ENVIRONMENT_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="SWIMLANE_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint columnNames="ID" constraintName="UQ_STACK_ID" tableName="SDP_STACK"/>
+        <addUniqueConstraint columnNames="NAME" constraintName="UQ_STACK_NAME" tableName="SDP_STACK"/>
+        <createIndex indexName="STACK_ENVIRO_ID" tableName="SDP_STACK">
+            <column autoIncrement="false" name="ENVIRONMENT_ID"/>
+        </createIndex>
+        <createIndex indexName="STACK_SWIMLA_ID" tableName="SDP_STACK">
+            <column autoIncrement="false" name="SWIMLANE_ID"/>
+        </createIndex>
+        <createIndex indexName="STACK_DATA_CENTER_ID" tableName="SDP_STACK">
+            <column autoIncrement="false" name="DATA_CENTER_ID"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="ENVIRONMENT_ID" baseTableName="SDP_STACK" constraintName="FK_STACK_ENVIRO_ENVIRO_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_ENVIRONMENT"/>
+        <addForeignKeyConstraint baseColumnNames="SWIMLANE_ID" baseTableName="SDP_STACK" constraintName="FK_STACK_SWIM_LANE_SWIMLA_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_SWIM_LANE"/>
+        <addForeignKeyConstraint baseColumnNames="DATA_CENTER_ID" baseTableName="SDP_STACK" constraintName="FK_STACK_DATA_CENTER_DATA_CENTER_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_DATA_CENTER"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-61">
+        <createTable tableName="SDP_STACK_CLIENT">
+            <column autoIncrement="true" name="ID" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column autoIncrement="false" name="ADDED_ON" type="datetime(6)"/>
+            <column autoIncrement="false" name="APP_ID" type="LONGTEXT"/>
+            <column autoIncrement="false" name="LABEL_DETAILS" type="LONGTEXT"/>
+            <column autoIncrement="false" name="IS_CHANNEL" type="BIT(1)"/>
+            <column autoIncrement="false" name="NAME" type="LONGTEXT"/>
+            <column autoIncrement="false" name="PRODUCT_IDS" type="LONGTEXT"/>
+            <column autoIncrement="false" name="COBRAND_ID" type="INT"/>
+            <column autoIncrement="false" name="RESOURCE_POOL_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="STACK_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint columnNames="ID" constraintName="UQ_STACK_CLIENT_ID" tableName="SDP_STACK_CLIENT"/>
+        <addUniqueConstraint columnNames="STACK_ID, COBRAND_ID" constraintName="UQ_STACK_CLIENT_STACK_ID_COBRAN_ID" tableName="SDP_STACK_CLIENT"/>
+        <createIndex indexName="STACK_CLIENT_COBRAN_ID" tableName="SDP_STACK_CLIENT">
+            <column autoIncrement="false" name="COBRAND_ID"/>
+        </createIndex>
+        <createIndex indexName="STACK_CLIENT_STACK_ID" tableName="SDP_STACK_CLIENT">
+            <column autoIncrement="false" name="STACK_ID"/>
+        </createIndex>
+        <createIndex indexName="STACK_CLIENT_RESOUR_POOL_ID" tableName="SDP_STACK_CLIENT">
+            <column autoIncrement="false" name="RESOURCE_POOL_ID"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="COBRAND_ID" baseTableName="SDP_STACK_CLIENT" constraintName="FK_STACK_CLIENT_COBRAN_COBRAN_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_COBRAND"/>
+        <addForeignKeyConstraint baseColumnNames="STACK_ID" baseTableName="SDP_STACK_CLIENT" constraintName="FK_STACK_CLIENT_STACK_STACK_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_STACK"/>
+        <addForeignKeyConstraint baseColumnNames="RESOURCE_POOL_ID" baseTableName="SDP_STACK_CLIENT" constraintName="FK_STACK_CLIENT_RESOUR_POOL_RESOUR_POOL_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_RESOURCE_POOL"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-62">
+        <createTable tableName="SDP_STACK_COMP_CUST_CERT_MAP">
+            <column autoIncrement="false" name="STACK_COMP_CUST_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="CERTIFICATE_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-63">
+        <createTable tableName="SDP_STACK_COMP_CUSTOMIZATION">
+            <column autoIncrement="true" name="ID" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column autoIncrement="false" name="ACCESS_URLS" type="LONGTEXT"/>
+            <column autoIncrement="false" name="CDN_PATH_LST" type="LONGTEXT"/>
+            <column autoIncrement="false" name="APP_ID" type="LONGTEXT"/>
+            <column autoIncrement="false" name="DNS_LIST" type="LONGTEXT"/>
+            <column autoIncrement="false" name="EXTENSION_APP_ID" type="LONGTEXT"/>
+            <column autoIncrement="false" name="EXTERNAL_VIP" type="VARCHAR(100)"/>
+            <column autoIncrement="false" name="WHITELIST_IPS" type="LONGTEXT"/>
+            <column autoIncrement="false" name="LABEL_FILE_NAMES_LIST" type="LONGTEXT"/>
+            <column autoIncrement="false" name="STACK_CLIENT_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="COMPONENT_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint columnNames="ID" constraintName="UQ_STACK_COMP_CUSTOM_ID" tableName="SDP_STACK_COMP_CUSTOMIZATION"/>
+        <createIndex indexName="STACK_COMP_CUSTOM_STACK_CLIENT_ID" tableName="SDP_STACK_COMP_CUSTOMIZATION">
+            <column autoIncrement="false" name="STACK_CLIENT_ID"/>
+        </createIndex>
+        <createIndex indexName="STACK_COMP_CUSTOM_COMPON_ID" tableName="SDP_STACK_COMP_CUSTOMIZATION">
+            <column autoIncrement="false" name="COMPONENT_ID"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="STACK_CLIENT_ID" baseTableName="SDP_STACK_COMP_CUSTOMIZATION" constraintName="FK_STACK_COMP_CUSTOM_STACK_CLIENT_STACK_CLIENT_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_STACK_CLIENT"/>
+        <addForeignKeyConstraint baseColumnNames="COMPONENT_ID" baseTableName="SDP_STACK_COMP_CUSTOMIZATION" constraintName="FK_STACK_COMP_CUSTOM_COMPON_COMPON_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_COMPONENT"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-64">
+        <createTable tableName="SDP_STACK_COMPONENT">
+            <column autoIncrement="true" name="ID" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column autoIncrement="false" name="COMPONENT_CONFIG" type="LONGTEXT"/>
+            <column autoIncrement="false" name="CONTEXT_PATH" type="LONGTEXT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="COMP_DYNAMIC_CONF" type="LONGTEXT"/>
+            <column autoIncrement="false" name="FILE_LOCATIONS" type="LONGTEXT"/>
+            <column autoIncrement="false" name="INTERNAL_DNS" type="LONGTEXT"/>
+            <column autoIncrement="false" name="INTERNAL_VIP" type="LONGTEXT"/>
+            <column autoIncrement="false" name="JVM_ARGUMENTS" type="LONGTEXT"/>
+            <column autoIncrement="false" name="MAX_CAPACITY" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="MIN_CAPACITY" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="VIP_PORT" type="INT"/>
+            <column autoIncrement="false" name="COMPONENT_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="COMP_IMAGE_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="FLAVOUR_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="ROOT_BUILD_ID" type="INT"/>
+            <column autoIncrement="false" name="STACK_ID" type="INT"/>
+        </createTable>
+        <addUniqueConstraint columnNames="ID" constraintName="UQ_STACK_COMPON_ID" tableName="SDP_STACK_COMPONENT"/>
+        <createIndex indexName="STACK_COMPON_ROOT_BUILD_ID" tableName="SDP_STACK_COMPONENT">
+            <column autoIncrement="false" name="ROOT_BUILD_ID"/>
+        </createIndex>
+        <createIndex indexName="STACK_COMPON_FLAVOU_ID" tableName="SDP_STACK_COMPONENT">
+            <column autoIncrement="false" name="FLAVOUR_ID"/>
+        </createIndex>
+        <createIndex indexName="STACK_COMPON_STACK_ID" tableName="SDP_STACK_COMPONENT">
+            <column autoIncrement="false" name="STACK_ID"/>
+        </createIndex>
+        <createIndex indexName="STACK_COMPON_COMP_IMAGE_ID" tableName="SDP_STACK_COMPONENT">
+            <column autoIncrement="false" name="COMP_IMAGE_ID"/>
+        </createIndex>
+        <createIndex indexName="STACK_COMPON_COMPON_ID" tableName="SDP_STACK_COMPONENT">
+            <column autoIncrement="false" name="COMPONENT_ID"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="ROOT_BUILD_ID" baseTableName="SDP_STACK_COMPONENT" constraintName="FK_STACK_COMPON_ROOT_WAR_BUILD_ROOT_BUILD_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_ROOT_WAR_BUILD"/>
+        <addForeignKeyConstraint baseColumnNames="FLAVOUR_ID" baseTableName="SDP_STACK_COMPONENT" constraintName="FK_STACK_COMPON_FLAVOU_FLAVOU_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_FLAVOUR"/>
+        <addForeignKeyConstraint baseColumnNames="STACK_ID" baseTableName="SDP_STACK_COMPONENT" constraintName="FK_STACK_COMPON_STACK_STACK_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_STACK"/>
+        <addForeignKeyConstraint baseColumnNames="COMP_IMAGE_ID" baseTableName="SDP_STACK_COMPONENT" constraintName="FK_STACK_COMPON_COMP_VM_IMAGE_COMP_IMAGE_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_COMP_VM_IMAGE"/>
+        <addForeignKeyConstraint baseColumnNames="COMPONENT_ID" baseTableName="SDP_STACK_COMPONENT" constraintName="FK_STACK_COMPON_COMPON_COMPON_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_COMPONENT"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-65">
+        <createTable tableName="SDP_STACK_COMPONENT_MEMBER">
+            <column autoIncrement="true" name="ID" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column autoIncrement="false" name="HOST" type="VARCHAR(255)"/>
+            <column autoIncrement="false" name="STACKHALF" type="VARCHAR(255)"/>
+            <column autoIncrement="false" name="STACK_COMPONENT_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint columnNames="ID" constraintName="UQ_STACK_COMPON_MEMBER_ID" tableName="SDP_STACK_COMPONENT_MEMBER"/>
+        <createIndex indexName="STACK_COMPON_MEMBER_STACK_COMPON_ID" tableName="SDP_STACK_COMPONENT_MEMBER">
+            <column autoIncrement="false" name="STACK_COMPONENT_ID"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="STACK_COMPONENT_ID" baseTableName="SDP_STACK_COMPONENT_MEMBER" constraintName="FK_STACK_COMPON_MEMBER_STACK_COMPON_STACK_COMPON_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_STACK_COMPONENT"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-66">
+        <createTable tableName="SDP_STACK_INFRA_COMPONENT">
+            <column autoIncrement="true" name="ID" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column autoIncrement="false" name="FLAVOR" type="LONGTEXT"/>
+            <column autoIncrement="false" name="IMAGE_NAME" type="LONGTEXT"/>
+            <column autoIncrement="false" name="INTERNAL_DNS" type="LONGTEXT"/>
+            <column autoIncrement="false" name="VIP" type="LONGTEXT"/>
+            <column autoIncrement="false" name="LOAD_BALANCER_METHOD" type="VARCHAR(255)"/>
+            <column autoIncrement="false" name="MEMBERS" type="LONGTEXT"/>
+            <column autoIncrement="false" name="QUEUE_MANAGER" type="LONGTEXT"/>
+            <column autoIncrement="false" name="QUEUES" type="LONGTEXT"/>
+            <column autoIncrement="false" name="SECURITY_GROUP" type="LONGTEXT"/>
+            <column autoIncrement="false" name="STACK_HALF" type="VARCHAR(255)"/>
+            <column autoIncrement="false" name="VIP_PORT" type="INT"/>
+            <column autoIncrement="false" name="INFRA_COMPONENT_ID" type="INT"/>
+            <column autoIncrement="false" name="STACK_ID" type="INT"/>
+        </createTable>
+        <addUniqueConstraint columnNames="ID" constraintName="UQ_STACK_INFRA_COMPON_ID" tableName="SDP_STACK_INFRA_COMPONENT"/>
+        <createIndex indexName="STACK_INFRA_COMPON_STACK_ID" tableName="SDP_STACK_INFRA_COMPONENT">
+            <column autoIncrement="false" name="STACK_ID"/>
+        </createIndex>
+        <createIndex indexName="STACK_INFRA_COMPON_INFRA_COMPON_ID" tableName="SDP_STACK_INFRA_COMPONENT">
+            <column autoIncrement="false" name="INFRA_COMPONENT_ID"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="STACK_ID" baseTableName="SDP_STACK_INFRA_COMPONENT" constraintName="FK_STACK_INFRA_COMPON_STACK_STACK_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_STACK"/>
+        <addForeignKeyConstraint baseColumnNames="INFRA_COMPONENT_ID" baseTableName="SDP_STACK_INFRA_COMPONENT" constraintName="FK_STACK_INFRA_COMPON_INFRA_COMPON_INFRA_COMPON_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_INFRA_COMPONENT"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-68">
+        <createTable tableName="SDP_STACK_SNAP_SHOT_ENVIRONMENT_MAP">
+            <column autoIncrement="false" name="STACK_SNAP_SHOT_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="ENVIRONMENT_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+        </createTable>
+        <createIndex indexName="STACK_SNAP_SHOT_ENVIRO_MAP_ENVIRO_ID" tableName="SDP_STACK_SNAP_SHOT_ENVIRONMENT_MAP">
+            <column autoIncrement="false" name="ENVIRONMENT_ID"/>
+        </createIndex>
+        <createIndex indexName="STACK_SNAP_SHOT_ENVIRO_MAP_STACK_SNAP_SHOT_ID" tableName="SDP_STACK_SNAP_SHOT_ENVIRONMENT_MAP">
+            <column autoIncrement="false" name="STACK_SNAP_SHOT_ID"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="ENVIRONMENT_ID" baseTableName="SDP_STACK_SNAP_SHOT_ENVIRONMENT_MAP" constraintName="FK_STACK_SNAP_SHOT_ENVIRO_MAP_ENVIRO_ENVIRO_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_ENVIRONMENT"/>
+        <addForeignKeyConstraint baseColumnNames="STACK_SNAP_SHOT_ID" baseTableName="SDP_STACK_SNAP_SHOT_ENVIRONMENT_MAP" constraintName="FK_STACK_SNAP_SHOT_ENVIRO_MAP_STACK_SNAP_SHOT_STACK_SNAP_SHOT_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_STACK_SNAP_SHOT"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-69">
+        <createTable tableName="SDP_SUBBRAND">
+            <column autoIncrement="true" name="ID" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column autoIncrement="false" name="IS_PRIVATE" type="BIT(1)"/>
+            <column autoIncrement="false" name="NAME" type="VARCHAR(255)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="REST_SERVER_MAPPING" type="VARCHAR(255)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="SUBBRAND_ID" type="VARCHAR(255)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="WEB_MAPPING_URLS" type="VARCHAR(255)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="YCC_MAPPING" type="VARCHAR(255)"/>
+            <column autoIncrement="false" name="YCC_ID" type="VARCHAR(255)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="COBRAND_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint columnNames="ID" constraintName="UQ_SUBBRA_ID" tableName="SDP_SUBBRAND"/>
+        <addUniqueConstraint columnNames="NAME" constraintName="UQ_SUBBRA_NAME" tableName="SDP_SUBBRAND"/>
+        <addUniqueConstraint columnNames="SUBBRAND_ID" constraintName="UQ_SUBBRA_SUBBRA_ID" tableName="SDP_SUBBRAND"/>
+        <createIndex indexName="SUBBRA_COBRAN_ID" tableName="SDP_SUBBRAND">
+            <column autoIncrement="false" name="COBRAND_ID"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="COBRAND_ID" baseTableName="SDP_SUBBRAND" constraintName="FK_SUBBRA_COBRAN_COBRAN_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_COBRAND"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-71">
+        <createTable tableName="SDP_SWIM_LANE_PRIMARY_MACHINE_MAP">
+            <column autoIncrement="false" name="SWIMLANE_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="MACHINE_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+        </createTable>
+        <addPrimaryKey columnNames="SWIMLANE_ID, MACHINE_ID" constraintName="PRIMARY" tableName="SDP_SWIM_LANE_PRIMARY_MACHINE_MAP"/>
+        <createIndex indexName="SWIM_LANE_PRIMAR_MACHIN_MAP_SWIMLA_ID" tableName="SDP_SWIM_LANE_PRIMARY_MACHINE_MAP">
+            <column autoIncrement="false" name="SWIMLANE_ID"/>
+        </createIndex>
+        <createIndex indexName="SWIM_LANE_PRIMAR_MACHIN_MAP_MACHIN_ID" tableName="SDP_SWIM_LANE_PRIMARY_MACHINE_MAP">
+            <column autoIncrement="false" name="MACHINE_ID"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="SWIMLANE_ID" baseTableName="SDP_SWIM_LANE_PRIMARY_MACHINE_MAP" constraintName="FK_SWIM_LANE_PRIMAR_MACHIN_MAP_SWIM_LANE_SWIMLA_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_SWIM_LANE"/>
+        <addForeignKeyConstraint baseColumnNames="MACHINE_ID" baseTableName="SDP_SWIM_LANE_PRIMARY_MACHINE_MAP" constraintName="FK_SWIM_LANE_PRIMAR_MACHIN_MAP_MACHIN_MACHIN_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_MACHINE"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-72">
+        <createTable tableName="SDP_SWIM_LANE_SECONDARY_MACHINE_MAP">
+            <column autoIncrement="false" name="SWIMLANE_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="MACHINE_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+        </createTable>
+        <addPrimaryKey columnNames="SWIMLANE_ID, MACHINE_ID" constraintName="PRIMARY" tableName="SDP_SWIM_LANE_SECONDARY_MACHINE_MAP"/>
+        <createIndex indexName="SWIM_LANE_SECOND_MACHIN_MAP_SWIMLA_ID" tableName="SDP_SWIM_LANE_SECONDARY_MACHINE_MAP">
+            <column autoIncrement="false" name="SWIMLANE_ID"/>
+        </createIndex>
+        <createIndex indexName="SWIM_LANE_SECOND_MACHIN_MAP_MACHIN_ID" tableName="SDP_SWIM_LANE_SECONDARY_MACHINE_MAP">
+            <column autoIncrement="false" name="MACHINE_ID"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="SWIMLANE_ID" baseTableName="SDP_SWIM_LANE_SECONDARY_MACHINE_MAP" constraintName="FK_SWIM_LANE_SECOND_MACHIN_MAP_SWIM_LANE_SWIMLA_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_SWIM_LANE"/>
+        <addForeignKeyConstraint baseColumnNames="MACHINE_ID" baseTableName="SDP_SWIM_LANE_SECONDARY_MACHINE_MAP" constraintName="FK_SWIM_LANE_SECOND_MACHIN_MAP_MACHIN_MACHIN_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_MACHINE"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-74">
+        <createTable tableName="SDP_SWIM_LANE_TYPE_FLAVOUR_MAP">
+            <column autoIncrement="false" name="SWIMLANE_TYPE_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="FLAVOUR_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+        </createTable>
+        <addPrimaryKey columnNames="SWIMLANE_TYPE_ID, FLAVOUR_ID" constraintName="PRIMARY" tableName="SDP_SWIM_LANE_TYPE_FLAVOUR_MAP"/>
+        <createIndex indexName="SWIM_LANE_TYPE_FLAVOU_MAP_FLAVOU_ID" tableName="SDP_SWIM_LANE_TYPE_FLAVOUR_MAP">
+            <column autoIncrement="false" name="FLAVOUR_ID"/>
+        </createIndex>
+        <createIndex indexName="SWIM_LANE_TYPE_FLAVOU_MAP_SWIMLA_TYPE_ID" tableName="SDP_SWIM_LANE_TYPE_FLAVOUR_MAP">
+            <column autoIncrement="false" name="SWIMLANE_TYPE_ID"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="FLAVOUR_ID" baseTableName="SDP_SWIM_LANE_TYPE_FLAVOUR_MAP" constraintName="FK_SWIM_LANE_TYPE_FLAVOU_MAP_FLAVOU_FLAVOU_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_FLAVOUR"/>
+        <addForeignKeyConstraint baseColumnNames="SWIMLANE_TYPE_ID" baseTableName="SDP_SWIM_LANE_TYPE_FLAVOUR_MAP" constraintName="FK_SWIM_LANE_TYPE_FLAVOU_MAP_SWIM_LANE_TYPE_SWIMLA_TYPE_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_SWIM_LANE_TYPE"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-75">
+        <createTable tableName="SDP_SWIM_LANE_TYPE_PRODUCT_MAP">
+            <column autoIncrement="false" name="SWIMLANE_TYPE_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="PRODUCTS_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+        </createTable>
+        <addPrimaryKey columnNames="SWIMLANE_TYPE_ID, PRODUCTS_ID" constraintName="PRIMARY" tableName="SDP_SWIM_LANE_TYPE_PRODUCT_MAP"/>
+        <createIndex indexName="SWIM_LANE_TYPE_PRODUC_MAP_PRODUC_ID" tableName="SDP_SWIM_LANE_TYPE_PRODUCT_MAP">
+            <column autoIncrement="false" name="PRODUCTS_ID"/>
+        </createIndex>
+        <createIndex indexName="SWIM_LANE_TYPE_PRODUC_MAP_SWIMLA_TYPE_ID" tableName="SDP_SWIM_LANE_TYPE_PRODUCT_MAP">
+            <column autoIncrement="false" name="SWIMLANE_TYPE_ID"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="PRODUCTS_ID" baseTableName="SDP_SWIM_LANE_TYPE_PRODUCT_MAP" constraintName="FK_SWIM_LANE_TYPE_PRODUC_MAP_PRODUC_PRODUC_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_PRODUCT"/>
+        <addForeignKeyConstraint baseColumnNames="SWIMLANE_TYPE_ID" baseTableName="SDP_SWIM_LANE_TYPE_PRODUCT_MAP" constraintName="FK_SWIM_LANE_TYPE_PRODUC_MAP_SWIM_LANE_TYPE_SWIMLA_TYPE_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_SWIM_LANE_TYPE"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-77">
+        <createTable tableName="SDP_USER_ACCESS">
+            <column autoIncrement="true" name="ID" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column autoIncrement="false" name="DESIGNATION_ID" type="INT"/>
+            <column autoIncrement="false" name="ENV_ID" type="INT"/>
+            <column autoIncrement="false" name="USER_ID" type="INT"/>
+        </createTable>
+        <addUniqueConstraint columnNames="ID" constraintName="UQ_USER_ACCESS_ID" tableName="SDP_USER_ACCESS"/>
+        <createIndex indexName="USER_ACCESS_DESIGN_ID" tableName="SDP_USER_ACCESS">
+            <column autoIncrement="false" name="DESIGNATION_ID"/>
+        </createIndex>
+        <createIndex indexName="USER_ACCESS_ENV_ID" tableName="SDP_USER_ACCESS">
+            <column autoIncrement="false" name="ENV_ID"/>
+        </createIndex>
+        <createIndex indexName="USER_ACCESS_USER_ID" tableName="SDP_USER_ACCESS">
+            <column autoIncrement="false" name="USER_ID"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="DESIGNATION_ID" baseTableName="SDP_USER_ACCESS" constraintName="FK_USER_ACCESS_DESIGN_DESIGN_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_DESIGNATION"/>
+        <addForeignKeyConstraint baseColumnNames="ENV_ID" baseTableName="SDP_USER_ACCESS" constraintName="FK_USER_ACCESS_ENVIRO_ENV_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_ENVIRONMENT"/>
+        <addForeignKeyConstraint baseColumnNames="USER_ID" baseTableName="SDP_USER_ACCESS" constraintName="FK_USER_ACCESS_USER_USER_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_USER"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-78">
+        <createTable tableName="SDP_USER_TOKEN">
+            <column autoIncrement="false" name="TOKEN_ID" type="VARCHAR(255)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="GROUP_ID" type="VARCHAR(45)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="LAST_ACCESSED_TIME" type="datetime(6)">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="USER_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+        </createTable>
+        <addPrimaryKey columnNames="TOKEN_ID" constraintName="PRIMARY" tableName="SDP_USER_TOKEN"/>
+        <addUniqueConstraint columnNames="TOKEN_ID" constraintName="UQ_USER_TOKEN_TOKEN_ID" tableName="SDP_USER_TOKEN"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-80">
+        <createTable tableName="SDP_WORK_FLOW_EXECUTION">
+            <column autoIncrement="true" name="ID" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column autoIncrement="false" name="COVERED_STATES" type="LONGTEXT"/>
+            <column autoIncrement="false" name="ENDED_ON" type="datetime(6)"/>
+            <column autoIncrement="false" name="EXECUTION_UQ_ID" type="LONGTEXT"/>
+            <column autoIncrement="false" name="LISTENER_TYPE" type="VARCHAR(200)"/>
+            <column autoIncrement="false" name="VERSION" type="INT"/>
+            <column autoIncrement="false" name="NAME" type="VARCHAR(100)"/>
+            <column autoIncrement="false" name="RESTART_JOB" type="BIT(1)"/>
+            <column autoIncrement="false" name="STARTED_ON" type="datetime(6)"/>
+            <column autoIncrement="false" name="STATUS" type="VARCHAR(100)"/>
+            <column autoIncrement="false" name="TITLE" type="LONGTEXT"/>
+            <column autoIncrement="false" name="WORK_FLOW_TYPE" type="LONGTEXT"/>
+            <column autoIncrement="false" name="RESUMED_ON" type="datetime(6)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-79">
+        <createTable tableName="SDP_WORK_FLOW_CONTEXT_ATTR">
+            <column autoIncrement="true" name="ID" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column autoIncrement="false" name="CREATED_IN" type="VARCHAR(100)"/>
+            <column autoIncrement="false" name="LAST_UPDATED_IN" type="VARCHAR(100)"/>
+            <column autoIncrement="false" name="NAME" type="VARCHAR(100)"/>
+            <column autoIncrement="false" name="VALUE" type="LONGTEXT"/>
+            <column autoIncrement="false" name="WORK_FLOW_EXECUTION_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="COLUMNCREATED_STEP_ID" type="INT"/>
+            <column autoIncrement="false" name="CREATED_STEP_ID" type="INT"/>
+            <column autoIncrement="false" name="LAST_UPDATED_STEP_ID" type="INT"/>
+        </createTable>
+        <createIndex indexName="WORK_FLOW_CONTEX_ATTR_WORK_FLOW_EXECUT_ID" tableName="SDP_WORK_FLOW_CONTEXT_ATTR">
+            <column autoIncrement="false" name="WORK_FLOW_EXECUTION_ID"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="WORK_FLOW_EXECUTION_ID" baseTableName="SDP_WORK_FLOW_CONTEXT_ATTR" constraintName="FK_WORK_FLOW_CONTEX_ATTR_WORK_FLOW_EXECUT_WORK_FLOW_EXECUT_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_WORK_FLOW_EXECUTION"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-81">
+        <createTable tableName="SDP_WORK_FLOW_EXECUTION_BRANCH">
+            <column autoIncrement="true" name="ID" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column autoIncrement="false" name="CURRENT_STATE" type="VARCHAR(100)"/>
+            <column autoIncrement="false" name="ENDED_ON" type="datetime(6)"/>
+            <column autoIncrement="false" name="VERSION" type="INT"/>
+            <column autoIncrement="false" name="NAME" type="VARCHAR(100)"/>
+            <column autoIncrement="false" name="PREVIOUS_STATE" type="VARCHAR(100)"/>
+            <column autoIncrement="false" name="STARTED_ON" type="datetime(6)"/>
+            <column autoIncrement="false" name="STATUS" type="VARCHAR(100)"/>
+            <column autoIncrement="false" name="WORK_FLOW_EXECUTION_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint columnNames="WORK_FLOW_EXECUTION_ID, NAME" constraintName="UQ_WORK_FLOW_EXECUT_BRANCH_WORK_FLOW_EXECUT_ID_NAME" tableName="SDP_WORK_FLOW_EXECUTION_BRANCH"/>
+        <createIndex indexName="WORK_FLOW_EXECUT_BRANCH_WORK_FLOW_EXECUT_ID" tableName="SDP_WORK_FLOW_EXECUTION_BRANCH">
+            <column autoIncrement="false" name="WORK_FLOW_EXECUTION_ID"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="WORK_FLOW_EXECUTION_ID" baseTableName="SDP_WORK_FLOW_EXECUTION_BRANCH" constraintName="FK_WORK_FLOW_EXECUT_BRANCH_WORK_FLOW_EXECUT_WORK_FLOW_EXECUT_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_WORK_FLOW_EXECUTION"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-82">
+        <createTable tableName="SDP_WORK_FLOW_LOG">
+            <column autoIncrement="true" name="ID" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column autoIncrement="false" name="EVENT" type="VARCHAR(100)"/>
+            <column autoIncrement="false" name="VERSION" type="INT"/>
+            <column autoIncrement="false" name="MESSAGE" type="LONGTEXT"/>
+            <column autoIncrement="false" name="VALUE" type="VARCHAR(100)"/>
+            <column autoIncrement="false" name="TIME" type="datetime(6)"/>
+            <column autoIncrement="false" name="WORK_FLOW_EXECUTION_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+            <column autoIncrement="false" name="LOG_TYPE" type="VARCHAR(100)"/>
+            <column autoIncrement="false" name="STEP_ID" type="INT">
+                <constraints nullable="false" primaryKey="false"/>
+            </column>
+        </createTable>
+        <createIndex indexName="WORK_FLOW_LOG_WORK_FLOW_EXECUT_ID" tableName="SDP_WORK_FLOW_LOG">
+            <column autoIncrement="false" name="WORK_FLOW_EXECUTION_ID"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="WORK_FLOW_EXECUTION_ID" baseTableName="SDP_WORK_FLOW_LOG" constraintName="FK_WORK_FLOW_LOG_WORK_FLOW_EXECUT_WORK_FLOW_EXECUT_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_WORK_FLOW_EXECUTION"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-83">
+        <createTable tableName="SDP_WORK_FLOW_STEP">
+            <column autoIncrement="true" name="ID" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column autoIncrement="false" name="END_TIME" type="datetime(6)"/>
+            <column autoIncrement="false" name="MESSAGE" type="VARCHAR(255)"/>
+            <column autoIncrement="false" name="START_TIME" type="datetime(6)"/>
+            <column autoIncrement="false" name="STATE_NAME" type="VARCHAR(100)"/>
+            <column autoIncrement="false" name="STATUS" type="VARCHAR(255)"/>
+            <column autoIncrement="false" name="STEP_NAME" type="VARCHAR(255)"/>
+            <column autoIncrement="false" name="EXECUTION_ID" type="INT"/>
+            <column autoIncrement="false" name="CLASS_NAME" type="VARCHAR(255)"/>
+            <column autoIncrement="false" name="DATA_PROVIDER" type="LONGTEXT"/>
+            <column autoIncrement="false" name="DEF_CLASS_NAME" type="VARCHAR(100)"/>
+            <column autoIncrement="false" name="IS_DEFINITION_STEP" type="BIT(1)"/>
+            <column autoIncrement="false" name="INIT_PARAM" type="LONGTEXT"/>
+            <column autoIncrement="false" name="REF_NAME" type="VARCHAR(255)"/>
+            <column autoIncrement="false" name="REPEAT_DELAY" type="BIGINT"/>
+            <column autoIncrement="false" name="PARENT_STEP_ID" type="INT"/>
+            <column autoIncrement="false" name="BRNACH_ID" type="INT"/>
+            <column autoIncrement="false" name="EXECUTION_TYPE" type="VARCHAR(100)"/>
+        </createTable>
+        <addUniqueConstraint columnNames="BRNACH_ID, PARENT_STEP_ID, STEP_NAME" constraintName="BRNACH_ID" tableName="SDP_WORK_FLOW_STEP"/>
+        <addUniqueConstraint columnNames="ID" constraintName="UQ_WORK_FLOW_STEP_ID" tableName="SDP_WORK_FLOW_STEP"/>
+        <createIndex indexName="WORK_FLOW_STEP_EXECUT_ID" tableName="SDP_WORK_FLOW_STEP">
+            <column autoIncrement="false" name="EXECUTION_ID"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="EXECUTION_ID" baseTableName="SDP_WORK_FLOW_STEP" constraintName="FK_WORK_FLOW_STEP_WORK_FLOW_EXECUT_EXECUT_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_WORK_FLOW_EXECUTION"/>
+    </changeSet>
+    <changeSet author="ramum (generated)" id="1488968675846-84">
+        <createTable tableName="SDP_WORK_FLOW_SUBSTEP">
+            <column autoIncrement="true" name="ID" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column autoIncrement="false" name="END_TIME" type="datetime(6)"/>
+            <column autoIncrement="false" name="START_TIME" type="datetime(6)"/>
+            <column autoIncrement="false" name="NAME" type="VARCHAR(255)"/>
+            <column autoIncrement="false" name="STATUS" type="VARCHAR(255)"/>
+            <column autoIncrement="false" name="STEP_ID" type="INT"/>
+        </createTable>
+        <addUniqueConstraint columnNames="ID" constraintName="UQ_WORK_FLOW_SUBSTE_ID" tableName="SDP_WORK_FLOW_SUBSTEP"/>
+        <createIndex indexName="WORK_FLOW_SUBSTE_STEP_ID" tableName="SDP_WORK_FLOW_SUBSTEP">
+            <column autoIncrement="false" name="STEP_ID"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="STEP_ID" baseTableName="SDP_WORK_FLOW_SUBSTEP" constraintName="FK_WORK_FLOW_SUBSTE_WORK_FLOW_STEP_STEP_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="SDP_WORK_FLOW_STEP"/>
+    </changeSet>
+</databaseChangeLog>

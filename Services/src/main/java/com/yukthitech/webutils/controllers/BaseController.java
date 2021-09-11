@@ -41,6 +41,7 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.yukthitech.persistence.PersistenceException;
+import com.yukthitech.persistence.UniqueConstraintViolationException;
 import com.yukthitech.webutils.BeanValidationException;
 import com.yukthitech.webutils.InvalidRequestParameterException;
 import com.yukthitech.webutils.common.IWebUtilsCommonConstants;
@@ -162,6 +163,15 @@ public class BaseController
 		response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 		
 		return new BaseResponse(IWebUtilsCommonConstants.RESPONSE_CODE_AUTHORIZATION_ERROR, fetchMessage(ex));
+	}
+
+	@ExceptionHandler(value={UniqueConstraintViolationException.class})
+	@ResponseBody
+	public BaseResponse handleUniqueException(HttpServletResponse response, UniqueConstraintViolationException ex)
+	{
+		response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+		
+		return new BaseResponse(IWebUtilsCommonConstants.RESPONSE_CODE_INVALID_REQUEST, ex.getMessage());
 	}
 
 	/**

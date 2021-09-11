@@ -28,4 +28,20 @@ public interface IAuthenticationService<R extends Enum<R>>
 	 * @return converted user details
 	 */
 	public UserDetails<R> toUserDetails(UserEntity userEntity);
+	
+	/**
+	 * Changes the specified user-name password to new password.
+	 * @param currentPassword Old password to validate before setting new password. 
+	 * @param newPassword password to set.
+	 */
+	public void changePassword(String currentPassword, String newPassword);
+	
+	/**
+	 * Implementation of this method should reset the password of current user. 
+	 * 
+	 * @param userName User whose password to reset.
+	 * @param attributes Extra attributes from client for custom login
+	 * @return newly generated password
+	 */
+	public String resetPassword(String userName, Map<String, String> attributes);
 }

@@ -29,6 +29,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
@@ -57,7 +58,7 @@ import com.yukthitech.webutils.common.models.def.FieldDef;
 import com.yukthitech.webutils.common.models.def.FieldType;
 import com.yukthitech.webutils.common.models.def.LovDetails;
 import com.yukthitech.webutils.common.models.def.ValidationDef;
-import com.yukthitech.webutils.services.LovService;
+import com.yukthitech.webutils.services.LovRef;
 
 /**
  * Builder for field definitions.
@@ -71,12 +72,6 @@ public class FieldDefBuilder
 	 */
 	@Autowired
 	private DefUtils defUtils;
-	
-	/**
-	 * Lov service to check validity of LOV definition in fields.
-	 */
-	@Autowired
-	private LovService lovService;
 	
 	/**
 	 * Builder to build field validations.
@@ -113,7 +108,7 @@ public class FieldDefBuilder
 	 * @param field
 	 * @param parentCls
 	 */
-	private void getCustomLovDetails(Class<?> modelType, FieldDef fieldDef, Field field)
+	private void getCustomLovDetails(Class<?> modelType, FieldDef fieldDef, Field field, Set<LovRef> requiredLovs)
 	{
 		LOV lovAnnotation = field.getAnnotation(LOV.class);
 		
@@ -122,11 +117,9 @@ public class FieldDefBuilder
 		LovDetails lovDetails = new LovDetails();
 		lovDetails.setLovType(LovType.DYNAMIC_TYPE);
 		
-		//ensure valid lov name is specified
-		if(!lovService.isValidDynamicLov(lovAnnotation.name()))
-		{
-			throw new InvalidStateException("Invalid lov name '{}' specified on field {}.{}", lovAnnotation.name(), modelType.getName(), field.getName());
-		}
+		//add current lov as required lov, which would be validated
+		//  at end of application load by Model def builder
+		requiredLovs.add(new LovRef(lovAnnotation.name(), modelType.getName() + "." + field.getName()));
 		
 		lovDetails.setLovName(lovAnnotation.name());
 		
@@ -189,7 +182,7 @@ public class FieldDefBuilder
 				type, field.getDeclaringClass().getName(), field.getName());
 	}
 	
-	public FieldDef getFieldDef(Class<?> modelType, Field field)
+	public FieldDef getFieldDef(Class<?> modelType, Field field, Set<LovRef> requiredLovs)
 	{
 		String fqn = modelType.getName() + "." + field.getName();
 		
@@ -263,7 +256,7 @@ public class FieldDefBuilder
 		//if field is marked as dynamic LOV
 		if(field.getAnnotation(LOV.class) != null)
 		{
-			getCustomLovDetails(modelType, fieldDef, field);
+			getCustomLovDetails(modelType, fieldDef, field, requiredLovs);
 		}
 		//if field type is enum
 		else if(field.getAnnotation(CustomType.class) != null)

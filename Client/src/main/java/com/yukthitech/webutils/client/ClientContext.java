@@ -41,8 +41,8 @@ import com.yukthitech.webutils.common.IWebUtilsCommonConstants;
 import com.yukthitech.webutils.common.client.IRequestCustomizer;
 import com.yukthitech.webutils.common.models.ActionModel;
 import com.yukthitech.webutils.common.models.FetchActionsResponse;
-import com.yukthitech.webutils.common.models.LoginCredentials;
-import com.yukthitech.webutils.common.models.LoginResponse;
+import com.yukthitech.webutils.common.models.auth.LoginCredentials;
+import com.yukthitech.webutils.common.models.auth.LoginResponse;
 
 /**
  * Client context to invoke actions.
@@ -179,7 +179,7 @@ public class ClientContext
 	public void authenticate(String userName, String password, Map<String, String> attributes)
 	{
 		// build request
-		PostRestRequest request = new PostRestRequest(IWebUtilsCommonConstants.LOGIN_URI);
+		PostRestRequest request = new PostRestRequest("/auth/login");
 		request.setSecured(true);
 		request.setJsonBody(new LoginCredentials(userName, password, attributes));
 

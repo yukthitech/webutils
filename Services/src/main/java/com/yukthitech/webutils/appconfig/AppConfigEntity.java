@@ -6,13 +6,13 @@ import javax.persistence.Table;
 import com.yukthitech.persistence.annotations.DataType;
 import com.yukthitech.persistence.annotations.DataTypeMapping;
 import com.yukthitech.persistence.conversion.impl.JsonWithTypeConverter;
-import com.yukthitech.webutils.repository.WebutilsEntity;
+import com.yukthitech.webutils.repository.WebutilsBaseEntity;
 
 /**
  * Represents app config, a simple name-value pairs for storing dynamic config.
  */
 @Table(name = "WEBUTILS_APP_CONFIG")
-public class AppConfigEntity extends WebutilsEntity
+public class AppConfigEntity extends WebutilsBaseEntity
 {
 	/**
 	 * Name of the rule.

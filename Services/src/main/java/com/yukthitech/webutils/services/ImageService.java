@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.yukthitech.persistence.ITransaction;
-import com.yukthitech.persistence.repository.RepositoryFactory;
 import com.yukthitech.utils.exceptions.InvalidStateException;
 import com.yukthitech.webutils.common.FileInfo;
 import com.yukthitech.webutils.common.ImageInfo;
@@ -35,7 +34,7 @@ public class ImageService
 	 * Autowired repository factory, used to fetch repository.
 	 */
 	@Autowired
-	protected RepositoryFactory repositoryFactory;
+	protected WebutilsRepositoryFactory repositoryFactory;
 
 	/**
 	 * Service to fetch image fields out of model.

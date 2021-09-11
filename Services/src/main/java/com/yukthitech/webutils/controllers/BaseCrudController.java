@@ -25,7 +25,7 @@ import com.yukthitech.webutils.common.controllers.ICrudController;
 import com.yukthitech.webutils.common.models.BaseResponse;
 import com.yukthitech.webutils.common.models.BasicReadResponse;
 import com.yukthitech.webutils.common.models.BasicSaveResponse;
-import com.yukthitech.webutils.repository.WebutilsEntity;
+import com.yukthitech.webutils.repository.WebutilsBaseEntity;
 import com.yukthitech.webutils.services.BaseCrudService;
 
 /**
@@ -98,7 +98,7 @@ public class BaseCrudController<M extends BaseModel, S extends BaseCrudService<?
 	@Override
 	public BasicSaveResponse save(@RequestBody @Valid M model)
 	{
-		WebutilsEntity entity = getService().save(model);
+		WebutilsBaseEntity entity = getService().save(model);
 		return new BasicSaveResponse(entity.getId());
 	}
 

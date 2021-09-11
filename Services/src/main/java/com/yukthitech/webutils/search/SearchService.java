@@ -519,8 +519,13 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 
 			repoSearchQuery.addCondition(searchCondition);
 		}
+		
+		String userSpace = securityService.getUserSpaceIdentity();
 
-		repoSearchQuery.addCondition(new SearchCondition("spaceIdentity", Operator.EQ, securityService.getUserSpaceIdentity()));
+		if(StringUtils.isNotBlank(userSpace))
+		{
+			repoSearchQuery.addCondition(new SearchCondition("spaceIdentity", Operator.EQ, userSpace));
+		}
 
 		// set ordering
 		repoSearchQuery.setOrderByFields(Arrays.asList(searchQueryDetails.orderByFields));

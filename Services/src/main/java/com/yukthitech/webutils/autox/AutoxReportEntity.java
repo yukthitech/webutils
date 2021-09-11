@@ -4,14 +4,14 @@ import javax.persistence.Column;
 import javax.persistence.Table;
 
 import com.yukthitech.persistence.annotations.Indexed;
-import com.yukthitech.webutils.repository.WebutilsEntity;
+import com.yukthitech.webutils.repository.WebutilsBaseEntity;
 
 /**
  * Autox report entity.
  * @author akiran
  */
 @Table(name = "WEBUTILS_AUTOX_REPORT")
-public class AutoxReportEntity extends WebutilsEntity
+public class AutoxReportEntity extends WebutilsBaseEntity
 {
 	/**
 	 * Named of the report.

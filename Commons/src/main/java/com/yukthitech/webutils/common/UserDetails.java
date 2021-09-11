@@ -41,6 +41,16 @@ public class UserDetails<R extends Enum<R>>
 	private long userId;
 	
 	/**
+	 * User name.
+	 */
+	private String userName;
+	
+	/**
+	 * User space.
+	 */
+	private String userSpace;
+	
+	/**
 	 * Display name of the user.
 	 */
 	private String displayName;
@@ -70,12 +80,16 @@ public class UserDetails<R extends Enum<R>>
 	 * Instantiates a new user details.
 	 *
 	 * @param userId the user id
+	 * @param userName the user name
+	 * @param userSpace the user space
 	 * @param displayName the display name
-	 * @param dateFormat date format to be used.
+	 * @param dateFormat the date format
 	 */
-	public UserDetails(long userId, String displayName, String dateFormat)
+	public UserDetails(long userId, String userName, String userSpace, String displayName, String dateFormat)
 	{
 		this.userId = userId;
+		this.userName = userName;
+		this.userSpace = userSpace;
 		this.displayName = displayName;
 		this.jsDateFormat = dateFormat;
 	}
@@ -191,5 +205,45 @@ public class UserDetails<R extends Enum<R>>
 	public void setJsDateFormat(String dateFormat)
 	{
 		this.jsDateFormat = dateFormat;
+	}
+
+	/**
+	 * Gets the user name.
+	 *
+	 * @return the user name
+	 */
+	public String getUserName()
+	{
+		return userName;
+	}
+
+	/**
+	 * Sets the user name.
+	 *
+	 * @param userName the new user name
+	 */
+	public void setUserName(String userName)
+	{
+		this.userName = userName;
+	}
+
+	/**
+	 * Gets the user space.
+	 *
+	 * @return the user space
+	 */
+	public String getUserSpace()
+	{
+		return userSpace;
+	}
+
+	/**
+	 * Sets the user space.
+	 *
+	 * @param userSpace the new user space
+	 */
+	public void setUserSpace(String userSpace)
+	{
+		this.userSpace = userSpace;
 	}
 }

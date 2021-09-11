@@ -1,12 +1,14 @@
 package com.yukthitech.webutils.repository.search;
 
 import com.yukthitech.persistence.repository.annotations.Condition;
+import com.yukthitech.webutils.common.annotations.Optional;
 import com.yukthitech.webutils.repository.IWebutilsRepository;
 
 /**
  * Repository for user search settings.
  * @author akiran
  */
+@Optional
 public interface ISearchSettingsRespository extends IWebutilsRepository<SearchSettingsEntity>
 {
 	/**

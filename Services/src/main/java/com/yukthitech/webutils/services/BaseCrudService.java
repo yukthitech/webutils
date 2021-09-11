@@ -23,8 +23,10 @@
 
 package com.yukthitech.webutils.services;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
@@ -36,14 +38,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.yukthitech.persistence.ITransaction;
 import com.yukthitech.persistence.PersistenceException;
-import com.yukthitech.persistence.repository.RepositoryFactory;
 import com.yukthitech.utils.exceptions.InvalidStateException;
 import com.yukthitech.webutils.IWebUtilsInternalConstants;
 import com.yukthitech.webutils.cache.WebutilsCacheEvict;
 import com.yukthitech.webutils.cache.WebutilsCacheable;
 import com.yukthitech.webutils.common.IExtendableModel;
+import com.yukthitech.webutils.repository.ITenantBasedRepository;
+import com.yukthitech.webutils.repository.ITenantSpaceBased;
 import com.yukthitech.webutils.repository.IWebutilsRepository;
-import com.yukthitech.webutils.repository.WebutilsEntity;
+import com.yukthitech.webutils.repository.WebutilsBaseEntity;
 import com.yukthitech.webutils.repository.WebutilsExtendableEntity;
 import com.yukthitech.webutils.security.ISecurityService;
 import com.yukthitech.webutils.utils.WebUtils;
@@ -54,16 +57,13 @@ import com.yukthitech.webutils.utils.WebUtils;
  * @param <E> Entity type
  * @param <R> Repository type
  */
-public abstract class BaseCrudService<E extends WebutilsEntity, R extends IWebutilsRepository<E>>
+public abstract class BaseCrudService<E extends WebutilsBaseEntity, R extends IWebutilsRepository<E>>
 {
 	private static Logger logger = LogManager.getLogger(BaseCrudService.class);
-	
-	/**
-	 * Autowired repository factory, used to fetch repository.
-	 */
-	@Autowired
-	protected RepositoryFactory repositoryFactory;
 
+	@Autowired
+	private WebutilsRepositoryFactory webutilsRepositoryFactory;
+	
 	/**
 	 * Extension service to update/read extension fields.
 	 */
@@ -122,7 +122,7 @@ public abstract class BaseCrudService<E extends WebutilsEntity, R extends IWebut
 		entityType = (Class) genericMap.get(typeVars[0]);
 		repositoryType = (Class) genericMap.get(typeVars[1]);
 
-		repository = repositoryFactory.getRepository(repositoryType);
+		repository = webutilsRepositoryFactory.getRepository(repositoryType);
 	}
 	
 	/**
@@ -159,7 +159,11 @@ public abstract class BaseCrudService<E extends WebutilsEntity, R extends IWebut
 			
 			//set the default version
 			entity.setVersion(1);
-			entity.setSpaceIdentity(getUserSpace(entity, model));
+			
+			if(entity instanceof ITenantSpaceBased)
+			{
+				((ITenantSpaceBased) entity).setSpaceIdentity(getUserSpace(entity, model));
+			}
 
 			//copy extended fields to entity
 			if(model != null && (model instanceof IExtendableModel))
@@ -186,7 +190,15 @@ public abstract class BaseCrudService<E extends WebutilsEntity, R extends IWebut
 			transaction.commit();
 		}catch(Exception ex)
 		{
-			logger.error("An error occurred while saving entity - " + entity, ex);
+			if((ex instanceof UndeclaredThrowableException) && (ex.getCause() instanceof Exception))
+			{
+				ex = (Exception) ex.getCause();
+			}
+			
+			if((ex instanceof InvocationTargetException) && (ex.getCause() instanceof Exception))
+			{
+				ex = (Exception) ex.getCause();
+			}
 			
 			if(ex instanceof PersistenceException)
 			{
@@ -219,6 +231,7 @@ public abstract class BaseCrudService<E extends WebutilsEntity, R extends IWebut
 	 * @param entity Entity field to update
 	 * @param model Model with extension field values and files to save. Optional, can be null
 	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@WebutilsCacheEvict(groups = {IWebUtilsInternalConstants.CACHE_GROUP_GROUPED, "#p0.id"})
 	public void update(E entity, Object model)
 	{
@@ -237,7 +250,16 @@ public abstract class BaseCrudService<E extends WebutilsEntity, R extends IWebut
 				extensionService.mapExtendedFieldsToEntity( (IExtendableModel) model, (WebutilsExtendableEntity) entity );
 			}
 
-			boolean res = repository.updateByUserSpace(entity, getUserSpace(entity, model));
+			boolean res = false;
+			
+			if(repository instanceof ITenantBasedRepository)
+			{
+				res = ((ITenantBasedRepository) repository).updateByUserSpace(entity, getUserSpace(entity, model));
+			}
+			else
+			{
+				res = repository.update(entity);
+			}
 			
 			if(!res)
 			{
@@ -255,7 +277,15 @@ public abstract class BaseCrudService<E extends WebutilsEntity, R extends IWebut
 			transaction.commit();
 		}catch(Exception ex)
 		{
-			logger.error("An error occurred while updating entity - " + entity, ex);
+			if((ex instanceof UndeclaredThrowableException) && (ex.getCause() instanceof Exception))
+			{
+				ex = (Exception) ex.getCause();
+			}
+			
+			if((ex instanceof InvocationTargetException) && (ex.getCause() instanceof Exception))
+			{
+				ex = (Exception) ex.getCause();
+			}
 
 			if(ex instanceof PersistenceException)
 			{
@@ -271,10 +301,20 @@ public abstract class BaseCrudService<E extends WebutilsEntity, R extends IWebut
 	 * @param id Entity id
 	 * @return Matching entity
 	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@WebutilsCacheable(groups = "#p0")
 	public E fetch(long id)
 	{
-		E entity = repository.findByIdAndUserSpace(id, securityService.getUserSpaceIdentity());
+		E entity = null;
+		
+		if(repository instanceof ITenantBasedRepository)
+		{
+			entity = (E) ((ITenantBasedRepository) repository).findByIdAndUserSpace(id, securityService.getUserSpaceIdentity());
+		}
+		else
+		{
+			entity = repository.findById(id);
+		}
 		
 		logger.trace("Entity fetch with id '{}' resulted in  - {}", id, entity);
 		return entity;
@@ -290,7 +330,7 @@ public abstract class BaseCrudService<E extends WebutilsEntity, R extends IWebut
 	@WebutilsCacheable(groups = "#p0")
 	public <M> M fetchFullModel(long id, Class<M> modelType)
 	{
-		E entity = repository.findByIdAndUserSpace(id, securityService.getUserSpaceIdentity());
+		E entity = fetch(id);
 		
 		if(entity == null)
 		{
@@ -353,12 +393,22 @@ public abstract class BaseCrudService<E extends WebutilsEntity, R extends IWebut
 	 * @param id Entity id to delete
 	 * @return returns true if delete was successful.
 	 */
+	@SuppressWarnings("rawtypes")
 	@WebutilsCacheEvict(groups = {IWebUtilsInternalConstants.CACHE_GROUP_GROUPED, "#p0"})
 	public boolean deleteById(long id)
 	{
 		try(ITransaction transaction = repository.newOrExistingTransaction())
 		{
-			boolean res = repository.deleteByIdAndUserSpace(id, securityService.getUserSpaceIdentity());
+			boolean res = false;
+			
+			if(repository instanceof ITenantBasedRepository)
+			{
+				res = ((ITenantBasedRepository) repository).deleteByIdAndUserSpace(id, securityService.getUserSpaceIdentity());
+			}
+			else
+			{
+				res = repository.deleteById(id);
+			}
 			
 			logger.trace("Deletion of entity with id '{}' resulted in - {}", id, res);
 			

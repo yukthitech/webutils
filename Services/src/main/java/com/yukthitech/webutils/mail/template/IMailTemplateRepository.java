@@ -24,12 +24,14 @@
 package com.yukthitech.webutils.mail.template;
 
 import com.yukthitech.persistence.repository.annotations.Condition;
+import com.yukthitech.webutils.common.annotations.Optional;
 import com.yukthitech.webutils.repository.IWebutilsRepository;
 
 /**
  * Repository for managing files in db.
  * @author akiran
  */
+@Optional
 public interface IMailTemplateRepository extends IWebutilsRepository<MailTemplateEntity>
 {
 	/**

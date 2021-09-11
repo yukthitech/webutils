@@ -27,11 +27,13 @@ import com.yukthitech.persistence.repository.annotations.AggregateFunction;
 import com.yukthitech.persistence.repository.annotations.Condition;
 import com.yukthitech.persistence.repository.annotations.Field;
 import com.yukthitech.webutils.annotations.RestrictBySpace;
+import com.yukthitech.webutils.common.annotations.Optional;
 
 /**
  * Repository for entity extensions.
  * @author akiran
  */
+@Optional
 public interface IExtensionRepository extends IWebutilsRepository<ExtensionEntity>
 {
 	/**

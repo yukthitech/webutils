@@ -31,7 +31,7 @@ import com.yukthitech.persistence.annotations.DataTypeMapping;
 import com.yukthitech.persistence.annotations.UniqueConstraint;
 import com.yukthitech.persistence.annotations.UniqueConstraints;
 import com.yukthitech.persistence.conversion.impl.JsonWithTypeConverter;
-import com.yukthitech.webutils.repository.WebutilsEntity;
+import com.yukthitech.webutils.repository.WebutilsBaseEntity;
 
 /**
  * Represents data of the mail to be sent.
@@ -42,7 +42,7 @@ import com.yukthitech.webutils.repository.WebutilsEntity;
 	@UniqueConstraint(name = "TEMPLATE_NAME", fields = {"templateName", "ownerEntityType", "ownerEntityId"}, finalName = false)
 	})
 @Table(name = "WEBUTILS_MAIL_TEMPLATE")
-public class MailTemplateEntity extends WebutilsEntity
+public class MailTemplateEntity extends WebutilsBaseEntity
 {
 	/**
 	 * Name of template used for building this data object.
@@ -99,6 +99,29 @@ public class MailTemplateEntity extends WebutilsEntity
 	 */
 	@Column(name = "OWNER_ENTITY_ID", nullable = false)
 	private Long ownerEntityId = 0L;
+	
+	/**
+	 * Instantiates a new mail template entity.
+	 */
+	public MailTemplateEntity()
+	{
+	}
+	
+	/**
+	 * Instantiates a new mail template entity.
+	 *
+	 * @param toListTemplate the to list template
+	 * @param ccListTemplate the cc list template
+	 * @param subjectTemplate the subject template
+	 * @param contentTemplate the content template
+	 */
+	public MailTemplateEntity(String toListTemplate, String ccListTemplate, String subjectTemplate, String contentTemplate)
+	{
+		this.toListTemplate = toListTemplate;
+		this.ccListTemplate = ccListTemplate;
+		this.subjectTemplate = subjectTemplate;
+		this.contentTemplate = contentTemplate;
+	}
 
 	/**
 	 * Gets the name of template used for building this data object.

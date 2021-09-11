@@ -56,7 +56,7 @@ public class AutoxReportController extends BaseCrudController<AutoxReportModel, 
 	/**
 	 * Data folder which will be used to unzip report files.
 	 */
-	@Value("${webutils.data.folder}")
+	@Value("${webutils.data.folder:}")
 	private File dataFolder;
 
 	/* (non-Javadoc)

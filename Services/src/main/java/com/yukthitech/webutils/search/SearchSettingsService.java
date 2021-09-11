@@ -32,6 +32,7 @@ import com.yukthitech.webutils.repository.search.SearchSettingsEntity;
 import com.yukthitech.webutils.services.BaseCrudService;
 import com.yukthitech.webutils.services.CurrentUserService;
 import com.yukthitech.webutils.services.ExtensionService;
+import com.yukthitech.webutils.services.NoRepositoryFoundException;
 import com.yukthitech.webutils.utils.WebUtils;
 
 /**
@@ -328,20 +329,25 @@ public class SearchSettingsService extends BaseCrudService<SearchSettingsEntity,
 	 */
 	public SearchSettingsEntity fetchSettings(String searchQueryName)
 	{
-		long currentUserId = currentUserService.getCurrentUserDetails().getUserId();
-		
-		SearchSettingsEntity entity = super.repository.fetchByName(currentUserId, searchQueryName);
-		
-		if(entity == null)
+		try
 		{
-			entity = defaultSettings(searchQueryName);
-		}
-		else
+			long currentUserId = currentUserService.getCurrentUserDetails().getUserId();
+			SearchSettingsEntity entity = super.repository.fetchByName(currentUserId, searchQueryName);
+			
+			if(entity == null)
+			{
+				entity = defaultSettings(searchQueryName);
+			}
+			else
+			{
+				filterDisabledFields(searchQueryName, entity);
+			}
+	
+			return entity;
+		}catch(NoRepositoryFoundException ex)
 		{
-			filterDisabledFields(searchQueryName, entity);
+			return defaultSettings(searchQueryName);
 		}
-
-		return entity;
 	}
 	
 	/**

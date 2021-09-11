@@ -36,7 +36,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.yukthitech.webutils.InvalidRequestParameterException;
 import com.yukthitech.webutils.annotations.ActionName;
 import com.yukthitech.webutils.common.client.IRequestCustomizer;
-import com.yukthitech.webutils.common.controllers.IExtensionController;
 import com.yukthitech.webutils.common.controllers.IModelController;
 import com.yukthitech.webutils.common.models.ModelDefResponse;
 import com.yukthitech.webutils.common.models.def.ModelDef;

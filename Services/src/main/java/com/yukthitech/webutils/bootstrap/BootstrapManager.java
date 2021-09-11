@@ -22,7 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.Resource;
-import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yukthitech.persistence.ICrudRepository;
@@ -35,8 +34,10 @@ import com.yukthitech.utils.ReflectionUtils;
 import com.yukthitech.utils.exceptions.InvalidArgumentException;
 import com.yukthitech.utils.exceptions.InvalidStateException;
 import com.yukthitech.webutils.common.UserDetails;
+import com.yukthitech.webutils.repository.ITenantSpaceBased;
+import com.yukthitech.webutils.repository.ITrackedEntity;
 import com.yukthitech.webutils.repository.UserEntity;
-import com.yukthitech.webutils.repository.WebutilsEntity;
+import com.yukthitech.webutils.repository.WebutilsBaseEntity;
 import com.yukthitech.webutils.security.IAuthenticationService;
 import com.yukthitech.webutils.services.CurrentUserService;
 import com.yukthitech.webutils.services.UserService;
@@ -56,7 +57,6 @@ import com.yukthitech.webutils.utils.WebUtils;
  *  
  * @author akiran
  */
-@Service
 public class BootstrapManager
 {
 	private static Logger logger = LogManager.getLogger(BootstrapManager.class);
@@ -172,7 +172,7 @@ public class BootstrapManager
 	 * Used to fetch user details from entity.
 	 */
 	@Autowired
-	private IAuthenticationService authenticationService;
+	private IAuthenticationService<?> authenticationService;
 	
 	/**
 	 * Free marker service to process templates.
@@ -307,23 +307,32 @@ public class BootstrapManager
 		Object entity = WebUtils.convertBean(model, entityType);
 		
 		//set default fields
-		if(entity instanceof WebutilsEntity)
+		if(entity instanceof WebutilsBaseEntity)
 		{
-			WebutilsEntity webutilsEntity = (WebutilsEntity) entity;
+			WebutilsBaseEntity webutilsEntity = (WebutilsBaseEntity) entity;
 			
 			webutilsEntity.setVersion(1);
-			webutilsEntity.setSpaceIdentity(spaceIdentity);
+			
+			if(webutilsEntity instanceof ITenantSpaceBased)
+			{
+				((ITenantSpaceBased) webutilsEntity).setSpaceIdentity(spaceIdentity);
+			}
 
 			//set date fields
-			Date now = new Date();
-			webutilsEntity.setCreatedOn(now);
-			webutilsEntity.setUpdatedOn(now);
-
-			//set user fields
-			if(webutilsEntity.getCreatedBy() == null && defaultUser != null)
+			if(webutilsEntity instanceof ITrackedEntity)
 			{
-				webutilsEntity.setCreatedBy(defaultUser);
-				webutilsEntity.setUpdatedBy(defaultUser);
+				ITrackedEntity trackedEntity = (ITrackedEntity) webutilsEntity;
+				
+				Date now = new Date();
+				trackedEntity.setCreatedOn(now);
+				trackedEntity.setUpdatedOn(now);
+	
+				//set user fields
+				if(trackedEntity.getCreatedBy() == null && defaultUser != null)
+				{
+					trackedEntity.setCreatedBy(defaultUser);
+					trackedEntity.setUpdatedBy(defaultUser);
+				}
 			}
 		}
 		

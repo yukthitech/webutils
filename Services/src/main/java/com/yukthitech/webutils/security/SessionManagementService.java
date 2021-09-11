@@ -13,12 +13,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.yukthitech.persistence.repository.RepositoryFactory;
 import com.yukthitech.utils.exceptions.InvalidStateException;
 import com.yukthitech.webutils.cache.WebutilsCacheManager;
 import com.yukthitech.webutils.common.UserDetails;
 import com.yukthitech.webutils.repository.IUserRepository;
 import com.yukthitech.webutils.repository.UserEntity;
+import com.yukthitech.webutils.services.WebutilsRepositoryFactory;
 import com.yukthitech.webutils.services.job.BackgroundThreadManager;
 
 /**
@@ -39,7 +39,7 @@ public class SessionManagementService
 	 * Repository factory to get session repository.
 	 */
 	@Autowired
-	private RepositoryFactory repositoryFactory;
+	private WebutilsRepositoryFactory repositoryFactory;
 	
 	/**
 	 * Repository for maintaining sessions.

@@ -33,12 +33,14 @@ import com.yukthitech.persistence.repository.annotations.MethodConditions;
 import com.yukthitech.persistence.repository.annotations.Operator;
 import com.yukthitech.persistence.repository.annotations.SearchResult;
 import com.yukthitech.webutils.common.FileInfo;
+import com.yukthitech.webutils.common.annotations.Optional;
 import com.yukthitech.webutils.repository.IWebutilsRepository;
 
 /**
  * Repository for managing files in db.
  * @author akiran
  */
+@Optional
 public interface IFileRepository extends IWebutilsRepository<FileEntity>
 {
 	/**

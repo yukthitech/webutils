@@ -5,12 +5,14 @@ import java.util.List;
 import com.yukthitech.persistence.repository.annotations.OrderBy;
 import com.yukthitech.persistence.repository.search.SearchQuery;
 import com.yukthitech.webutils.annotations.SearchQueryMethod;
+import com.yukthitech.webutils.common.annotations.Optional;
 import com.yukthitech.webutils.repository.IWebutilsRepository;
 
 /**
  * Repository for autox report.
  * @author akiran
  */
+@Optional
 public interface IAutoxReportRepository extends IWebutilsRepository<AutoxReportEntity>
 {
 	/**

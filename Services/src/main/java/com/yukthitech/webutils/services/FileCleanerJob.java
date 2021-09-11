@@ -34,7 +34,6 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.yukthitech.persistence.repository.RepositoryFactory;
 import com.yukthitech.webutils.annotations.CronJob;
 import com.yukthitech.webutils.repository.file.IFileRepository;
 import com.yukthitech.webutils.services.job.IJob;
@@ -57,7 +56,7 @@ public class FileCleanerJob implements IJob
 	 * Repository factory to get file repository.
 	 */
 	@Autowired
-	private RepositoryFactory repositoryFactory;
+	private WebutilsRepositoryFactory repositoryFactory;
 	
 	/**
 	 * File repository to delete temp files.

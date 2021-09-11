@@ -7,7 +7,7 @@ import javax.persistence.Table;
 import com.yukthitech.persistence.annotations.UniqueConstraint;
 import com.yukthitech.persistence.annotations.UniqueConstraints;
 import com.yukthitech.webutils.repository.UserEntity;
-import com.yukthitech.webutils.repository.WebutilsEntity;
+import com.yukthitech.webutils.repository.WebutilsBaseEntity;
 
 /**
  * Used to set user notification preferences.
@@ -17,7 +17,7 @@ import com.yukthitech.webutils.repository.WebutilsEntity;
 @UniqueConstraints({
 	@UniqueConstraint(name = "USER_NOTIFICATION", fields = {"user", "notificationType"}, finalName = false)
 	})
-public class UserNotificationEntity extends WebutilsEntity
+public class UserNotificationEntity extends WebutilsBaseEntity
 {
 	/**
 	 * User for which notification preference is being persisted.

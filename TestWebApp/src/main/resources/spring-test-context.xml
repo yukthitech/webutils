@@ -20,8 +20,10 @@
 	</bean>
 
 	<bean id="dataSource" class="org.apache.commons.dbcp2.BasicDataSource">
-		<property name="driverClassName" value="org.apache.derby.jdbc.EmbeddedDriver" />
-		<property name="url" value="jdbc:derby:c:/db/testDB;create=true" />
+		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<property name="url" value="jdbc:mysql://localhost:3306/test?autoReconnect=true&amp;useFastDateParsing=false" />
+		<property name="username" value="kranthi" />
+		<property name="password" value="kranthi" />
 	</bean>
 
 	<bean id="emailServerSettings" class="com.yukthitech.webutils.common.models.mails.EmailServerSettings">

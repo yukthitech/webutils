@@ -1,12 +1,14 @@
 package com.yukthitech.webutils.appconfig;
 
 import com.yukthitech.persistence.repository.annotations.Condition;
+import com.yukthitech.webutils.common.annotations.Optional;
 import com.yukthitech.webutils.repository.IWebutilsRepository;
 
 /**
  * Repository for message parsing rules.
  * @author akiran
  */
+@Optional
 public interface IAppConfigRepository extends IWebutilsRepository<AppConfigEntity>
 {
 	/**

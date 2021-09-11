@@ -48,7 +48,7 @@ import com.yukthitech.webutils.services.LovService;
 		@ResultMapping(entityField = "labelField", property = "label")
 })
 @OrderBy({"labelField"})
-@RestrictBySpace
+//@RestrictBySpace
 public @interface LovQuery
 {
 	/**

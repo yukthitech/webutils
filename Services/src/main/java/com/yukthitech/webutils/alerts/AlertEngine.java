@@ -90,7 +90,7 @@ public class AlertEngine
 	/**
 	 * Support provided by applications.
 	 */
-	@Autowired
+	@Autowired(required = false)
 	private IAlertSupport alertSupport;
 	
 	/**
@@ -125,7 +125,10 @@ public class AlertEngine
 			typeToAgent.put(agent.getType(), agent);
 		}
 		
-		systemAgentName = alertSupport.getSystemAgentName();
+		if(alertSupport != null)
+		{
+			systemAgentName = alertSupport.getSystemAgentName();
+		}
 	}
 	
 	/**

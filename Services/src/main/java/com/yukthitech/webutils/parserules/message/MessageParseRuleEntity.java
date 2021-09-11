@@ -10,14 +10,14 @@ import com.yukthitech.persistence.annotations.DataType;
 import com.yukthitech.persistence.annotations.DataTypeMapping;
 import com.yukthitech.persistence.annotations.UniqueConstraint;
 import com.yukthitech.persistence.conversion.impl.JsonWithTypeConverter;
-import com.yukthitech.webutils.repository.WebutilsEntity;
+import com.yukthitech.webutils.repository.WebutilsBaseEntity;
 
 /**
  * Indicates rule which is used to convert message (sms or mail) into an alert.
  * @author akiran
  */
 @Table(name = "WEBUTILS_MSSG_PARSING_RULE")
-public class MessageParseRuleEntity extends WebutilsEntity
+public class MessageParseRuleEntity extends WebutilsBaseEntity
 {
 	/**
 	 * Name to uniquely identify the parsing rulr.

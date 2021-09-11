@@ -3,12 +3,14 @@ package com.yukthitech.webutils.alerts.event;
 import java.util.List;
 
 import com.yukthitech.persistence.repository.annotations.Condition;
+import com.yukthitech.webutils.common.annotations.Optional;
 import com.yukthitech.webutils.repository.IWebutilsRepository;
 
 /**
  * Repository for message parsing rules.
  * @author akiran
  */
+@Optional
 public interface IEventAlertRuleRepository extends IWebutilsRepository<EventAlertRuleEntity>
 {
 	

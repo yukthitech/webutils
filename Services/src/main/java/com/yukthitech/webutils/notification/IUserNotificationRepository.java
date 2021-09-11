@@ -7,6 +7,7 @@ import com.yukthitech.persistence.repository.annotations.Condition;
 import com.yukthitech.persistence.repository.annotations.Field;
 import com.yukthitech.persistence.repository.annotations.Operator;
 import com.yukthitech.persistence.repository.annotations.SearchResult;
+import com.yukthitech.webutils.common.annotations.Optional;
 import com.yukthitech.webutils.common.models.notification.NotificationModel;
 import com.yukthitech.webutils.repository.IWebutilsRepository;
 
@@ -14,6 +15,7 @@ import com.yukthitech.webutils.repository.IWebutilsRepository;
  * Repository for user notifications.
  * @author akiran
  */
+@Optional
 public interface IUserNotificationRepository extends IWebutilsRepository<UserNotificationEntity>
 {
 	/**

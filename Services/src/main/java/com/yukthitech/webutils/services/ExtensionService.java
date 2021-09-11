@@ -36,10 +36,10 @@ import javax.annotation.PostConstruct;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 
-import com.yukthitech.persistence.repository.RepositoryFactory;
 import com.yukthitech.utils.exceptions.InvalidArgumentException;
 import com.yukthitech.utils.exceptions.InvalidConfigurationException;
 import com.yukthitech.utils.exceptions.InvalidStateException;
@@ -86,7 +86,7 @@ public class ExtensionService
 	 * Used to fetch repository instances.
 	 */
 	@Autowired
-	private RepositoryFactory repositoryFactory;
+	private WebutilsRepositoryFactory repositoryFactory;
 	
 	/**
 	 * Service used to scan for extendable entities.
@@ -138,25 +138,28 @@ public class ExtensionService
 	@Autowired(required = false)
 	private IExtensionContextProvider extensionContextProvider;
 	
+	@Value("${webutils.extensions.enabled:false}")
+	private boolean extensionsEnabled;
+	
 	/**
 	 * Fetches repositories from autowired repository factory.
 	 */
 	@PostConstruct
 	private void init()
 	{
-		if(!webutilsConfiguration.isExtensionsRequired())
+		if(!extensionsEnabled)
 		{
-			logger.warn("As extensions are not enabled for application, extension-service initialization is being skipped.");
+			logger.warn("Found extensions to be disabled.");
 			return;
-		}
-		
-		if(extensionContextProvider == null)
-		{
-			throw new InvalidStateException("Though extensions are enabled for application no implementation is provided for: {}", IExtensionContextProvider.class.getName());
 		}
 		
 		this.extensionRepository = repositoryFactory.getRepository(IExtensionRepository.class);
 		this.extensionFieldRepository = repositoryFactory.getRepository(IExtensionFieldRepository.class);
+
+		if(extensionContextProvider == null)
+		{
+			throw new InvalidStateException("Though extensions are enabled for application no implementation is provided for: {}", IExtensionContextProvider.class.getName());
+		}
 		
 		//load extension points
 		Set<Class<?>> extendableTypes = classScannerService.getClassesWithAnnotation(ExtendableEntity.class);

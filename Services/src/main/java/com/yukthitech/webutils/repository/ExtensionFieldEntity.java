@@ -39,6 +39,7 @@ import com.yukthitech.persistence.annotations.NotUpdateable;
 import com.yukthitech.persistence.annotations.UniqueConstraint;
 import com.yukthitech.persistence.annotations.UniqueConstraints;
 import com.yukthitech.persistence.conversion.impl.JsonWithTypeConverter;
+import com.yukthitech.webutils.common.annotations.Optional;
 import com.yukthitech.webutils.common.extensions.ExtensionFieldType;
 import com.yukthitech.webutils.common.extensions.LovOption;
 
@@ -53,6 +54,7 @@ import com.yukthitech.webutils.common.extensions.LovOption;
 	@UniqueConstraint(name = "EXT_ID_COL_NAME", fields = {"extension", "columnName"}, message = "Extension field for specified column already exists.", finalName = false),
 	@UniqueConstraint(name = "EXT_ID_LABEL", fields = {"extension", "label"}, message = "Extension field with specified label already eixsts.", finalName = false),
 	})
+@Optional
 public class ExtensionFieldEntity extends WebutilsEntity
 {
 	/**

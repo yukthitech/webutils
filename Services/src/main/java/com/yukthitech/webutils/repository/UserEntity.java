@@ -93,6 +93,12 @@ public class UserEntity extends WebutilsEntity
 	private Long ownerEntityId;
 
 	/**
+	 * App specific custom data at user level.
+	 */
+	@Column(name = "CUSTOM_DATA", length = 2000)
+	private String customData;
+
+	/**
 	 * Flag indicating if this user is deleting.
 	 */
 	@Column(name = "DELETED")
@@ -286,5 +292,25 @@ public class UserEntity extends WebutilsEntity
 	public void setOwnerEntityId(Long ownerEntityId)
 	{
 		this.ownerEntityId = ownerEntityId;
+	}
+
+	/**
+	 * Gets the app specific custom data at user level.
+	 *
+	 * @return the app specific custom data at user level
+	 */
+	public String getCustomData()
+	{
+		return customData;
+	}
+
+	/**
+	 * Sets the app specific custom data at user level.
+	 *
+	 * @param customData the new app specific custom data at user level
+	 */
+	public void setCustomData(String customData)
+	{
+		this.customData = customData;
 	}
 }

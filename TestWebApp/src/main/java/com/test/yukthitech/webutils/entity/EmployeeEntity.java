@@ -26,17 +26,16 @@ package com.test.yukthitech.webutils.entity;
 import javax.persistence.Column;
 import javax.persistence.Table;
 
-import com.yukthitech.webutils.annotations.ExtendableEntity;
-import com.yukthitech.webutils.repository.WebutilsExtendableEntity;
+import com.yukthitech.webutils.repository.WebutilsBaseEntity;
 
 /**
  * Test entity
  * 
  * @author akiran
  */
-@ExtendableEntity(name = "Employee")
+//@ExtendableEntity(name = "Employee")
 @Table(name = "EMP")
-public class EmployeeEntity extends WebutilsExtendableEntity
+public class EmployeeEntity extends WebutilsBaseEntity
 {
 	/**
 	 * Name of the employee

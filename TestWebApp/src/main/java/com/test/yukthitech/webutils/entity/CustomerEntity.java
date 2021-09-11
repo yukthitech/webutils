@@ -28,8 +28,7 @@ import javax.persistence.Table;
 
 import com.yukthitech.persistence.annotations.UniqueConstraint;
 import com.yukthitech.persistence.annotations.UniqueConstraints;
-import com.yukthitech.webutils.annotations.ExtendableEntity;
-import com.yukthitech.webutils.repository.WebutilsExtendableEntity;
+import com.yukthitech.webutils.repository.WebutilsBaseEntity;
 
 /**
  * Test entity
@@ -40,8 +39,8 @@ import com.yukthitech.webutils.repository.WebutilsExtendableEntity;
 @UniqueConstraints({
 	@UniqueConstraint(fields = {"name"}, name = "UQ_CUST_NAME")
 })
-@ExtendableEntity(name = "Customer")
-public class CustomerEntity extends WebutilsExtendableEntity
+//@ExtendableEntity(name = "Customer")
+public class CustomerEntity extends WebutilsBaseEntity
 {
 	/**
 	 * Name of the employee

@@ -9,6 +9,7 @@ import com.yukthitech.persistence.repository.annotations.MethodConditions;
 import com.yukthitech.persistence.repository.annotations.NullCheck;
 import com.yukthitech.persistence.repository.annotations.Operator;
 import com.yukthitech.persistence.repository.annotations.SearchResult;
+import com.yukthitech.webutils.common.annotations.Optional;
 import com.yukthitech.webutils.common.parserules.mssg.BasicMessageParseRuleModel;
 import com.yukthitech.webutils.repository.IWebutilsRepository;
 
@@ -16,6 +17,7 @@ import com.yukthitech.webutils.repository.IWebutilsRepository;
  * Repository for message parsing rules.
  * @author akiran
  */
+@Optional
 public interface IMessageParseRuleRepository extends IWebutilsRepository<MessageParseRuleEntity>
 {
 	/**

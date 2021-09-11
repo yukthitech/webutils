@@ -136,4 +136,15 @@ public class TestAuthenticationService implements ISecurityService, IAuthenticat
 	{
 		return new TestUserDetails(userEntity.getId(), CommonUtils.toSet(SecurityRole.ADMIN, SecurityRole.CLIENT_ADMIN), 0);
 	}
+
+	@Override
+	public void changePassword(String currentPassword, String newPassword)
+	{
+	}
+
+	@Override
+	public String resetPassword(String userName, Map<String, String> attributes)
+	{
+		return null;
+	}
 }

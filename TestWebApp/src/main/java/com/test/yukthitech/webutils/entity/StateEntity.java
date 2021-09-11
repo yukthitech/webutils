@@ -4,7 +4,7 @@ import javax.persistence.Table;
 
 import com.yukthitech.persistence.annotations.UniqueConstraint;
 import com.yukthitech.persistence.annotations.UniqueConstraints;
-import com.yukthitech.webutils.repository.WebutilsEntity;
+import com.yukthitech.webutils.repository.WebutilsBaseEntity;
 
 /**
  * The Class StateEntity.
@@ -13,7 +13,7 @@ import com.yukthitech.webutils.repository.WebutilsEntity;
 @UniqueConstraints({
 	@UniqueConstraint(fields = {"name"}, name = "UQ_CITY_NAME")
 })
-public class StateEntity extends WebutilsEntity
+public class StateEntity extends WebutilsBaseEntity
 {
 	/**
 	 * name.
@@ -24,10 +24,9 @@ public class StateEntity extends WebutilsEntity
 	{
 	}
 	
-	public StateEntity(String name, String spaceIdentity)
+	public StateEntity(String name)
 	{
 		this.name = name;
-		setSpaceIdentity(spaceIdentity);
 	}
 
 	/**
@@ -49,7 +48,4 @@ public class StateEntity extends WebutilsEntity
 	{
 		this.name = name;
 	}
-
-	
-	
 }

@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import com.yukthitech.webutils.repository.IUserRepository;
+import com.yukthitech.webutils.repository.IUserTenantBasedRepository;
 import com.yukthitech.webutils.repository.UserEntity;
 
 /**
@@ -19,7 +20,6 @@ public class UserService extends BaseCrudService<UserEntity, IUserRepository>
 	 */
 	public UserService()
 	{
-		//super(UserEntity.class, IUserRepository.class);
 	}
 
 	/**
@@ -33,7 +33,18 @@ public class UserService extends BaseCrudService<UserEntity, IUserRepository>
 	 */
 	public boolean checkForUser(String userName, String userSpace)
 	{
-		return (repository.checkForUser(userName, userSpace) > 0);
+		int count = 0;
+		
+		if(repository instanceof IUserTenantBasedRepository)
+		{
+			count = ((IUserTenantBasedRepository) repository).checkForUser(userName, userSpace);
+		}
+		else
+		{
+			count = repository.checkForUser(userName);
+		}
+		
+		return (count > 0);
 	}
 
 	/**
@@ -47,8 +58,19 @@ public class UserService extends BaseCrudService<UserEntity, IUserRepository>
 	 */
 	public String getPassword(String userName, String userSpace)
 	{
-		return super.repository.fetchPassword(userName, userSpace);
+		if(repository instanceof IUserTenantBasedRepository)
+		{
+			return ((IUserTenantBasedRepository) repository).fetchPassword(userName, userSpace);
+		}
+		
+		return repository.fetchPassword(userName);
 	}
+	
+	public String getPassword(long id)
+	{
+		return repository.fetchPasswordById(id);
+	}
+	
 
 	/**
 	 * Fetches user with specified details.
@@ -61,7 +83,12 @@ public class UserService extends BaseCrudService<UserEntity, IUserRepository>
 	 */
 	public UserEntity getUser(String userName, String userSpace)
 	{
-		return super.repository.fetchUser(userName, userSpace);
+		if(repository instanceof IUserTenantBasedRepository)
+		{
+			return ((IUserTenantBasedRepository) repository).fetchUser(userName, userSpace);
+		}
+		
+		return repository.fetchUser(userName);
 	}
 
 	/**
@@ -104,13 +131,23 @@ public class UserService extends BaseCrudService<UserEntity, IUserRepository>
 	 */
 	public boolean updatePassword(String userSpace, String userName, String password)
 	{
-		return super.repository.updatePassword(userSpace, userName, password);
+		if(repository instanceof IUserTenantBasedRepository)
+		{
+			return ((IUserTenantBasedRepository) repository).updatePassword(userSpace, userName, password);
+		}
+		
+		return repository.updatePassword(userName, password);
 	}
 
 	@Override
 	public boolean deleteById(long id)
 	{
-		return super.repository.markAsDeleted(id, true, null, securityService.getUserSpaceIdentity());
+		if(repository instanceof IUserTenantBasedRepository)
+		{
+			return ((IUserTenantBasedRepository) repository).markAsDeleted(id, true, null, securityService.getUserSpaceIdentity());
+		}
+		
+		return repository.markAsDeleted(id, true, null);
 	}
 
 	@Override

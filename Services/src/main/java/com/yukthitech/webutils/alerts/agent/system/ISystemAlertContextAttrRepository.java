@@ -5,12 +5,14 @@ import java.util.Date;
 import com.yukthitech.persistence.repository.annotations.Condition;
 import com.yukthitech.persistence.repository.annotations.Field;
 import com.yukthitech.persistence.repository.annotations.Operator;
+import com.yukthitech.webutils.common.annotations.Optional;
 import com.yukthitech.webutils.repository.IWebutilsRepository;
 
 /**
  * Repository for pull alerts.
  * @author akiran
  */
+@Optional
 public interface ISystemAlertContextAttrRepository extends IWebutilsRepository<SystemAlertContextEntity>
 {
 	/**

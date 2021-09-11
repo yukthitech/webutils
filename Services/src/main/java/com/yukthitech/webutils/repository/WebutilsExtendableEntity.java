@@ -9,7 +9,7 @@ import com.yukthitech.persistence.annotations.ExtendedFields;
  * Base class for extendable entities.
  * @author akiran
  */
-public class WebutilsExtendableEntity extends WebutilsEntity
+public class WebutilsExtendableEntity extends WebutilsBaseEntity
 {
 	/**
 	 * Map to store extended fields data.

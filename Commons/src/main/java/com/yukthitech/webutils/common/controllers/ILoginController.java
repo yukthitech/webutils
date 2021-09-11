@@ -2,8 +2,10 @@ package com.yukthitech.webutils.common.controllers;
 
 import com.yukthitech.webutils.common.IWebUtilsCommonConstants;
 import com.yukthitech.webutils.common.models.BaseResponse;
-import com.yukthitech.webutils.common.models.LoginCredentials;
-import com.yukthitech.webutils.common.models.LoginResponse;
+import com.yukthitech.webutils.common.models.auth.ChangePasswordRequest;
+import com.yukthitech.webutils.common.models.auth.LoginCredentials;
+import com.yukthitech.webutils.common.models.auth.LoginResponse;
+import com.yukthitech.webutils.common.models.auth.ResetPasswordRequest;
 
 /**
  * Controller interface for login and logout.
@@ -26,4 +28,18 @@ public interface ILoginController extends IClientController<ILoginController>
 	 * @return Success/failure response.
 	 */
 	public BaseResponse peroformLogout();
+	
+	/**
+	 * Resets the password.
+	 * @param resetPassword password details
+	 * @return basic response
+	 */
+	public BaseResponse resetPassword(ResetPasswordRequest resetPassword);
+	
+	/**
+	 * Changes the password.
+	 * @param changePassword request object
+	 * @return response
+	 */
+	public BaseResponse changePassword(ChangePasswordRequest changePassword);
 }

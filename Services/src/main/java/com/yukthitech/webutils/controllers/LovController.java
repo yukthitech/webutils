@@ -41,7 +41,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.yukthitech.webutils.annotations.ActionName;
 import com.yukthitech.webutils.common.LovType;
 import com.yukthitech.webutils.common.client.IRequestCustomizer;
-import com.yukthitech.webutils.common.controllers.IExtensionController;
 import com.yukthitech.webutils.common.controllers.ILovController;
 import com.yukthitech.webutils.common.models.LovListResponse;
 import com.yukthitech.webutils.services.LovService;

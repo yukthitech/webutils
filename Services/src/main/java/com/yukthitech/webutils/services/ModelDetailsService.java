@@ -24,6 +24,7 @@
 package com.yukthitech.webutils.services;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -32,6 +33,8 @@ import javax.annotation.PostConstruct;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.event.ContextStartedEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 import com.yukthitech.utils.exceptions.InvalidStateException;
@@ -68,7 +71,10 @@ public class ModelDetailsService
 	 */
 	@SuppressWarnings("unused")
 	@Autowired
-	private RepositoryLoader repositoryLoader;
+	private WebutilsRepositoryFactory repositoryLoader;
+	
+	@Autowired
+	private LovService lovService;
 	
 	/**
 	 * Mapping from model name to java type.
@@ -79,6 +85,8 @@ public class ModelDetailsService
 	 * Maintains mapping from model type to def.
 	 */
 	private Map<Class<?>, ModelDef> typeToModel = new HashMap<>();
+	
+	private Set<LovRef> requiredLovs = new HashSet<>();
 	
 	/**
 	 * Post construct method which scans for models and loads their definitions into map.
@@ -100,7 +108,7 @@ public class ModelDetailsService
 			
 			logger.trace("Loading model type - " + type.getName());
 			
-			modelDef = modelDefBuilder.getModelDefinition(type);
+			modelDef = modelDefBuilder.getModelDefinition(type, requiredLovs);
 			
 			if(nameToModel.containsKey(modelDef.getName()))
 			{
@@ -110,6 +118,19 @@ public class ModelDetailsService
 			nameToModel.put(modelDef.getName(), modelDef); 
 			typeToModel.put(type, modelDef);
 		}
+	}
+	
+	@EventListener
+	public void postInitApp(ContextStartedEvent event)
+	{
+		for(LovRef lov : requiredLovs)
+		{
+			//ensure valid lov name is specified
+			if(!lovService.isValidDynamicLov(lov.getName()))
+			{
+				throw new InvalidStateException("Invalid lov name '{}' specified on field {}", lov.getName(), lov.getFieldName());
+			}
+		}		
 	}
 	
 	/**

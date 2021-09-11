@@ -26,6 +26,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +40,7 @@ import com.yukthitech.webutils.common.annotations.IgnoreField;
 import com.yukthitech.webutils.common.annotations.Model;
 import com.yukthitech.webutils.common.models.def.FieldDef;
 import com.yukthitech.webutils.common.models.def.ModelDef;
+import com.yukthitech.webutils.services.LovRef;
 
 /**
  * Factory for generating model def based on specified java type
@@ -84,9 +86,10 @@ public class ModelDefBuilder
 	/**
 	 * Builds and returns model definition for specified modelType.
 	 * @param modelType Type for which def needs to be built
+	 * @param requiredLovs Used to collect required lovs by this model
 	 * @return Model def representing specified type
 	 */
-	public ModelDef getModelDefinition(Class<?> modelType)
+	public ModelDef getModelDefinition(Class<?> modelType, Set<LovRef> requiredLovs)
 	{
 		String modelName = getModelName(modelType);
 		
@@ -129,7 +132,7 @@ public class ModelDefBuilder
 					continue;
 				}
 				
-				fieldDefLst.add(fieldDefBuilder.getFieldDef(modelType, field));
+				fieldDefLst.add(fieldDefBuilder.getFieldDef(modelType, field, requiredLovs));
 			}
 			
 			curCls = curCls.getSuperclass();

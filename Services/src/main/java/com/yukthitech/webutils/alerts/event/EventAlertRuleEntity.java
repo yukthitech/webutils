@@ -5,13 +5,13 @@ import javax.persistence.Table;
 
 import com.yukthitech.persistence.annotations.DataType;
 import com.yukthitech.persistence.annotations.DataTypeMapping;
-import com.yukthitech.webutils.repository.WebutilsEntity;
+import com.yukthitech.webutils.repository.WebutilsBaseEntity;
 
 /**
  * Represents event alert rules based on which alerts can be sent when an event is occurred.
  */
 @Table(name = "WEBUTILS_EVENT_ALERT_RULE")
-public class EventAlertRuleEntity extends WebutilsEntity
+public class EventAlertRuleEntity extends WebutilsBaseEntity
 {
 	/**
 	 * Name of the rule.

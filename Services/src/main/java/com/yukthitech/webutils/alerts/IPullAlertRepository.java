@@ -9,12 +9,14 @@ import com.yukthitech.persistence.repository.annotations.MethodConditions;
 import com.yukthitech.persistence.repository.annotations.OrderBy;
 import com.yukthitech.webutils.common.alerts.AlertProcessedDetails;
 import com.yukthitech.webutils.common.alerts.PullAlertStatus;
+import com.yukthitech.webutils.common.annotations.Optional;
 import com.yukthitech.webutils.repository.IWebutilsRepository;
 
 /**
  * Repository for pull alerts.
  * @author akiran
  */
+@Optional
 public interface IPullAlertRepository extends IWebutilsRepository<PullAlertEntity>
 {
 	/**

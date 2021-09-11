@@ -1,0 +1,701 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet author="akiran" id="Creating users table">
+        <createTable tableName="WEBUTILS_USERS">
+            <column autoIncrement="true" name="ID" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="VERSION" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="SPACE_IDENTITY" type="VARCHAR(150)"/>
+
+            <column name="DISPLAY_NAME" type="VARCHAR(500)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="USER_NAME" type="VARCHAR(50)"/>
+            <column name="PASSWORD" type="VARCHAR(500)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="BASE_ENT_TYPE" type="VARCHAR(200)"/>
+            <column name="BASE_ENT_ID" type="BIGINT"/>
+
+            <column name="OWNER_ENT_TYPE" type="VARCHAR(200)"/>
+            <column name="OWNER_ENT_ID" type="BIGINT"/>
+
+            <column name="CUSTOM_DATA" type="VARCHAR(2000)"/>
+
+            <column name="DELETED" type="BIT"/>
+
+            <column name="CREATED_BY_ID" type="BIGINT"/>
+            <column name="CREATED_ON" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="UPDATED_BY_ID" type="BIGINT"/>
+            <column name="UPDATED_ON" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        
+        <addUniqueConstraint columnNames="BASE_ENT_TYPE, BASE_ENT_ID" constraintName="UQ_USERENTITY_UQ_USERS_BASE_DET" tableName="WEBUTILS_USERS"/>
+        <addUniqueConstraint columnNames="USER_NAME, SPACE_IDENTITY" constraintName="UQ_USERENTITY_UQ_USERS_OWNR_UNAME" tableName="WEBUTILS_USERS"/>
+        
+        <addForeignKeyConstraint baseColumnNames="CREATED_BY_ID" baseTableName="WEBUTILS_USERS" constraintName="FK_USERENTITY_CREATED_BY_ID" 
+        	deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="WEBUTILS_USERS"/>
+        	
+        <addForeignKeyConstraint baseColumnNames="UPDATED_BY_ID" baseTableName="WEBUTILS_USERS" constraintName="FK_USERENTITY_UPDATED_BY_ID" 
+        	deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="WEBUTILS_USERS"/>
+    </changeSet>
+
+    <changeSet author="akiran (generated)" id="Creating user session">
+        <createTable tableName="WEBUTILS_USER_SESSION">
+            <column autoIncrement="true" name="ID" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="LAST_ACCESSED_ON" type="datetime(6)"/>
+            <column name="SESSION_TOKEN" type="VARCHAR(500)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="USER_ID" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CREATED_ON" type="datetime(6)"/>
+        </createTable>
+        
+        <addUniqueConstraint columnNames="SESSION_TOKEN" constraintName="UQ_WEBUTILS_USER_SESSION_TOKEN" tableName="WEBUTILS_USER_SESSION"/>
+    </changeSet>
+
+    <changeSet author="akiran (generated)" id="creating user roles table">
+        <createTable tableName="WEBUTILS_USER_ROLES">
+            <column autoIncrement="true" name="ID" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="OWNER_TYPE" type="VARCHAR(250)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="SPACE_IDENTITY" type="VARCHAR(150)"/>
+            <column name="ROLE" type="VARCHAR(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="UPDATED_BY_ID" type="BIGINT"/>
+            <column name="CREATED_BY_ID" type="BIGINT"/>
+            <column name="UPDATED_ON" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="OWNER_ID" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="USER_ID" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="VERSION" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CREATED_ON" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        
+        <addUniqueConstraint columnNames="USER_ID, ROLE, OWNER_TYPE, OWNER_ID" constraintName="UQ_USR_ROLE_USR_ROLE" tableName="WEBUTILS_USER_ROLES"/>
+        
+        <addForeignKeyConstraint baseColumnNames="CREATED_BY_ID" baseTableName="WEBUTILS_USER_ROLES" constraintName="FK_WEBUTILS_USER_ROLES_CREATED_BY_ID" 
+        	onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="WEBUTILS_USERS"/>
+        
+        <addForeignKeyConstraint baseColumnNames="UPDATED_BY_ID" baseTableName="WEBUTILS_USER_ROLES" constraintName="FK_WEBUTILS_USER_ROLES_UPDATED_BY_ID" 
+        	onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="WEBUTILS_USERS"/>
+        	
+        <addForeignKeyConstraint baseColumnNames="USER_ID" baseTableName="WEBUTILS_USER_ROLES" constraintName="FK_WEBUTILS_USER_ROLES_USER_ID" 
+        	onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="WEBUTILS_USERS"/>
+    </changeSet>
+
+    <changeSet author="akiran (generated)" id="user notification table">
+        <createTable tableName="WEBUTILS_USER_NOTIFICATION">
+            <column autoIncrement="true" name="ID" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="SPACE_IDENTITY" type="VARCHAR(150)"/>
+            <column name="UPDATED_BY_ID" type="BIGINT"/>
+            <column name="CREATED_BY_ID" type="BIGINT"/>
+            <column name="NOTIFICATION_TYPE" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="UPDATED_ON" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="USER_ID" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="VERSION" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CREATED_ON" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ENABLED" type="BIT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        
+        <addUniqueConstraint columnNames="USER_ID, NOTIFICATION_TYPE" constraintName="UQ_USR_NOT_USER_NOTIFICATION" tableName="WEBUTILS_USER_NOTIFICATION"/>
+        
+        <addForeignKeyConstraint baseColumnNames="CREATED_BY_ID" baseTableName="WEBUTILS_USER_NOTIFICATION" 
+        	constraintName="FK_USR_NOT_CREATED_BY_ID" deferrable="false" initiallyDeferred="false" 
+        	onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="WEBUTILS_USERS"/>
+        	
+        <addForeignKeyConstraint baseColumnNames="UPDATED_BY_ID" baseTableName="WEBUTILS_USER_NOTIFICATION" 
+        	constraintName="FK_USR_NOT_UPDATED_BY_ID" deferrable="false" initiallyDeferred="false" 
+        	onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="WEBUTILS_USERS"/>
+        	
+        <addForeignKeyConstraint baseColumnNames="USER_ID" baseTableName="WEBUTILS_USER_NOTIFICATION" 
+        	constraintName="FK_USR_NOT_USER_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" 
+        	onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="WEBUTILS_USERS"/>
+    </changeSet>
+
+    <changeSet author="akiran (generated)" id="search settings table">
+        <createTable tableName="WEBUTILS_SEARCH_SETTINGS">
+            <column autoIncrement="true" name="ID" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="SPACE_IDENTITY" type="VARCHAR(150)"/>
+            <column name="UPDATED_BY_ID" type="BIGINT"/>
+            <column name="CREATED_BY_ID" type="BIGINT"/>
+            <column name="SEARCH_COLUMNS" type="VARCHAR(4000)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="PAGE_SIZE" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="UPDATED_ON" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="USER_ID" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="VERSION" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CREATED_ON" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="SEARCH_QUERY_NAME" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        
+        <addUniqueConstraint columnNames="USER_ID, SEARCH_QUERY_NAME" constraintName="UQ_SRCH_SET_USER_QUERY_NAME" tableName="WEBUTILS_SEARCH_SETTINGS"/>
+        
+        <addForeignKeyConstraint baseColumnNames="CREATED_BY_ID" baseTableName="WEBUTILS_SEARCH_SETTINGS" constraintName="FK_SRCH_SET_CREATED_BY_ID" 
+        	deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="WEBUTILS_USERS"/>
+        
+        <addForeignKeyConstraint baseColumnNames="UPDATED_BY_ID" baseTableName="WEBUTILS_SEARCH_SETTINGS" constraintName="FK_SRCH_SET_UPDATED_BY_ID" 
+        	deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="WEBUTILS_USERS"/>
+        	
+        <addForeignKeyConstraint baseColumnNames="USER_ID" baseTableName="WEBUTILS_SEARCH_SETTINGS" constraintName="FK_SRCH_SET_USER_ID" 
+        	deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="WEBUTILS_USERS"/>
+    </changeSet>
+
+    <changeSet author="akiran (generated)" id="Adding Pull alert table">
+        <createTable tableName="WEBUTILS_PULL_ALERTS">
+            <column autoIncrement="true" name="ID" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="VERSION" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="SPACE_IDENTITY" type="VARCHAR(150)"/>
+            
+            <column name="SOURCE" type="VARCHAR(200)">
+            	<constraints nullable="false"/>
+            </column>
+            <column name="TITLE" type="VARCHAR(500)">
+            	<constraints nullable="true"/>
+            </column>
+            <column name="MESSAGE" type="VARCHAR(2000)">
+            	<constraints nullable="true"/>
+            </column>
+            <column name="DATA" type="VARCHAR(2000)">
+            	<constraints nullable="true"/>
+            </column>
+            <column name="ALERT_TYPE" type="VARCHAR(100)">
+            	<constraints nullable="true"/>
+            </column>
+            <column name="STATUS" type="VARCHAR(20)"/>
+            <column name="TARGET" type="VARCHAR(100)">
+            	<constraints nullable="false"/>
+            </column>
+            <column name="REQUIRES_CONFIRMATION" type="BOOLEAN" defaultValueNumeric="0">
+            	<constraints nullable="false"/>
+            </column>
+            <column name="FLAGS" type="INT" defaultValueNumeric="0"/>
+
+            <column name="CREATED_BY_ID" type="BIGINT"/>
+            <column name="CREATED_ON" type="datetime(6)"/>
+            <column name="UPDATED_BY_ID" type="BIGINT"/>
+            <column name="UPDATED_ON" type="datetime(6)"/>
+        </createTable>
+        
+		<addForeignKeyConstraint baseColumnNames="CREATED_BY_ID" baseTableName="WEBUTILS_PULL_ALERTS" 
+			constraintName="FK_PULL_ALERTS_CREATED_BY_ID" deferrable="false" 
+			initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" 
+			referencedColumnNames="ID" referencedTableName="WEBUTILS_USERS"/>
+
+		<addForeignKeyConstraint baseColumnNames="UPDATED_BY_ID" baseTableName="WEBUTILS_PULL_ALERTS" 
+			constraintName="FK_PULL_ALERTS_UPDATED_BY_ID" deferrable="false" 
+			initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" 
+			referencedColumnNames="ID" referencedTableName="WEBUTILS_USERS"/>
+    </changeSet>
+
+	<changeSet author="kranthi" id="mssg parsing rule table">
+        <createTable tableName="WEBUTILS_MSSG_PARSING_RULE">
+            <column autoIncrement="true" name="ID" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="VERSION" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="SPACE_IDENTITY" type="VARCHAR(150)"/>
+            
+            <column name="NAME" type="VARCHAR(50)"/>
+            <column name="USER_ROLE" type="VARCHAR(100)"/>
+            <column name="FROM_ADDR_PTRN" type="VARCHAR(500)"/>
+            <column name="MSG_FILTER_PTRN" type="VARCHAR(1000)"/>
+            <column name="MSG_PTRNS" type="VARCHAR(2000)"/>
+            <column name="DEF_ATTR" type="VARCHAR(2000)"/>
+            <column name="TARGET_USER_ROLE" type="VARCHAR(100)"/>
+            <column name="FROM_TYPE" type="VARCHAR(200)"/>
+            <column name="USER_ROLE_STR" type="VARCHAR(100)"/>
+            <column name="MSG_FILTER_PTRN" type="VARCHAR(2000)"/>
+            <column name="ACTION_PLAN_XML" type="LONGTEXT"/>
+            <column name="ALERT_EVENT_TYPE" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="CREATED_BY_ID" type="BIGINT"/>
+            <column name="CREATED_ON" type="datetime(6)">
+            </column>
+            <column name="UPDATED_BY_ID" type="BIGINT"/>
+            <column name="UPDATED_ON" type="datetime(6)">
+            </column>
+        </createTable>
+        
+		<addForeignKeyConstraint baseColumnNames="CREATED_BY_ID" baseTableName="WEBUTILS_ALERT_MSSG_PARSING_RULE" 
+			constraintName="FK_MSG_PARSING_RULE_CREATED_BY_ID" deferrable="false" 
+			initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" 
+			referencedColumnNames="ID" referencedTableName="WEBUTILS_USERS"/>
+
+		<addForeignKeyConstraint baseColumnNames="UPDATED_BY_ID" baseTableName="WEBUTILS_ALERT_MSSG_PARSING_RULE" 
+			constraintName="FK_MSG_PARSING_RULE_UPDATED_BY_ID" deferrable="false" 
+			initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" 
+			referencedColumnNames="ID" referencedTableName="WEBUTILS_USERS"/>
+    	
+		<addUniqueConstraint columnNames="NAME" constraintName="UQ_MSG_PARSING_RULE_NAME" tableName="WEBUTILS_MSSG_PARSING_RULE"/>
+    </changeSet>
+
+    <changeSet author="akiran (generated)" id="Mail template table">
+        <createTable tableName="WEBUTILS_MAIL_TEMPLATE">
+            <column autoIncrement="true" name="ID" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="SPACE_IDENTITY" type="VARCHAR(150)"/>
+            <column name="CONTENT_TEMPLATE" type="LONGTEXT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="UPDATED_BY_ID" type="BIGINT"/>
+            <column name="CUSTOMIZATION" type="LONGTEXT"/>
+            <column name="CC_TEMPLATE" type="VARCHAR(1000)"/>
+            <column name="UPDATED_ON" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="VERSION" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CREATED_ON" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="OWNER_ENTITY_TYPE" type="VARCHAR(250)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="BCC_TEMPLATE" type="VARCHAR(1000)"/>
+            <column name="NAME" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CREATED_BY_ID" type="BIGINT"/>
+            <column name="SUBJECT_TEMPLATE" type="VARCHAR(2000)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="OWNER_ENTITY_ID" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="TO_TEMPLATE" type="VARCHAR(1000)"/>
+        </createTable>
+        
+        <addUniqueConstraint columnNames="NAME, OWNER_ENTITY_TYPE, OWNER_ENTITY_ID" constraintName="UQ_MAIL_TEMP_NAME" tableName="WEBUTILS_MAIL_TEMPLATE"/>
+        
+        <addForeignKeyConstraint baseColumnNames="CREATED_BY_ID" baseTableName="WEBUTILS_MAIL_TEMPLATE" constraintName="FK_MAIL_TEMP_CREATED_BY_ID" 
+        	deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="WEBUTILS_USERS"/>
+        <addForeignKeyConstraint baseColumnNames="UPDATED_BY_ID" baseTableName="WEBUTILS_MAIL_TEMPLATE" constraintName="FK_MAIL_TEMP_UPDATED_BY_ID" 
+        	deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="WEBUTILS_USERS"/>
+    </changeSet>
+
+    <changeSet author="akiran" id="Adding mail parsing rule table">
+        <createTable tableName="WEBUTILS_MAIL_PARSE_RULES">
+            <column autoIncrement="true" name="ID" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="VERSION" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="SPACE_IDENTITY" type="VARCHAR(150)"/>
+            
+            <column name="NAME" type="VARCHAR(100)">
+            	<constraints nullable="false"/>
+            </column>
+            <column name="USER_ROLE" type="VARCHAR(100)">
+            	<constraints nullable="false"/>
+            </column>
+            <column name="USER_ROLE_STR" type="VARCHAR(100)">
+            	<constraints nullable="false"/>
+            </column>
+
+            <column name="FROM_TYPE" type="VARCHAR(200)"/>
+            <column name="FROM_ADDR_PTRN" type="VARCHAR(500)"/>
+            <column name="SUBJECT_FILTER_PTRNS" type="VARCHAR(2000)"/>
+            <column name="SUBJECT_PTRNS" type="VARCHAR(2000)"/>
+            <column name="MSG_PTRNS" type="VARCHAR(2000)"/>
+            <column name="ATTACH_PTRNS" type="VARCHAR(1000)"/>
+
+            <column name="ALERT_EVENT_TYPE" type="VARCHAR(100)"/>
+            <column name="DEF_ATTR" type="VARCHAR(2000)"/>
+            <column name="ACTION_PLAN_XML" type="LONGTEXT"/>
+            <column name="FLAGS" type="INT"/>
+            <column name="DIRECT_ACTION" type="VARCHAR(500)"/>
+
+            <column name="CREATED_BY_ID" type="BIGINT"/>
+            <column name="CREATED_ON" type="datetime(6)">
+            </column>
+            <column name="UPDATED_BY_ID" type="BIGINT"/>
+            <column name="UPDATED_ON" type="datetime(6)">
+            </column>
+        </createTable>
+        
+        <addUniqueConstraint columnNames="NAME,SPACE_IDENTITY" constraintName="UQ_MAIL_PARSE_RULE_NAME" tableName="WEBUTILS_MAIL_PARSE_RULES"/>
+
+		<addForeignKeyConstraint baseColumnNames="CREATED_BY_ID" baseTableName="WEBUTILS_MAIL_PARSE_RULES" 
+			constraintName="FK_MAIL_PARSE_RULE_CREATED_BY_ID" deferrable="false" 
+			initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" 
+			referencedColumnNames="ID" referencedTableName="WEBUTILS_USERS"/>
+
+		<addForeignKeyConstraint baseColumnNames="UPDATED_BY_ID" baseTableName="WEBUTILS_MAIL_PARSE_RULES" 
+			constraintName="FK_MAIL_PARSE_RULE_UPDATED_BY_ID" deferrable="false" 
+			initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" 
+			referencedColumnNames="ID" referencedTableName="WEBUTILS_USERS"/>
+    </changeSet>
+
+    <changeSet author="akiran (generated)" id="File entity table">
+        <createTable tableName="WEBUTILS_FILE_ENTITY">
+            <column autoIncrement="true" name="ID" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="SPACE_IDENTITY" type="VARCHAR(150)"/>
+            <column name="FILE_NAME" type="VARCHAR(500)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="UPDATED_BY_ID" type="BIGINT"/>
+            <column name="OWNER_ENTITY_FIELD" type="VARCHAR(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="UPDATED_ON" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="SIZE_IN_MB" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="VERSION" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CREATED_ON" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CUSTOM_ATT2" type="VARCHAR(100)"/>
+            <column name="CUSTOM_ATT1" type="VARCHAR(100)"/>
+            <column name="FILE" type="LONGBLOB">
+                <constraints nullable="false"/>
+            </column>
+            <column name="OWNER_ENTITY_TYPE" type="VARCHAR(250)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CREATED_BY_ID" type="BIGINT"/>
+            <column name="OWNER_ENTITY_ID" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CONTENT_TYPE" type="VARCHAR(200)"/>
+            <column name="CUSTOM_ATT5" type="VARCHAR(100)"/>
+            <column name="CUSTOM_ATT4" type="VARCHAR(100)"/>
+            <column name="CUSTOM_ATT3" type="VARCHAR(100)"/>
+        </createTable>
+        
+        <createIndex indexName="FILE_ENT_CUSTOMATTRIBUTE1" tableName="WEBUTILS_FILE_ENTITY">
+            <column name="CUSTOM_ATT1"/>
+        </createIndex>
+        <createIndex indexName="FILE_ENT_CUSTOMATTRIBUTE2" tableName="WEBUTILS_FILE_ENTITY">
+            <column name="CUSTOM_ATT2"/>
+        </createIndex>
+        <createIndex indexName="FILE_ENT_CUSTOMATTRIBUTE3" tableName="WEBUTILS_FILE_ENTITY">
+            <column name="CUSTOM_ATT3"/>
+        </createIndex>
+        
+        <addForeignKeyConstraint baseColumnNames="CREATED_BY_ID" baseTableName="WEBUTILS_FILE_ENTITY" constraintName="FK_FILE_ENT_CREATED_BY_ID" 
+        	deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="WEBUTILS_USERS"/>
+        	
+        <addForeignKeyConstraint baseColumnNames="UPDATED_BY_ID" baseTableName="WEBUTILS_FILE_ENTITY" constraintName="FK_FILE_ENT_UPDATED_BY_ID" 
+        	deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="WEBUTILS_USERS"/>
+    </changeSet>
+
+    <changeSet author="akiran (generated)" id="Enttiy extension table">
+        <createTable tableName="WEBUTILS_ENTITY_EXTENSIONS">
+            <column autoIncrement="true" name="ID" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="SPACE_IDENTITY" type="VARCHAR(150)"/>
+            <column name="OWNER_ENTITY_TYPE" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="UPDATED_BY_ID" type="BIGINT"/>
+            <column name="TARGET_ENTITY_TYPE" type="VARCHAR(250)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CREATED_BY_ID" type="BIGINT"/>
+            <column name="NAME" type="VARCHAR(250)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CUSTOM_ATTR" type="VARCHAR(2000)"/>
+            <column name="OWNER_ENTITY_ID" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="UPDATED_ON" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="VERSION" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CREATED_ON" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        
+        <addUniqueConstraint columnNames="NAME, SPACE_IDENTITY" constraintName="UQ_ENT_EXT_NAME" tableName="WEBUTILS_ENTITY_EXTENSIONS"/>
+        <addUniqueConstraint columnNames="TARGET_ENTITY_TYPE, OWNER_ENTITY_TYPE, OWNER_ENTITY_ID" constraintName="UQ_ENT_EXT_TARGET_OWNER" tableName="WEBUTILS_ENTITY_EXTENSIONS"/>
+        
+        <addForeignKeyConstraint baseColumnNames="CREATED_BY_ID" baseTableName="WEBUTILS_ENTITY_EXTENSIONS" constraintName="FK_ENT_EXT_CREATED_BY_ID" 
+        	deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="WEBUTILS_USERS"/>
+        	
+        <addForeignKeyConstraint baseColumnNames="UPDATED_BY_ID" baseTableName="WEBUTILS_ENTITY_EXTENSIONS" constraintName="FK_ENT_EXT_UPDATED_BY_ID" 
+        	deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="WEBUTILS_USERS"/>
+    </changeSet>
+
+    <changeSet author="akiran (generated)" id="Extension fields table">
+        <createTable tableName="WEBUTILS_EXTENSION_FIELDS">
+            <column autoIncrement="true" name="ID" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="SPACE_IDENTITY" type="VARCHAR(150)"/>
+            <column name="EXTENSION_ID" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="UPDATED_BY_ID" type="BIGINT"/>
+            <column name="DESCRIPTION" type="VARCHAR(500)"/>
+            <column name="LABEL" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="UPDATED_ON" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="DATA_TYPE" type="VARCHAR(50)"/>
+            <column name="VERSION" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CREATED_ON" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="IS_REQUIRED" type="BIT"/>
+            <column name="CREATED_BY_ID" type="BIGINT"/>
+            <column name="NAME" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="LOV_OPTIONS" type="VARCHAR(2000)"/>
+            <column name="MAX_LENGTH" type="INT"/>
+            <column name="EXT_COL_NAME" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        
+        <addUniqueConstraint columnNames="EXTENSION_ID, EXT_COL_NAME" constraintName="UQ_EXT_FLD_EXT_ID_COL_NAME" tableName="WEBUTILS_EXTENSION_FIELDS"/>
+        <addUniqueConstraint columnNames="EXTENSION_ID, LABEL" constraintName="UQ_EXT_FLD_EXT_ID_LABEL" tableName="WEBUTILS_EXTENSION_FIELDS"/>
+        <addUniqueConstraint columnNames="EXTENSION_ID, NAME" constraintName="UQ_EXT_FLD_EXT_ID_NAME" tableName="WEBUTILS_EXTENSION_FIELDS"/>
+        
+        <addForeignKeyConstraint baseColumnNames="EXTENSION_ID" baseTableName="WEBUTILS_EXTENSION_FIELDS" constraintName="FK_EXT_FLD_EXTENSION_ID" 
+        	deferrable="false" initiallyDeferred="false" onDelete="CASCADE" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="WEBUTILS_ENTITY_EXTENSIONS"/>
+        	
+        <addForeignKeyConstraint baseColumnNames="CREATED_BY_ID" baseTableName="WEBUTILS_EXTENSION_FIELDS" constraintName="FK_EXT_FLD_CREATED_BY_ID" 
+        	deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="WEBUTILS_USERS"/>
+        	
+        <addForeignKeyConstraint baseColumnNames="UPDATED_BY_ID" baseTableName="WEBUTILS_EXTENSION_FIELDS" constraintName="FK_EXT_FLD_UPDATED_BY_ID" 
+        	deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="WEBUTILS_USERS"/>
+    </changeSet>
+
+	<changeSet author="kranthi" id="Creating event alert rules entity">
+        <createTable tableName="WEBUTILS_EVENT_ALERT_RULE">
+            <column autoIncrement="true" name="ID" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="VERSION" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="SPACE_IDENTITY" type="VARCHAR(150)"/>
+            
+            <column name="NAME" type="VARCHAR(100)"/>
+            <column name="EVENT_TYPE" type="VARCHAR(100)"/>
+            <column name="CONDITION_FUNC" type="VARCHAR(1000)"/>
+            <column name="ALERT_DETAILS_TEMPLATE" type="VARCHAR(3000)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CUSTOM_DATA_TEMPLATE" type="VARCHAR(3000)"/>
+            <column name="ALERT_DETAILS_TEMPLATE" type="LONGTEXT"/>
+            <column name="CUSTOM_DATA_TYPE" type="VARCHAR(100)"/>
+            <column name="CUSTOM_DATA_TEMPLATE" type="LONGTEXT"/>
+
+            <column name="CREATED_BY_ID" type="BIGINT"/>
+            <column name="CREATED_ON" type="datetime(6)"/>
+            <column name="UPDATED_BY_ID" type="BIGINT"/>
+            <column name="UPDATED_ON" type="datetime(6)"/>
+        </createTable>
+        
+		<addForeignKeyConstraint baseColumnNames="CREATED_BY_ID" baseTableName="WEBUTILS_EVENT_ALERT_RULE" 
+			constraintName="FK_ALRT_RULE_CREATED_BY_ID" deferrable="false" 
+			initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" 
+			referencedColumnNames="ID" referencedTableName="WEBUTILS_USERS"/>
+
+		<addForeignKeyConstraint baseColumnNames="UPDATED_BY_ID" baseTableName="WEBUTILS_EVENT_ALERT_RULE" 
+			constraintName="FK_ALRT_RULE_UPDATED_BY_ID" deferrable="false" 
+			initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" 
+			referencedColumnNames="ID" referencedTableName="WEBUTILS_USERS"/>
+	</changeSet>
+
+	<changeSet author="kranthi" id="autox report table">
+        <createTable tableName="WEBUTILS_AUTOX_REPORT">
+            <column autoIncrement="true" name="ID" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="VERSION" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="SPACE_IDENTITY" type="VARCHAR(150)"/>
+            
+            <column name="NAME" type="VARCHAR(100)">
+            	<constraints nullable="false"/>
+            </column>
+            <column name="SOURCE" type="VARCHAR(100)">
+            	<constraints nullable="false"/>
+            </column>
+            <column name="DESCRIPTION" type="VARCHAR(500)">
+            	<constraints nullable="true"/>
+            </column>
+
+            <column name="CREATED_BY_ID" type="BIGINT"/>
+            <column name="CREATED_ON" type="datetime(6)">
+            </column>
+            <column name="UPDATED_BY_ID" type="BIGINT"/>
+            <column name="UPDATED_ON" type="datetime(6)">
+            </column>
+        </createTable>
+        
+		<addForeignKeyConstraint baseColumnNames="CREATED_BY_ID" baseTableName="WEBUTILS_AUTOX_REPORT" 
+			constraintName="FK_AUTOX_REPORT_CREATED_BY_ID" deferrable="false" 
+			initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" 
+			referencedColumnNames="ID" referencedTableName="WEBUTILS_USERS"/>
+
+		<addForeignKeyConstraint baseColumnNames="UPDATED_BY_ID" baseTableName="WEBUTILS_AUTOX_REPORT" 
+			constraintName="FK_AUTOX_REPORT_UPDATED_BY_ID" deferrable="false" 
+			initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" 
+			referencedColumnNames="ID" referencedTableName="WEBUTILS_USERS"/>
+			
+		<addUniqueConstraint columnNames="NAME" constraintName="UQ_AUTOX_REPORT_NAME" tableName="WEBUTILS_AUTOX_REPORT"/>
+	</changeSet>
+
+    <changeSet author="akiran (generated)" id="Adding app config table">
+        <createTable tableName="WEBUTILS_APP_CONFIG">
+            <column autoIncrement="true" name="ID" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="VERSION" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="SPACE_IDENTITY" type="VARCHAR(150)"/>
+            
+            <column name="NAME" type="VARCHAR(200)">
+            	<constraints nullable="false"/>
+            </column>
+            <column name="CONFIG_VALUE" type="VARCHAR(1000)">
+            	<constraints nullable="true"/>
+            </column>
+
+            <column name="CREATED_BY_ID" type="BIGINT"/>
+            <column name="CREATED_ON" type="datetime(6)"/>
+            <column name="UPDATED_BY_ID" type="BIGINT"/>
+            <column name="UPDATED_ON" type="datetime(6)"/>
+        </createTable>
+        
+		<addForeignKeyConstraint baseColumnNames="CREATED_BY_ID" baseTableName="WEBUTILS_APP_CONFIG" 
+			constraintName="FK_APP_CONFIG_CREATED_BY_ID" deferrable="false" 
+			initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" 
+			referencedColumnNames="ID" referencedTableName="WEBUTILS_USERS"/>
+
+		<addForeignKeyConstraint baseColumnNames="UPDATED_BY_ID" baseTableName="WEBUTILS_APP_CONFIG" 
+			constraintName="FK_APP_CONFIG_UPDATED_BY_ID" deferrable="false" 
+			initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" 
+			referencedColumnNames="ID" referencedTableName="WEBUTILS_USERS"/>
+			
+		<addUniqueConstraint columnNames="NAME" constraintName="UQ_APP_CONFIG_NAME" tableName="WEBUTILS_APP_CONFIG"/>
+    </changeSet>
+
+    <changeSet author="akiran (generated)" id="Adding app alert context table">
+        <createTable tableName="WEBUTILS_APP_ALERT_CONTEXT">
+            <column autoIncrement="true" name="ID" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="VERSION" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="SPACE_IDENTITY" type="VARCHAR(150)"/>
+            
+            <column name="NAME" type="VARCHAR(100)">
+            	<constraints nullable="false"/>
+            </column>
+            <column name="ATTR_VALUE" type="VARCHAR(1000)">
+            </column>
+
+            <column name="CREATED_BY_ID" type="BIGINT"/>
+            <column name="CREATED_ON" type="datetime(6)">
+            </column>
+            <column name="UPDATED_BY_ID" type="BIGINT"/>
+            <column name="UPDATED_ON" type="datetime(6)">
+            </column>
+        </createTable>
+        
+		<addForeignKeyConstraint baseColumnNames="CREATED_BY_ID" baseTableName="WEBUTILS_PULL_ALERTS" 
+			constraintName="FK_APP_ALERT_CTX_ATTR_CREATED_BY_ID" deferrable="false" 
+			initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" 
+			referencedColumnNames="ID" referencedTableName="WEBUTILS_USERS"/>
+
+		<addForeignKeyConstraint baseColumnNames="UPDATED_BY_ID" baseTableName="WEBUTILS_PULL_ALERTS" 
+			constraintName="FK_APP_ALERT_CTX_ATTR_UPDATED_BY_ID" deferrable="false" 
+			initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" 
+			referencedColumnNames="ID" referencedTableName="WEBUTILS_USERS"/>
+			
+		<addUniqueConstraint columnNames="NAME" constraintName="UQ_APP_ALERT_CONTEXT_NAME" tableName="WEBUTILS_APP_ALERT_CONTEXT"/>
+    </changeSet>
+</databaseChangeLog>

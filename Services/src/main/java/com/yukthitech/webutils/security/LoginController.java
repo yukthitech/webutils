@@ -47,12 +47,13 @@ import com.yukthitech.webutils.annotations.NoAuthentication;
 import com.yukthitech.webutils.common.IWebUtilsCommonConstants;
 import com.yukthitech.webutils.common.UserDetails;
 import com.yukthitech.webutils.common.client.IRequestCustomizer;
-import com.yukthitech.webutils.common.controllers.IExtensionController;
 import com.yukthitech.webutils.common.controllers.ILoginController;
 import com.yukthitech.webutils.common.models.BaseResponse;
 import com.yukthitech.webutils.common.models.BasicReadResponse;
-import com.yukthitech.webutils.common.models.LoginCredentials;
-import com.yukthitech.webutils.common.models.LoginResponse;
+import com.yukthitech.webutils.common.models.auth.ChangePasswordRequest;
+import com.yukthitech.webutils.common.models.auth.LoginCredentials;
+import com.yukthitech.webutils.common.models.auth.LoginResponse;
+import com.yukthitech.webutils.common.models.auth.ResetPasswordRequest;
 import com.yukthitech.webutils.controllers.BaseController;
 import com.yukthitech.webutils.services.CurrentUserService;
 
@@ -71,7 +72,7 @@ public class LoginController extends BaseController implements ILoginController
 	 * Webapp specific authentication service.
 	 */
 	@Autowired
-	private IAuthenticationService authenticationService;
+	private IAuthenticationService<?> authenticationService;
 	
 	/**
 	 * Service to get current user.
@@ -101,12 +102,12 @@ public class LoginController extends BaseController implements ILoginController
 	@NoAuthentication
 	@ResponseBody
 	@ActionName(ACTION_TYPE_LOGIN)
-	@RequestMapping(value = IWebUtilsCommonConstants.LOGIN_URI_PATH, method = RequestMethod.POST)
+	@RequestMapping(value = "/login", method = RequestMethod.POST)
 	public LoginResponse performLogin(@RequestBody @Valid LoginCredentials credentials)
 	{
 		logger.trace("Trying to peform login operation for user - {}", credentials.getUserName());
 		
-		UserDetails userDetails = authenticationService.authenticate(credentials.getUserName(), credentials.getPassword(), credentials.getAttributes());
+		UserDetails<?> userDetails = authenticationService.authenticate(credentials.getUserName(), credentials.getPassword(), credentials.getAttributes());
 		
 		if(userDetails == null)
 		{
@@ -121,6 +122,28 @@ public class LoginController extends BaseController implements ILoginController
 		String sessionToken = sessionManagementService.startSession(userDetails);
 		return new LoginResponse(sessionToken, userDetails.getUserId());
 	}
+	
+	@Override
+	@NoAuthentication
+	@ResponseBody
+	@ActionName("resetPassword")
+	@RequestMapping(value = "/resetPassword", method = RequestMethod.POST)
+	public BaseResponse resetPassword(@RequestBody @Valid ResetPasswordRequest resetPassword)
+	{
+		authenticationService.resetPassword(resetPassword.getUserName(), resetPassword.getAttributes());
+		return new BaseResponse();
+	}
+	
+	@Override
+	@NoAuthentication
+	@ResponseBody
+	@ActionName("changePassword")
+	@RequestMapping(value = "/changePassword", method = RequestMethod.POST)
+	public BaseResponse changePassword(@RequestBody @Valid ChangePasswordRequest changePassword)
+	{
+		authenticationService.changePassword(changePassword.getCurrentPassword(), changePassword.getNewPassword());
+		return new BaseResponse();
+	}
 
 	/**
 	 * Fetches current active user details and configuration.
@@ -128,18 +151,17 @@ public class LoginController extends BaseController implements ILoginController
 	 */
 	@ResponseBody
 	@ActionName(ACTION_TYPE_ACTIVE_USER)
-	@RequestMapping(value = IWebUtilsCommonConstants.FETCH_USER_PATH, method = RequestMethod.GET)
-	public BasicReadResponse<UserDetails> activeUser()
+	@RequestMapping(value = "/user", method = RequestMethod.GET)
+	public BasicReadResponse<UserDetails<?>> activeUser()
 	{
 		logger.trace("Trying to fetch active user details");
-		
 		return new BasicReadResponse<>(currentUserService.getCurrentUserDetails());
 	}
 
 	@Override
 	@ResponseBody
 	@ActionName(ACTION_TYPE_LOGOUT)
-	@RequestMapping(value = IWebUtilsCommonConstants.LOGOUT_URI_PATH, method = RequestMethod.POST)
+	@RequestMapping(value = "/logout", method = RequestMethod.POST)
 	public BaseResponse peroformLogout()
 	{
 		String currentSessionToken = (String) request.getAttribute(IWebUtilsInternalConstants.REQ_ATTR_SESSION_TOKEN);

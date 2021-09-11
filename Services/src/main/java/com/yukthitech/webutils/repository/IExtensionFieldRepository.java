@@ -32,6 +32,7 @@ import com.yukthitech.persistence.repository.annotations.OrderBy;
 import com.yukthitech.persistence.repository.search.SearchQuery;
 import com.yukthitech.webutils.annotations.RestrictBySpace;
 import com.yukthitech.webutils.annotations.SearchQueryMethod;
+import com.yukthitech.webutils.common.annotations.Optional;
 import com.yukthitech.webutils.common.extensions.ExtensionFieldSearchQuery;
 import com.yukthitech.webutils.common.extensions.ExtensionFieldSearchResult;
 
@@ -39,6 +40,7 @@ import com.yukthitech.webutils.common.extensions.ExtensionFieldSearchResult;
  * Repository for entity extension fields.
  * @author akiran
  */
+@Optional
 public interface IExtensionFieldRepository extends IWebutilsRepository<ExtensionFieldEntity>
 {
 	/**

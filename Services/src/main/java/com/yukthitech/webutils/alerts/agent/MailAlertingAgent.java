@@ -35,7 +35,7 @@ public class MailAlertingAgent implements IAlertingAgent
 	/**
 	 * Alert support provided by applications.
 	 */
-	@Autowired
+	@Autowired(required = false)
 	private IAlertSupport alertSupport;
 	
 	@Override

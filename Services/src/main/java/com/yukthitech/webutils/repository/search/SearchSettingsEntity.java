@@ -14,7 +14,7 @@ import com.yukthitech.persistence.annotations.UniqueConstraints;
 import com.yukthitech.persistence.conversion.impl.JsonWithTypeConverter;
 import com.yukthitech.webutils.common.search.SearchSettingsColumn;
 import com.yukthitech.webutils.repository.UserEntity;
-import com.yukthitech.webutils.repository.WebutilsEntity;
+import com.yukthitech.webutils.repository.WebutilsBaseEntity;
 
 /**
  * Search query customization settings.
@@ -23,7 +23,7 @@ import com.yukthitech.webutils.repository.WebutilsEntity;
 @UniqueConstraints({
 	@UniqueConstraint(name = "UQ_USER_QUERY_NAME", fields = {"user", "searchQueryName"}, finalName = false)
 	})
-public class SearchSettingsEntity extends WebutilsEntity
+public class SearchSettingsEntity extends WebutilsBaseEntity
 {
 	/**
 	 * User for which this setting is being created.

@@ -34,8 +34,9 @@ import org.springframework.stereotype.Service;
 
 import com.yukthitech.webutils.IWebUtilsInternalConstants;
 import com.yukthitech.webutils.common.UserDetails;
+import com.yukthitech.webutils.repository.ITrackedEntity;
 import com.yukthitech.webutils.repository.UserEntity;
-import com.yukthitech.webutils.repository.WebutilsEntity;
+import com.yukthitech.webutils.repository.WebutilsBaseEntity;
 
 /**
  * Context user related services.
@@ -89,10 +90,16 @@ public class CurrentUserService
 	
 	/**
 	 * Sets the tracked fields during create operation.
-	 * @param trackedEntity Entity needs to be tracked
+	 * @param entity Entity needs to be tracked
 	 */
-	public void populateTrackingFieldForCreate(WebutilsEntity trackedEntity)
+	public void populateTrackingFieldForCreate(WebutilsBaseEntity entity)
 	{
+		if(!(entity instanceof ITrackedEntity))
+		{
+			return;
+		}
+		
+		ITrackedEntity trackedEntity = (ITrackedEntity) entity;
 		UserDetails<?> userDetails = getCurrentUserDetails();
 
 		//set date fields
@@ -115,10 +122,16 @@ public class CurrentUserService
 
 	/**
 	 * Sets the tracked fields during update operation.
-	 * @param trackedEntity Entity needs to be tracked
+	 * @param entity Entity needs to be tracked
 	 */
-	public void populateTrackingFieldForUpdate(WebutilsEntity trackedEntity)
+	public void populateTrackingFieldForUpdate(WebutilsBaseEntity entity)
 	{
+		if(!(entity instanceof ITrackedEntity))
+		{
+			return;
+		}
+		
+		ITrackedEntity trackedEntity = (ITrackedEntity) entity;
 		UserDetails<?> userDetails = getCurrentUserDetails();
 
 		//set date fields

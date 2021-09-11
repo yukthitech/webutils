@@ -41,13 +41,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.yukthitech.persistence.ITransaction;
-import com.yukthitech.persistence.repository.RepositoryFactory;
 import com.yukthitech.utils.exceptions.InvalidArgumentException;
 import com.yukthitech.utils.exceptions.InvalidStateException;
 import com.yukthitech.webutils.common.FileInfo;
 import com.yukthitech.webutils.common.models.def.FieldDef;
 import com.yukthitech.webutils.common.models.def.FieldType;
 import com.yukthitech.webutils.common.models.def.ModelDef;
+import com.yukthitech.webutils.repository.ITenantBasedRepository;
 import com.yukthitech.webutils.repository.file.FileEntity;
 import com.yukthitech.webutils.repository.file.IFileRepository;
 import com.yukthitech.webutils.security.ISecurityService;
@@ -66,7 +66,7 @@ public class FileService
 	 * Autowired repository factory, used to fetch repository.
 	 */
 	@Autowired
-	protected RepositoryFactory repositoryFactory;
+	protected WebutilsRepositoryFactory repositoryFactory;
 
 	/**
 	 * Used to populate tracked fields.
@@ -476,10 +476,17 @@ public class FileService
 	 * @param id Id of the file to be fetched
 	 * @return Matching file entity
 	 */
+	@SuppressWarnings("rawtypes")
 	public FileEntity getFileEntity(Long id)
 	{
 		logger.trace("Fetching file content for id - {}", id);
-		return repository.findByIdAndUserSpace(id, securityService.getUserSpaceIdentity());
+		
+		if(repository instanceof ITenantBasedRepository)
+		{
+			return (FileEntity) ((ITenantBasedRepository) repository).findByIdAndUserSpace(id, securityService.getUserSpaceIdentity());
+		}
+		
+		return repository.findById(id);
 	}
 
 	/**
@@ -488,10 +495,17 @@ public class FileService
 	 * @param secured Specifies whether the file is secured file or not.
 	 * @return Matching file.
 	 */
+	@SuppressWarnings("rawtypes")
 	public FileEntity getFileEntity(Long id, boolean secured)
 	{
 		logger.trace("Fetching file content for id - {} and security flag - {}", id, secured);
-		return repository.findByIdAndUserSpace(id, secured ? securityService.getUserSpaceIdentity() : "");
+
+		if(repository instanceof ITenantBasedRepository)
+		{
+			return (FileEntity) ((ITenantBasedRepository) repository).findByIdAndUserSpace(id, secured ? securityService.getUserSpaceIdentity() : "");
+		}
+		
+		return repository.findById(id);
 	}
 	
 	/**

@@ -36,8 +36,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.PostConstruct;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +43,8 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 import com.yukthitech.persistence.ICrudRepository;
@@ -105,8 +105,12 @@ public class LovService implements IRepositoryMethodRegistry<LovQuery>
 	@Autowired
 	private WebutilsSecurityService webutilsSecurityService;
 
-	@PostConstruct
-	private void init()
+	/**
+	 * Lov list is loaded post app start, to ensure all repos are loaded before hand.
+	 * @param event
+	 */
+	@EventListener
+	public void postInitApp(ContextRefreshedEvent event)
 	{
 		Set<Method> lovMethods = classScannerService.getMethodsAnnotatedWith(LovMethod.class);
 		LovMethod lovMethod = null;

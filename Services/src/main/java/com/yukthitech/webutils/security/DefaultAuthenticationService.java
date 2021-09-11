@@ -2,12 +2,15 @@ package com.yukthitech.webutils.security;
 
 import java.util.Map;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.yukthitech.persistence.utils.PasswordEncryptor;
+import com.yukthitech.webutils.InvalidRequestParameterException;
 import com.yukthitech.webutils.WebutilsConfiguration;
 import com.yukthitech.webutils.common.UserDetails;
 import com.yukthitech.webutils.repository.UserEntity;
+import com.yukthitech.webutils.services.CurrentUserService;
 import com.yukthitech.webutils.services.UserService;
 
 /**
@@ -28,6 +31,9 @@ public class DefaultAuthenticationService<R extends Enum<R>> implements IAuthent
 	 */
 	@Autowired
 	private UserService userService;
+	
+	@Autowired
+	private CurrentUserService currentUserService;
 
 	@Override
 	public UserDetails<R> authenticate(String userName, String password, Map<String, String> attributes)
@@ -46,6 +52,36 @@ public class DefaultAuthenticationService<R extends Enum<R>> implements IAuthent
 		return toUserDetails(user);
 	}
 	
+	@Override
+	public void changePassword(String currentPassword, String newPassword)
+	{
+		UserDetails<?> currentUser = currentUserService.getCurrentUserDetails();
+		String dbPassword = userService.getPassword(currentUser.getUserId());
+
+		// if user is not found or if password does not match
+		// Note: the password change is being done for already authenticated user
+		if(dbPassword == null || !PasswordEncryptor.isSamePassword(dbPassword, currentPassword))
+		{
+			throw new InvalidRequestParameterException("Specified current password is not valid.");
+		}
+		
+		userService.updatePassword(currentUser.getUserSpace(), currentUser.getUserName(), newPassword);
+	}
+	
+	@Override
+	public String resetPassword(String userName, Map<String, String> attributes)
+	{
+		String userSpace = getUserSpace(userName, attributes);
+		String randPassword = RandomStringUtils.randomAlphanumeric(8);
+		
+		if(!userService.updatePassword(userSpace, userName, randPassword))
+		{
+			throw new InvalidRequestParameterException("No user found with specified user-name: {}", userName);
+		}
+		
+		return randPassword;
+	}
+	
 	/**
 	 * Can be overridden by child classes to provide application specific user space based
 	 * on input user name and attributes provided during authentication.
@@ -60,13 +96,14 @@ public class DefaultAuthenticationService<R extends Enum<R>> implements IAuthent
 	
 	/**
 	 * Can be overridden by child classes to provide application specific user details which can contain roles
-	 * erc.
+	 * etc.
 	 * @param user user to be converted
 	 * @return app specific user details
 	 */
 	@Override
 	public UserDetails<R> toUserDetails(UserEntity user)
 	{
-		return new UserDetails<R>(user.getId(), user.getDisplayName(), webutilsConfiguration.getJsDateFormat());
+		return new UserDetails<R>(user.getId(), user.getUserName(), user.getSpaceIdentity(), 
+				user.getDisplayName(), webutilsConfiguration.getJsDateFormat());
 	}
 }

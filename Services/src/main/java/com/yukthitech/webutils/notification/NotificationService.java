@@ -19,11 +19,11 @@ import org.springframework.stereotype.Service;
 
 import com.yukthitech.persistence.ITransaction;
 import com.yukthitech.persistence.TransactionException;
-import com.yukthitech.persistence.repository.RepositoryFactory;
 import com.yukthitech.utils.exceptions.InvalidStateException;
 import com.yukthitech.webutils.common.models.notification.NotificationModel;
 import com.yukthitech.webutils.common.models.notification.NotificationSetting;
 import com.yukthitech.webutils.repository.UserEntity;
+import com.yukthitech.webutils.services.WebutilsRepositoryFactory;
 
 /**
  * Notification service to manage notifications and user customizations.
@@ -39,7 +39,7 @@ public class NotificationService
 	 * Repository factory to fetch repository.
 	 */
 	@Autowired
-	private RepositoryFactory repositoryFactory;
+	private WebutilsRepositoryFactory repositoryFactory;
 
 	/**
 	 * User notification repository.

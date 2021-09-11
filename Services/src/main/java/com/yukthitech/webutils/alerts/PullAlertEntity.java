@@ -13,13 +13,13 @@ import com.yukthitech.persistence.conversion.impl.XmlConverter;
 import com.yukthitech.webutils.common.actionplan.ActionPlan;
 import com.yukthitech.webutils.common.alerts.AlertProcessedDetails;
 import com.yukthitech.webutils.common.alerts.PullAlertStatus;
-import com.yukthitech.webutils.repository.WebutilsEntity;
+import com.yukthitech.webutils.repository.WebutilsBaseEntity;
 
 /**
  * Represents the pull alerts to be processed.
  */
 @Table(name = "WEBUTILS_PULL_ALERTS")
-public class PullAlertEntity extends WebutilsEntity
+public class PullAlertEntity extends WebutilsBaseEntity
 {
 	/**
 	 * Used to identify alert uniquely.

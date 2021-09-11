@@ -1,0 +1,903 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+    <changeSet author="akiran (generated)" id="1512542245342-1">
+        <createTable tableName="recruit_candidate">
+            <column autoIncrement="true" name="ID" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="SPACE_IDENTITY" type="VARCHAR(150)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ADDRESS" type="VARCHAR(500)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="UPDATED_BY_ID" type="BIGINT"/>
+            <column name="UPDATED_ON" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="EXPERIENCE" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="VERSION" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CREATED_ON" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="PHONE_NO" type="VARCHAR(30)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CURRENT_CTC" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="NOTICE_PERIOD" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="SKILLS" type="VARCHAR(500)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CREATED_BY_ID" type="BIGINT"/>
+            <column name="NAME" type="VARCHAR(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MAIL_ID" type="VARCHAR(200)"/>
+            <column name="EXPECTED_CTC" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="STATUS" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="UQ_ENTITY_ID" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-2">
+        <createTable tableName="recruit_employer">
+            <column autoIncrement="true" name="ID" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="SPACE_IDENTITY" type="VARCHAR(150)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ADDRESS" type="VARCHAR(500)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="UPDATED_BY_ID" type="BIGINT"/>
+            <column name="UPDATED_ON" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="VERSION" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CREATED_ON" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ALT_PHONE_NO" type="VARCHAR(30)"/>
+            <column name="POC_NAME" type="VARCHAR(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CREATED_BY_ID" type="BIGINT"/>
+            <column name="POC_PHONE_NO" type="VARCHAR(30)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="NAME" type="VARCHAR(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="REG_DATE" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="POC_MAIL_ID" type="VARCHAR(200)"/>
+            <column name="STATUS" type="VARCHAR(50)"/>
+            <column name="UQ_ENTITY_ID" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-3">
+        <createTable tableName="recruit_job_opening">
+            <column autoIncrement="true" name="ID" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="MAX_CTC" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="REQ_CANDIDATE_COUNT" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="SPACE_IDENTITY" type="VARCHAR(150)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="JOB_PROFILE" type="VARCHAR(1000)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="SKILLS_REQUIRED" type="VARCHAR(1000)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="UPDATED_BY_ID" type="BIGINT"/>
+            <column name="UPDATED_ON" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="TITLE" type="VARCHAR(500)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="VERSION" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CREATED_ON" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CREATED_BY_ID" type="BIGINT"/>
+            <column name="EXP_REQUIRED" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="EMPLOYER_ID" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MIN_CTC" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="EXTRA_DETAILS" type="VARCHAR(1000)"/>
+            <column name="STATUS" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="UQ_ENTITY_ID" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-4">
+        <createTable tableName="recruit_user_role">
+            <column autoIncrement="true" name="ID" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="ROLE" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="USER_ID" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="UQ_ENTITY_ID" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-5">
+        <createTable tableName="webutils_entity_extensions">
+            <column autoIncrement="true" name="ID" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="SPACE_IDENTITY" type="VARCHAR(150)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="OWNER_ENTITY_TYPE" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="UPDATED_BY_ID" type="BIGINT"/>
+            <column name="TARGET_ENTITY_TYPE" type="VARCHAR(250)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CREATED_BY_ID" type="BIGINT"/>
+            <column name="NAME" type="VARCHAR(250)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CUSTOM_ATTR" type="VARCHAR(2000)"/>
+            <column name="OWNER_ENTITY_ID" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="UPDATED_ON" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="VERSION" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CREATED_ON" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="UQ_ENTITY_ID" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-6">
+        <createTable tableName="webutils_extension_fields">
+            <column autoIncrement="true" name="ID" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="SPACE_IDENTITY" type="VARCHAR(150)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="EXTENSION_ID" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="UPDATED_BY_ID" type="BIGINT"/>
+            <column name="DESCRIPTION" type="VARCHAR(500)"/>
+            <column name="LABEL" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="UPDATED_ON" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="DATA_TYPE" type="VARCHAR(50)"/>
+            <column name="VERSION" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CREATED_ON" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="IS_REQUIRED" type="BIT"/>
+            <column name="CREATED_BY_ID" type="BIGINT"/>
+            <column name="NAME" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="LOV_OPTIONS" type="VARCHAR(2000)"/>
+            <column name="MAX_LENGTH" type="INT"/>
+            <column name="EXT_COL_NAME" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="UQ_ENTITY_ID" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-7">
+        <createTable tableName="webutils_file_entity">
+            <column autoIncrement="true" name="ID" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="SPACE_IDENTITY" type="VARCHAR(150)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="FILE_NAME" type="VARCHAR(500)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="UPDATED_BY_ID" type="BIGINT"/>
+            <column name="OWNER_ENTITY_FIELD" type="VARCHAR(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="UPDATED_ON" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="SIZE_IN_MB" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="VERSION" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CREATED_ON" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CUSTOM_ATT2" type="VARCHAR(100)"/>
+            <column name="CUSTOM_ATT1" type="VARCHAR(100)"/>
+            <column name="FILE" type="LONGBLOB">
+                <constraints nullable="false"/>
+            </column>
+            <column name="OWNER_ENTITY_TYPE" type="VARCHAR(250)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CREATED_BY_ID" type="BIGINT"/>
+            <column name="OWNER_ENTITY_ID" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CONTENT_TYPE" type="VARCHAR(200)"/>
+            <column name="CUSTOM_ATT5" type="VARCHAR(100)"/>
+            <column name="CUSTOM_ATT4" type="VARCHAR(100)"/>
+            <column name="CUSTOM_ATT3" type="VARCHAR(100)"/>
+            <column name="UQ_ENTITY_ID" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-8">
+        <createTable tableName="webutils_mail_template">
+            <column autoIncrement="true" name="ID" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="SPACE_IDENTITY" type="VARCHAR(150)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CONTENT_TEMPLATE" type="LONGTEXT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="UPDATED_BY_ID" type="BIGINT"/>
+            <column name="CUSTOMIZATION" type="LONGTEXT"/>
+            <column name="CC_TEMPLATE" type="VARCHAR(1000)"/>
+            <column name="UPDATED_ON" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="VERSION" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CREATED_ON" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="OWNER_ENTITY_TYPE" type="VARCHAR(250)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="BCC_TEMPLATE" type="VARCHAR(1000)"/>
+            <column name="NAME" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CREATED_BY_ID" type="BIGINT"/>
+            <column name="SUBJECT_TEMPLATE" type="VARCHAR(2000)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="OWNER_ENTITY_ID" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="TO_TEMPLATE" type="VARCHAR(1000)"/>
+            <column name="UQ_ENTITY_ID" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-9">
+        <createTable tableName="webutils_search_settings">
+            <column autoIncrement="true" name="ID" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="SPACE_IDENTITY" type="VARCHAR(150)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="UPDATED_BY_ID" type="BIGINT"/>
+            <column name="CREATED_BY_ID" type="BIGINT"/>
+            <column name="SEARCH_COLUMNS" type="VARCHAR(4000)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="PAGE_SIZE" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="UPDATED_ON" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="USER_ID" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="VERSION" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CREATED_ON" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="SEARCH_QUERY_NAME" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="UQ_ENTITY_ID" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-10">
+        <createTable tableName="webutils_user_notification">
+            <column autoIncrement="true" name="ID" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="SPACE_IDENTITY" type="VARCHAR(150)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="UPDATED_BY_ID" type="BIGINT"/>
+            <column name="CREATED_BY_ID" type="BIGINT"/>
+            <column name="NOTIFICATION_TYPE" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="UPDATED_ON" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="USER_ID" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="VERSION" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CREATED_ON" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ENABLED" type="BIT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="UQ_ENTITY_ID" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-11">
+        <createTable tableName="webutils_user_roles">
+            <column autoIncrement="true" name="ID" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="OWNER_TYPE" type="VARCHAR(250)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="SPACE_IDENTITY" type="VARCHAR(150)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ROLE" type="VARCHAR(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="UPDATED_BY_ID" type="BIGINT"/>
+            <column name="CREATED_BY_ID" type="BIGINT"/>
+            <column name="UPDATED_ON" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="OWNER_ID" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="USER_ID" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="VERSION" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CREATED_ON" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="UQ_ENTITY_ID" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-12">
+        <createTable tableName="webutils_user_session">
+            <column autoIncrement="true" name="ID" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="LAST_ACCESSED_ON" type="datetime(6)"/>
+            <column name="SESSION_TOKEN" type="VARCHAR(500)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="USER_DETAILS" type="VARCHAR(2000)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="USER_ID" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CREATED_ON" type="datetime(6)"/>
+            <column name="UQ_ENTITY_ID" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-13">
+        <createTable tableName="webutils_users">
+            <column autoIncrement="true" name="ID" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="SPACE_IDENTITY" type="VARCHAR(150)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="UPDATED_BY_ID" type="BIGINT"/>
+            <column name="DISPLAY_NAME" type="VARCHAR(500)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="UPDATED_ON" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="USER_NAME" type="VARCHAR(50)"/>
+            <column name="VERSION" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CREATED_ON" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="BASE_ENT_TYPE" type="VARCHAR(200)"/>
+            <column name="PASSWORD" type="VARCHAR(500)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="OWNER_ENT_TYPE" type="VARCHAR(200)"/>
+            <column name="DELETED" type="BIT"/>
+            <column name="CREATED_BY_ID" type="BIGINT"/>
+            <column name="BASE_ENT_ID" type="BIGINT"/>
+            <column name="OWNER_ENT_ID" type="BIGINT"/>
+            <column name="UQ_ENTITY_ID" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-14">
+        <addUniqueConstraint columnNames="SPACE_IDENTITY, NAME" constraintName="UQ_EXTENSIONENTITY_NAME" tableName="webutils_entity_extensions"/>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-15">
+        <addUniqueConstraint columnNames="TARGET_ENTITY_TYPE, OWNER_ENTITY_TYPE, OWNER_ENTITY_ID" constraintName="UQ_EXTENSIONENTITY_TARGET_OWNER" tableName="webutils_entity_extensions"/>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-16">
+        <addUniqueConstraint columnNames="EXTENSION_ID, EXT_COL_NAME" constraintName="UQ_EXTENSIONFIELDENTITY_EXT_ID_COL_NAME" tableName="webutils_extension_fields"/>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-17">
+        <addUniqueConstraint columnNames="EXTENSION_ID, LABEL" constraintName="UQ_EXTENSIONFIELDENTITY_EXT_ID_LABEL" tableName="webutils_extension_fields"/>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-18">
+        <addUniqueConstraint columnNames="EXTENSION_ID, NAME" constraintName="UQ_EXTENSIONFIELDENTITY_EXT_ID_NAME" tableName="webutils_extension_fields"/>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-19">
+        <addUniqueConstraint columnNames="NAME, OWNER_ENTITY_TYPE, OWNER_ENTITY_ID" constraintName="UQ_MAILTEMPLATEENTITY_TEMPLATE_NAME" tableName="webutils_mail_template"/>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-20">
+        <addUniqueConstraint columnNames="UQ_ENTITY_ID" constraintName="UQ_RECRUIT_CANDIDATE_UQ_ENTITY_ID" tableName="recruit_candidate"/>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-21">
+        <addUniqueConstraint columnNames="UQ_ENTITY_ID" constraintName="UQ_RECRUIT_EMPLOYER_UQ_ENTITY_ID" tableName="recruit_employer"/>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-22">
+        <addUniqueConstraint columnNames="UQ_ENTITY_ID" constraintName="UQ_RECRUIT_JOB_OPENING_UQ_ENTITY_ID" tableName="recruit_job_opening"/>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-23">
+        <addUniqueConstraint columnNames="UQ_ENTITY_ID" constraintName="UQ_RECRUIT_USER_ROLE_UQ_ENTITY_ID" tableName="recruit_user_role"/>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-24">
+        <addUniqueConstraint columnNames="USER_ID, SEARCH_QUERY_NAME" constraintName="UQ_SEARCHSETTINGSENTITY_UQ_USER_QUERY_NAME" tableName="webutils_search_settings"/>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-25">
+        <addUniqueConstraint columnNames="BASE_ENT_TYPE, BASE_ENT_ID" constraintName="UQ_USERENTITY_UQ_USERS_BASE_DET" tableName="webutils_users"/>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-26">
+        <addUniqueConstraint columnNames="SPACE_IDENTITY, USER_NAME" constraintName="UQ_USERENTITY_UQ_USERS_OWNR_UNAME" tableName="webutils_users"/>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-27">
+        <addUniqueConstraint columnNames="USER_ID, NOTIFICATION_TYPE" constraintName="UQ_USERNOTIFICATIONENTITY_USER_NOTIFICATION" tableName="webutils_user_notification"/>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-28">
+        <addUniqueConstraint columnNames="USER_ID, ROLE, OWNER_TYPE, OWNER_ID" constraintName="UQ_USERROLEENTITY_UQ_UROLE_ROLE" tableName="webutils_user_roles"/>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-29">
+        <addUniqueConstraint columnNames="UQ_ENTITY_ID" constraintName="UQ_WEBUTILS_ENTITY_EXTENSIONS_UQ_ENTITY_ID" tableName="webutils_entity_extensions"/>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-30">
+        <addUniqueConstraint columnNames="UQ_ENTITY_ID" constraintName="UQ_WEBUTILS_EXTENSION_FIELDS_UQ_ENTITY_ID" tableName="webutils_extension_fields"/>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-31">
+        <addUniqueConstraint columnNames="UQ_ENTITY_ID" constraintName="UQ_WEBUTILS_FILE_ENTITY_UQ_ENTITY_ID" tableName="webutils_file_entity"/>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-32">
+        <addUniqueConstraint columnNames="UQ_ENTITY_ID" constraintName="UQ_WEBUTILS_MAIL_TEMPLATE_UQ_ENTITY_ID" tableName="webutils_mail_template"/>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-33">
+        <addUniqueConstraint columnNames="UQ_ENTITY_ID" constraintName="UQ_WEBUTILS_SEARCH_SETTINGS_UQ_ENTITY_ID" tableName="webutils_search_settings"/>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-34">
+        <addUniqueConstraint columnNames="UQ_ENTITY_ID" constraintName="UQ_WEBUTILS_USERS_UQ_ENTITY_ID" tableName="webutils_users"/>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-35">
+        <addUniqueConstraint columnNames="UQ_ENTITY_ID" constraintName="UQ_WEBUTILS_USER_NOTIFICATION_UQ_ENTITY_ID" tableName="webutils_user_notification"/>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-36">
+        <addUniqueConstraint columnNames="UQ_ENTITY_ID" constraintName="UQ_WEBUTILS_USER_ROLES_UQ_ENTITY_ID" tableName="webutils_user_roles"/>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-37">
+        <addUniqueConstraint columnNames="UQ_ENTITY_ID" constraintName="UQ_WEBUTILS_USER_SESSION_UQ_ENTITY_ID" tableName="webutils_user_session"/>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-38">
+        <createIndex indexName="FK_RECRUIT_CANDIDATE_CREATED_BY_ID" tableName="recruit_candidate">
+            <column name="CREATED_BY_ID"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-39">
+        <createIndex indexName="FK_RECRUIT_CANDIDATE_UPDATED_BY_ID" tableName="recruit_candidate">
+            <column name="UPDATED_BY_ID"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-40">
+        <createIndex indexName="FK_RECRUIT_EMPLOYER_CREATED_BY_ID" tableName="recruit_employer">
+            <column name="CREATED_BY_ID"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-41">
+        <createIndex indexName="FK_RECRUIT_EMPLOYER_UPDATED_BY_ID" tableName="recruit_employer">
+            <column name="UPDATED_BY_ID"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-42">
+        <createIndex indexName="FK_RECRUIT_JOB_OPENING_CREATED_BY_ID" tableName="recruit_job_opening">
+            <column name="CREATED_BY_ID"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-43">
+        <createIndex indexName="FK_RECRUIT_JOB_OPENING_EMPLOYER_ID" tableName="recruit_job_opening">
+            <column name="EMPLOYER_ID"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-44">
+        <createIndex indexName="FK_RECRUIT_JOB_OPENING_UPDATED_BY_ID" tableName="recruit_job_opening">
+            <column name="UPDATED_BY_ID"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-45">
+        <createIndex indexName="FK_RECRUIT_USER_ROLE_USER_ID" tableName="recruit_user_role">
+            <column name="USER_ID"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-46">
+        <createIndex indexName="FK_WEBUTILS_ENTITY_EXTENSIONS_CREATED_BY_ID" tableName="webutils_entity_extensions">
+            <column name="CREATED_BY_ID"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-47">
+        <createIndex indexName="FK_WEBUTILS_ENTITY_EXTENSIONS_UPDATED_BY_ID" tableName="webutils_entity_extensions">
+            <column name="UPDATED_BY_ID"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-48">
+        <createIndex indexName="FK_WEBUTILS_EXTENSION_FIELDS_CREATED_BY_ID" tableName="webutils_extension_fields">
+            <column name="CREATED_BY_ID"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-49">
+        <createIndex indexName="FK_WEBUTILS_EXTENSION_FIELDS_UPDATED_BY_ID" tableName="webutils_extension_fields">
+            <column name="UPDATED_BY_ID"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-50">
+        <createIndex indexName="FK_WEBUTILS_FILE_ENTITY_CREATED_BY_ID" tableName="webutils_file_entity">
+            <column name="CREATED_BY_ID"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-51">
+        <createIndex indexName="FK_WEBUTILS_FILE_ENTITY_UPDATED_BY_ID" tableName="webutils_file_entity">
+            <column name="UPDATED_BY_ID"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-52">
+        <createIndex indexName="FK_WEBUTILS_MAIL_TEMPLATE_CREATED_BY_ID" tableName="webutils_mail_template">
+            <column name="CREATED_BY_ID"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-53">
+        <createIndex indexName="FK_WEBUTILS_MAIL_TEMPLATE_UPDATED_BY_ID" tableName="webutils_mail_template">
+            <column name="UPDATED_BY_ID"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-54">
+        <createIndex indexName="FK_WEBUTILS_SEARCH_SETTINGS_CREATED_BY_ID" tableName="webutils_search_settings">
+            <column name="CREATED_BY_ID"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-55">
+        <createIndex indexName="FK_WEBUTILS_SEARCH_SETTINGS_UPDATED_BY_ID" tableName="webutils_search_settings">
+            <column name="UPDATED_BY_ID"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-56">
+        <createIndex indexName="FK_WEBUTILS_USERS_CREATED_BY_ID" tableName="webutils_users">
+            <column name="CREATED_BY_ID"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-57">
+        <createIndex indexName="FK_WEBUTILS_USERS_UPDATED_BY_ID" tableName="webutils_users">
+            <column name="UPDATED_BY_ID"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-58">
+        <createIndex indexName="FK_WEBUTILS_USER_NOTIFICATION_CREATED_BY_ID" tableName="webutils_user_notification">
+            <column name="CREATED_BY_ID"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-59">
+        <createIndex indexName="FK_WEBUTILS_USER_NOTIFICATION_UPDATED_BY_ID" tableName="webutils_user_notification">
+            <column name="UPDATED_BY_ID"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-60">
+        <createIndex indexName="FK_WEBUTILS_USER_ROLES_CREATED_BY_ID" tableName="webutils_user_roles">
+            <column name="CREATED_BY_ID"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-61">
+        <createIndex indexName="FK_WEBUTILS_USER_ROLES_UPDATED_BY_ID" tableName="webutils_user_roles">
+            <column name="UPDATED_BY_ID"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-62">
+        <createIndex indexName="RECRUIT_CANDIDATE_IDX_CANDIDATEENTITY_EXPERIENCE" tableName="recruit_candidate">
+            <column name="EXPERIENCE"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-63">
+        <createIndex indexName="RECRUIT_CANDIDATE_IDX_CANDIDATEENTITY_MAILID" tableName="recruit_candidate">
+            <column name="MAIL_ID"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-64">
+        <createIndex indexName="RECRUIT_CANDIDATE_IDX_CANDIDATEENTITY_PHONENO" tableName="recruit_candidate">
+            <column name="PHONE_NO"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-65">
+        <createIndex indexName="RECRUIT_CANDIDATE_IDX_CANDIDATEENTITY_SKILLS" tableName="recruit_candidate">
+            <column name="SKILLS"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-66">
+        <createIndex indexName="RECRUIT_CANDIDATE_IDX_CANDIDATEENTITY_STATUS" tableName="recruit_candidate">
+            <column name="STATUS"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-67">
+        <createIndex indexName="RECRUIT_CANDIDATE_SPACE_IDENTITY_IDX" tableName="recruit_candidate">
+            <column name="SPACE_IDENTITY"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-68">
+        <createIndex indexName="RECRUIT_EMPLOYER_IDX_EMPLOYERENTITY_POCMAILID" tableName="recruit_employer">
+            <column name="POC_MAIL_ID"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-69">
+        <createIndex indexName="RECRUIT_EMPLOYER_IDX_EMPLOYERENTITY_POCNAME" tableName="recruit_employer">
+            <column name="POC_NAME"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-70">
+        <createIndex indexName="RECRUIT_EMPLOYER_IDX_EMPLOYERENTITY_POCPHONENO" tableName="recruit_employer">
+            <column name="POC_PHONE_NO"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-71">
+        <createIndex indexName="RECRUIT_EMPLOYER_IDX_EMPLOYERENTITY_STATUS" tableName="recruit_employer">
+            <column name="STATUS"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-72">
+        <createIndex indexName="RECRUIT_EMPLOYER_SPACE_IDENTITY_IDX" tableName="recruit_employer">
+            <column name="SPACE_IDENTITY"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-73">
+        <createIndex indexName="RECRUIT_JOB_OPENING_IDX_JOBOPENINGENTITY_TITLE" tableName="recruit_job_opening">
+            <column name="TITLE"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-74">
+        <createIndex indexName="RECRUIT_JOB_OPENING_SPACE_IDENTITY_IDX" tableName="recruit_job_opening">
+            <column name="SPACE_IDENTITY"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-75">
+        <createIndex indexName="WEBUTILS_ENTITY_EXTENSIONS_SPACE_IDENTITY_IDX" tableName="webutils_entity_extensions">
+            <column name="SPACE_IDENTITY"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-76">
+        <createIndex indexName="WEBUTILS_EXTENSION_FIELDS_SPACE_IDENTITY_IDX" tableName="webutils_extension_fields">
+            <column name="SPACE_IDENTITY"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-77">
+        <createIndex indexName="WEBUTILS_FILE_ENTITY_FILE_OWNER_IDX" tableName="webutils_file_entity">
+            <column name="OWNER_ENTITY_TYPE"/>
+            <column name="OWNER_ENTITY_ID"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-78">
+        <createIndex indexName="WEBUTILS_FILE_ENTITY_IDX_FILEENTITY_CUSTOMATTRIBUTE1" tableName="webutils_file_entity">
+            <column name="CUSTOM_ATT1"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-79">
+        <createIndex indexName="WEBUTILS_FILE_ENTITY_IDX_FILEENTITY_CUSTOMATTRIBUTE2" tableName="webutils_file_entity">
+            <column name="CUSTOM_ATT2"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-80">
+        <createIndex indexName="WEBUTILS_FILE_ENTITY_IDX_FILEENTITY_CUSTOMATTRIBUTE3" tableName="webutils_file_entity">
+            <column name="CUSTOM_ATT3"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-81">
+        <createIndex indexName="WEBUTILS_FILE_ENTITY_SPACE_IDENTITY_IDX" tableName="webutils_file_entity">
+            <column name="SPACE_IDENTITY"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-82">
+        <createIndex indexName="WEBUTILS_MAIL_TEMPLATE_SPACE_IDENTITY_IDX" tableName="webutils_mail_template">
+            <column name="SPACE_IDENTITY"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-83">
+        <createIndex indexName="WEBUTILS_SEARCH_SETTINGS_SPACE_IDENTITY_IDX" tableName="webutils_search_settings">
+            <column name="SPACE_IDENTITY"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-84">
+        <createIndex indexName="WEBUTILS_USERS_SPACE_IDENTITY_IDX" tableName="webutils_users">
+            <column name="SPACE_IDENTITY"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-85">
+        <createIndex indexName="WEBUTILS_USER_NOTIFICATION_SPACE_IDENTITY_IDX" tableName="webutils_user_notification">
+            <column name="SPACE_IDENTITY"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-86">
+        <createIndex indexName="WEBUTILS_USER_ROLES_SPACE_IDENTITY_IDX" tableName="webutils_user_roles">
+            <column name="SPACE_IDENTITY"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-87">
+        <createIndex indexName="WEBUTILS_USER_SESSION_SESSION_TOKEN" tableName="webutils_user_session">
+            <column name="SESSION_TOKEN"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-88">
+        <addForeignKeyConstraint baseColumnNames="CREATED_BY_ID" baseTableName="recruit_candidate" constraintName="FK_RECRUIT_CANDIDATE_CREATED_BY_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="webutils_users"/>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-89">
+        <addForeignKeyConstraint baseColumnNames="UPDATED_BY_ID" baseTableName="recruit_candidate" constraintName="FK_RECRUIT_CANDIDATE_UPDATED_BY_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="webutils_users"/>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-90">
+        <addForeignKeyConstraint baseColumnNames="CREATED_BY_ID" baseTableName="recruit_employer" constraintName="FK_RECRUIT_EMPLOYER_CREATED_BY_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="webutils_users"/>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-91">
+        <addForeignKeyConstraint baseColumnNames="UPDATED_BY_ID" baseTableName="recruit_employer" constraintName="FK_RECRUIT_EMPLOYER_UPDATED_BY_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="webutils_users"/>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-92">
+        <addForeignKeyConstraint baseColumnNames="CREATED_BY_ID" baseTableName="recruit_job_opening" constraintName="FK_RECRUIT_JOB_OPENING_CREATED_BY_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="webutils_users"/>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-93">
+        <addForeignKeyConstraint baseColumnNames="EMPLOYER_ID" baseTableName="recruit_job_opening" constraintName="FK_RECRUIT_JOB_OPENING_EMPLOYER_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="recruit_employer"/>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-94">
+        <addForeignKeyConstraint baseColumnNames="UPDATED_BY_ID" baseTableName="recruit_job_opening" constraintName="FK_RECRUIT_JOB_OPENING_UPDATED_BY_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="webutils_users"/>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-95">
+        <addForeignKeyConstraint baseColumnNames="USER_ID" baseTableName="recruit_user_role" constraintName="FK_RECRUIT_USER_ROLE_USER_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="webutils_users"/>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-96">
+        <addForeignKeyConstraint baseColumnNames="CREATED_BY_ID" baseTableName="webutils_entity_extensions" constraintName="FK_WEBUTILS_ENTITY_EXTENSIONS_CREATED_BY_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="webutils_users"/>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-97">
+        <addForeignKeyConstraint baseColumnNames="UPDATED_BY_ID" baseTableName="webutils_entity_extensions" constraintName="FK_WEBUTILS_ENTITY_EXTENSIONS_UPDATED_BY_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="webutils_users"/>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-98">
+        <addForeignKeyConstraint baseColumnNames="CREATED_BY_ID" baseTableName="webutils_extension_fields" constraintName="FK_WEBUTILS_EXTENSION_FIELDS_CREATED_BY_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="webutils_users"/>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-99">
+        <addForeignKeyConstraint baseColumnNames="EXTENSION_ID" baseTableName="webutils_extension_fields" constraintName="FK_WEBUTILS_EXTENSION_FIELDS_EXTENSION_ID" deferrable="false" initiallyDeferred="false" onDelete="CASCADE" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="webutils_entity_extensions"/>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-100">
+        <addForeignKeyConstraint baseColumnNames="UPDATED_BY_ID" baseTableName="webutils_extension_fields" constraintName="FK_WEBUTILS_EXTENSION_FIELDS_UPDATED_BY_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="webutils_users"/>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-101">
+        <addForeignKeyConstraint baseColumnNames="CREATED_BY_ID" baseTableName="webutils_file_entity" constraintName="FK_WEBUTILS_FILE_ENTITY_CREATED_BY_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="webutils_users"/>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-102">
+        <addForeignKeyConstraint baseColumnNames="UPDATED_BY_ID" baseTableName="webutils_file_entity" constraintName="FK_WEBUTILS_FILE_ENTITY_UPDATED_BY_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="webutils_users"/>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-103">
+        <addForeignKeyConstraint baseColumnNames="CREATED_BY_ID" baseTableName="webutils_mail_template" constraintName="FK_WEBUTILS_MAIL_TEMPLATE_CREATED_BY_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="webutils_users"/>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-104">
+        <addForeignKeyConstraint baseColumnNames="UPDATED_BY_ID" baseTableName="webutils_mail_template" constraintName="FK_WEBUTILS_MAIL_TEMPLATE_UPDATED_BY_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="webutils_users"/>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-105">
+        <addForeignKeyConstraint baseColumnNames="CREATED_BY_ID" baseTableName="webutils_search_settings" constraintName="FK_WEBUTILS_SEARCH_SETTINGS_CREATED_BY_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="webutils_users"/>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-106">
+        <addForeignKeyConstraint baseColumnNames="UPDATED_BY_ID" baseTableName="webutils_search_settings" constraintName="FK_WEBUTILS_SEARCH_SETTINGS_UPDATED_BY_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="webutils_users"/>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-107">
+        <addForeignKeyConstraint baseColumnNames="USER_ID" baseTableName="webutils_search_settings" constraintName="FK_WEBUTILS_SEARCH_SETTINGS_USER_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="webutils_users"/>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-108">
+        <addForeignKeyConstraint baseColumnNames="CREATED_BY_ID" baseTableName="webutils_users" constraintName="FK_WEBUTILS_USERS_CREATED_BY_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="webutils_users"/>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-109">
+        <addForeignKeyConstraint baseColumnNames="UPDATED_BY_ID" baseTableName="webutils_users" constraintName="FK_WEBUTILS_USERS_UPDATED_BY_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="webutils_users"/>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-110">
+        <addForeignKeyConstraint baseColumnNames="CREATED_BY_ID" baseTableName="webutils_user_notification" constraintName="FK_WEBUTILS_USER_NOTIFICATION_CREATED_BY_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="webutils_users"/>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-111">
+        <addForeignKeyConstraint baseColumnNames="UPDATED_BY_ID" baseTableName="webutils_user_notification" constraintName="FK_WEBUTILS_USER_NOTIFICATION_UPDATED_BY_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="webutils_users"/>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-112">
+        <addForeignKeyConstraint baseColumnNames="USER_ID" baseTableName="webutils_user_notification" constraintName="FK_WEBUTILS_USER_NOTIFICATION_USER_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="webutils_users"/>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-113">
+        <addForeignKeyConstraint baseColumnNames="CREATED_BY_ID" baseTableName="webutils_user_roles" constraintName="FK_WEBUTILS_USER_ROLES_CREATED_BY_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="webutils_users"/>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-114">
+        <addForeignKeyConstraint baseColumnNames="UPDATED_BY_ID" baseTableName="webutils_user_roles" constraintName="FK_WEBUTILS_USER_ROLES_UPDATED_BY_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="webutils_users"/>
+    </changeSet>
+    <changeSet author="akiran (generated)" id="1512542245342-115">
+        <addForeignKeyConstraint baseColumnNames="USER_ID" baseTableName="webutils_user_roles" constraintName="FK_WEBUTILS_USER_ROLES_USER_ID" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="webutils_users"/>
+    </changeSet>
+</databaseChangeLog>

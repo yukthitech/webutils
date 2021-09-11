@@ -30,9 +30,9 @@ import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.yukthitech.persistence.repository.RepositoryFactory;
 import com.yukthitech.webutils.repository.IUserRepository;
 import com.yukthitech.webutils.repository.UserEntity;
+import com.yukthitech.webutils.services.WebutilsRepositoryFactory;
 
 /**
  * @author akiran
@@ -42,7 +42,7 @@ import com.yukthitech.webutils.repository.UserEntity;
 public class TestUserService
 {
 	@Autowired
-	private RepositoryFactory repositoryFactory;
+	private WebutilsRepositoryFactory repositoryFactory;
 	
 	private long userId;
 	
@@ -51,7 +51,7 @@ public class TestUserService
 	{
 		IUserRepository userRepository = repositoryFactory.getRepository(IUserRepository.class);
 		
-		UserEntity user = userRepository.fetchUser("admin", "admin");
+		UserEntity user = userRepository.fetchUser("admin");
 		
 		if(user != null)
 		{

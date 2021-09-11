@@ -3,11 +3,13 @@ package com.yukthitech.webutils.repository;
 import java.util.List;
 
 import com.yukthitech.persistence.repository.annotations.Condition;
+import com.yukthitech.webutils.common.annotations.Optional;
 
 /**
  * Repository for user authentication details.
  * @author akiran
  */
+@Optional
 public interface IUserRoleRepository extends IWebutilsRepository<UserRoleEntity>
 {
 	/**
