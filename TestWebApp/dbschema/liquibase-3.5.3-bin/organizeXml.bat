@@ -1,1 +1,0 @@
-"%JAVA_HOME%"\bin\java -classpath ..\lib;..\lib\* com.yodlee.sdp.db.tools.ChangeSetOrganizer %1
