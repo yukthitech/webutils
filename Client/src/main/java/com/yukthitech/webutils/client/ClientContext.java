@@ -150,6 +150,11 @@ public class ClientContext
 		return this;
 	}
 	
+	public String getAuthToken() 
+	{
+		return authToken;
+	}
+	
 	/**
 	 * Used to reauthenticate the session.
 	 */

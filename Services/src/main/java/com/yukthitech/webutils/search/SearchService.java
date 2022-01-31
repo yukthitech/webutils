@@ -236,7 +236,8 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 		// if duplicate lov name is encountered throw error
 		if(nameToSearchMet.containsKey(queryName))
 		{
-			throw new InvalidConfigurationException("Duplicate search configuration encountered. Same name '{}' is used by two search-query methods - {}, {}", WebUtils.toString(nameToSearchMet.get(queryName).method), WebUtils.toString(method));
+			throw new InvalidConfigurationException("Duplicate search configuration encountered. Same name '{}' is used by two search-query methods - {}, {}", 
+					queryName, WebUtils.toString(nameToSearchMet.get(queryName).method), WebUtils.toString(method));
 		}
 
 		logger.info("Loading search method - {}.{}", method.getDeclaringClass().getName(), method.getName());

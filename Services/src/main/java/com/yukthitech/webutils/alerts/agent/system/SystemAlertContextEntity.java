@@ -9,6 +9,7 @@ import com.yukthitech.persistence.annotations.UniqueConstraint;
 import com.yukthitech.persistence.annotations.UniqueConstraints;
 import com.yukthitech.persistence.conversion.impl.JsonWithTypeConverter;
 import com.yukthitech.webutils.repository.WebutilsBaseEntity;
+import com.yukthitech.webutils.repository.WebutilsTrackedEntity;
 
 /**
  * Represents the app alerts context.
@@ -17,7 +18,7 @@ import com.yukthitech.webutils.repository.WebutilsBaseEntity;
 @UniqueConstraints(
 	@UniqueConstraint(name = "ATTR_NAME", fields = {"name"}, finalName = false)
 )
-public class SystemAlertContextEntity extends WebutilsBaseEntity
+public class SystemAlertContextEntity extends WebutilsTrackedEntity
 {
 	/**
 	 * Name of context attribute.

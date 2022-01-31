@@ -223,7 +223,7 @@ public class FieldDefBuilder
 				}catch(Exception ex)
 				{
 					throw new InvalidStateException("An error occurred while fetching default value for field {} from configured resource: {}", 
-							fqn, defaultValue.resource());
+							fqn, defaultValue.resource(), ex);
 				}
 			}
 		}
