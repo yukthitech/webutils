@@ -1,9 +1,11 @@
 package com.yukthitech.webutils.services;
 
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import com.yukthitech.persistence.ICrudRepository;
+import com.yukthitech.persistence.PersistenceException;
 
 /**
  * Proxy for repository used for lazy loading of repositories.
@@ -35,7 +37,18 @@ public class WebutilsRepositoryProxy implements InvocationHandler
 		{
 			throw new NoRepositoryFoundException("Specified repository is not loaded: " + type.getName());
 		}
-		
-		return method.invoke(repository, args);
+
+		try
+		{
+			return method.invoke(repository, args);
+		}catch(InvocationTargetException ex)
+		{
+			if(ex.getCause() instanceof PersistenceException)
+			{
+				throw ex.getCause();
+			}
+			
+			throw ex;
+		}
 	}
 }
