@@ -50,6 +50,12 @@ public class BasicReadResponse<M> extends BaseResponse
 	{
 		this.model = model;
 	}
+	
+	public BasicReadResponse(M model, String message) 
+	{
+		this.model = model;
+		super.setMessage(message);
+	}
 
 	/**
 	 * Gets the model read from server.

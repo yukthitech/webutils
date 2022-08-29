@@ -4,6 +4,7 @@ import java.awt.Image;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 import com.yukthitech.utils.CommonUtils;
 import com.yukthitech.utils.exceptions.InvalidStateException;
 import com.yukthitech.webutils.common.mailtemplate.MailTemplateConfiguration;
+import com.yukthitech.webutils.mail.FileAttachment;
 import com.yukthitech.webutils.notification.NotificationService;
 import com.yukthitech.webutils.notification.NotificationType;
 import com.yukthitech.webutils.services.ClassScannerService;
@@ -120,9 +122,32 @@ public class MailTemplateConfigService
 	 * @param type Type of field to check.
 	 * @return True if type can be supported as attachment.
 	 */
-	private boolean isSupportedAttachmentType(Class<?> type)
+	private boolean isSupportedAttachmentType(Type type)
 	{
-		return String.class.equals(type) || byte[].class.equals(type) || File.class.equals(type) || Image.class.equals(type);
+		boolean supported = String.class.equals(type) || byte[].class.equals(type) || 
+				File.class.equals(type) || FileAttachment.class.equals(type) || 
+				Image.class.equals(type);
+		
+		if(supported)
+		{
+			return true;
+		}
+		
+		if(!(type instanceof ParameterizedType))
+		{
+			return false;
+		}
+		
+		ParameterizedType ptype = (ParameterizedType) type;
+		
+		if(!Collection.class.isAssignableFrom((Class<?>) ptype.getRawType()))
+		{
+			return false;
+		}
+		
+		Type colType = ptype.getActualTypeArguments()[0];
+		
+		return (FileAttachment.class.equals(colType));
 	}
 	
 	/**
@@ -155,7 +180,7 @@ public class MailTemplateConfigService
 
 			if(mailAttachment != null)
 			{
-				if(!isSupportedAttachmentType(fieldType))
+				if(!isSupportedAttachmentType(field.getGenericType()))
 				{
 					throw new InvalidStateException("Field {}.{} is marked as attachment. Type {} is not supported as attachment field.", type.getName(), fieldName, fieldType.getName());
 				}

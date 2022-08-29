@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -179,6 +180,7 @@ public class EmailService
 	 * @param context
 	 *            Context to be used which is expected have attachments.
 	 */
+	@SuppressWarnings("unchecked")
 	private void addAttachments(Multipart multiPart, Object context) throws Exception
 	{
 		if(context == null)
@@ -205,7 +207,6 @@ public class EmailService
 		MimeBodyPart fileBodyPart = null;
 
 		Object value = null;
-		File fieldFile = null;
 		String attachmentName = null;
 
 		for(MailTemplateConfiguration.Attachment attachment : attachmentConfigs)
@@ -218,26 +219,40 @@ public class EmailService
 			}
 
 			logger.debug("Adding attachment from field - " + attachment.getField());
-
+			
+			Collection<FileAttachment> fileAttachments = null;
+			
 			if(value instanceof File)
 			{
-				fieldFile = (File) value;
+				fileAttachments = Arrays.asList( new FileAttachment((File) value, attachment.getName()) );
+			}
+			else if(value instanceof Collection)
+			{
+				fileAttachments = (Collection<FileAttachment>) value;
+			}
+			else if(value instanceof FileAttachment)
+			{
+				fileAttachments = Arrays.asList((FileAttachment) value);
 			}
 			else if(value instanceof String)
 			{
-				fieldFile = File.createTempFile(attachment.getName(), ".tmp");
+				File fieldFile = File.createTempFile(attachment.getName(), ".tmp");
 				FileUtils.write(fieldFile, (String) value);
+				
+				fileAttachments = Arrays.asList( new FileAttachment(fieldFile, attachment.getName()) );
 			}
 			else if(value instanceof byte[])
 			{
-				fieldFile = File.createTempFile(attachment.getName(), ".tmp");
+				File fieldFile = File.createTempFile(attachment.getName(), ".tmp");
 				FileUtils.writeByteArrayToFile(fieldFile, (byte[]) value);
+				
+				fileAttachments = Arrays.asList( new FileAttachment(fieldFile, attachment.getName()) );
 			}
 			else if(value instanceof Image)
 			{
 				attachmentName = attachment.getName();
 
-				fieldFile = File.createTempFile(attachment.getName(), ".tmp");
+				File fieldFile = File.createTempFile(attachment.getName(), ".tmp");
 				String imgType = attachmentName.substring(attachmentName.lastIndexOf('.') + 1, attachmentName.length());
 
 				if(!(value instanceof RenderableImage))
@@ -250,20 +265,29 @@ public class EmailService
 				}
 
 				ImageIO.write((RenderedImage) value, imgType.toLowerCase(), fieldFile);
+				
+				fileAttachments = Arrays.asList( new FileAttachment(fieldFile, attachment.getName()) );
 			}
 			else
 			{
 				throw new InvalidStateException("Field {}.{} is marked as attachment with unsupported type", context.getClass().getName(), attachment.getField());
 			}
+			
+			int index = 0;
 
-			fileBodyPart = new MimeBodyPart();
-			fileSource = new FileDataSource(fieldFile);
-
-			fileBodyPart.setDataHandler(new DataHandler(fileSource));
-			fileBodyPart.setFileName(attachment.getName());
-			fileBodyPart.setHeader("Content-ID", "<" + attachment.getContentId() + ">");
-
-			multiPart.addBodyPart(fileBodyPart);
+			for(FileAttachment fileAttachment : fileAttachments)
+			{
+				index++;
+				
+				fileBodyPart = new MimeBodyPart();
+				fileSource = new FileDataSource(fileAttachment.getFile());
+	
+				fileBodyPart.setDataHandler(new DataHandler(fileSource));
+				fileBodyPart.setFileName(fileAttachment.getFileName());
+				fileBodyPart.setHeader("Content-ID", "<" + attachment.getContentId() + "-" + index + ">");
+	
+				multiPart.addBodyPart(fileBodyPart);
+			}
 		}
 	}
 
