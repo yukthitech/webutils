@@ -1,0 +1,8 @@
+Instead of app-config.properties user application.properties
+
+ISecurityService unwanted methods are made default
+
+tenantSpaceBased in app.prop should be changed as webutils.tenantSpaceBased
+app.base.package in app.prop should be changed as webutils.app.base.package
+
+<context:annotation-config/> is removed

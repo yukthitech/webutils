@@ -29,7 +29,7 @@ public class MailAlertingAgent implements IAlertingAgent
 	/**
 	 * Email server settings to send mail.
 	 */
-	@Autowired
+	@Autowired(required = false)
 	private EmailServerSettings emailServerSettings;
 	
 	/**
@@ -42,6 +42,12 @@ public class MailAlertingAgent implements IAlertingAgent
 	public AlertingAgentType getType()
 	{
 		return AlertingAgentType.MAIL_ALERTING_AGENT;
+	}
+	
+	@Override
+	public boolean isEnabled() 
+	{
+		return (emailServerSettings != null);
 	}
 
 	@Override

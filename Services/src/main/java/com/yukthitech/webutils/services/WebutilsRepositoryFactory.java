@@ -317,7 +317,9 @@ public class WebutilsRepositoryFactory
 			return repo;
 		}
 		
-		repo = (R) Proxy.newProxyInstance(RepositoryFactory.class.getClassLoader(), new Class<?>[] {repoType}, new WebutilsRepositoryProxy(this, repoType));
+		repo = (R) Proxy.newProxyInstance(RepositoryFactory.class.getClassLoader(), 
+				new Class<?>[] {repoType, IWebutilsRepositoryProxy.class}, 
+				new WebutilsRepositoryProxy(this, repoType));
 		this.repositoryProxies.put(repoType, repo);
 		
 		return repo;

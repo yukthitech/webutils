@@ -149,7 +149,7 @@ public class AsyncTaskService
 					serviceMethod.getMethod().invoke(serviceMethod.getService());
 				}catch(Exception ex)
 				{
-					logger.error("An error occurred while executing scheduled method: {}", serviceMethod);
+					logger.error("An error occurred while executing scheduled method: {}", serviceMethod, ex);
 				}
 			}
 		};

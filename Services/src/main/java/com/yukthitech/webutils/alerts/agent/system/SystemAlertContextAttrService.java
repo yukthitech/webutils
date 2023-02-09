@@ -12,6 +12,7 @@ import com.yukthitech.webutils.IWebUtilsInternalConstants;
 import com.yukthitech.webutils.cache.WebutilsCacheEvict;
 import com.yukthitech.webutils.cache.WebutilsCacheable;
 import com.yukthitech.webutils.services.BaseCrudService;
+import com.yukthitech.webutils.services.IWebutilsRepositoryProxy;
 import com.yukthitech.webutils.services.task.ScheduledTask;
 
 /**
@@ -86,6 +87,16 @@ public class SystemAlertContextAttrService extends BaseCrudService<SystemAlertCo
 	@ScheduledTask(time = "01:00 am")
 	public void deleteUnusedAttributes()
 	{
+		if(super.repository instanceof IWebutilsRepositoryProxy)
+		{
+			IWebutilsRepositoryProxy proxy = (IWebutilsRepositoryProxy) super.repository;
+			
+			if(!proxy.isRepositoryEnabled())
+			{
+				return;
+			}
+		}
+		
 		Date oneWeekBack = DateUtils.addDays(new Date(), - DAYS_PER_WEEK);
 		int count = super.repository.deleteOldAttributes(oneWeekBack);
 		

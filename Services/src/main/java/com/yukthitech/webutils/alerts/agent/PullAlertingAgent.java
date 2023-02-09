@@ -40,6 +40,12 @@ public class PullAlertingAgent implements IAlertingAgent
 	{
 		return AlertingAgentType.PULL_ALERTING_AGENT;
 	}
+	
+	@Override
+	public boolean isEnabled() 
+	{
+		return (alertSupport != null);
+	}
 
 	@Override
 	public boolean sendAlert(AlertDetails alertDetails)

@@ -33,6 +33,11 @@ public class WebutilsRepositoryProxy implements InvocationHandler
 			repository = repositoryFactory.getActualRepository(type);
 		}
 		
+		if(method.getName().equals("isRepositoryEnabled") && method.getParameterCount() == 0 && boolean.class.equals(method.getReturnType()))
+		{
+			return (repository != null);
+		}
+		
 		if(repository == null)
 		{
 			throw new NoRepositoryFoundException("Specified repository is not loaded: " + type.getName());

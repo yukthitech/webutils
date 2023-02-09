@@ -17,6 +17,12 @@ public interface IAlertingAgent
 	public AlertingAgentType getType();
 	
 	/**
+	 * Checks based on configuration if this alerting agent is enabled or not.
+	 * @return
+	 */
+	public boolean isEnabled();
+	
+	/**
 	 * Process and send the alert to appropriate members. Based on different factors alerting
 	 * agent may decide to ignore alert and in such cases it should return false.
 	 * 

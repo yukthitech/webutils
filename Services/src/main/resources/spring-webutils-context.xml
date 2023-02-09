@@ -25,13 +25,6 @@
 	<cache:annotation-driven />
 	-->
 	
-	<mvc:annotation-driven>
-		<mvc:message-converters register-defaults="true">
-			<ref bean="jsonMessageConverter" />
-		</mvc:message-converters>
-	</mvc:annotation-driven>
-
-	<context:annotation-config/>
 	<context:component-scan base-package="com.yukthitech" />
 	
 	<mvc:interceptors>
@@ -42,8 +35,8 @@
 	<bean class="com.yukthitech.webutils.WebutilsPropertyPlaceholder">
    		<property name="locations">
    			<list>
-				<value>classpath:/default-app-config.properties</value>
-   				<value>classpath:/app-config.properties</value>
+				<value>classpath:/default-application.properties</value>
+   				<value>classpath:/application.properties</value>
    			</list>
    		</property>
 	</bean>
@@ -91,6 +84,12 @@
 		</property>
 	</bean>
 
+	<mvc:annotation-driven>
+		<mvc:message-converters register-defaults="true">
+			<ref bean="jsonMessageConverter" />
+		</mvc:message-converters>
+	</mvc:annotation-driven>
+
 	<!-- ********************************************************************************** -->
 	<!-- Used for service method result caching -->
 	<!-- ********************************************************************************** -->
@@ -115,7 +114,7 @@
 		<property name="password" value="${webutils.mail.smtp.password}"/>
 		<property name="enableTtls" value="${webutils.mail.smtp.enableTtls:false}"/>
 	</bean>
-	-->
+	-->	
 
 	<bean id="webutilsConfiguration" class="com.yukthitech.webutils.WebutilsConfiguration">
 		<property name="extensionsRequired" value="${app.extensions.enabled:false}"/>
@@ -126,7 +125,7 @@
 		
 		<property name="basePackages">
 			<list>
-				<value>${app.base.package}</value>
+				<value>${webutils.app.base.package}</value>
 			</list>
 		</property>
 	</bean>

@@ -49,7 +49,10 @@ public interface ISecurityService
 	 * @param fileEntity File which needs to be checked for authorization
 	 * @return True if current user is authorized to access specified file
 	 */
-	public boolean isAuthorized(FileEntity fileEntity);
+	public default boolean isAuthorized(FileEntity fileEntity)
+	{
+		return true;
+	}
 	
 	/**
 	 * This method should return identity string to which user belongs. If the app does not have user spaces, this method
@@ -67,14 +70,19 @@ public interface ISecurityService
 	 * @param extensionPoint Extension point details
 	 * @return true if specified user is authorized to access specified extension
 	 */
-	public boolean isExtensionAuthorized(ExtensionEntityDetails extensionPoint);
+	public default boolean isExtensionAuthorized(ExtensionEntityDetails extensionPoint)
+	{
+		return true;
+	}
 	
 	/**
 	 * This method will be called before file entity is getting saved. This method can populated file entity's custom 
 	 * fields with required information. This information can be used in checking for authorization during file access by user. 
 	 * @param fileEntity File entity to which security customization can be done
 	 */
-	public void addSecurityCustomization(FileEntity fileEntity);
+	public default void addSecurityCustomization(FileEntity fileEntity)
+	{
+	}
 	
 	/**
 	 * Need to fetch contact details of user with specified role. This is used by certain services which

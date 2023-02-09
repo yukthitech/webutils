@@ -125,6 +125,12 @@ public class SystemAlertingAgent implements IAlertingAgent
 	{
 		return AlertingAgentType.SYSTEM_ALERT;
 	}
+	
+	@Override
+	public boolean isEnabled() 
+	{
+		return true;
+	}
 
 	/**
 	 * Fetches application alert processors from spring context.

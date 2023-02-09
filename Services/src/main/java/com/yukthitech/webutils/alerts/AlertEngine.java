@@ -122,6 +122,11 @@ public class AlertEngine
 	{
 		for(IAlertingAgent agent : alertingAgents)
 		{
+			if(!agent.isEnabled())
+			{
+				continue;
+			}
+			
 			typeToAgent.put(agent.getType(), agent);
 		}
 		
@@ -171,7 +176,7 @@ public class AlertEngine
 	{
 		logger.debug("Sending alert: {}", alertDetails);
 
-		if(alertingAgents == null || alertingAgents.isEmpty())
+		if(typeToAgent.isEmpty())
 		{
 			logger.warn("No alerting agent is configured to send alerts. Hence ignoring send alert request.");
 			return;
