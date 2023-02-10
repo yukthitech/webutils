@@ -123,6 +123,9 @@
 		<property name="dateFormat" value="${app.date.format:dd/MM/yyyy}"/>
 		<property name="jsDateFormat" value="${app.js.date.format:DD/MM/YYYY}"/>
 		
+		<property name="protectedBaseUri" value="${webutils.auth.protectedBaseUri:}"/>
+		<property name="freeBaseUri" value="${webutils.auth.freeBaseUri:}"/>
+		
 		<property name="basePackages">
 			<list>
 				<value>${webutils.app.base.package}</value>

@@ -68,6 +68,18 @@ public class WebutilsConfiguration
 	private String jsDateFormat = "DD/MM/YYYY";
 	
 	/**
+	 * If specified, only the uri starting with this uri
+	 * will go via authentication/authorization flow.
+	 */
+	private String protectedBaseUri;
+	
+	/**
+	 * If specified, the uri starting with this uri
+	 * will skip auth.
+	 */
+	private String freeBaseUri;
+	
+	/**
 	 * Validte.
 	 */
 	@PostConstruct
@@ -182,5 +194,25 @@ public class WebutilsConfiguration
 	public void setJsDateFormat(String jsDateFormat)
 	{
 		this.jsDateFormat = jsDateFormat;
+	}
+
+	public String getProtectedBaseUri() 
+	{
+		return protectedBaseUri;
+	}
+
+	public void setProtectedBaseUri(String protectedBaseUri) 
+	{
+		this.protectedBaseUri = protectedBaseUri;
+	}
+
+	public String getFreeBaseUri()
+	{
+		return freeBaseUri;
+	}
+
+	public void setFreeBaseUri(String freeBaseUri)
+	{
+		this.freeBaseUri = freeBaseUri;
 	}
 }

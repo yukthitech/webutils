@@ -24,6 +24,7 @@
 package com.yukthitech.webutils.security;
 
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.Cookie;
@@ -38,8 +39,8 @@ import org.apache.logging.log4j.ThreadContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.web.method.HandlerMethod;
+import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yukthitech.utils.exceptions.InvalidConfigurationException;
@@ -56,7 +57,7 @@ import com.yukthitech.webutils.common.models.BaseResponse;
  * Spring interceptor to control authorization  based on token passed as part of request.
  * @author akiran
  */
-public class SecurityInterceptor extends HandlerInterceptorAdapter
+public class SecurityInterceptor implements HandlerInterceptor
 {
 	private static Logger logger = LogManager.getLogger(SecurityInterceptor.class);
 
@@ -118,7 +119,7 @@ public class SecurityInterceptor extends HandlerInterceptorAdapter
 			String responseObjStr = objectMapper.writeValueAsString(responseObj);
 			
 			OutputStream os = response.getOutputStream();
-			IOUtils.write(responseObjStr, os);
+			IOUtils.write(responseObjStr, os, Charset.defaultCharset());
 			os.close();
 		}catch(Exception ex)
 		{
@@ -254,6 +255,26 @@ public class SecurityInterceptor extends HandlerInterceptorAdapter
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception
 	{
+		//if auth is disable for the webapp
+		if(!configuration.isAuthEnabled())
+		{
+			return true;
+		}
+		
+		String uri = request.getRequestURI();
+		String protectedUri = configuration.getProtectedBaseUri();
+		String freeUri = configuration.getFreeBaseUri();
+		
+		if(StringUtils.isNotBlank(protectedUri) && !uri.startsWith(protectedUri))
+		{
+			return true;
+		}
+
+		if(StringUtils.isNotBlank(freeUri) && uri.startsWith(freeUri))
+		{
+			return true;
+		}
+
 		HandlerMethod handlerMethod = (HandlerMethod) handler;
 		 
 		//if the api call is for authentication, dont perform any authorization check
@@ -262,12 +283,6 @@ public class SecurityInterceptor extends HandlerInterceptorAdapter
 			return true;
 		}
 		
-		//if auth is disable for the webapp
-		if(!configuration.isAuthEnabled())
-		{
-			return true;
-		}
-
 		//check and validate authorization token
 		UserDetails<?> userDetails = checkAuthenticationToken(request, response);
 		
@@ -290,6 +305,5 @@ public class SecurityInterceptor extends HandlerInterceptorAdapter
 	public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception
 	{
 		ThreadContext.clearAll();
-		super.postHandle(request, response, handler, modelAndView);
 	}
 }
