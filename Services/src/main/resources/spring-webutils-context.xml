@@ -28,8 +28,10 @@
 	<context:component-scan base-package="com.yukthitech" />
 	
 	<mvc:interceptors>
-		<bean class="com.yukthitech.webutils.security.SecurityInterceptor">
-		</bean>
+		 <mvc:interceptor>
+	        <mvc:mapping path="${webutils.api.basePath:/**}"/>
+			<bean class="com.yukthitech.webutils.security.SecurityInterceptor"/>
+    	</mvc:interceptor>
 	</mvc:interceptors>
 	
 	<bean class="com.yukthitech.webutils.WebutilsPropertyPlaceholder">
