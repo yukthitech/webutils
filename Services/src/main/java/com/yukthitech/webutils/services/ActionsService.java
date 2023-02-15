@@ -410,7 +410,8 @@ public class ActionsService
 			actName = method.getAnnotation(ActionName.class);
 
 			//if no request mapping is defined on method (that is it is not service method)
-			if(requestMapping == null)
+			// if no action-name annotation is found, then it indicates the method is defined out side scope of action methods
+			if(requestMapping == null || actName == null)
 			{
 				continue;
 			}

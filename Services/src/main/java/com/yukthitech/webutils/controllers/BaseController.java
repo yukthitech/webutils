@@ -23,6 +23,7 @@
 
 package com.yukthitech.webutils.controllers;
 
+import java.util.Arrays;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
@@ -171,7 +172,11 @@ public class BaseController
 	{
 		response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		
-		return new BaseResponse(IWebUtilsCommonConstants.RESPONSE_CODE_INVALID_REQUEST, ex.getMessage());
+		String errorMssg = String.format("A %s with specified name already exist. Duplicated fields: %s", 
+				ex.getEntityType().getSimpleName().replaceAll("\\B([A-Z])", "-$1"),
+				Arrays.toString(ex.getFields()));
+		
+		return new BaseResponse(IWebUtilsCommonConstants.RESPONSE_CODE_INVALID_REQUEST, errorMssg);
 	}
 
 	/**
