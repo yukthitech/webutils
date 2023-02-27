@@ -24,6 +24,11 @@ public class SecurityInvocationContext
 	 * Action details of the method being invoked, if any.
 	 */
 	private ActionModel action;
+	
+	/**
+	 * Current request, for which security check is being made.
+	 */
+	private Object request;
 
 	/**
 	 * Instantiates a new security invocation context.
@@ -32,11 +37,12 @@ public class SecurityInvocationContext
 	 * @param method the method
 	 * @param action the action
 	 */
-	public SecurityInvocationContext(Class<?> target, Method method, ActionModel action)
+	public SecurityInvocationContext(Class<?> target, Method method, ActionModel action, Object request)
 	{
 		this.target = target;
 		this.method = method;
 		this.action = action;
+		this.request = request;
 	}
 
 	/**
@@ -67,5 +73,15 @@ public class SecurityInvocationContext
 	public ActionModel getAction()
 	{
 		return action;
+	}
+	
+	/**
+	 * Gets the current request, for which security check is being made.
+	 *
+	 * @return the current request, for which security check is being made
+	 */
+	public Object getRequest()
+	{
+		return request;
 	}
 }

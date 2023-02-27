@@ -27,6 +27,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -169,6 +170,9 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 	 */
 	@Autowired(required = false)
 	private IExtensionContextProvider extensionContextProvider;
+
+	@Autowired(required = false)
+	private ISearchCustomizer queryCustomizer;
 	
 	/**
 	 * Security service.
@@ -398,17 +402,23 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 		{
 			throw new InvalidRequestParameterException("Invalid search query bean type {} specified for search query {}. Expected type - {}" + searchQueryName);
 		}
-
+		
 		// if security service is specified, check user authorization for target
 		// search method
 		if(securityService != null)
 		{
-			SecurityInvocationContext context = webutilsSecurityService.newSecurityInvocationContext(searchQueryDetails.repository.getType(), searchQueryDetails.method);
+			SecurityInvocationContext context = webutilsSecurityService.newSecurityInvocationContext(searchQueryDetails.repository.getType(), searchQueryDetails.method, query);
 			
 			if(!securityService.isAuthorized(context))
 			{
 				throw new UnauthorizedException("Current user is not authorized to execute search query - {}", searchQueryName);
 			}
+		}
+		
+		//if customizer is available
+		if(queryCustomizer != null)
+		{
+			queryCustomizer.customizeQuery(new SearchCustomizationContext(searchQueryName, query));
 		}
 
 		com.yukthitech.persistence.repository.search.SearchQuery repoSearchQuery = new com.yukthitech.persistence.repository.search.SearchQuery();
@@ -766,6 +776,19 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 					else
 					{
 						value = webutilsConfiguration.getDateFormat().format(value);
+					}
+				}
+
+				if(value instanceof Number)
+				{
+					if(column.getFieldDef() != null && column.getFieldDef().getFormat() != null)
+					{
+						DecimalFormat decimalFormat = new DecimalFormat(column.getFieldDef().getFormat());
+						value = decimalFormat.format(value);
+					}
+					else
+					{
+						value = webutilsConfiguration.getNumberFormat().format(value);
 					}
 				}
 

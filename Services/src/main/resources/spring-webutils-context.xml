@@ -69,11 +69,6 @@
 	</bean>
 
 	<bean id="objectMapper" class="com.fasterxml.jackson.databind.ObjectMapper">
-		<property name="dateFormat">
-			<bean class="java.text.SimpleDateFormat">
-				<constructor-arg type="java.lang.String" value="dd/MM/yyyy"></constructor-arg>
-			</bean>
-		</property>
 		<property name="timeZone">
 			<ref bean="timezone"/>
 		</property>

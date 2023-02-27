@@ -31,10 +31,10 @@ public class WebutilsSecurityService
 	 * @param method the method
 	 * @return the security invocation context
 	 */
-	public SecurityInvocationContext newSecurityInvocationContext(Class<?> controllerType, Method method)
+	public SecurityInvocationContext newSecurityInvocationContext(Class<?> controllerType, Method method, Object request)
 	{
 		ActionModel action = actionService.getActionDetails(controllerType, method);
-		SecurityInvocationContext context = new SecurityInvocationContext(controllerType, method, action);
+		SecurityInvocationContext context = new SecurityInvocationContext(controllerType, method, action, request);
 
 		return context;
 	}

@@ -318,7 +318,7 @@ public class LovService implements IRepositoryMethodRegistry<LovQuery>
 		//if security service is specified, check user authorization for target search method
 		if(securityService != null)
 		{
-			SecurityInvocationContext context = webutilsSecurityService.newSecurityInvocationContext(method.getType(), method.getMethod());
+			SecurityInvocationContext context = webutilsSecurityService.newSecurityInvocationContext(method.getType(), method.getMethod(), null);
 			
 			if(!securityService.isAuthorized(context))
 			{

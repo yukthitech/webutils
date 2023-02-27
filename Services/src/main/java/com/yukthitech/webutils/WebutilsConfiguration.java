@@ -23,6 +23,7 @@
 
 package com.yukthitech.webutils;
 
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
@@ -61,6 +62,11 @@ public class WebutilsConfiguration
 	 * Date format to be used for internal data exchange between client and server
 	 */
 	private SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+	
+	/**
+	 * Format to be used to format numbers.
+	 */
+	private DecimalFormat numberFormat = new DecimalFormat("##.##");
 	
 	/**
 	 * Javascript based date format.
@@ -174,6 +180,26 @@ public class WebutilsConfiguration
 	public SimpleDateFormat getDateFormat()
 	{
 		return dateFormat;
+	}
+
+	/**
+	 * Gets the format to be used to format numbers.
+	 *
+	 * @return the format to be used to format numbers
+	 */
+	public DecimalFormat getNumberFormat()
+	{
+		return numberFormat;
+	}
+
+	/**
+	 * Sets the format to be used to format numbers.
+	 *
+	 * @param numberFormat the new format to be used to format numbers
+	 */
+	public void setNumberFormat(String numberFormat)
+	{
+		this.numberFormat = new DecimalFormat(numberFormat);
 	}
 
 	/**

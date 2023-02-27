@@ -223,7 +223,7 @@ public class SecurityInterceptor implements HandlerInterceptor
 	 */
 	private boolean isAuthorized(UserDetails<?> userDetails, HandlerMethod handlerMethod, HttpServletResponse response)
 	{
-		SecurityInvocationContext context = webutilsSecurityService.newSecurityInvocationContext(handlerMethod.getBeanType(), handlerMethod.getMethod());
+		SecurityInvocationContext context = webutilsSecurityService.newSecurityInvocationContext(handlerMethod.getBeanType(), handlerMethod.getMethod(), null);
 		
 		if(!securityService.isAuthorized(context))
 		{
