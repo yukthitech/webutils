@@ -207,7 +207,7 @@ public class SecurityInterceptor implements HandlerInterceptor
 			return userDetails;
 		}catch(SecurityException ex)
 		{
-			logger.error("Failed to parse token", ex);
+			logger.error("Failed to parse token: " + ex);
 			
 			sendError(response, ex.getStatusCode(), "Authorization failed. " + ex.getMessage());
 			return null;
