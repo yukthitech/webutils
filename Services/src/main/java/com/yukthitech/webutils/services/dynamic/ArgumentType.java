@@ -29,7 +29,7 @@ import com.yukthitech.webutils.WebutilsContext;
  * Specifies the type dynamic method param
  * @author akiran
  */
-enum ArgumentType
+public enum ArgumentType
 {
 	/**
 	 * Context parameter, that means value for this param should be fetched from {@link WebutilsContext}

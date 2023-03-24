@@ -48,6 +48,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 import com.yukthitech.persistence.ICrudRepository;
+import com.yukthitech.utils.CommonUtils;
 import com.yukthitech.utils.exceptions.InvalidConfigurationException;
 import com.yukthitech.utils.exceptions.InvalidStateException;
 import com.yukthitech.webutils.IRepositoryMethodRegistry;
@@ -62,7 +63,11 @@ import com.yukthitech.webutils.security.ISecurityService;
 import com.yukthitech.webutils.security.SecurityInvocationContext;
 import com.yukthitech.webutils.security.UnauthorizedException;
 import com.yukthitech.webutils.security.WebutilsSecurityService;
+import com.yukthitech.webutils.services.dynamic.ArgumentType;
+import com.yukthitech.webutils.services.dynamic.DynamicArg;
 import com.yukthitech.webutils.services.dynamic.DynamicMethod;
+import com.yukthitech.webutils.services.dynamic.DynamicMethodException;
+import com.yukthitech.webutils.services.dynamic.DynamicMethodFactory;
 import com.yukthitech.webutils.utils.WebUtils;
 
 
@@ -104,6 +109,8 @@ public class LovService implements IRepositoryMethodRegistry<LovQuery>
 	@Lazy
 	@Autowired
 	private WebutilsSecurityService webutilsSecurityService;
+	
+	private DynamicMethodFactory dynamicMethodFactory = new DynamicMethodFactory();
 
 	/**
 	 * Lov list is loaded post app start, to ensure all repos are loaded before hand.
@@ -130,15 +137,30 @@ public class LovService implements IRepositoryMethodRegistry<LovQuery>
 			}
 			
 			lovMethod = method.getAnnotation(LovMethod.class);
-				
-			if(method.getParameterTypes().length > 0)
-			{
-				throw new InvalidConfigurationException("Non zero parameter method is declared as LOV method - {}.{}()", method.getDeclaringClass().getName(), method.getName());
-			}
-				
 			name = lovMethod.name();
+
+			try
+			{
+				dynamicMethod = dynamicMethodFactory.buildDynamicMethod(method.getDeclaringClass(), method);
+			}catch(DynamicMethodException ex)
+			{
+				//if single parameter is specified, then consider it to dependency field value
+				if(method.getParameterCount() == 1 && CommonUtils.isSimpleType(method.getParameterTypes()[0]))
+				{
+					dynamicMethod = new DynamicMethod(
+							method.getDeclaringClass(), 
+							method, new DynamicArg[] {
+									new DynamicArg(ArgumentType.CONTEXT_PARAM, 
+										IWebUtilsInternalConstants.CONTEXT_ATTR_LOV_DEPENDENCY_VAL, 
+										method.getParameterTypes()[0])
+							});
+				}
+				else
+				{
+					throw new InvalidConfigurationException("Invalid arguments specified for LOV method - {}.{}()", method.getDeclaringClass().getName(), method.getName(), ex);
+				}
+			}
 			
-			dynamicMethod = new DynamicMethod(method.getDeclaringClass(), method, null);
 			dynamicMethod.setDefaultObject(springComponent);
 			
 			if(nameToLovMet.containsKey(name))
