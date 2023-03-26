@@ -36,6 +36,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.PostConstruct;
 
@@ -44,7 +45,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 import com.yukthitech.persistence.ICrudRepository;
@@ -62,6 +66,7 @@ import com.yukthitech.webutils.IRepositoryMethodRegistry;
 import com.yukthitech.webutils.InvalidRequestParameterException;
 import com.yukthitech.webutils.WebutilsConfiguration;
 import com.yukthitech.webutils.WebutilsContext;
+import com.yukthitech.webutils.annotations.SearchCustomizer;
 import com.yukthitech.webutils.annotations.SearchQueryMethod;
 import com.yukthitech.webutils.common.IExtendedSearchResult;
 import com.yukthitech.webutils.common.IWebUtilsCommonConstants;
@@ -83,6 +88,7 @@ import com.yukthitech.webutils.security.ISecurityService;
 import com.yukthitech.webutils.security.SecurityInvocationContext;
 import com.yukthitech.webutils.security.UnauthorizedException;
 import com.yukthitech.webutils.security.WebutilsSecurityService;
+import com.yukthitech.webutils.services.ClassScannerService;
 import com.yukthitech.webutils.services.ModelDetailsService;
 import com.yukthitech.webutils.services.dynamic.DynamicMethod;
 import com.yukthitech.webutils.utils.WebUtils;
@@ -135,6 +141,19 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 			}
 		}
 	}
+	
+	private static class SearchCustomizerMethod
+	{
+		private Object service;
+		
+		private Method method;
+
+		public SearchCustomizerMethod(Object service, Method method)
+		{
+			this.service = service;
+			this.method = method;
+		}
+	}
 
 	/**
 	 * Search method details cache.
@@ -180,6 +199,14 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 	@Lazy
 	@Autowired
 	private WebutilsSecurityService webutilsSecurityService;
+	
+	@Autowired
+	private ApplicationContext applicationContext;
+	
+	@Autowired
+	private ClassScannerService classScannerService;
+	
+	private Map<String, SearchCustomizerMethod> customizerMethods = new HashMap<>();
 
 	/**
 	 * Post construct method used to validate autowired services.
@@ -190,6 +217,34 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 		if(webutilsConfiguration.isExtensionsRequired() && extensionContextProvider == null)
 		{
 			throw new InvalidStateException("Though extensions are enabled no implmentation provided for {}", IExtensionContextProvider.class.getName());
+		}
+	}
+	
+	/**
+	 * To avoid cross dependency issues, customizer method loading
+	 * is done as part of application start (by this time all dependencies would be loaded).
+	 */
+	@EventListener(ApplicationReadyEvent.class)
+	public void loadCustoizerMethods()
+	{
+		Set<Method> methods = classScannerService.getMethodsAnnotatedWith(SearchCustomizer.class);
+		
+		for(Method method : methods)
+		{
+			SearchCustomizer customizer = method.getAnnotation(SearchCustomizer.class);
+			Object service = applicationContext.getBean(method.getDeclaringClass());
+			
+			if(service == null)
+			{
+				throw new InvalidStateException("Search-customizer method is defined in non-service method: {}.{}()", method.getDeclaringClass().getName(), method.getName());
+			}
+			
+			if(method.getParameterCount() != 1 && SearchCustomizationContext.class.equals(method.getParameterTypes()[0]))
+			{
+				throw new InvalidStateException("Search-customizer method should have single parameter accepting of type SearchCustomizationContext: {}.{}()", method.getDeclaringClass().getName(), method.getName());
+			}
+			
+			this.customizerMethods.put(customizer.name(), new SearchCustomizerMethod(service, method));
 		}
 	}
 
@@ -419,6 +474,19 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 		if(queryCustomizer != null)
 		{
 			queryCustomizer.customizeQuery(new SearchCustomizationContext(searchQueryName, query));
+		}
+		
+		SearchCustomizerMethod customizerMethod = this.customizerMethods.get(searchQueryName);
+		
+		if(customizerMethod != null)
+		{
+			try
+			{
+				customizerMethod.method.invoke(customizerMethod.service, new SearchCustomizationContext(searchQueryName, query));
+			}catch(Exception ex)
+			{
+				throw new InvalidStateException("An error occurred while invoking customization-method for search query: {}", searchQueryName, ex);
+			}
 		}
 
 		com.yukthitech.persistence.repository.search.SearchQuery repoSearchQuery = new com.yukthitech.persistence.repository.search.SearchQuery();
