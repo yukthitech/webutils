@@ -100,7 +100,9 @@
 	<!-- ********************************************************************************** -->
 	<!-- ********************************************************************************** -->
 
+	<!--  
 	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver" />
+	-->
 
 	<!--  
 	<bean id="emailServiceConfig" class="com.yukthitech.webutils.mail.EmailServiceConfiguration">

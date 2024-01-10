@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.validation.Valid;
-
 import org.apache.commons.beanutils.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -33,6 +31,8 @@ import com.yukthitech.webutils.common.parserules.mssg.ParsedMessage;
 import com.yukthitech.webutils.controllers.BaseCrudController;
 import com.yukthitech.webutils.security.ISecurityService;
 import com.yukthitech.webutils.services.CurrentUserService;
+
+import jakarta.validation.Valid;
 
 /**
  * Controller for alerts.

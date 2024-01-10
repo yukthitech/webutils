@@ -3,8 +3,6 @@ package com.yukthitech.webutils.alerts;
 import java.util.Collections;
 import java.util.List;
 
-import javax.validation.Valid;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -28,6 +26,8 @@ import com.yukthitech.webutils.common.client.IRequestCustomizer;
 import com.yukthitech.webutils.common.models.BaseResponse;
 import com.yukthitech.webutils.common.models.BasicReadListResponse;
 import com.yukthitech.webutils.controllers.BaseController;
+
+import jakarta.validation.Valid;
 
 /**
  * Controller for alerts.

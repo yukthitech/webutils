@@ -1,7 +1,5 @@
 package com.yukthitech.webutils.controllers;
 
-import javax.validation.Valid;
-
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -17,6 +15,8 @@ import com.yukthitech.webutils.common.controllers.IControllerWithAttachments;
 import com.yukthitech.webutils.common.models.BaseResponse;
 import com.yukthitech.webutils.common.models.BasicSaveResponse;
 import com.yukthitech.webutils.services.BaseCrudService;
+
+import jakarta.validation.Valid;
 
 /**
  * Base class for crud controllers with common functionalities.

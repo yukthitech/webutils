@@ -25,8 +25,6 @@ package com.yukthitech.webutils.services.def;
 
 import java.lang.reflect.AnnotatedElement;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.MessageSource;
@@ -34,6 +32,8 @@ import org.springframework.stereotype.Component;
 
 import com.yukthitech.webutils.common.annotations.Description;
 import com.yukthitech.webutils.common.annotations.Label;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Util methods used across factories

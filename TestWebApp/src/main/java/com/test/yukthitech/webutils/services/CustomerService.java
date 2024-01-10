@@ -23,14 +23,14 @@
 
 package com.test.yukthitech.webutils.services;
 
-import javax.annotation.PostConstruct;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.test.yukthitech.webutils.entity.CustomerEntity;
 import com.test.yukthitech.webutils.entity.ICustomerRepository;
 import com.yukthitech.persistence.repository.RepositoryFactory;
+
+import jakarta.annotation.PostConstruct;
 
 /**
  * @author akiran

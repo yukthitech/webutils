@@ -25,8 +25,6 @@ package com.yukthitech.webutils.services;
 
 import java.util.Date;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +35,8 @@ import com.yukthitech.webutils.common.UserDetails;
 import com.yukthitech.webutils.repository.ITrackedEntity;
 import com.yukthitech.webutils.repository.UserEntity;
 import com.yukthitech.webutils.repository.WebutilsBaseEntity;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Context user related services.

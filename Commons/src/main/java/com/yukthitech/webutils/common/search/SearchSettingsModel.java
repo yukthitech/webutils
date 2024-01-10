@@ -3,13 +3,12 @@ package com.yukthitech.webutils.common.search;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-
 import com.yukthitech.validation.annotations.MinLen;
 import com.yukthitech.validation.annotations.Required;
 import com.yukthitech.webutils.common.annotations.IgnoreField;
 import com.yukthitech.webutils.common.annotations.Model;
+
+import jakarta.validation.constraints.Min;
 
 /**
  * Search query customization settings.

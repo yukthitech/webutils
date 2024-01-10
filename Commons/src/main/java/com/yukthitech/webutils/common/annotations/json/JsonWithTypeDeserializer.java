@@ -6,7 +6,6 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.yukthitech.webutils.common.IWebUtilsCommonConstants;
 
 /**
  * Used to mark a field to be converted to json-with-type string during deserialization.

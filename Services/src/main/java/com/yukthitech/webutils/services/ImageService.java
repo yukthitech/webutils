@@ -3,8 +3,6 @@ package com.yukthitech.webutils.services;
 import java.lang.reflect.Field;
 import java.util.List;
 
-import javax.annotation.PostConstruct;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +17,8 @@ import com.yukthitech.webutils.common.models.def.FieldType;
 import com.yukthitech.webutils.common.models.def.ModelDef;
 import com.yukthitech.webutils.repository.file.IFileRepository;
 import com.yukthitech.webutils.security.ISecurityService;
+
+import jakarta.annotation.PostConstruct;
 
 /**
  * Repository based image service to maintain images for different

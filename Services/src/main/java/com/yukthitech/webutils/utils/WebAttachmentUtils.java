@@ -34,14 +34,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileUploadException;
-import org.apache.commons.fileupload.disk.DiskFileItem;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.IOUtils;
 import org.apache.tika.Tika;
 import org.springframework.web.multipart.MultipartFile;
@@ -49,6 +41,8 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.yukthitech.utils.exceptions.InvalidStateException;
 import com.yukthitech.webutils.common.FileInfo;
+
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * Utils related to web attachments upload and download
@@ -134,6 +128,7 @@ public class WebAttachmentUtils
 	 * @param request Request from which file attachments needs to be fetched
 	 * @return Map of file details, using input file filed name as key
 	 */
+	/*
 	public static Map<String, List<FileInfo>> recieveImports(HttpServletRequest request)
 	{
 		String tempDir = System.getProperty("java.io.tmpdir");
@@ -181,6 +176,7 @@ public class WebAttachmentUtils
 		
 		return uploadedFiles;
 	}
+	*/
 	
 	
 	/**

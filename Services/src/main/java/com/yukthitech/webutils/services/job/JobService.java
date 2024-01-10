@@ -28,8 +28,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.PostConstruct;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.quartz.CronScheduleBuilder;
@@ -51,6 +49,8 @@ import com.yukthitech.utils.exceptions.InvalidStateException;
 import com.yukthitech.webutils.annotations.CronJob;
 import com.yukthitech.webutils.services.ClassScannerService;
 import com.yukthitech.webutils.services.JsonService;
+
+import jakarta.annotation.PostConstruct;
 
 /**
  * Service class to load job classes and schedule them as configured. Dynamic jobs can be 

@@ -28,13 +28,14 @@ import java.util.List;
 import java.util.Properties;
 
 import javax.annotation.PostConstruct;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 
 import org.apache.commons.lang3.StringUtils;
 
 import com.yukthitech.validation.annotations.NotEmpty;
 import com.yukthitech.webutils.common.annotations.Model;
+
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 /**
  * Settings or information required for sending and reading the mails.

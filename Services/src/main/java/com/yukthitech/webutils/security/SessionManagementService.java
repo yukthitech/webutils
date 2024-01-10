@@ -4,8 +4,6 @@ import java.util.Date;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import javax.annotation.PostConstruct;
-
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -20,6 +18,8 @@ import com.yukthitech.webutils.repository.IUserRepository;
 import com.yukthitech.webutils.repository.UserEntity;
 import com.yukthitech.webutils.services.WebutilsRepositoryFactory;
 import com.yukthitech.webutils.services.job.BackgroundThreadManager;
+
+import jakarta.annotation.PostConstruct;
 
 /**
  * Service to manage user session.

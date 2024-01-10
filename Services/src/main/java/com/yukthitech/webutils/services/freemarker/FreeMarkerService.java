@@ -6,14 +6,14 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.PostConstruct;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.yukthitech.utils.fmarker.FreeMarkerEngine;
 import com.yukthitech.utils.fmarker.annotaion.FreeMarkerMethod;
 import com.yukthitech.webutils.services.ClassScannerService;
+
+import jakarta.annotation.PostConstruct;
 
 /**
  * Utils to get default configuration with default directives. And also utility

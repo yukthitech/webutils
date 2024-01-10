@@ -3,12 +3,12 @@ package com.yukthitech.webutils.cache;
 import java.util.Arrays;
 import java.util.Collection;
 
-import javax.annotation.PostConstruct;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.interceptor.CacheOperationInvocationContext;
 import org.springframework.cache.interceptor.SimpleCacheResolver;
+
+import jakarta.annotation.PostConstruct;
 
 /**
  * Custom spring cache resolver, which defaults the cache name to target class name.

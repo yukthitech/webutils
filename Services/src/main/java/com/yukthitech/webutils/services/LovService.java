@@ -89,6 +89,7 @@ public class LovService implements IRepositoryMethodRegistry<LovQuery>
 	/**
 	 * Security service to check authorization of target method.
 	 */
+	@Lazy
 	@Autowired(required = false)
 	private ISecurityService securityService;
 	

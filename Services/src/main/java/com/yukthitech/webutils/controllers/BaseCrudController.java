@@ -4,9 +4,6 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
-import javax.validation.Valid;
-
 import org.apache.commons.lang3.reflect.TypeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -27,6 +24,9 @@ import com.yukthitech.webutils.common.models.BasicReadResponse;
 import com.yukthitech.webutils.common.models.BasicSaveResponse;
 import com.yukthitech.webutils.repository.WebutilsBaseEntity;
 import com.yukthitech.webutils.services.BaseCrudService;
+
+import jakarta.annotation.PostConstruct;
+import jakarta.validation.Valid;
 
 /**
  * Base class for crud controllers with common functionalities.

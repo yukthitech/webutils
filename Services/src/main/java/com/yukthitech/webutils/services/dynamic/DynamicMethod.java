@@ -26,8 +26,6 @@ package com.yukthitech.webutils.services.dynamic;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -37,6 +35,8 @@ import com.yukthitech.utils.CommonUtils;
 import com.yukthitech.utils.ConvertUtils;
 import com.yukthitech.utils.exceptions.InvalidStateException;
 import com.yukthitech.webutils.WebutilsContext;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Represents method that has only dynamic arguments or no arguments. Values for

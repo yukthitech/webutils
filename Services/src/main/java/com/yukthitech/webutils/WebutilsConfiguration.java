@@ -27,9 +27,9 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
-import javax.annotation.PostConstruct;
-
 import org.apache.commons.collections.CollectionUtils;
+
+import jakarta.annotation.PostConstruct;
 
 /**
  * Configurations to be specified by web-applications using this web-utils.

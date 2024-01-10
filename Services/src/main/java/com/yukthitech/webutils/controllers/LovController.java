@@ -29,8 +29,6 @@ import static com.yukthitech.webutils.common.IWebUtilsActionConstants.PARAM_NAME
 import static com.yukthitech.webutils.common.IWebUtilsActionConstants.PARAM_TYPE;
 import static com.yukthitech.webutils.common.IWebUtilsActionConstants.PARAM_VALUE;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -44,6 +42,8 @@ import com.yukthitech.webutils.common.client.IRequestCustomizer;
 import com.yukthitech.webutils.common.controllers.ILovController;
 import com.yukthitech.webutils.common.models.LovListResponse;
 import com.yukthitech.webutils.services.LovService;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Controller for fetching LOV values.

@@ -38,8 +38,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.PostConstruct;
-
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -92,6 +90,8 @@ import com.yukthitech.webutils.services.ClassScannerService;
 import com.yukthitech.webutils.services.ModelDetailsService;
 import com.yukthitech.webutils.services.dynamic.DynamicMethod;
 import com.yukthitech.webutils.utils.WebUtils;
+
+import jakarta.annotation.PostConstruct;
 
 /**
  * Service to fetch search query details and execute search queries.
@@ -163,12 +163,14 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 	/**
 	 * Model details service to fetch model details of query and result types.
 	 */
+	@Lazy
 	@Autowired
 	private ModelDetailsService modelDetailsService;
 
 	/**
 	 * Security service to check authorization of target search method.
 	 */
+	@Lazy
 	@Autowired(required = false)
 	private ISecurityService securityService;
 
@@ -181,15 +183,18 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 	/**
 	 * Used to fetch search settings.
 	 */
+	@Lazy
 	@Autowired
 	private SearchSettingsService searchSettingsService;
 
 	/**
 	 * Used to fetch extension name of the search result.
 	 */
+	@Lazy
 	@Autowired(required = false)
 	private IExtensionContextProvider extensionContextProvider;
 
+	@Lazy
 	@Autowired(required = false)
 	private ISearchCustomizer queryCustomizer;
 	

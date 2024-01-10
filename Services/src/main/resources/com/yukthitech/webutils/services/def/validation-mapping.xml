@@ -4,7 +4,7 @@
 	<!-- String related validations -->
 	<validationConfig type="com.yukthitech.validation.annotations.MaxLen" targetType="java.lang.String" name="maxLength" attributes="value"/>
 	<validationConfig type="com.yukthitech.validation.annotations.MinLen" targetType="java.lang.String" name="minLength" attributes="value"/>
-	<validationConfig type="javax.validation.constraints.Pattern" targetType="java.lang.String" name="pattern" attributes="regexp"/>
+	<validationConfig type="jakarta.validation.constraints.Pattern" targetType="java.lang.String" name="pattern" attributes="regexp"/>
 	<validationConfig type="com.yukthitech.validation.annotations.Mispattern" targetType="java.lang.String" name="mispattern" attributes="regexp"/>
 	<validationConfig type="com.yukthitech.validation.annotations.NotEmpty" targetType="java.lang.String" name="required"/>
 
@@ -25,8 +25,8 @@
 	<validationConfig type="com.yukthitech.validation.annotations.LessThan" targetType="java.lang.Number" name="lessThan" attributes="field"/>
 	<validationConfig type="com.yukthitech.validation.annotations.LessThanEquals" targetType="java.lang.Number" name="lessThanEquals" attributes="field"/>
 
-	<validationConfig type="javax.validation.constraints.Min" targetType="java.lang.Number" name="minValue" attributes="value"/>
-	<validationConfig type="javax.validation.constraints.Max" targetType="java.lang.Number" name="maxValue" attributes="value"/>
+	<validationConfig type="jakarta.validation.constraints.Min" targetType="java.lang.Number" name="minValue" attributes="value"/>
+	<validationConfig type="jakarta.validation.constraints.Max" targetType="java.lang.Number" name="maxValue" attributes="value"/>
 
 	<!-- ======================================================================================== -->
 	<!-- Generic validations -->

@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import com.yukthitech.webutils.security.ISecurityService;
@@ -19,6 +20,7 @@ public class RepositoryContext
 	/**
 	 * Security service to fetch user space identity.
 	 */
+	@Lazy
 	@Autowired
 	private ISecurityService securityService;
 	

@@ -29,8 +29,6 @@ import java.lang.reflect.TypeVariable;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
-
 import org.apache.commons.lang3.reflect.TypeUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -50,6 +48,8 @@ import com.yukthitech.webutils.repository.WebutilsBaseEntity;
 import com.yukthitech.webutils.repository.WebutilsExtendableEntity;
 import com.yukthitech.webutils.security.ISecurityService;
 import com.yukthitech.webutils.utils.WebUtils;
+
+import jakarta.annotation.PostConstruct;
 
 /**
  * Abstracts basic functionality that is required for all entities.

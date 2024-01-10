@@ -25,10 +25,6 @@ package com.yukthitech.webutils.common.models;
 
 import java.util.List;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.Pattern;
-
 import com.yukthitech.validation.annotations.MaxLen;
 import com.yukthitech.validation.annotations.MinLen;
 import com.yukthitech.validation.annotations.NotEmpty;
@@ -42,6 +38,10 @@ import com.yukthitech.webutils.common.annotations.NonDisplayable;
 import com.yukthitech.webutils.common.annotations.ReadOnly;
 import com.yukthitech.webutils.common.extensions.ExtensionFieldType;
 import com.yukthitech.webutils.common.extensions.LovOption;
+
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Pattern;
 
 /**
  * Represents extension field entity.

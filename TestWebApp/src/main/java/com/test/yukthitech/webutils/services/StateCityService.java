@@ -1,7 +1,5 @@
 package com.test.yukthitech.webutils.services;
 
-import javax.annotation.PostConstruct;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -10,6 +8,8 @@ import com.test.yukthitech.webutils.entity.ICityRepository;
 import com.test.yukthitech.webutils.entity.IStateRepository;
 import com.test.yukthitech.webutils.entity.StateEntity;
 import com.yukthitech.persistence.repository.RepositoryFactory;
+
+import jakarta.annotation.PostConstruct;
 
 @Service
 public class StateCityService

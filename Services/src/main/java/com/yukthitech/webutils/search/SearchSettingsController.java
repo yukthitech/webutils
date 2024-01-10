@@ -23,8 +23,6 @@
 
 package com.yukthitech.webutils.search;
 
-import javax.validation.Valid;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -43,6 +41,8 @@ import com.yukthitech.webutils.common.search.ISearchSettingsController;
 import com.yukthitech.webutils.common.search.SearchSettingsModel;
 import com.yukthitech.webutils.controllers.BaseController;
 import com.yukthitech.webutils.repository.search.SearchSettingsEntity;
+
+import jakarta.validation.Valid;
 
 /**
  * Search settings controller.

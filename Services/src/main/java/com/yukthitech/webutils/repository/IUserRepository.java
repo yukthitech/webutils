@@ -13,7 +13,7 @@ import com.yukthitech.webutils.common.annotations.Conditional;
  * 
  * @author akiran
  */
-@Conditional("env['webutils.tenantSpaceBased'] != 'true'")
+@Conditional("(env['webutils.tenantSpaceBased']!'false') != 'true'")
 public interface IUserRepository extends IWebutilsRepository<UserEntity>
 {
 	/**

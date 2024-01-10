@@ -2,8 +2,6 @@ package com.yukthitech.webutils.services;
 
 import java.util.Collection;
 
-import javax.annotation.PostConstruct;
-
 import org.springframework.stereotype.Service;
 
 import com.yukthitech.utils.expr.Expression;
@@ -12,6 +10,8 @@ import com.yukthitech.utils.expr.ExpressionRegistry;
 import com.yukthitech.utils.expr.IFunction;
 import com.yukthitech.utils.expr.IOperator;
 import com.yukthitech.utils.expr.RegistryFactory;
+
+import jakarta.annotation.PostConstruct;
 
 /**
  * Service to parse and evaluate expressions.

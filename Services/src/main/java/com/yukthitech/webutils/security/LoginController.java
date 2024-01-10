@@ -28,10 +28,6 @@ import static com.yukthitech.webutils.common.IWebUtilsActionConstants.ACTION_TYP
 import static com.yukthitech.webutils.common.IWebUtilsActionConstants.ACTION_TYPE_LOGIN;
 import static com.yukthitech.webutils.common.IWebUtilsActionConstants.ACTION_TYPE_LOGOUT;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,6 +52,10 @@ import com.yukthitech.webutils.common.models.auth.LoginResponse;
 import com.yukthitech.webutils.common.models.auth.ResetPasswordRequest;
 import com.yukthitech.webutils.controllers.BaseController;
 import com.yukthitech.webutils.services.CurrentUserService;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 
 /**
  * Controller to perform login operation.

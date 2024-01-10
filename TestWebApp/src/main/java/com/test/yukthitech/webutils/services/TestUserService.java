@@ -25,14 +25,14 @@ package com.test.yukthitech.webutils.services;
 
 import java.util.Date;
 
-import javax.annotation.PostConstruct;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.yukthitech.webutils.repository.IUserRepository;
 import com.yukthitech.webutils.repository.UserEntity;
 import com.yukthitech.webutils.services.WebutilsRepositoryFactory;
+
+import jakarta.annotation.PostConstruct;
 
 /**
  * @author akiran
@@ -43,6 +43,7 @@ public class TestUserService
 {
 	@Autowired
 	private WebutilsRepositoryFactory repositoryFactory;
+	//private IUserRepository userRepository;
 	
 	private long userId;
 	

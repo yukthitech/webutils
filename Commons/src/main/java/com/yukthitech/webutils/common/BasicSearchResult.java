@@ -3,8 +3,8 @@ package com.yukthitech.webutils.common;
 import java.util.Date;
 
 import com.yukthitech.persistence.repository.annotations.Field;
-import com.yukthitech.webutils.common.annotations.SearchFieldInfo;
 import com.yukthitech.webutils.common.annotations.NonDisplayable;
+import com.yukthitech.webutils.common.annotations.SearchFieldInfo;
 
 /**
  * Base for search results including common search result fields.

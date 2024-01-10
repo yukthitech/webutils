@@ -1,10 +1,10 @@
 package com.test.yukthitech.webutils.models;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-
 import com.yukthitech.validation.annotations.NotEmpty;
 import com.yukthitech.webutils.common.annotations.Model;
+
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 
 /**
  * Test bean used by client test cases to ensure spring validation is enabled

@@ -13,8 +13,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import javax.annotation.PostConstruct;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +23,8 @@ import com.yukthitech.webutils.mail.FileAttachment;
 import com.yukthitech.webutils.notification.NotificationService;
 import com.yukthitech.webutils.notification.NotificationType;
 import com.yukthitech.webutils.services.ClassScannerService;
+
+import jakarta.annotation.PostConstruct;
 
 /**
  * Service to maintain mail template configurations.

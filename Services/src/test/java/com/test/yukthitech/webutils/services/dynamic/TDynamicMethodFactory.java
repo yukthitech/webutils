@@ -26,8 +26,6 @@ package com.test.yukthitech.webutils.services.dynamic;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -37,6 +35,8 @@ import com.yukthitech.webutils.WebutilsContext;
 import com.yukthitech.webutils.common.LovType;
 import com.yukthitech.webutils.services.dynamic.DynamicMethod;
 import com.yukthitech.webutils.services.dynamic.DynamicMethodFactory;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Test cases to test dynamic method functionality

@@ -35,8 +35,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.annotation.PostConstruct;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +47,8 @@ import com.yukthitech.utils.CommonUtils;
 import com.yukthitech.utils.exceptions.InvalidStateException;
 import com.yukthitech.validation.cross.CrossConstraint;
 import com.yukthitech.webutils.common.models.def.ValidationDef;
+
+import jakarta.annotation.PostConstruct;
 
 /**
  * @author akiran

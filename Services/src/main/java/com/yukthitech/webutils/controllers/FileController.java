@@ -35,9 +35,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.UUID;
 
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.tika.metadata.Metadata;
@@ -65,6 +62,9 @@ import com.yukthitech.webutils.security.UnauthorizedException;
 import com.yukthitech.webutils.services.FileService;
 import com.yukthitech.webutils.utils.WebAttachmentUtils;
 import com.yukthitech.webutils.utils.WebUtils;
+
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 
 /**
  * Controller for fetching files.

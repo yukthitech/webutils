@@ -25,8 +25,6 @@ package com.yukthitech.webutils.services;
 
 import java.util.Date;
 
-import javax.annotation.PostConstruct;
-
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -37,6 +35,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.yukthitech.webutils.annotations.CronJob;
 import com.yukthitech.webutils.repository.file.IFileRepository;
 import com.yukthitech.webutils.services.job.IJob;
+
+import jakarta.annotation.PostConstruct;
 
 /**
  * Job to delete temporaty files. Expected to run once every day.

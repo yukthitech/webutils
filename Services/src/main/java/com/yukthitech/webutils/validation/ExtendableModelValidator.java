@@ -27,8 +27,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
-
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -44,6 +42,8 @@ import com.yukthitech.webutils.controllers.IExtensionContextProvider;
 import com.yukthitech.webutils.repository.ExtensionEntity;
 import com.yukthitech.webutils.repository.ExtensionFieldEntity;
 import com.yukthitech.webutils.services.ExtensionService;
+
+import jakarta.annotation.PostConstruct;
 
 /**
  * Validator to validate extended field values

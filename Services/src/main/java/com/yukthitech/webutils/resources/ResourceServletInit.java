@@ -2,15 +2,15 @@ package com.yukthitech.webutils.resources;
 
 import java.util.Arrays;
 
-import javax.annotation.PostConstruct;
-import javax.servlet.Servlet;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.stereotype.Component;
+
+import jakarta.annotation.PostConstruct;
+import jakarta.servlet.Servlet;
 
 /**
  * Used to register the resource servlet.

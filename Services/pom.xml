@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
@@ -6,7 +7,6 @@
 	<packaging>jar</packaging>
 
 	<name>Services</name>
-	<version>1.0.2-SNAPSHOT</version>
 	<url>http://maven.apache.org</url>
 
 	<properties>
@@ -15,10 +15,11 @@
 
 
 	<dependencies>
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
-			<version>2.4.4</version>
+			<version>3.2.1</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.springframework.boot</groupId>
@@ -29,34 +30,34 @@
 					<artifactId>snakeyaml</artifactId>
 				</exclusion>
 				<exclusion>
-					<groupId>com.fasterxml.jackson.core</groupId>
-					<artifactId>jackson-core</artifactId>
-				</exclusion>
-				<exclusion>
 					<groupId>org.apache.tomcat.embed</groupId>
 					<artifactId>tomcat-embed-websocket</artifactId>
 				</exclusion>
-				<exclusion>
-					<groupId>com.fasterxml.jackson.core</groupId>
-					<artifactId>jackson-databind</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.fasterxml.jackson.core</groupId>
-					<artifactId>jackson-annotations</artifactId>
-				</exclusion>
 			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-log4j2</artifactId>
+			<version>3.2.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-core</artifactId>
+			<version>2.22.1</version>
 		</dependency>
 
 		<!-- AOP related dependencies -->
 		<dependency>
 			<groupId>org.aspectj</groupId>
 			<artifactId>aspectjrt</artifactId>
-			<version>1.8.7</version>
+			<version>1.9.21</version>
 		</dependency>
 		<dependency>
 			<groupId>org.aspectj</groupId>
 			<artifactId>aspectjweaver</artifactId>
-			<version>1.8.0</version>
+			<version>1.9.21</version>
 		</dependency>
 		<!-- End of AOP related dependencies -->
 
@@ -64,21 +65,22 @@
 		<dependency>
 			<groupId>org.quartz-scheduler</groupId>
 			<artifactId>quartz</artifactId>
-			<version>2.2.1</version>
+			<version>2.5.0-rc1</version>
 		</dependency>
 
 		<!-- Hibernate Validator -->
 		<dependency>
-			<groupId>org.hibernate</groupId>
+			<groupId>org.hibernate.validator</groupId>
 			<artifactId>hibernate-validator</artifactId>
-			<version>5.1.3.Final</version>
+			<version>8.0.1.Final</version>
 		</dependency>
 
 		<!-- Required to fetch files being uploaded -->
+		<!--
 		<dependency>
 			<groupId>commons-fileupload</groupId>
 			<artifactId>commons-fileupload</artifactId>
-			<version>1.3</version>
+			<version>1.5</version>
 			<exclusions>
 				<exclusion>
 					<groupId>commons-io</groupId>
@@ -86,57 +88,60 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+		-->
 
 		<!-- Tika is used to fetch mime types of files -->
 		<dependency>
 			<groupId>org.apache.tika</groupId>
 			<artifactId>tika-core</artifactId>
-			<version>1.17</version>
+			<version>2.9.1</version>
 		</dependency>
-		
+
+		<!--
 		<dependency>
 			<groupId>org.apache.tika</groupId>
-			<artifactId>tika-parsers</artifactId>
-			<version>1.17</version>
-			<exclusions>
+		<artifactId>tika-parsers</artifactId>
+			<version>2.9.1</version>
+		<exclusions>
 				<exclusion>
 					<artifactId>httpcore</artifactId>
-					<groupId>org.apache.httpcomponents</groupId>
+		<groupId>org.apache.httpcomponents</groupId>
 				</exclusion>
-				<exclusion>
+		<exclusion>
 					<artifactId>httpclient</artifactId>
-					<groupId>org.apache.httpcomponents</groupId>
+		<groupId>org.apache.httpcomponents</groupId>
 				</exclusion>
-				<exclusion>
+		<exclusion>
 					<artifactId>httpmime</artifactId>
-					<groupId>org.apache.httpcomponents</groupId>
+		<groupId>org.apache.httpcomponents</groupId>
 				</exclusion>
-				<exclusion>
+		<exclusion>
 					<artifactId>commons-lang</artifactId>
-					<groupId>commons-lang</groupId>
+		<groupId>commons-lang</groupId>
 				</exclusion>
 				<exclusion>
-					<groupId>org.ow2.asm</groupId>
+		<groupId>org.ow2.asm</groupId>
 					<artifactId>asm</artifactId>
+		</exclusion>
+				<exclusion>
+		<groupId>com.fasterxml.jackson.core</groupId>
+		<artifactId>jackson-core</artifactId>
 				</exclusion>
 				<exclusion>
-					<groupId>com.fasterxml.jackson.core</groupId>
-					<artifactId>jackson-core</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>commons-io</groupId>
+		<groupId>commons-io</groupId>
 					<artifactId>commons-io</artifactId>
-				</exclusion>
+		</exclusion>
 			</exclusions>
 		</dependency>
+		-->
 
-
-		<!-- Used by class scanning services which in turn is used to load repositories, 
+		<!-- Used by class scanning services which in turn is used to load
+		repositories, 
 			actions, models, etc -->
 		<dependency>
 			<groupId>org.reflections</groupId>
 			<artifactId>reflections</artifactId>
-			<version>0.9.9-RC2</version>
+			<version>0.10.2</version>
 		</dependency>
 
 		<!-- Email related dependencies -->
@@ -150,53 +155,37 @@
 		<dependency>
 			<groupId>org.jsoup</groupId>
 			<artifactId>jsoup</artifactId>
-			<version>1.8.3</version>
+			<version>1.17.2</version>
 		</dependency>
 
+		<!--
+		https://mvnrepository.com/artifact/jakarta.annotation/jakarta.annotation-api -->
 		<dependency>
-			<groupId>javax.validation</groupId>
-			<artifactId>validation-api</artifactId>
-			<version>1.1.0.Final</version>
+			<groupId>jakarta.annotation</groupId>
+			<artifactId>jakarta.annotation-api</artifactId>
+			<version>3.0.0-M1</version>
 		</dependency>
 
+		<!--
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>servlet-api</artifactId>
 			<version>2.4</version>
 			<scope>provided</scope>
 		</dependency>
-
-
-		<dependency>
-			<groupId>com.yukthitech</groupId>
-			<artifactId>yukthi-data</artifactId>
-			<version>1.3.11-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>com.yukthitech</groupId>
-			<artifactId>yukthi-excel-reports</artifactId>
-			<version>1.1-SNAPSHOT</version>
-		</dependency>
-
-
-		<dependency>
-			<groupId>com.yukthitech.webutils</groupId>
-			<artifactId>webutils-commons</artifactId>
-			<version>1.0.1-SNAPSHOT</version>
-		</dependency>
+		-->
 
 		<!-- Dependencies for PDF generation -->
 		<dependency>
 			<groupId>com.itextpdf</groupId>
 			<artifactId>itextpdf</artifactId>
-			<version>5.5.10</version>
+			<version>5.5.13.3</version>
 		</dependency>
-		
 		<!-- Helps in converting html into pdf -->
 		<dependency>
 			<groupId>org.xhtmlrenderer</groupId>
 			<artifactId>flying-saucer-pdf</artifactId>
-			<version>9.1.9</version>
+			<version>9.4.1</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>bcmail-jdk14</artifactId>
@@ -208,6 +197,27 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+
+
+		<dependency>
+			<groupId>com.yukthitech</groupId>
+			<artifactId>yukthi-data</artifactId>
+			<version>1.3.13-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>com.yukthitech</groupId>
+			<artifactId>yukthi-excel-reports</artifactId>
+			<version>1.1-SNAPSHOT</version>
+		</dependency>
+
+
+		<dependency>
+			<groupId>com.yukthitech.webutils</groupId>
+			<artifactId>webutils-commons</artifactId>
+			<version>1.0.2-SNAPSHOT</version>
+		</dependency>
+
+
 	</dependencies>
 
 	<build>
@@ -224,7 +234,7 @@
 	<parent>
 		<groupId>com.yukthitech.webutils</groupId>
 		<artifactId>WebUtils</artifactId>
-		<version>1.0.1-SNAPSHOT</version>
+		<version>1.0.2-SNAPSHOT</version>
 		<relativePath>../WebUtils</relativePath>
 	</parent>
 </project>

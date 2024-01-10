@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,8 +40,7 @@ public class PdfService
 		 */
 		public UserAgent(ITextOutputDevice outputDevice, SharedContext sharedContext) 
 		{
-			super(outputDevice);
-			setSharedContext(sharedContext);
+			super(outputDevice, sharedContext.getDotsPerPixel());
 	    }
 
 		@Override
@@ -78,7 +78,7 @@ public class PdfService
 		try
 		{
 			File tempFile = File.createTempFile(name, ".pdf");
-			String content = IOUtils.toString(htmlTemplate);
+			String content = IOUtils.toString(htmlTemplate, Charset.defaultCharset());
 
 			content = freeMarkerService.processTemplate(name, content, context);
 

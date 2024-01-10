@@ -23,12 +23,12 @@
 
 package com.yukthitech.webutils.common;
 
-import javax.validation.constraints.Min;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yukthitech.utils.exceptions.InvalidStateException;
 import com.yukthitech.webutils.common.annotations.Model;
+
+import jakarta.validation.constraints.Min;
 
 /**
  * Model used to execute search queries.

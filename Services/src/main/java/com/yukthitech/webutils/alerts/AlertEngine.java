@@ -9,8 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.PostConstruct;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -33,6 +31,8 @@ import com.yukthitech.webutils.common.alerts.AlertDetails;
 import com.yukthitech.webutils.common.alerts.AlertingAgentType;
 import com.yukthitech.webutils.services.freemarker.FreeMarkerService;
 import com.yukthitech.webutils.services.task.AsyncTaskService;
+
+import jakarta.annotation.PostConstruct;
 
 /**
  * Service to register alerts and push alerts to agents.

@@ -31,8 +31,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.PostConstruct;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,6 +60,8 @@ import com.yukthitech.webutils.repository.IWebutilsRepository;
 import com.yukthitech.webutils.repository.WebutilsExtendableEntity;
 import com.yukthitech.webutils.security.ISecurityService;
 import com.yukthitech.webutils.utils.WebUtils;
+
+import jakarta.annotation.PostConstruct;
 
 /**
  * Service related to extensions, fields and values.

@@ -2,10 +2,9 @@ package com.test.yukthitech.webutils.models;
 
 import java.util.Set;
 
+import com.yukthitech.utils.CommonUtils;
 import com.yukthitech.webutils.common.alerts.AlertingAgentType;
 import com.yukthitech.webutils.common.alerts.IAlertType;
-
-import com.yukthitech.utils.CommonUtils;
 
 public enum TestAlertType implements IAlertType
 {

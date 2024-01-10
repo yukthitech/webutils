@@ -23,8 +23,6 @@
 
 package com.test.yukthitech.webutils;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -32,6 +30,8 @@ import com.test.yukthitech.webutils.entity.CustomerEntity;
 import com.yukthitech.webutils.controllers.IExtensionContextProvider;
 import com.yukthitech.webutils.extensions.ExtensionDetails;
 import com.yukthitech.webutils.extensions.ExtensionEntityDetails;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * @author akiran

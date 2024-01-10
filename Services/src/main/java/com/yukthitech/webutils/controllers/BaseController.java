@@ -28,8 +28,6 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +48,8 @@ import com.yukthitech.webutils.common.models.BaseResponse;
 import com.yukthitech.webutils.security.UnauthorizedException;
 import com.yukthitech.webutils.services.ExtensionService;
 import com.yukthitech.webutils.validation.ExtendableModelValidator;
+
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * Base class for all controllers and provides common exception handling

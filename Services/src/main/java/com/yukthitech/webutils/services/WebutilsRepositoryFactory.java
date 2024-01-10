@@ -34,8 +34,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import javax.annotation.PostConstruct;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,6 +57,8 @@ import com.yukthitech.webutils.security.ISessionRepository;
 import com.yukthitech.webutils.services.dynamic.DynamicMethod;
 import com.yukthitech.webutils.services.dynamic.DynamicMethodFactory;
 import com.yukthitech.webutils.services.freemarker.FreeMarkerService;
+
+import jakarta.annotation.PostConstruct;
 
 /**
  * This loader is capable of initializing all the repositories in the classpath.
@@ -117,10 +117,10 @@ public class WebutilsRepositoryFactory
 	private List<ICrudRepository<?>> repositories = new ArrayList<>();
 	
 	private Map<Class<?>, ICrudRepository<?>> repositoryProxies = new HashMap<Class<?>, ICrudRepository<?>>();
-
+	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@PostConstruct
-	private void init()
+	private Map<Class<?>, ICrudRepository<?>> init()
 	{
 		//scan and fetch all repository classes
 		Set<Class<?>> actRepos = classScannerService.getClassesOfType(ICrudRepository.class, IWebutilsRepository.class);
@@ -142,6 +142,7 @@ public class WebutilsRepositoryFactory
 		Set<Class<? extends Annotation>> dynAnnotLst = (Set) classScannerService.getClassesWithAnnotation(RegistryMethod.class);
 		
 		ICrudRepository<?> repository = null;
+		Map<Class<?>, ICrudRepository<?>> repoMap = new HashMap<>();
 		
 		logger.debug("*******************************************************************");
 		logger.debug("Repository loading started..............");
@@ -184,6 +185,8 @@ public class WebutilsRepositoryFactory
 
 					logger.debug("Non-webutils repository loaded: {}", type.getName());
 					repositories.add(repository);
+					
+					repoMap.put(type, repository);
 					continue;
 				}
 				
@@ -195,6 +198,7 @@ public class WebutilsRepositoryFactory
 			try
 			{
 				repository = repositoryFactory.getRepository((Class) type);
+				repoMap.put(type, repository);
 			} catch(NoTableExistsException ex)
 			{
 				Optional optional = type.getAnnotation(Optional.class);
@@ -225,6 +229,7 @@ public class WebutilsRepositoryFactory
 		logger.debug("*******************************************************************");
 		logger.debug("Repository loading completed");
 		logger.debug("*******************************************************************");
+		return repoMap;
 	}
 	
 	/**

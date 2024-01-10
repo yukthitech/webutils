@@ -26,8 +26,6 @@ package com.test.yukthitech.webutils.services;
 import java.util.Map;
 import java.util.Set;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -43,6 +41,8 @@ import com.yukthitech.webutils.security.IAuthenticationService;
 import com.yukthitech.webutils.security.ISecurityService;
 import com.yukthitech.webutils.security.SecurityInvocationContext;
 import com.yukthitech.webutils.services.CurrentUserService;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * @author akiran

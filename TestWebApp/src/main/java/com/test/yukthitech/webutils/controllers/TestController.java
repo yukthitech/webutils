@@ -26,8 +26,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.validation.Valid;
-
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -55,6 +53,8 @@ import com.yukthitech.webutils.mail.IMailProcessingContext;
 import com.yukthitech.webutils.mail.IMailProcessor;
 import com.yukthitech.webutils.mail.ReceivedMailMessage;
 import com.yukthitech.webutils.mail.template.MailTemplateEntity;
+
+import jakarta.validation.Valid;
 
 /**
  * Test controller to test spring validation enablement

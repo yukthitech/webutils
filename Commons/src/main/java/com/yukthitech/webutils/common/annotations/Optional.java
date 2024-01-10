@@ -5,9 +5,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import javax.validation.Constraint;
-
 import com.yukthitech.validation.cross.EnableCrossValidation;
+
+import jakarta.validation.Constraint;
 
 /**
  * Marks target element as optional.

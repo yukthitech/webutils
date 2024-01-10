@@ -23,8 +23,6 @@
 
 package com.test.yukthitech.webutils.jobs;
 
-import javax.annotation.PostConstruct;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.quartz.JobExecutionContext;
@@ -34,6 +32,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.yukthitech.webutils.WebutilsConfiguration;
 import com.yukthitech.webutils.annotations.CronJob;
 import com.yukthitech.webutils.services.job.IJob;
+
+import jakarta.annotation.PostConstruct;
 
 /**
  * @author akiran

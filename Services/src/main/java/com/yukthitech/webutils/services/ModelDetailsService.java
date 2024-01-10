@@ -28,8 +28,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.PostConstruct;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +39,8 @@ import com.yukthitech.utils.exceptions.InvalidStateException;
 import com.yukthitech.webutils.common.annotations.Model;
 import com.yukthitech.webutils.common.models.def.ModelDef;
 import com.yukthitech.webutils.services.def.ModelDefBuilder;
+
+import jakarta.annotation.PostConstruct;
 
 /**
  * Service for model details functionality.
