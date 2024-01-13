@@ -25,6 +25,8 @@ package com.yukthitech.webutils.security;
 
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -32,12 +34,15 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.ThreadContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.resource.ResourceHttpRequestHandler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.yukthitech.utils.CommonUtils;
 import com.yukthitech.utils.exceptions.InvalidConfigurationException;
 import com.yukthitech.utils.exceptions.InvalidStateException;
 import com.yukthitech.webutils.IWebUtilsInternalConstants;
@@ -91,6 +96,11 @@ public class SecurityInterceptor implements HandlerInterceptor
 	@Autowired
 	private WebutilsSecurityService webutilsSecurityService;
 	
+	@Value("${webutils.ui.freeUris:''}")
+	private String freeUri;
+	
+	private Set<String> freeUriSet = new HashSet<>();
+	
 	/**
 	 * Post construct method to validate configuration.
 	 */
@@ -100,6 +110,12 @@ public class SecurityInterceptor implements HandlerInterceptor
 		if(configuration.isAuthEnabled() && securityService == null)
 		{
 			throw new InvalidConfigurationException("Authorization is enabled but {} implementation is not provided", ISecurityService.class.getName());
+		}
+		
+		if(StringUtils.isNotBlank(freeUri))
+		{
+			String paths[] = freeUri.trim().split("\\s*\\,\\s*");
+			freeUriSet.addAll(CommonUtils.toSet(paths));
 		}
 	}
 
@@ -271,6 +287,17 @@ public class SecurityInterceptor implements HandlerInterceptor
 		}
 
 		if(StringUtils.isNotBlank(freeUri) && uri.startsWith(freeUri))
+		{
+			return true;
+		}
+		
+		if(freeUriSet.contains(uri))
+		{
+			return true;
+		}
+		
+		// in case of static content
+		if(handler instanceof ResourceHttpRequestHandler)
 		{
 			return true;
 		}

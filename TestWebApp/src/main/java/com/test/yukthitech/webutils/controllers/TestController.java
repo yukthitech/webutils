@@ -42,6 +42,7 @@ import com.test.yukthitech.webutils.models.ITestController;
 import com.test.yukthitech.webutils.models.TestBean;
 import com.test.yukthitech.webutils.models.TestMailModel;
 import com.yukthitech.webutils.annotations.ActionName;
+import com.yukthitech.webutils.annotations.NoAuthentication;
 import com.yukthitech.webutils.common.client.IRequestCustomizer;
 import com.yukthitech.webutils.common.models.BaseResponse;
 import com.yukthitech.webutils.common.models.BasicReadListResponse;
@@ -86,6 +87,15 @@ public class TestController extends BaseController implements ITestController
 		return new BaseResponse(0, "Sucess - " + testBean.getName());
 	}
 	
+	@NoAuthentication
+	@ResponseBody
+	@RequestMapping("/ping")
+	@ActionName("ping")
+	public BaseResponse ping()
+	{
+		return new BaseResponse(0, "Sucess");
+	}
+
 	/* (non-Javadoc)
 	 * @see com.test.yukthi.webutils.controllers.ITestController#secured1(com.test.yukthi.webutils.models.TestBean)
 	 */

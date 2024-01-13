@@ -42,6 +42,7 @@ import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationContext;
@@ -170,9 +171,8 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 	/**
 	 * Security service to check authorization of target search method.
 	 */
-	@Lazy
 	@Autowired(required = false)
-	private ISecurityService securityService;
+	private ObjectProvider<ISecurityService> securityService;
 
 	/**
 	 * Used to fetch date format.
@@ -190,11 +190,9 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 	/**
 	 * Used to fetch extension name of the search result.
 	 */
-	@Lazy
 	@Autowired(required = false)
 	private IExtensionContextProvider extensionContextProvider;
 
-	@Lazy
 	@Autowired(required = false)
 	private ISearchCustomizer queryCustomizer;
 	
@@ -465,11 +463,11 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 		
 		// if security service is specified, check user authorization for target
 		// search method
-		if(securityService != null)
+		if(securityService.getIfAvailable() != null)
 		{
 			SecurityInvocationContext context = webutilsSecurityService.newSecurityInvocationContext(searchQueryDetails.repository.getType(), searchQueryDetails.method, query);
 			
-			if(!securityService.isAuthorized(context))
+			if(!securityService.getIfAvailable().isAuthorized(context))
 			{
 				throw new UnauthorizedException("Current user is not authorized to execute search query - {}", searchQueryName);
 			}
@@ -604,7 +602,7 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 			repoSearchQuery.addCondition(searchCondition);
 		}
 		
-		String userSpace = securityService.getUserSpaceIdentity();
+		String userSpace = securityService.getIfAvailable().getUserSpaceIdentity();
 
 		if(StringUtils.isNotBlank(userSpace))
 		{

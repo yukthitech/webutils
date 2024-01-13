@@ -33,6 +33,7 @@ import org.apache.commons.lang3.reflect.TypeUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 
 import com.yukthitech.persistence.ITransaction;
 import com.yukthitech.persistence.PersistenceException;
@@ -67,30 +68,35 @@ public abstract class BaseCrudService<E extends WebutilsBaseEntity, R extends IW
 	/**
 	 * Extension service to update/read extension fields.
 	 */
+	@Lazy
 	@Autowired
 	protected ExtensionService extensionService;
 
 	/**
 	 * Used to populate tracked fields.
 	 */
+	@Lazy
 	@Autowired
 	protected CurrentUserService userService;
 	
 	/**
 	 * Service to store files specified as part of model.
 	 */
+	@Lazy
 	@Autowired
 	protected FileService fileService;
 	
 	/**
 	 * Security service used to fetch user space identity.
 	 */
+	@Lazy
 	@Autowired
 	protected ISecurityService securityService;
 	
 	/**
 	 * Service to maintain images of the model.
 	 */
+	@Lazy
 	@Autowired
 	protected ImageService imageService;
 	

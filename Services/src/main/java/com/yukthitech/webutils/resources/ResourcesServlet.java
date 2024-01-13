@@ -40,6 +40,9 @@ public class ResourcesServlet extends HttpServlet
 	@Value("${webutils.ui.resourcesFolder}")
 	private String resourcesFolderPath;
 
+	@Value("${webutils.ui.welcomePage:index.html}")
+	private String welcomePage;
+
 	private File resourcesFolder;
 	
 	@Value("${webutils.ui.clientCache.disabled:false}")
@@ -62,9 +65,9 @@ public class ResourcesServlet extends HttpServlet
 	{
 		String path = req.getRequestURI();
 		
-		if(StringUtils.isBlank(path))
+		if(StringUtils.isBlank(path) || "/".equals(path.trim()))
 		{
-			path = "index.html";
+			path = welcomePage;
 		}
 		
 		File file = new File(resourcesFolder, path);
@@ -82,9 +85,9 @@ public class ResourcesServlet extends HttpServlet
 	{
 		String path = req.getRequestURI();
 		
-		if(StringUtils.isBlank(path))
+		if(StringUtils.isBlank(path) || "/".equals(path.trim()))
 		{
-			path = "index.html";
+			path = welcomePage;
 		}
 		
 		File file = new File(resourcesFolder, path);

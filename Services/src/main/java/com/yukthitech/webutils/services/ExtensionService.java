@@ -36,6 +36,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import com.yukthitech.utils.exceptions.InvalidArgumentException;
@@ -97,12 +98,14 @@ public class ExtensionService
 	/**
 	 * Used to fetch current user details for tracking purpose.
 	 */
+	@Lazy
 	@Autowired
 	private CurrentUserService userService;
 	
 	/**
 	 * To filter entities for current session.
 	 */
+	@Lazy
 	@Autowired
 	private ISecurityService securityService;
 	
