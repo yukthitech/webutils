@@ -110,7 +110,8 @@ public class SearchSettingsService extends BaseCrudService<SearchSettingsEntity,
 			
 			fieldName = (fieldAnnot != null) ? fieldAnnot.value() : field.getName();
 			
-			searchSettingsColumn = new SearchSettingsColumn(field.getLabel(), field.isDisplayable(), false, new SearchField(null, fieldName, field.getField().getName()));
+			searchSettingsColumn = new SearchSettingsColumn(field.getLabel(), field.isDisplayable(), field.isBackend(), 
+					false, new SearchField(null, fieldName, field.getField().getName()));
 			
 			if(searchFieldInfo != null && searchFieldInfo.order() >= 0)
 			{
@@ -138,7 +139,7 @@ public class SearchSettingsService extends BaseCrudService<SearchSettingsEntity,
 		
 		for(ExtensionFieldEntity extensionField : extensionFields)
 		{
-			searchSettingsColumn = new SearchSettingsColumn(extensionField.getLabel(), false, true, 
+			searchSettingsColumn = new SearchSettingsColumn(extensionField.getLabel(), false, false, true, 
 					new SearchField(extensionField.getExtension().getName(), "extendedFields." + extensionField.getColumnName(), "extendedFields." + extensionField.getColumnName()));
 
 		 	existingSettingsColumn = searchColumns.get(searchSettingsColumn);
@@ -256,7 +257,7 @@ public class SearchSettingsService extends BaseCrudService<SearchSettingsEntity,
 		
 		for(SearchSettingsColumn column : allSearchColumns.keySet())
 		{
-			filteredColumns.add(new SearchSettingsColumn(column.getLabel(), false, column.isExtended()));
+			filteredColumns.add(new SearchSettingsColumn(column.getLabel(), false, false, column.isExtended()));
 		}
 		
 		settings.setSearchColumns(filteredColumns);

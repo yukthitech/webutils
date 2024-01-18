@@ -29,6 +29,12 @@ public class SearchSettingsColumn
 	private boolean displayed;
 	
 	/**
+	 * Flag indicating if the field is required for backend processing
+	 * (even though it is not displayed).
+	 */
+	private boolean backend;
+	
+	/**
 	 * Specifies whether this is an extended field.
 	 */
 	private boolean extended;
@@ -72,10 +78,11 @@ public class SearchSettingsColumn
 	 * @param extended the extended
 	 * @param fields the fields
 	 */
-	public SearchSettingsColumn(String label, boolean displayed, boolean extended, List<SearchField> fields)
+	public SearchSettingsColumn(String label, boolean displayed, boolean backend, boolean extended, List<SearchField> fields)
 	{
 		this.label = label;
 		this.displayed = displayed;
+		this.backend = backend;
 		this.extended = extended;
 		this.fields = fields;
 	}
@@ -88,9 +95,9 @@ public class SearchSettingsColumn
 	 * @param extended is extended field
 	 * @param field the field
 	 */
-	public SearchSettingsColumn(String name, boolean displayed, boolean extended, SearchField field)
+	public SearchSettingsColumn(String name, boolean displayed, boolean backend, boolean extended, SearchField field)
 	{
-		this(name, displayed, extended, new ArrayList<>(Arrays.asList(field)) );
+		this(name, displayed, backend, extended, new ArrayList<>(Arrays.asList(field)) );
 	}
 	
 	/**
@@ -100,9 +107,9 @@ public class SearchSettingsColumn
 	 * @param displayed the displayed
 	 * @param extended extended flag
 	 */
-	public SearchSettingsColumn(String name, boolean displayed, boolean extended)
+	public SearchSettingsColumn(String name, boolean displayed, boolean backend, boolean extended)
 	{
-		this(name, displayed, extended, (List<SearchField>) null);
+		this(name, displayed, backend, extended, (List<SearchField>) null);
 	}
 
 	/**
@@ -207,6 +214,16 @@ public class SearchSettingsColumn
 		this.required = required;
 	}
 	
+	public boolean isBackend()
+	{
+		return backend;
+	}
+
+	public void setBackend(boolean backend)
+	{
+		this.backend = backend;
+	}
+
 	/**
 	 * Fetches the associated field name.
 	 * @return Field name

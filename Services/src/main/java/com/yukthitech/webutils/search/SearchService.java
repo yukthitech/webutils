@@ -620,7 +620,7 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 		for(SearchSettingsColumn column : searchSettings.getSearchColumns())
 		{
 			// if the field is required or displayable
-			if(column.isRequired() || column.isDisplayed())
+			if(column.isRequired() || column.isDisplayed() || column.isBackend())
 			{
 				// if the column is extended field add it the search query
 				// extended list
@@ -719,7 +719,7 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 			// instance of customizer
 			if(!ISearchResultCustomizer.class.equals(searchQueryDetails.customizerType))
 			{
-				ISearchResultCustomizer customizerResult = searchQueryDetails.customizerType.newInstance();
+				ISearchResultCustomizer customizerResult = searchQueryDetails.customizerType.getConstructor().newInstance();
 				results = customizerResult.customize(results);
 			}
 			
@@ -755,7 +755,7 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 		for(SearchSettingsColumn column : searchSettings.getSearchColumns())
 		{
 			// if the field is required or displayable
-			if(column.isRequired() || column.isDisplayed())
+			if(column.isRequired() || column.isDisplayed() || column.isBackend())
 			{
 				if(column.isExtended())
 				{
@@ -789,7 +789,7 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 			for(SearchSettingsColumn column : searchSettings.getSearchColumns())
 			{
 				// ignore fields which will not be part of results
-				if(!column.isRequired() && !column.isDisplayed())
+				if(!column.isRequired() && !column.isDisplayed() && !column.isBackend())
 				{
 					continue;
 				}

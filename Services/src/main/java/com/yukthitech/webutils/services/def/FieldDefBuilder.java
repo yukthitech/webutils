@@ -26,6 +26,7 @@ package com.yukthitech.webutils.services.def;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -172,7 +173,7 @@ public class FieldDefBuilder
 		try
 		{
 			//return same type if it is concrete and can be instantiated with default constructor
-			type.newInstance();
+			type.getConstructor().newInstance();
 			return type;
 		}catch(Exception ex)
 		{
@@ -214,7 +215,7 @@ public class FieldDefBuilder
 			{
 				try
 				{
-					String value = IOUtils.toString(FieldDefBuilder.class.getResourceAsStream(defaultValue.resource()));
+					String value = IOUtils.toString(FieldDefBuilder.class.getResourceAsStream(defaultValue.resource()), Charset.defaultCharset());
 	
 					if(StringUtils.isNotBlank(value))
 					{
@@ -316,7 +317,10 @@ public class FieldDefBuilder
 		
 		//set other flags of field def
 		fieldDef.setReadOnly( field.getAnnotation(ReadOnly.class) != null );
-		fieldDef.setDisplayable( field.getAnnotation(NonDisplayable.class) == null );
+		
+		NonDisplayable nonDisplayable = field.getAnnotation(NonDisplayable.class);
+		fieldDef.setDisplayable(nonDisplayable == null);
+		fieldDef.setBackend(nonDisplayable != null && nonDisplayable.backend());
 		
 		//if full width is not set because of data type, then check for FullWidth annotation
 		if(!fieldDef.isFullWidth())

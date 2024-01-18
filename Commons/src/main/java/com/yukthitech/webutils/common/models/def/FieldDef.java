@@ -87,6 +87,11 @@ public class FieldDef
 	private boolean displayable;
 	
 	/**
+	 * Indicates this field will be needed for backend processing.
+	 */
+	private boolean backend;
+	
+	/**
 	 * Indicates this field holds multiple values.
 	 */
 	private boolean multiValued;
@@ -327,6 +332,27 @@ public class FieldDef
 		this.displayable = displayable;
 	}
 	
+	/**
+	 * Checks if is indicates this field will be needed for backend processing.
+	 *
+	 * @return the indicates this field will be needed for backend processing
+	 */
+	public boolean isBackend()
+	{
+		return backend;
+	}
+
+	/**
+	 * Sets the indicates this field will be needed for backend processing.
+	 *
+	 * @param backend the new indicates this field will be needed for backend
+	 *        processing
+	 */
+	public void setBackend(boolean backend)
+	{
+		this.backend = backend;
+	}
+
 	/**
 	 * Checks if is indicates this field holds multiple values.
 	 *
