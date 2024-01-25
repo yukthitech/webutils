@@ -94,7 +94,8 @@ public class ResourcesServlet extends HttpServlet
 		
 		if(!file.exists())
 		{
-			resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Resource not found: " + path);
+			logger.debug("Resource not found: [URI: {}, File Path: {}]", path, file.getPath());
+			resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
 			return;
 		}
 		
