@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.yukthitech.utils.fmarker.FreeMarkerEngine;
@@ -30,7 +31,13 @@ public class FreeMarkerService
 	@Autowired
 	private ClassScannerService classScannerService;
 	
-	private FreeMarkerEngine freeMarkerEngine = new FreeMarkerEngine();
+	@Value("${webutils.fmarker.excludeDefaultDirectives:false}")
+	private boolean excludeDefaultDirectives;
+	
+	@Value("${webutils.fmarker.excludeDefaultMehods:false}")
+	private boolean excludeDefaultMehods;
+
+	private FreeMarkerEngine freeMarkerEngine;
 	
 	/**
 	 * Post construct method to initialize default configuration.
@@ -38,6 +45,8 @@ public class FreeMarkerService
 	@PostConstruct
 	private void init()
 	{
+		freeMarkerEngine = new FreeMarkerEngine(excludeDefaultMehods, excludeDefaultDirectives);
+		
 		Set<Method> freeMarkerMethods = classScannerService.getMethodsAnnotatedWith(FreeMarkerMethod.class);
 		
 		if(freeMarkerMethods == null)

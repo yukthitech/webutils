@@ -55,6 +55,7 @@ import com.yukthitech.utils.exceptions.InvalidStateException;
 import com.yukthitech.webutils.common.mail.IMailCustomizer;
 import com.yukthitech.webutils.common.mailtemplate.MailTemplateConfiguration;
 import com.yukthitech.webutils.common.models.mails.EmailServerSettings;
+import com.yukthitech.webutils.common.models.mails.MailReadProtocol;
 import com.yukthitech.webutils.mail.template.MailTemplateConfigService;
 import com.yukthitech.webutils.mail.template.MailTemplateEntity;
 import com.yukthitech.webutils.services.freemarker.FreeMarkerService;
@@ -100,9 +101,9 @@ public class EmailService
 	 *            Settings to create session.
 	 * @return newly created session.
 	 */
-	private Session newSession(EmailServerSettings settings)
+	private Session newSession(EmailServerSettings settings, boolean forImap)
 	{
-		String key = settings.getSmtpHost() + ":" + settings.getSmtpPort() + "@" + settings.getUserName();
+		String key = settings.getSmtpHost() + ":" + settings.getSmtpPort() + "@" + settings.getUserName() + "$" + forImap;
 		Session mailSession = sessionCache.get(key);
 		
 		if(mailSession != null)
@@ -110,7 +111,7 @@ public class EmailService
 			return mailSession;
 		}
 		
-		Properties configProperties = settings.toProperties();
+		Properties configProperties = settings.toProperties(forImap);
 
 		// if authentication needs to be done provide user name and password
 		if(settings.isUseAuthentication())
@@ -376,7 +377,7 @@ public class EmailService
 		}
 
 		// start new session
-		Session mailSession = newSession(settings);
+		Session mailSession = newSession(settings, false);
 
 		// build the mail message
 		Message message = new MimeMessage(mailSession);
@@ -442,7 +443,7 @@ public class EmailService
 	 */
 	private void copyToSentFolder(EmailServerSettings settings, Message message)
 	{
-		Session mailSession = newSession(settings);
+		Session mailSession = newSession(settings, true);
 		
 		try
 		{
@@ -804,10 +805,10 @@ public class EmailService
 	{
 		try
 		{
-			Session session = newSession(settings);
+			Session session = newSession(settings, true);
 
-			Store store = session.getStore(settings.getReadProtocol().getName());
-			store.connect(settings.getReadHost(), settings.getUserName(), settings.getPassword());
+			Store store = session.getStore(MailReadProtocol.IMAPS.getName());
+			store.connect(settings.getImapHost(), settings.getUserName(), settings.getPassword());
 
 			for(String folderName : settings.getFolderNames())
 			{

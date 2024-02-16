@@ -63,7 +63,7 @@ public class EmailServerSettings
 	 * Property indicating if TTLS should be used.
 	 */
 	public static final String PROP_ENABLE_TTLS = "mail.smtp.starttls.enable";
-
+	
 	/**
 	* Smtp host.
 	*/
@@ -102,17 +102,19 @@ public class EmailServerSettings
 	private boolean enableTtls = false;
 	
 	/**
-	 * Protocol to be used for reading mails.
-	 */
-	@NotNull
-	private MailReadProtocol readProtocol;
-	
-	/**
 	 * Host address from where mail can be read or deleted.
 	 */
 	@NotNull
 	@Size(min = 3)
-	private String readHost;
+	private String imapHost;
+	
+	@NotNull
+	private Integer imapPort;
+	
+	/**
+	 * Flag indicating if TLS v2 related config has to be enabled.
+	 */
+	private boolean enableTlsV2;
 	
 	/**
 	 * Folders from which mails needs to be accessed.
@@ -245,44 +247,24 @@ public class EmailServerSettings
 		this.enableTtls = enableTtls;
 	}
 	
-	/**
-	 * Gets the protocol to be used for reading mails.
-	 *
-	 * @return the protocol to be used for reading mails
-	 */
-	public MailReadProtocol getReadProtocol()
+	public String getImapHost()
 	{
-		return readProtocol;
+		return imapHost;
 	}
 
-	/**
-	 * Sets the protocol to be used for reading mails.
-	 *
-	 * @param readProtocol the new protocol to be used for reading mails
-	 */
-	public void setReadProtocol(MailReadProtocol readProtocol)
+	public void setImapHost(String imapHost)
 	{
-		this.readProtocol = readProtocol;
+		this.imapHost = imapHost;
 	}
 
-	/**
-	 * Gets the host address from where mail can be read or deleted.
-	 *
-	 * @return the host address from where mail can be read or deleted
-	 */
-	public String getReadHost()
+	public Integer getImapPort()
 	{
-		return readHost;
+		return imapPort;
 	}
 
-	/**
-	 * Sets the host address from where mail can be read or deleted.
-	 *
-	 * @param readHost the new host address from where mail can be read or deleted
-	 */
-	public void setReadHost(String readHost)
+	public void setImapPort(Integer imapPort)
 	{
-		this.readHost = readHost;
+		this.imapPort = imapPort;
 	}
 
 	/**
@@ -324,6 +306,16 @@ public class EmailServerSettings
 	{
 		this.sentFolder = sentFolder;
 	}
+	
+	public boolean isEnableTlsV2()
+	{
+		return enableTlsV2;
+	}
+
+	public void setEnableTlsV2(boolean enableTlsV2)
+	{
+		this.enableTlsV2 = enableTlsV2;
+	}
 
 	/**
 	* Validates required configuration params are provided.
@@ -350,7 +342,7 @@ public class EmailServerSettings
 	*
 	* @return Java mail compatible properties.
 	*/
-	public Properties toProperties()
+	public Properties toProperties(boolean forImap)
 	{
 		Properties props = new Properties();
 		
@@ -358,11 +350,13 @@ public class EmailServerSettings
 		props.put(PROP_ENABLE_TTLS, "" + enableTtls);
 		props.put("mail.smtp.ssl.enable", "" + enableTtls);
 		
-		props.put(PROP_SMTP_HOST, smtpHost);
+		props.put(PROP_SMTP_HOST, forImap ? imapHost : smtpHost);
+		props.put(PROP_SMTP_PORT, forImap ? "" + imapPort : "" + smtpPort);
 		
-		if(smtpPort != null)
+		if(enableTlsV2)
 		{
-			props.put(PROP_SMTP_PORT, "" + smtpPort);
+			props.put("mail.smtp.ssl.protocols", "TLSv1.2");
+			props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
 		}
 		
 		return props;

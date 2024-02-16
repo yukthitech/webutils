@@ -38,7 +38,7 @@ public class BaseControllerWithAttachments<M extends BaseModel, S extends BaseCr
 	 */
 	@AttachmentsExpected
 	@ActionName(IWebUtilsActionConstants.ACTION_TYPE_SAVE)
-	@RequestMapping(value = "/saveCandidate", method = RequestMethod.POST)
+	@RequestMapping(value = "/saveWithAttachments", method = RequestMethod.POST)
 	@ResponseBody
 	public BasicSaveResponse save(@RequestPart(IWebUtilsCommonConstants.MULTIPART_DEFAULT_PART) @Valid M model, MultipartHttpServletRequest request)
 	{
@@ -54,7 +54,7 @@ public class BaseControllerWithAttachments<M extends BaseModel, S extends BaseCr
 	 */
 	@AttachmentsExpected
 	@ActionName(IWebUtilsActionConstants.ACTION_TYPE_UPDATE)
-	@RequestMapping(value = "/updateCandidate", method = RequestMethod.POST)
+	@RequestMapping(value = "/updateWithAttachments", method = RequestMethod.POST)
 	@ResponseBody
 	public BaseResponse update(@RequestPart(IWebUtilsCommonConstants.MULTIPART_DEFAULT_PART) @Valid M model, MultipartHttpServletRequest request)
 	{
