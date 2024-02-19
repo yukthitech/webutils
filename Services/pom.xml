@@ -79,23 +79,30 @@
 		<!--
 		<dependency>
 			<groupId>commons-fileupload</groupId>
-			<artifactId>commons-fileupload</artifactId>
+		<artifactId>commons-fileupload</artifactId>
 			<version>1.5</version>
-			<exclusions>
+		<exclusions>
 				<exclusion>
 					<groupId>commons-io</groupId>
-					<artifactId>commons-io</artifactId>
+		<artifactId>commons-io</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>
 		-->
 
-		<!-- Tika is used to fetch mime types of files -->
+		<!-- Tika is used to fetch mime types of files and also read content
+		from pdf and doc files -->
 		<dependency>
 			<groupId>org.apache.tika</groupId>
 			<artifactId>tika-core</artifactId>
 			<version>2.9.1</version>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.tika</groupId>
+			<artifactId>tika-parsers-standard-package</artifactId>
+			<version>2.9.1</version>
+		</dependency>
+
 
 		<!--
 		<dependency>
@@ -169,9 +176,9 @@
 		<!--
 		<dependency>
 			<groupId>javax.servlet</groupId>
-			<artifactId>servlet-api</artifactId>
+		<artifactId>servlet-api</artifactId>
 			<version>2.4</version>
-			<scope>provided</scope>
+		<scope>provided</scope>
 		</dependency>
 		-->
 
