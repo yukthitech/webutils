@@ -39,8 +39,9 @@ public class DefaultAuthenticationService<R extends Enum<R>> implements IAuthent
 	public UserDetails<R> authenticate(String userName, String password, Map<String, String> attributes)
 	{
 		String userSpace = getUserSpace(userName, attributes);
+		String baseType = getBaseType(userName, attributes);
 
-		String dbPassword = userService.getPassword(userName, userSpace);
+		String dbPassword = userService.getPassword(userName, userSpace, baseType);
 
 		// if user is not found or if password does not match
 		if(dbPassword == null || !PasswordEncryptor.isSamePassword(dbPassword, password))
@@ -91,9 +92,22 @@ public class DefaultAuthenticationService<R extends Enum<R>> implements IAuthent
 	 */
 	protected String getUserSpace(String userName, Map<String, String> attributes)
 	{
-		return "";
+		return null;
 	}
 	
+	/**
+	 * Can be overridden by child classes to provide base-type based
+	 * on input user name and attributes provided during authentication. This would be helpful
+	 * in applications where user-type needs to be part of authentication. Defaults returns null.
+	 * @param userName user name 
+	 * @param attributes login app specific attributes
+	 * @return user space under which user should be searched.
+	 */
+	protected String getBaseType(String userName, Map<String, String> attributes)
+	{
+		return null;
+	}
+
 	/**
 	 * Can be overridden by child classes to provide application specific user details which can contain roles
 	 * etc.

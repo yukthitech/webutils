@@ -36,7 +36,8 @@ public interface IUserRepository extends IWebutilsRepository<UserEntity>
 	 */
 	@MethodConditions(conditions = { @DefaultCondition(field = "deleted", value = "false") })
 	@Field("password")
-	public String fetchPassword(@Condition("userName") String userName);
+	public String fetchPassword(@Condition("userName") String userName,
+			@Condition("baseEntityType") String  baseEntityType);
 
 	@MethodConditions(conditions = { @DefaultCondition(field = "deleted", value = "false") })
 	@Field("password")

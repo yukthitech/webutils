@@ -40,7 +40,9 @@ public interface IUserTenantBasedRepository extends IUserRepository
 	 */
 	@MethodConditions(conditions = { @DefaultCondition(field = "deleted", value = "false") })
 	@Field("password")
-	public String fetchPassword(@Condition("userName") String userName, @Condition("spaceIdentity") String userSpace);
+	public String fetchPassword(@Condition("userName") String userName, 
+			@Condition("spaceIdentity") String userSpace,
+			@Condition("baseEntityType") String  baseEntityType);
 
 	/**
 	 * Fetches user with specified details.

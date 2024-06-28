@@ -56,14 +56,14 @@ public class UserService extends BaseCrudService<UserEntity, IUserRepository>
 	 *            User Space
 	 * @return Encrypted password
 	 */
-	public String getPassword(String userName, String userSpace)
+	public String getPassword(String userName, String userSpace, String  baseEntityType)
 	{
 		if(repository instanceof IUserTenantBasedRepository)
 		{
-			return ((IUserTenantBasedRepository) repository).fetchPassword(userName, userSpace);
+			return ((IUserTenantBasedRepository) repository).fetchPassword(userName, userSpace, baseEntityType);
 		}
 		
-		return repository.fetchPassword(userName);
+		return repository.fetchPassword(userName, baseEntityType);
 	}
 	
 	public String getPassword(long id)

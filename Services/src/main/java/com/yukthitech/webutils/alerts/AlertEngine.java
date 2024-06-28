@@ -13,6 +13,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonParseException;
@@ -98,6 +99,9 @@ public class AlertEngine
 	 */
 	@Autowired(required = false)
 	private ICustomAlertEventHandler customAlertEventHandler;
+	
+	@Value("${webutils.alertEngine.enabled:false}")
+	private boolean alertsEnabled;
 
 	/**
 	 * Mapping from alerting agent type to agent.
@@ -120,6 +124,12 @@ public class AlertEngine
 	@PostConstruct
 	private void init() throws Exception
 	{
+		if(!alertsEnabled)
+		{
+			logger.debug("Alert engine is not enabled.");
+			return;
+		}
+		
 		for(IAlertingAgent agent : alertingAgents)
 		{
 			if(!agent.isEnabled())
@@ -142,6 +152,11 @@ public class AlertEngine
 	 */
 	public void sendConfirmationAlert(AlertDetails closedAlert)
 	{
+		if(!alertsEnabled)
+		{
+			return;
+		}
+		
 		AlertDetails alertDetails = new AlertDetails();
 		alertDetails.setTitle(closedAlert.getTitle() + " - Confirmation");
 		alertDetails.setConfirmationAlert(true);
@@ -174,6 +189,11 @@ public class AlertEngine
 	 */
 	public void sendAlert(AlertDetails alertDetails)
 	{
+		if(!alertsEnabled)
+		{
+			return;
+		}
+		
 		logger.debug("Sending alert: {}", alertDetails);
 
 		if(typeToAgent.isEmpty())
@@ -227,6 +247,11 @@ public class AlertEngine
 	 */
 	public void alertSystemError(String title, String message, Throwable th)
 	{
+		if(!alertsEnabled)
+		{
+			return;
+		}
+		
 		logger.debug("Sending system error [Title: {}, Message: {}, Error: {}]", title, message, "" + th);
 		AlertDetails alertDetails = new AlertDetails();
 		alertDetails.setAlertType(alertSupport.getErrorAlertType());
@@ -324,6 +349,11 @@ public class AlertEngine
 	 */
 	public void sendSystemEventAlert(Object eventObject, String alertName)
 	{
+		if(!alertsEnabled)
+		{
+			return;
+		}
+		
 		logger.debug("Sending system alert with name: {}", alertName);
 		
 		AlertDetails alertDetails = new AlertDetails();
@@ -354,6 +384,11 @@ public class AlertEngine
 	 */
 	public synchronized void sendPhasedEventAlert(final String dynamicId, Object eventObject, String eventType)
 	{
+		if(!alertsEnabled)
+		{
+			return;
+		}
+		
 		boolean existingAlert = phasedAlerts.containsKey(dynamicId);
 		phasedAlerts.put(dynamicId, new PhasedAlert(eventObject, eventType));
 		
@@ -386,6 +421,11 @@ public class AlertEngine
 	 */
 	public void sendEventAlerts(Object eventObject, String eventType)
 	{
+		if(!alertsEnabled)
+		{
+			return;
+		}
+		
 		logger.debug("Sending alerts for event: {}", eventType);
 		
 		asyncTaskService.executeTask(COMP_NAME, new Runnable()
