@@ -29,7 +29,14 @@ import static com.yukthitech.webutils.common.IWebUtilsActionConstants.PARAM_NAME
 import static com.yukthitech.webutils.common.IWebUtilsActionConstants.PARAM_TYPE;
 import static com.yukthitech.webutils.common.IWebUtilsActionConstants.PARAM_VALUE;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -37,13 +44,16 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.yukthitech.webutils.annotations.ActionName;
+import com.yukthitech.webutils.annotations.NoAuthentication;
 import com.yukthitech.webutils.common.LovType;
 import com.yukthitech.webutils.common.client.IRequestCustomizer;
 import com.yukthitech.webutils.common.controllers.ILovController;
 import com.yukthitech.webutils.common.models.LovListResponse;
 import com.yukthitech.webutils.services.LovService;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * Controller for fetching LOV values.
@@ -66,6 +76,28 @@ public class LovController extends BaseController implements ILovController
 	@Autowired
 	private HttpServletRequest request;
 	
+	@Value("${webutils.noAuth.static.lovs:}")
+	private String noAuthStaticLovs;
+	
+	@Value("${webutils.noAuth.dynamic.lovs:}")
+	private String noAuthDynamicLovs;
+	
+	private Set<String> noAuthStaticTypes;
+	
+	private Set<String> noAuthDynamicNames;
+	
+	@PostConstruct
+	private void init()
+	{
+		noAuthStaticTypes = StringUtils.isBlank(noAuthStaticLovs) ? 
+				Collections.emptySet() : 
+				new HashSet<String>(Arrays.asList(noAuthStaticLovs.trim().split("\\s*\\,\\s*")));
+
+		noAuthDynamicNames = StringUtils.isBlank(noAuthDynamicLovs) ? 
+				Collections.emptySet() : 
+				new HashSet<String>(Arrays.asList(noAuthDynamicLovs.trim().split("\\s*\\,\\s*")));
+	}
+
 	@Override
 	@ActionName(ACTION_TYPE_FETCH)
 	@ResponseBody
@@ -80,15 +112,55 @@ public class LovController extends BaseController implements ILovController
 		return new LovListResponse( lovService.getDynamicLovValues(lovName, null, request.getLocale()) );
 	}
 
+	@NoAuthentication
+	@ActionName("noAuthFetch")
+	@ResponseBody
+	@RequestMapping(value = "/noAuth/fetch/{" + PARAM_NAME + "}/{" + PARAM_TYPE + "}", method = RequestMethod.GET)
+	public LovListResponse fetchNoAuthLov(@PathVariable(PARAM_NAME) String lovName, @PathVariable(PARAM_TYPE) LovType type)
+	{
+		if(type == LovType.STATIC_TYPE)
+		{
+			if(!noAuthStaticTypes.contains(lovName))
+			{
+				throw new com.yukthitech.webutils.security.SecurityException(HttpServletResponse.SC_UNAUTHORIZED, 
+						"Specified static-LOV cannot be accessed without authentication: {}", lovName);
+			}
+			
+			return new LovListResponse( lovService.getEnumLovValues(lovName, request.getLocale()) );
+		}
+		
+		if(!noAuthDynamicNames.contains(lovName))
+		{
+			throw new com.yukthitech.webutils.security.SecurityException(HttpServletResponse.SC_UNAUTHORIZED, 
+					"Specified dynamic-LOV cannot be accessed without authentication: {}", lovName);
+		}
+
+		return new LovListResponse( lovService.getDynamicLovValues(lovName, null, request.getLocale()) );
+	}
+
 	@Override
 	@ActionName("fetchDependentLov")
 	@ResponseBody
 	@RequestMapping(value = "/fetchDependentLov/{" + PARAM_NAME + "}/{" + PARAM_VALUE + "}", method = RequestMethod.GET)
 	public LovListResponse fetchDependentLov(@PathVariable(PARAM_NAME) String lovName, @PathVariable(PARAM_VALUE) String dependencyValue)
 	{
+		if(!noAuthDynamicNames.contains(lovName))
+		{
+			throw new com.yukthitech.webutils.security.SecurityException(HttpServletResponse.SC_UNAUTHORIZED, 
+					"Specified dynamic-LOV cannot be accessed without authentication: {}", lovName);
+		}
+
 		return new LovListResponse( lovService.getDynamicLovValues(lovName, dependencyValue, request.getLocale()) );
 	}
 
+	@NoAuthentication
+	@ActionName("noAuthFetchDependentLov")
+	@ResponseBody
+	@RequestMapping(value = "/noAuth/fetchDependentLov/{" + PARAM_NAME + "}/{" + PARAM_VALUE + "}", method = RequestMethod.GET)
+	public LovListResponse fetchNoAuthDependentLov(@PathVariable(PARAM_NAME) String lovName, @PathVariable(PARAM_VALUE) String dependencyValue)
+	{
+		return new LovListResponse( lovService.getDynamicLovValues(lovName, dependencyValue, request.getLocale()) );
+	}
 	
 	/* (non-Javadoc)
 	 * @see com.yukthitech.webutils.common.controllers.IClientController#setRequestCustomizer(com.yukthitech.webutils.common.client.IRequestCustomizer)
