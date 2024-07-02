@@ -35,7 +35,9 @@ import jakarta.validation.Valid;
  * @param <S> service type to be used.
  * @param <C> Current controller type.
  */
-public class BaseCrudController<M extends BaseModel, S extends BaseCrudService<?, ?>, C extends ICrudController<M, C>> extends BaseController implements ICrudController<M, C>
+public class BaseCrudController<M extends BaseModel, S extends BaseCrudService<?, ?>, C extends ICrudController<M, C>> 
+	extends BaseController 
+	implements ICrudController<M, C>
 {
 	/**
 	 * Spring application context to fetch service instance.

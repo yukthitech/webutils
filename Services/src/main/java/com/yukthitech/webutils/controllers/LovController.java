@@ -77,10 +77,10 @@ public class LovController extends BaseController implements ILovController
 	private HttpServletRequest request;
 	
 	@Value("${webutils.noAuth.static.lovs:}")
-	private String noAuthStaticLovs;
+	private String noAuthStaticLovsStr;
 	
 	@Value("${webutils.noAuth.dynamic.lovs:}")
-	private String noAuthDynamicLovs;
+	private String noAuthDynamicLovsStr;
 	
 	private Set<String> noAuthStaticTypes;
 	
@@ -89,13 +89,13 @@ public class LovController extends BaseController implements ILovController
 	@PostConstruct
 	private void init()
 	{
-		noAuthStaticTypes = StringUtils.isBlank(noAuthStaticLovs) ? 
+		noAuthStaticTypes = StringUtils.isBlank(noAuthStaticLovsStr) ? 
 				Collections.emptySet() : 
-				new HashSet<String>(Arrays.asList(noAuthStaticLovs.trim().split("\\s*\\,\\s*")));
+				new HashSet<String>(Arrays.asList(noAuthStaticLovsStr.trim().split("\\s*\\,\\s*")));
 
-		noAuthDynamicNames = StringUtils.isBlank(noAuthDynamicLovs) ? 
+		noAuthDynamicNames = StringUtils.isBlank(noAuthDynamicLovsStr) ? 
 				Collections.emptySet() : 
-				new HashSet<String>(Arrays.asList(noAuthDynamicLovs.trim().split("\\s*\\,\\s*")));
+				new HashSet<String>(Arrays.asList(noAuthDynamicLovsStr.trim().split("\\s*\\,\\s*")));
 	}
 
 	@Override

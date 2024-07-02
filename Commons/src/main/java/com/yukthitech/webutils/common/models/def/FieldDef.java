@@ -117,6 +117,11 @@ public class FieldDef
 	private String format;
 	
 	/**
+	 * Type of verification needed by field.
+	 */
+	private String verificationType;
+	
+	/**
 	 * Instantiates a new field def.
 	 */
 	public FieldDef()
@@ -442,6 +447,16 @@ public class FieldDef
 	public void setFormat(String format)
 	{
 		this.format = format;
+	}
+	
+	public String getVerificationType()
+	{
+		return verificationType;
+	}
+
+	public void setVerificationType(String verificationType)
+	{
+		this.verificationType = verificationType;
 	}
 
 	/* (non-Javadoc)

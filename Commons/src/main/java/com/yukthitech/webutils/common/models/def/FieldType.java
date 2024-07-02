@@ -55,6 +55,11 @@ public enum FieldType
 	 */
 	HTML("html", String.class),
 	
+	/**
+	 * A field which in turns requires verification.
+	 */
+	VERIFICATION("verification", String.class),
+	
 	INTEGER("int", int.class, Integer.class, int.class, Long.class, long.class, Short.class, short.class),
 	
 	FLOAT("float", float.class, Float.class, float.class, Double.class, double.class),

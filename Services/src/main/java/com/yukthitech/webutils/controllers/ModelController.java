@@ -27,19 +27,31 @@ import static com.yukthitech.webutils.common.IWebUtilsActionConstants.ACTION_PRE
 import static com.yukthitech.webutils.common.IWebUtilsActionConstants.ACTION_TYPE_FETCH;
 import static com.yukthitech.webutils.common.IWebUtilsActionConstants.PARAM_NAME;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.yukthitech.webutils.InvalidRequestParameterException;
 import com.yukthitech.webutils.annotations.ActionName;
+import com.yukthitech.webutils.annotations.NoAuthentication;
 import com.yukthitech.webutils.common.client.IRequestCustomizer;
 import com.yukthitech.webutils.common.controllers.IModelController;
 import com.yukthitech.webutils.common.models.ModelDefResponse;
 import com.yukthitech.webutils.common.models.def.ModelDef;
 import com.yukthitech.webutils.services.ModelDetailsService;
+
+import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * Controller for fetching LOV values.
@@ -52,6 +64,19 @@ public class ModelController implements IModelController
 {
 	@Autowired
 	private ModelDetailsService modelService;
+	
+	@Value("${webutils.noAuth.models:}")
+	private String noAuthModelsStr;
+	
+	private Set<String> noAuthModels;
+	
+	@PostConstruct
+	private void init()
+	{
+		noAuthModels = StringUtils.isBlank(noAuthModelsStr) ? 
+				Collections.emptySet() : 
+				new HashSet<String>(Arrays.asList(noAuthModelsStr.trim().split("\\s*\\,\\s*")));
+	}
 	
 	@Override
 	@ActionName(ACTION_TYPE_FETCH)
@@ -68,6 +93,21 @@ public class ModelController implements IModelController
 		return new ModelDefResponse(modelDef);
 	}
 	
+	@NoAuthentication
+	@ActionName("noAuthFetch")
+	@ResponseBody
+	@RequestMapping(value = "/noAuth/fetch/{" + PARAM_NAME + "}", method = RequestMethod.GET)
+	public ModelDefResponse noAuthFetchModel(@PathVariable(PARAM_NAME) String modelName)
+	{
+		if(!noAuthModels.contains(modelName))
+		{
+			throw new com.yukthitech.webutils.security.SecurityException(HttpServletResponse.SC_UNAUTHORIZED, 
+					"Specified model cannot be accessed without authentication: {}", modelName);
+		}
+
+		return fetchModel(modelName);
+	}
+
 	/* (non-Javadoc)
 	 * @see com.yukthitech.webutils.common.controllers.IClientController#setRequestCustomizer(com.yukthitech.webutils.common.client.IRequestCustomizer)
 	 */

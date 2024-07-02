@@ -52,6 +52,7 @@ import com.yukthitech.webutils.common.annotations.FullWidth;
 import com.yukthitech.webutils.common.annotations.Html;
 import com.yukthitech.webutils.common.annotations.LOV;
 import com.yukthitech.webutils.common.annotations.MultilineText;
+import com.yukthitech.webutils.common.annotations.NeedVerification;
 import com.yukthitech.webutils.common.annotations.NonDisplayable;
 import com.yukthitech.webutils.common.annotations.Password;
 import com.yukthitech.webutils.common.annotations.ReadOnly;
@@ -302,6 +303,11 @@ public class FieldDefBuilder
 				else if(field.getAnnotation(Color.class) != null)
 				{
 					fieldDef.setFieldType(FieldType.COLOR);
+				}
+				else if(field.getAnnotation(NeedVerification.class) != null)
+				{
+					fieldDef.setFieldType(FieldType.VERIFICATION);
+					fieldDef.setVerificationType(field.getAnnotation(NeedVerification.class).type());
 				}
 				else
 				{
