@@ -32,6 +32,7 @@ import com.yukthitech.utils.exceptions.InvalidArgumentException;
 import com.yukthitech.utils.exceptions.InvalidStateException;
 import com.yukthitech.webutils.InvalidRequestParameterException;
 import com.yukthitech.webutils.common.verification.OtpVerificationRequest;
+import com.yukthitech.webutils.common.verification.VerificationType;
 
 import jakarta.annotation.PostConstruct;
 
@@ -71,7 +72,7 @@ public class VerificationService
 	/**
 	 * List of verification supports.
 	 */
-	private Map<String, IVerificationSupport> verificationSupportes = new HashMap<>();
+	private Map<VerificationType, IVerificationSupport> verificationSupportes = new HashMap<>();
 	
 	@PostConstruct
 	private void init()
@@ -91,11 +92,8 @@ public class VerificationService
 		
 		for(IVerificationSupport supporter : supporters.values())
 		{
-			for(String type : supporter.getVerificationTypes())
-			{
-				verificationSupportes.put(type, supporter);
-				logger.debug("Adding verification support for type {} using class: {}", type, supporter.getClass().getName());
-			}
+			verificationSupportes.put(supporter.getVerificationType(), supporter);
+			logger.debug("Adding verification support for type {} using class: {}", supporter.getVerificationType(), supporter.getClass().getName());
 		}
 	}
 
@@ -105,7 +103,7 @@ public class VerificationService
 	 * @param value Value to be verified. Eg: phone number, email id, etc.
 	 * @return
 	 */
-	public String sendOtp(String type, String value) throws CodeDeliveryException
+	public String sendOtp(VerificationType type, String value) throws CodeDeliveryException
 	{
 		if(encryptor == null)
 		{
@@ -122,13 +120,13 @@ public class VerificationService
 		// TODO: Generate random code.
 		String code = "4444";
 		
-		support.sendCode(type, value, code);
+		support.sendCode(value, code);
 		
 		String encodedString = String.format("otp:%s;%s;%s;%s", type, value, code, System.currentTimeMillis());
 		return encryptor.encrypt(encodedString);
 	}
 	
-	private void verify(String token, String type, String value, String otp, Pattern pattern, long maxTime)
+	private void verify(String token, VerificationType type, String value, String otp, Pattern pattern, long maxTime)
 	{
 		if(encryptor == null)
 		{
@@ -155,7 +153,7 @@ public class VerificationService
 		/*
 		 * Fail the verification if type, value or generate code is not matching.
 		 */
-		if(!matcher.group(1).equals(type) ||
+		if(!matcher.group(1).equals(type.name()) ||
 				!matcher.group(2).equals(value) ||
 				(otp != null && !matcher.group(3).equals(otp))
 				)
@@ -188,7 +186,7 @@ public class VerificationService
 		return encryptor.encrypt(verEncodedString);
 	}
 	
-	public void validateVerification(String type, String value, String verificationToken)
+	public void validateVerification(VerificationType type, String value, String verificationToken)
 	{
 		verify(verificationToken, type, value, 
 				null, VERIFICATION_PATTERN, maxVerTokenTimeSec);

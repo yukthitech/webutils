@@ -15,7 +15,7 @@
  */
 package com.yukthitech.webutils.verification;
 
-import java.util.Set;
+import com.yukthitech.webutils.common.verification.VerificationType;
 
 /**
  * Abstraction of verification support.
@@ -26,13 +26,12 @@ public interface IVerificationSupport
 	 * Types of verification supported by this supporter.
 	 * @return
 	 */
-	public Set<String> getVerificationTypes();
+	public VerificationType getVerificationType();
 	
 	/**
 	 * Should send specified code to the specified type with specified value.
-	 * @param type Type of verification to be done. Eg: phone, email, etc.
 	 * @param value Value to be verified. Eg: phone number, email id, etc.
 	 * @param code Code to be sent.
 	 */
-	public void sendCode(String type, String value, String code) throws CodeDeliveryException;
+	public void sendCode(String value, String code) throws CodeDeliveryException;
 }

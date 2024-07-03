@@ -14,7 +14,7 @@ public interface IVerificationController extends IClientController<IVerification
 	 * @param value Value to be verified. Eg: phone number, email id, etc.
 	 * @return Success/failure response.
 	 */
-	public SendOtpResponse sendOtp(String type, String value);
+	public SendOtpResponse sendOtp(VerificationType type, String value);
 	
 	/**
 	 * Verifies if the code specified in the request for specified request is proper or not.

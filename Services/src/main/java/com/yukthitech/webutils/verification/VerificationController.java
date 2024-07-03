@@ -32,10 +32,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.yukthitech.webutils.annotations.ActionName;
+import com.yukthitech.webutils.annotations.NoAuthentication;
 import com.yukthitech.webutils.common.verification.IVerificationController;
 import com.yukthitech.webutils.common.verification.OtpVerificationRequest;
 import com.yukthitech.webutils.common.verification.OtpVerificationResponse;
 import com.yukthitech.webutils.common.verification.SendOtpResponse;
+import com.yukthitech.webutils.common.verification.VerificationType;
 import com.yukthitech.webutils.controllers.BaseController;
 
 import jakarta.validation.Valid;
@@ -55,16 +57,18 @@ public class VerificationController extends BaseController implements IVerificat
 	@Autowired
 	private VerificationService verificationService;
 	
+	@NoAuthentication
 	@Override
 	@ActionName("sendOtp")
 	@ResponseBody
 	@RequestMapping(value = "/sendOtp/{type}/{value}", method = RequestMethod.POST)
-	public SendOtpResponse sendOtp(@PathVariable("type") String type, @PathVariable("value") String value)
+	public SendOtpResponse sendOtp(@PathVariable("type") VerificationType type, @PathVariable("value") String value)
 	{
 		String token = verificationService.sendOtp(type, value);
 		return new SendOtpResponse(token);
 	}
 
+	@NoAuthentication
 	@Override
 	@ActionName("verify")
 	@ResponseBody

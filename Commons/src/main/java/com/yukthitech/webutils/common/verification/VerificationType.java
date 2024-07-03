@@ -13,11 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.yukthitech.webutils.verification;
+package com.yukthitech.webutils.common.verification;
 
-public interface IVerificationTypes
+public enum VerificationType
 {
-	public String EMAIL = "email";
-	
-	public String PHONE = "phone";
+	EMAIL, PHONE;
 }

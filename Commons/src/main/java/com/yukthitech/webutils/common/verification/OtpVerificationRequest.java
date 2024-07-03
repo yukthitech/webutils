@@ -31,7 +31,7 @@ public class OtpVerificationRequest
 	 * Type of verification to be done. Eg: phone, email, etc.
 	 */
 	@Required
-	private String type;
+	private VerificationType type;
 	
 	/**
 	 * Value to be verified. Eg: phone number, email id, etc.
@@ -65,12 +65,12 @@ public class OtpVerificationRequest
 		this.otp = otp;
 	}
 
-	public String getType()
+	public VerificationType getType()
 	{
 		return type;
 	}
 
-	public void setType(String type)
+	public void setType(VerificationType type)
 	{
 		this.type = type;
 	}

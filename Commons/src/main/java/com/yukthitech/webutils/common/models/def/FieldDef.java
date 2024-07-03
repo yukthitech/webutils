@@ -122,6 +122,11 @@ public class FieldDef
 	private String verificationType;
 	
 	/**
+	 * Name of the field to which this field's verification token should be expected.
+	 */
+	private String verificationTokenField;
+	
+	/**
 	 * Instantiates a new field def.
 	 */
 	public FieldDef()
@@ -457,6 +462,16 @@ public class FieldDef
 	public void setVerificationType(String verificationType)
 	{
 		this.verificationType = verificationType;
+	}
+	
+	public String getVerificationTokenField()
+	{
+		return verificationTokenField;
+	}
+
+	public void setVerificationTokenField(String verificationTokenField)
+	{
+		this.verificationTokenField = verificationTokenField;
 	}
 
 	/* (non-Javadoc)

@@ -15,9 +15,7 @@
  */
 package com.yukthitech.webutils.verification;
 
-import java.util.Set;
-
-import com.yukthitech.utils.CommonUtils;
+import com.yukthitech.webutils.common.verification.VerificationType;
 
 /**
  * Abstraction class for verification support.
@@ -27,16 +25,16 @@ public abstract class AbstractVerificationSupport implements IVerificationSuppor
 	/**
 	 * Type of verification supported.
 	 */
-	private Set<String> types;
+	private VerificationType type;
 	
-	public AbstractVerificationSupport(String... types)
+	public AbstractVerificationSupport(VerificationType type)
 	{
-		this.types = CommonUtils.toSet(types);
+		this.type = type;
 	}
 	
 	@Override
-	public Set<String> getVerificationTypes()
+	public VerificationType getVerificationType()
 	{
-		return types;
+		return type;
 	}
 }

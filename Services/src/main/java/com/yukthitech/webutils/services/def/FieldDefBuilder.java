@@ -306,8 +306,27 @@ public class FieldDefBuilder
 				}
 				else if(field.getAnnotation(NeedVerification.class) != null)
 				{
+					NeedVerification needVerification = field.getAnnotation(NeedVerification.class);
+					
 					fieldDef.setFieldType(FieldType.VERIFICATION);
-					fieldDef.setVerificationType(field.getAnnotation(NeedVerification.class).type());
+					fieldDef.setVerificationType(needVerification.type().name());
+					
+					Field tokenField = null;
+					
+					try
+					{
+						tokenField = modelType.getDeclaredField(needVerification.tokenField());
+					}catch(NoSuchFieldException ex)
+					{
+						throw new InvalidStateException("Invalid token-field '{}' specified by field: {}", needVerification.tokenField(), fqn);
+					}
+					
+					if(!tokenField.getType().equals(String.class))
+					{
+						throw new InvalidStateException("Non-string token-field '{}' specified by field: {}", needVerification.tokenField(), fqn);
+					}
+					
+					fieldDef.setVerificationTokenField(needVerification.tokenField());
 				}
 				else
 				{

@@ -17,16 +17,18 @@ package com.yukthitech.webutils.verification;
 
 import org.springframework.stereotype.Service;
 
+import com.yukthitech.webutils.common.verification.VerificationType;
+
 @Service
 public class PhoneVerificationSupport extends AbstractVerificationSupport
 {
 	public PhoneVerificationSupport()
 	{
-		super(IVerificationTypes.PHONE);
+		super(VerificationType.PHONE);
 	}
 
 	@Override
-	public void sendCode(String type, String value, String code) throws CodeDeliveryException
+	public void sendCode(String value, String code) throws CodeDeliveryException
 	{
 		//TODO: Yet to be done
 	}
