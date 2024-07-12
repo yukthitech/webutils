@@ -42,7 +42,7 @@ import org.springframework.stereotype.Component;
 
 import com.yukthitech.utils.exceptions.InvalidConfigurationException;
 import com.yukthitech.utils.exceptions.InvalidStateException;
-import com.yukthitech.webutils.common.LovType;
+import com.yukthitech.webutils.common.annotations.Captcha;
 import com.yukthitech.webutils.common.annotations.Color;
 import com.yukthitech.webutils.common.annotations.CustomType;
 import com.yukthitech.webutils.common.annotations.DateTime;
@@ -56,11 +56,12 @@ import com.yukthitech.webutils.common.annotations.NeedVerification;
 import com.yukthitech.webutils.common.annotations.NonDisplayable;
 import com.yukthitech.webutils.common.annotations.Password;
 import com.yukthitech.webutils.common.annotations.ReadOnly;
+import com.yukthitech.webutils.common.lov.LovType;
 import com.yukthitech.webutils.common.models.def.FieldDef;
 import com.yukthitech.webutils.common.models.def.FieldType;
 import com.yukthitech.webutils.common.models.def.LovDetails;
 import com.yukthitech.webutils.common.models.def.ValidationDef;
-import com.yukthitech.webutils.services.LovRef;
+import com.yukthitech.webutils.lov.LovRef;
 
 /**
  * Builder for field definitions.
@@ -117,11 +118,11 @@ public class FieldDefBuilder
 		fieldDef.setFieldType(FieldType.LIST_OF_VALUES);
 		
 		LovDetails lovDetails = new LovDetails();
-		lovDetails.setLovType(LovType.DYNAMIC_TYPE);
+		lovDetails.setLovType(LovType.valueOf(lovAnnotation.type().name()));
 		
 		//add current lov as required lov, which would be validated
 		//  at end of application load by Model def builder
-		requiredLovs.add(new LovRef(lovAnnotation.name(), modelType.getName() + "." + field.getName()));
+		requiredLovs.add(new LovRef(lovAnnotation.name(), modelType.getName() + "." + field.getName(), lovDetails.getLovType()));
 		
 		lovDetails.setLovName(lovAnnotation.name());
 		
@@ -182,6 +183,26 @@ public class FieldDefBuilder
 		
 		throw new InvalidConfigurationException("Invalid/unsupported collection type used '{}' for field - {}.{}", 
 				type, field.getDeclaringClass().getName(), field.getName());
+	}
+	
+	private Field checkForTokenField(Class<?> modelType, String name, String parentFieldFqn)
+	{
+		Field tokenField = null;
+		
+		try
+		{
+			tokenField = modelType.getDeclaredField(name);
+		}catch(NoSuchFieldException ex)
+		{
+			throw new InvalidStateException("Invalid token-field '{}' specified by field: {}", name, parentFieldFqn);
+		}
+		
+		if(!tokenField.getType().equals(String.class))
+		{
+			throw new InvalidStateException("Non-string token-field '{}' specified by field: {}", name, parentFieldFqn);
+		}
+		
+		return tokenField;
 	}
 	
 	public FieldDef getFieldDef(Class<?> modelType, Field field, Set<LovRef> requiredLovs)
@@ -304,29 +325,24 @@ public class FieldDefBuilder
 				{
 					fieldDef.setFieldType(FieldType.COLOR);
 				}
+				else if(field.getAnnotation(Captcha.class) != null)
+				{
+					Captcha captcha = field.getAnnotation(Captcha.class);
+					
+					fieldDef.setFieldType(FieldType.CAPTCHA);
+					
+					checkForTokenField(modelType, captcha.tokenField(), fqn);
+					fieldDef.setTokenField(captcha.tokenField());
+				}
 				else if(field.getAnnotation(NeedVerification.class) != null)
 				{
 					NeedVerification needVerification = field.getAnnotation(NeedVerification.class);
 					
 					fieldDef.setFieldType(FieldType.VERIFICATION);
-					fieldDef.setVerificationType(needVerification.type().name());
+					fieldDef.setVerificationType(needVerification.type());
 					
-					Field tokenField = null;
-					
-					try
-					{
-						tokenField = modelType.getDeclaredField(needVerification.tokenField());
-					}catch(NoSuchFieldException ex)
-					{
-						throw new InvalidStateException("Invalid token-field '{}' specified by field: {}", needVerification.tokenField(), fqn);
-					}
-					
-					if(!tokenField.getType().equals(String.class))
-					{
-						throw new InvalidStateException("Non-string token-field '{}' specified by field: {}", needVerification.tokenField(), fqn);
-					}
-					
-					fieldDef.setVerificationTokenField(needVerification.tokenField());
+					checkForTokenField(modelType, needVerification.tokenField(), fqn);
+					fieldDef.setTokenField(needVerification.tokenField());
 				}
 				else
 				{

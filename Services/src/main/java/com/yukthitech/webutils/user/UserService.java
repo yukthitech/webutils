@@ -1,11 +1,9 @@
-package com.yukthitech.webutils.services;
+package com.yukthitech.webutils.user;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
-import com.yukthitech.webutils.repository.IUserRepository;
-import com.yukthitech.webutils.repository.IUserTenantBasedRepository;
-import com.yukthitech.webutils.repository.UserEntity;
+import com.yukthitech.webutils.services.BaseCrudService;
 
 /**
  * Service to access authentication details of different types of users.
@@ -56,14 +54,14 @@ public class UserService extends BaseCrudService<UserEntity, IUserRepository>
 	 *            User Space
 	 * @return Encrypted password
 	 */
-	public String getPassword(String userName, String userSpace, String  baseEntityType)
+	public UserPasswords getPassword(String userName, String userSpace)
 	{
 		if(repository instanceof IUserTenantBasedRepository)
 		{
-			return ((IUserTenantBasedRepository) repository).fetchPassword(userName, userSpace, baseEntityType);
+			return ((IUserTenantBasedRepository) repository).fetchPassword(userName, userSpace);
 		}
 		
-		return repository.fetchPassword(userName, baseEntityType);
+		return repository.fetchPassword(userName);
 	}
 	
 	public String getPassword(long id)
@@ -123,20 +121,20 @@ public class UserService extends BaseCrudService<UserEntity, IUserRepository>
 	 * Updates password of user under specified ownership and with specified
 	 * user name.
 	 * 
-	 * @param userSpace
-	 *            User Space
-	 * @param userName User name of target user.
+	 * @param userId
+	 *            User id
 	 * @param password Password of target user.
 	 * @return True if successfully updated
 	 */
-	public boolean updatePassword(String userSpace, String userName, String password)
+	public boolean updatePassword(long userId, String password)
 	{
-		if(repository instanceof IUserTenantBasedRepository)
-		{
-			return ((IUserTenantBasedRepository) repository).updatePassword(userSpace, userName, password);
-		}
-		
-		return repository.updatePassword(userName, password);
+		// Whenever password is getting updated, set the reset-password to null
+		return repository.updatePassword(userId, password, null);
+	}
+
+	public boolean updateResetPassword(long userId, String resetPassword)
+	{
+		return repository.updateResetPassword(userId, resetPassword);
 	}
 
 	@Override

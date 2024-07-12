@@ -28,9 +28,9 @@ import static com.yukthitech.webutils.IWebUtilsInternalConstants.CONTEXT_ATTR_LO
 import java.util.List;
 
 import com.yukthitech.persistence.repository.annotations.Condition;
-import com.yukthitech.webutils.annotations.LovQuery;
 import com.yukthitech.webutils.common.annotations.ContextAttribute;
-import com.yukthitech.webutils.common.models.ValueLabel;
+import com.yukthitech.webutils.common.lov.ValueLabel;
+import com.yukthitech.webutils.lov.LovQuery;
 import com.yukthitech.webutils.repository.IWebutilsRepository;
 
 /**

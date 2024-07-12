@@ -23,7 +23,7 @@
 
 package com.yukthitech.webutils;
 
-import com.yukthitech.webutils.services.UserRoleService;
+import com.yukthitech.webutils.user.UserRoleService;
 
 /**
  * Key used to organize user roles by {@link UserRoleService}

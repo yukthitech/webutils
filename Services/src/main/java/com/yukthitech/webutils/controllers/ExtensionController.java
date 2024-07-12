@@ -51,7 +51,7 @@ import com.yukthitech.persistence.conversion.impl.JsonWithTypeConverter;
 import com.yukthitech.utils.exceptions.InvalidArgumentException;
 import com.yukthitech.utils.exceptions.InvalidStateException;
 import com.yukthitech.webutils.IWebUtilsInternalConstants;
-import com.yukthitech.webutils.InvalidRequestParameterException;
+import com.yukthitech.webutils.InvalidRequestException;
 import com.yukthitech.webutils.annotations.ActionName;
 import com.yukthitech.webutils.common.client.IRequestCustomizer;
 import com.yukthitech.webutils.common.controllers.IExtensionController;
@@ -105,7 +105,7 @@ public class ExtensionController extends BaseController implements IExtensionCon
 		if(!extensionService.isValidExtension(extensionName))
 		{
 			logger.debug("No extension entity found for extension - {}", extensionName);
-			throw new InvalidRequestParameterException("No extension found with specified name - " + extensionName);
+			throw new InvalidRequestException("No extension found with specified name - " + extensionName);
 		}
 		
 		//fetch extension fields and build response
@@ -128,7 +128,7 @@ public class ExtensionController extends BaseController implements IExtensionCon
 			if(CollectionUtils.isEmpty(extensionField.getLovOptions()))
 			{
 				logger.error("No LOV options specified for lov field");
-				throw new InvalidRequestParameterException("No LOV options specified for LOV field");
+				throw new InvalidRequestException("No LOV options specified for LOV field");
 			}
 			
 			String lovOptStr = (String) jsonConverter.convertToDBType(extensionField.getLovOptions(), DataType.STRING);
@@ -136,7 +136,7 @@ public class ExtensionController extends BaseController implements IExtensionCon
 			if(lovOptStr.length() > IWebUtilsInternalConstants.MAX_EXT_FIELD_LENGTH)
 			{
 				logger.error("Too many or too long lov options specified. Got result json string length as - ", lovOptStr.length());
-				throw new InvalidRequestParameterException("Too many or too long LOV options specified");
+				throw new InvalidRequestException("Too many or too long LOV options specified");
 			}
 		}
 
@@ -147,7 +147,7 @@ public class ExtensionController extends BaseController implements IExtensionCon
 			{
 				logger.error("Invalid length specified for string field. Length should be in the range of [1, {}]. Specified length - {}", 
 						IWebUtilsInternalConstants.MAX_EXT_FIELD_LENGTH, extensionField.getMaxLength());
-				throw new InvalidRequestParameterException("Invalid length specified for string field. Length should be in the range of [1, {}]. Specified length - {}",
+				throw new InvalidRequestException("Invalid length specified for string field. Length should be in the range of [1, {}]. Specified length - {}",
 						IWebUtilsInternalConstants.MAX_EXT_FIELD_LENGTH, extensionField.getMaxLength());
 			}
 		}
@@ -242,7 +242,7 @@ public class ExtensionController extends BaseController implements IExtensionCon
 		if(extensionId != extensionEntity.getId())
 		{
 			logger.error("No extension field exists with id {} under extension '{}'", fieldId, extensionName);
-			throw new InvalidRequestParameterException("No extension field exists with id {} under extension '{}'", fieldId, extensionName);
+			throw new InvalidRequestException("No extension field exists with id {} under extension '{}'", fieldId, extensionName);
 		}
 
 		return extensionId;
@@ -258,7 +258,7 @@ public class ExtensionController extends BaseController implements IExtensionCon
 		
 		if(extensionField.getId() <= 0)
 		{
-			throw new InvalidRequestParameterException("Invalid/no extension field id specified.");
+			throw new InvalidRequestException("Invalid/no extension field id specified.");
 		}
 
 		long extensionId = validateFieldForChange(extensionField.getExtensionName(), extensionField.getId());

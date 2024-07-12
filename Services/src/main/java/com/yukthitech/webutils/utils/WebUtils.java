@@ -37,7 +37,7 @@ import org.apache.commons.collections.CollectionUtils;
 
 import com.yukthitech.utils.beans.PropertyMapper;
 import com.yukthitech.utils.exceptions.InvalidStateException;
-import com.yukthitech.webutils.InvalidRequestParameterException;
+import com.yukthitech.webutils.InvalidRequestException;
 import com.yukthitech.webutils.repository.WebutilsBaseEntity;
 
 /**
@@ -198,13 +198,13 @@ public class WebUtils
 		//if invalid id is specified
 		if(entity.getId() == null || entity.getId() <= 0)
 		{
-			throw new InvalidRequestParameterException("No id specified for update");
+			throw new InvalidRequestException("No id specified for update");
 		}
 
 		//if invalid version is specified
 		if(entity.getVersion() == null || entity.getVersion() <= 0)
 		{
-			throw new InvalidRequestParameterException("No version specified for update");
+			throw new InvalidRequestException("No version specified for update");
 		}
 	}
 }

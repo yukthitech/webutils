@@ -3,7 +3,7 @@ package com.yukthitech.webutils.security;
 import java.util.Map;
 
 import com.yukthitech.webutils.common.UserDetails;
-import com.yukthitech.webutils.repository.UserEntity;
+import com.yukthitech.webutils.user.UserEntity;
 
 /**
  * Authentication service base contract.

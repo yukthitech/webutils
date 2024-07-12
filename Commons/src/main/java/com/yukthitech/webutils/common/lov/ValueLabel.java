@@ -20,7 +20,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.yukthitech.webutils.common.models;
+package com.yukthitech.webutils.common.lov;
 
 /**
  * Value label pair. Mainly used to pass LOV data to client

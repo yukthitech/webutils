@@ -37,7 +37,11 @@ import org.springframework.stereotype.Service;
 
 import com.yukthitech.utils.exceptions.InvalidStateException;
 import com.yukthitech.webutils.common.annotations.Model;
+import com.yukthitech.webutils.common.lov.LovType;
 import com.yukthitech.webutils.common.models.def.ModelDef;
+import com.yukthitech.webutils.lov.LovRef;
+import com.yukthitech.webutils.lov.LovService;
+import com.yukthitech.webutils.lov.StoredLovService;
 import com.yukthitech.webutils.services.def.ModelDefBuilder;
 
 import jakarta.annotation.PostConstruct;
@@ -75,6 +79,9 @@ public class ModelDetailsService
 	
 	@Autowired
 	private LovService lovService;
+	
+	@Autowired
+	private StoredLovService storedLovService;
 	
 	/**
 	 * Mapping from model name to java type.
@@ -126,7 +133,12 @@ public class ModelDetailsService
 		for(LovRef lov : requiredLovs)
 		{
 			//ensure valid lov name is specified
-			if(!lovService.isValidDynamicLov(lov.getName()))
+			if(lov.getLovType() == LovType.DYNAMIC_TYPE && !lovService.isValidDynamicLov(lov.getName()))
+			{
+				throw new InvalidStateException("Invalid lov name '{}' specified on field {}", lov.getName(), lov.getFieldName());
+			}
+
+			if(lov.getLovType() == LovType.STORED_TYPE && !storedLovService.isValidLov(lov.getName()))
 			{
 				throw new InvalidStateException("Invalid lov name '{}' specified on field {}", lov.getName(), lov.getFieldName());
 			}

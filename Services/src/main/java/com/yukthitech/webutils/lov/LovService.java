@@ -21,7 +21,7 @@
  * SOFTWARE.
  */
 
-package com.yukthitech.webutils.services;
+package com.yukthitech.webutils.lov;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -53,16 +53,15 @@ import com.yukthitech.utils.exceptions.InvalidConfigurationException;
 import com.yukthitech.utils.exceptions.InvalidStateException;
 import com.yukthitech.webutils.IRepositoryMethodRegistry;
 import com.yukthitech.webutils.IWebUtilsInternalConstants;
-import com.yukthitech.webutils.InvalidRequestParameterException;
+import com.yukthitech.webutils.InvalidRequestException;
 import com.yukthitech.webutils.WebutilsContext;
-import com.yukthitech.webutils.annotations.LovMethod;
-import com.yukthitech.webutils.annotations.LovQuery;
 import com.yukthitech.webutils.common.annotations.Label;
-import com.yukthitech.webutils.common.models.ValueLabel;
+import com.yukthitech.webutils.common.lov.ValueLabel;
 import com.yukthitech.webutils.security.ISecurityService;
 import com.yukthitech.webutils.security.SecurityInvocationContext;
 import com.yukthitech.webutils.security.UnauthorizedException;
 import com.yukthitech.webutils.security.WebutilsSecurityService;
+import com.yukthitech.webutils.services.ClassScannerService;
 import com.yukthitech.webutils.services.dynamic.ArgumentType;
 import com.yukthitech.webutils.services.dynamic.DynamicArg;
 import com.yukthitech.webutils.services.dynamic.DynamicMethod;
@@ -230,7 +229,7 @@ public class LovService implements IRepositoryMethodRegistry<LovQuery>
 			//if invalid enum is specified
 			if(!enumType.isEnum())
 			{
-				throw new InvalidRequestParameterException("Invalid enum type specified: " + name);
+				throw new InvalidRequestException("Invalid enum type specified: " + name);
 			}
 
 			Object enumValues[] = enumType.getEnumConstants();
@@ -300,7 +299,7 @@ public class LovService implements IRepositoryMethodRegistry<LovQuery>
 			return valueLst;
 		}catch(ClassNotFoundException ex)
 		{
-			throw new InvalidRequestParameterException("Failed to fetch enum LOV for specified type: " + name, ex);
+			throw new InvalidRequestException("Failed to fetch enum LOV for specified type: " + name, ex);
 		}
 	}
 	

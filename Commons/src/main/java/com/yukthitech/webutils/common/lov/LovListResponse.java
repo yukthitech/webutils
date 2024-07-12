@@ -21,9 +21,11 @@
  * SOFTWARE.
  */
 
-package com.yukthitech.webutils.common.models;
+package com.yukthitech.webutils.common.lov;
 
 import java.util.List;
+
+import com.yukthitech.webutils.common.models.BaseResponse;
 
 /**
  * Response representing LOV list

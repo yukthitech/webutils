@@ -1,4 +1,6 @@
-package com.yukthitech.webutils.services;
+package com.yukthitech.webutils.lov;
+
+import com.yukthitech.webutils.common.lov.LovType;
 
 /**
  * Lov reference.
@@ -15,11 +17,14 @@ public class LovRef
 	 * Name of the field.
 	 */
 	private String fieldName;
+	
+	private LovType lovType;
 
-	public LovRef(String name, String fieldName)
+	public LovRef(String name, String fieldName, LovType lovType)
 	{
 		this.name = name;
 		this.fieldName = fieldName;
+		this.lovType = lovType;
 	}
 	
 	public String getName()
@@ -30,5 +35,10 @@ public class LovRef
 	public String getFieldName()
 	{
 		return fieldName;
+	}
+	
+	public LovType getLovType()
+	{
+		return lovType;
 	}
 }

@@ -35,12 +35,12 @@ import com.test.yukthitech.webutils.TestUserDetails;
 import com.yukthitech.utils.CommonUtils;
 import com.yukthitech.webutils.common.UserDetails;
 import com.yukthitech.webutils.extensions.ExtensionEntityDetails;
-import com.yukthitech.webutils.repository.UserEntity;
 import com.yukthitech.webutils.repository.file.FileEntity;
 import com.yukthitech.webutils.security.IAuthenticationService;
 import com.yukthitech.webutils.security.ISecurityService;
 import com.yukthitech.webutils.security.SecurityInvocationContext;
 import com.yukthitech.webutils.services.CurrentUserService;
+import com.yukthitech.webutils.user.UserEntity;
 
 import jakarta.servlet.http.HttpServletRequest;
 

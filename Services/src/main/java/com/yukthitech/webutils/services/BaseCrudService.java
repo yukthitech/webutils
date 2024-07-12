@@ -63,7 +63,7 @@ public abstract class BaseCrudService<E extends WebutilsBaseEntity, R extends IW
 	private static Logger logger = LogManager.getLogger(BaseCrudService.class);
 
 	@Autowired
-	private WebutilsRepositoryFactory webutilsRepositoryFactory;
+	protected WebutilsRepositoryFactory webutilsRepositoryFactory;
 	
 	/**
 	 * Extension service to update/read extension fields.

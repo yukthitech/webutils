@@ -25,8 +25,8 @@ package com.test.yukthitech.webutils.services.dynamic;
 
 
 import com.yukthitech.webutils.annotations.RequestParam;
-import com.yukthitech.webutils.common.LovType;
 import com.yukthitech.webutils.common.annotations.ContextAttribute;
+import com.yukthitech.webutils.common.lov.LovType;
 
 /**
  * Test class to hold dynamic methods

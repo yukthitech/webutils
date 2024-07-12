@@ -1,4 +1,4 @@
-package com.yukthitech.webutils.common;
+package com.yukthitech.webutils.common.lov;
 
 /**
  * Defines the types of LOV supported
@@ -14,5 +14,10 @@ public enum LovType
 	/**
 	 * LOV whose list is dynamic and generally obtained from DB 
 	 */
-	DYNAMIC_TYPE;
+	DYNAMIC_TYPE,
+	
+	/**
+	 * Lov whose list comes from common storage.
+	 */
+	STORED_TYPE;
 }

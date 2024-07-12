@@ -22,8 +22,8 @@ import com.yukthitech.webutils.common.FileInfo;
 import com.yukthitech.webutils.common.alerts.AlertDetails;
 import com.yukthitech.webutils.common.alerts.IAlertController;
 import com.yukthitech.webutils.common.alerts.IAlertType;
+import com.yukthitech.webutils.common.lov.ValueLabel;
 import com.yukthitech.webutils.common.models.BasicSaveResponse;
-import com.yukthitech.webutils.common.models.ValueLabel;
 
 /**
  * Utility methods useful for different agents.

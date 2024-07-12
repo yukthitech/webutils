@@ -24,7 +24,7 @@ public interface IVerificationSupport
 {
 	/**
 	 * Types of verification supported by this supporter.
-	 * @return
+	 * @return verification type
 	 */
 	public VerificationType getVerificationType();
 	

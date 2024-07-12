@@ -21,7 +21,7 @@
  * SOFTWARE.
  */
 
-package com.yukthitech.webutils.repository;
+package com.yukthitech.webutils.user;
 
 import javax.persistence.Column;
 import javax.persistence.ManyToOne;
@@ -32,6 +32,7 @@ import com.yukthitech.persistence.annotations.DataTypeMapping;
 import com.yukthitech.persistence.annotations.UniqueConstraint;
 import com.yukthitech.persistence.annotations.UniqueConstraints;
 import com.yukthitech.persistence.conversion.impl.JsonWithTypeConverter;
+import com.yukthitech.webutils.repository.WebutilsEntity;
 
 /**
  * Represents roles assigned to an user.

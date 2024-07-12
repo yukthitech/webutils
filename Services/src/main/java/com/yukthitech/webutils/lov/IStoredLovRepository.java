@@ -21,24 +21,23 @@
  * SOFTWARE.
  */
 
-package com.yukthitech.webutils.annotations;
+package com.yukthitech.webutils.lov;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import com.yukthitech.persistence.repository.annotations.AggregateFunction;
+import com.yukthitech.persistence.repository.annotations.AggregateFunctionType;
+import com.yukthitech.persistence.repository.annotations.Condition;
+import com.yukthitech.webutils.common.annotations.Optional;
+import com.yukthitech.webutils.repository.IWebutilsRepository;
 
 /**
- * Used to mark a service method as LOV provider.
+ * Repository for managing stored LOV.
  * @author akiran
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-public @interface LovMethod
+@Optional
+public interface IStoredLovRepository extends IWebutilsRepository<StoredLovEntity>
 {
-	/**
-	 * Name of the LOV to be used by client.
-	 * @return Name of the LOV to be used by client
-	 */
-	public String name();
+	public StoredLovEntity fetchByName(@Condition("name") String name);
+	
+	@AggregateFunction(type = AggregateFunctionType.COUNT)
+	public boolean isValid(@Condition("name") String name);
 }

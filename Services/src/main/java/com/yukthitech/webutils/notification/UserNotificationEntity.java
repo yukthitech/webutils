@@ -6,8 +6,8 @@ import javax.persistence.Table;
 
 import com.yukthitech.persistence.annotations.UniqueConstraint;
 import com.yukthitech.persistence.annotations.UniqueConstraints;
-import com.yukthitech.webutils.repository.UserEntity;
 import com.yukthitech.webutils.repository.WebutilsBaseEntity;
+import com.yukthitech.webutils.user.UserEntity;
 
 /**
  * Used to set user notification preferences.

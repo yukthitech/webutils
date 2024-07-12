@@ -20,8 +20,8 @@ import com.yukthitech.persistence.TransactionException;
 import com.yukthitech.utils.exceptions.InvalidStateException;
 import com.yukthitech.webutils.common.models.notification.NotificationModel;
 import com.yukthitech.webutils.common.models.notification.NotificationSetting;
-import com.yukthitech.webutils.repository.UserEntity;
 import com.yukthitech.webutils.services.WebutilsRepositoryFactory;
+import com.yukthitech.webutils.user.UserEntity;
 
 import jakarta.annotation.PostConstruct;
 

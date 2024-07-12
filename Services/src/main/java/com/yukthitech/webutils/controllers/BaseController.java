@@ -42,7 +42,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.yukthitech.persistence.PersistenceException;
 import com.yukthitech.persistence.UniqueConstraintViolationException;
 import com.yukthitech.webutils.BeanValidationException;
-import com.yukthitech.webutils.InvalidRequestParameterException;
+import com.yukthitech.webutils.InvalidRequestException;
 import com.yukthitech.webutils.common.IWebUtilsCommonConstants;
 import com.yukthitech.webutils.common.models.BaseResponse;
 import com.yukthitech.webutils.security.UnauthorizedException;
@@ -130,24 +130,16 @@ public class BaseController
 		return new BaseResponse(IWebUtilsCommonConstants.RESPONSE_CODE_INVALID_REQUEST, responseMsg.toString());
 	}
 
-	/**
-	 * Handler for MethodArgumentNotValidException. This exception is expected to be thrown
-	 * by spring when request object fails server side validations.
-	 * @param response Response object
-	 * @param ex Exception to be handled
-	 * @return Response with proper error code and message
-	 */
-	@ExceptionHandler(value={InvalidRequestParameterException.class})
+	@ExceptionHandler(value={InvalidRequestException.class})
 	@ResponseBody
-	public BaseResponse handleInvalidRequestParameterException(HttpServletResponse response, InvalidRequestParameterException ex)
+	public BaseResponse handleInvalidRequestException(HttpServletResponse response, InvalidRequestException ex)
 	{
-		logger.debug("Encountered invalid-request exception - ", ex);
+		logger.debug("Encountered invalid-request exception - " + ex);
 
 		response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-		
-		return new BaseResponse(IWebUtilsCommonConstants.RESPONSE_CODE_INVALID_REQUEST, fetchMessage(ex));
+		return new BaseResponse(ex.getStatusCode(), ex.getMessage(), ex.getFieldErrors());
 	}
-	
+
 	/**
 	 * Handler for UnauthorizedException. This exception is expected to be thrown
 	 * when current user is not authorized to execute target operation.
@@ -159,7 +151,7 @@ public class BaseController
 	@ResponseBody
 	public BaseResponse handleUnauthorizedException(HttpServletResponse response, UnauthorizedException ex)
 	{
-		logger.debug("Encountered UnauthorizedException exception - ", ex);
+		logger.debug("Encountered UnauthorizedException exception - " + ex);
 
 		response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 		
@@ -181,9 +173,9 @@ public class BaseController
 
 	/**
 	 * Handler to handle persistence exception
-	 * @param response
-	 * @param ex
-	 * @return
+	 * @param response response object
+	 * @param ex Exception
+	 * @return base response representing error
 	 */
 	@ExceptionHandler(value={PersistenceException.class})
 	@ResponseBody

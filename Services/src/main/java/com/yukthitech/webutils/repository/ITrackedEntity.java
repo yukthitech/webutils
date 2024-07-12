@@ -2,6 +2,8 @@ package com.yukthitech.webutils.repository;
 
 import java.util.Date;
 
+import com.yukthitech.webutils.user.UserEntity;
+
 /**
  * Used to mark entity as tenant space based.
  * @author akiran

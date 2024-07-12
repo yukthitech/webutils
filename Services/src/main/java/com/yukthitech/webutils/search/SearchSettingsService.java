@@ -26,13 +26,13 @@ import com.yukthitech.webutils.common.search.SearchField;
 import com.yukthitech.webutils.common.search.SearchSettingsColumn;
 import com.yukthitech.webutils.common.search.SearchSettingsModel;
 import com.yukthitech.webutils.repository.ExtensionFieldEntity;
-import com.yukthitech.webutils.repository.UserEntity;
 import com.yukthitech.webutils.repository.search.ISearchSettingsRespository;
 import com.yukthitech.webutils.repository.search.SearchSettingsEntity;
 import com.yukthitech.webutils.services.BaseCrudService;
 import com.yukthitech.webutils.services.CurrentUserService;
 import com.yukthitech.webutils.services.ExtensionService;
 import com.yukthitech.webutils.services.NoRepositoryFoundException;
+import com.yukthitech.webutils.user.UserEntity;
 import com.yukthitech.webutils.utils.WebUtils;
 
 /**

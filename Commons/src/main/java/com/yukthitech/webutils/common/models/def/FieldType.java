@@ -60,6 +60,11 @@ public enum FieldType
 	 */
 	VERIFICATION("verification", String.class),
 	
+	/**
+	 * Captcha field to avoid robots.
+	 */
+	CAPTCHA("captcha", String.class),
+	
 	INTEGER("int", int.class, Integer.class, int.class, Long.class, long.class, Short.class, short.class),
 	
 	FLOAT("float", float.class, Float.class, float.class, Double.class, double.class),

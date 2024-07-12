@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.yukthitech.utils.ZipUtils;
-import com.yukthitech.webutils.InvalidRequestParameterException;
+import com.yukthitech.webutils.InvalidRequestException;
 import com.yukthitech.webutils.annotations.ActionName;
 import com.yukthitech.webutils.annotations.AttachmentsExpected;
 import com.yukthitech.webutils.common.FileInfo;
@@ -70,7 +70,7 @@ public class AutoxReportController extends BaseCrudController<AutoxReportModel, 
 	{
 		if(autoxReport.getReportFile() == null)
 		{
-			throw new InvalidRequestParameterException("No report file specified in request.");
+			throw new InvalidRequestException("No report file specified in request.");
 		}
 		
 		return super.save(autoxReport);
@@ -96,7 +96,7 @@ public class AutoxReportController extends BaseCrudController<AutoxReportModel, 
 		// 	so that file controller will sent error to client
 		if(fileId == null)
 		{
-			throw new InvalidRequestParameterException("No report available with specified id: " + reportId);
+			throw new InvalidRequestException("No report available with specified id: " + reportId);
 		}
 		
 		FileEntity fileEntity = fileService.getFileEntity(fileId);
@@ -122,7 +122,7 @@ public class AutoxReportController extends BaseCrudController<AutoxReportModel, 
 		
 		if(!file.exists())
 		{
-			throw new InvalidRequestParameterException("File {} does not exist under report files of report: {} [Coverted path: {}]", filePath, reportId, subpath);
+			throw new InvalidRequestException("File {} does not exist under report files of report: {} [Coverted path: {}]", filePath, reportId, subpath);
 		}
 		
 		FileInfo fileInfo = new FileInfo(file.getName(), file, null);

@@ -20,58 +20,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.yukthitech.webutils;
 
-import com.yukthitech.utils.MessageFormatter;
+package com.yukthitech.webutils.lov;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * Exception to be thrown when input request parameters is found to be invalid
+ * Used to mark a service method as LOV provider.
  * @author akiran
  */
-public class InvalidRequestParameterException extends RuntimeException
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface LovMethod
 {
-	private static final long serialVersionUID = 1L;
-	
 	/**
-	 * Instantiates a new invalid request parameter exception.
-	 *
-	 * @param message the message
+	 * Name of the LOV to be used by client.
+	 * @return Name of the LOV to be used by client
 	 */
-	public InvalidRequestParameterException(String message)
-	{
-		super(message);
-	}
-
-	/**
-	 * Instantiates a new invalid request parameter exception.
-	 *
-	 * @param message the message
-	 * @param cause the cause
-	 */
-	public InvalidRequestParameterException(String message, Throwable cause)
-	{
-		super(message, cause);
-	}
-	
-	/**
-	 * Var args version of constructor
-	 * @param cause
-	 * @param message
-	 * @param args
-	 */
-	public InvalidRequestParameterException(Throwable cause, String message, Object... args)
-	{
-		super(MessageFormatter.format(message, args), cause);
-	}
-
-	/**
-	 * Var args version of constructor
-	 * @param message
-	 * @param args
-	 */
-	public InvalidRequestParameterException(String message, Object... args)
-	{
-		super(MessageFormatter.format(message, args));
-	}
-
+	public String name();
 }

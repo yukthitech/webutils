@@ -5,6 +5,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import com.yukthitech.webutils.common.lov.DynLovType;
+
 /**
  * Used to mark a field as LOV type (which maps to dynamic LOV)
  * @author akiran
@@ -25,4 +27,10 @@ public @interface LOV
 	 * @return Parent field name, if any
 	 */
 	public String parentField() default "";
+	
+	/**
+	 * Type of lov being referred.
+	 * @return
+	 */
+	public DynLovType type() default DynLovType.DYNAMIC_TYPE;
 }

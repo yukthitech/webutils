@@ -21,7 +21,7 @@
  * SOFTWARE.
  */
 
-package com.yukthitech.webutils.annotations;
+package com.yukthitech.webutils.lov;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -33,7 +33,7 @@ import com.yukthitech.persistence.repository.annotations.ResultMapping;
 import com.yukthitech.persistence.repository.annotations.SearchResult;
 import com.yukthitech.utils.annotations.OverrideProperties;
 import com.yukthitech.utils.annotations.OverrideProperty;
-import com.yukthitech.webutils.services.LovService;
+import com.yukthitech.webutils.annotations.RegistryMethod;
 
 /**
  * Used to mark a repository method as LOV query method. So that when required

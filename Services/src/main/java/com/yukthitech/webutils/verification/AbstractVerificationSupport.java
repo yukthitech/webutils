@@ -27,6 +27,10 @@ public abstract class AbstractVerificationSupport implements IVerificationSuppor
 	 */
 	private VerificationType type;
 	
+	/**
+	 * Initialize with verification type.
+	 * @param type verification type
+	 */
 	public AbstractVerificationSupport(VerificationType type)
 	{
 		this.type = type;

@@ -33,8 +33,8 @@ import org.springframework.stereotype.Service;
 import com.yukthitech.webutils.IWebUtilsInternalConstants;
 import com.yukthitech.webutils.common.UserDetails;
 import com.yukthitech.webutils.repository.ITrackedEntity;
-import com.yukthitech.webutils.repository.UserEntity;
 import com.yukthitech.webutils.repository.WebutilsBaseEntity;
+import com.yukthitech.webutils.user.UserEntity;
 
 import jakarta.servlet.http.HttpServletRequest;
 

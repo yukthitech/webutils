@@ -8,6 +8,7 @@ import javax.persistence.ManyToOne;
 import com.yukthitech.persistence.annotations.DataType;
 import com.yukthitech.persistence.annotations.DataTypeMapping;
 import com.yukthitech.persistence.annotations.NotUpdateable;
+import com.yukthitech.webutils.user.UserEntity;
 
 /**
  * Base class for entities containing common fields for tracking.

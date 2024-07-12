@@ -62,7 +62,7 @@ import com.yukthitech.utils.ObjectWrapper;
 import com.yukthitech.utils.exceptions.InvalidConfigurationException;
 import com.yukthitech.utils.exceptions.InvalidStateException;
 import com.yukthitech.webutils.IRepositoryMethodRegistry;
-import com.yukthitech.webutils.InvalidRequestParameterException;
+import com.yukthitech.webutils.InvalidRequestException;
 import com.yukthitech.webutils.WebutilsConfiguration;
 import com.yukthitech.webutils.WebutilsContext;
 import com.yukthitech.webutils.annotations.SearchCustomizer;
@@ -363,7 +363,7 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 
 		if(searchQueryDetails == null)
 		{
-			throw new InvalidRequestParameterException("Invalid search query  name specified - " + searchQueryName);
+			throw new InvalidRequestException("Invalid search query  name specified - " + searchQueryName);
 		}
 
 		return modelDetailsService.getModelDef(searchQueryDetails.queryTypeModelName);
@@ -382,7 +382,7 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 
 		if(searchQueryDetails == null)
 		{
-			throw new InvalidRequestParameterException("Invalid search query name specified - " + searchQueryName);
+			throw new InvalidRequestException("Invalid search query name specified - " + searchQueryName);
 		}
 
 		return searchQueryDetails.queryType;
@@ -401,7 +401,7 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 
 		if(searchQueryDetails == null)
 		{
-			throw new InvalidRequestParameterException("Invalid search query name specified - " + searchQueryName);
+			throw new InvalidRequestException("Invalid search query name specified - " + searchQueryName);
 		}
 
 		return modelDetailsService.getModelDef(searchQueryDetails.resultTypeModelName);
@@ -453,12 +453,12 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 
 		if(searchQueryDetails == null)
 		{
-			throw new InvalidRequestParameterException("Invalid search query name specified - " + searchQueryName);
+			throw new InvalidRequestException("Invalid search query name specified - " + searchQueryName);
 		}
 
 		if(!searchQueryDetails.queryType.isAssignableFrom(query.getClass()))
 		{
-			throw new InvalidRequestParameterException("Invalid search query bean type {} specified for search query {}. Expected type - {}" + searchQueryName);
+			throw new InvalidRequestException("Invalid search query bean type {} specified for search query {}. Expected type - {}" + searchQueryName);
 		}
 		
 		// if security service is specified, check user authorization for target
@@ -893,7 +893,7 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 
 		if(searchQueryDetails == null)
 		{
-			throw new InvalidRequestParameterException("Invalid search query name specified - " + searchQueryName);
+			throw new InvalidRequestException("Invalid search query name specified - " + searchQueryName);
 		}
 
 		return searchQueryDetails.repository.getEntityDetails().getEntityType();

@@ -21,27 +21,21 @@
  * SOFTWARE.
  */
 
-package com.yukthitech.webutils.annotations;
+package com.yukthitech.webutils.lov;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.util.List;
+
+import com.yukthitech.persistence.repository.annotations.Condition;
+import com.yukthitech.webutils.common.annotations.Optional;
+import com.yukthitech.webutils.repository.IWebutilsRepository;
 
 /**
- * Used to mark method as search query customizer. Which would be invoked before
- * query execution.
- * 
- * @author akranthikiran
+ * Repository for managing stored LOV values.
+ * @author akiran
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-public @interface SearchCustomizer
+@Optional
+public interface IStoredLovOptionRepository extends IWebutilsRepository<StoredLovOptionEntity>
 {
-	/**
-	 * Name of the Search-query to be customized.
-	 * @return Name of the Search-query to be customized
-	 */
-	public String name();
+	public List<StoredLovOptionEntity> fetchByLov(@Condition("parentLov.id") Long lovId, 
+			@Condition("parentLovOption.id") Long parentLovOptionId);
 }
-

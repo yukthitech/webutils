@@ -40,7 +40,7 @@ import com.yukthitech.webutils.common.annotations.IgnoreField;
 import com.yukthitech.webutils.common.annotations.Model;
 import com.yukthitech.webutils.common.models.def.FieldDef;
 import com.yukthitech.webutils.common.models.def.ModelDef;
-import com.yukthitech.webutils.services.LovRef;
+import com.yukthitech.webutils.lov.LovRef;
 
 /**
  * Factory for generating model def based on specified java type

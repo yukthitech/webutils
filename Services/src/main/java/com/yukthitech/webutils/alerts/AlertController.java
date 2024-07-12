@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
-import com.yukthitech.webutils.InvalidRequestParameterException;
+import com.yukthitech.webutils.InvalidRequestException;
 import com.yukthitech.webutils.annotations.ActionName;
 import com.yukthitech.webutils.annotations.AttachmentsExpected;
 import com.yukthitech.webutils.common.IWebUtilsCommonConstants;
@@ -87,12 +87,12 @@ public class AlertController extends BaseController implements IAlertController<
 		
 		if(alert == null)
 		{
-			throw new InvalidRequestParameterException("No pull alert found with id: " + id);
+			throw new InvalidRequestException("No pull alert found with id: " + id);
 		}
 		
 		if(alert.getStatus() != PullAlertStatus.NOT_PROCESSED)
 		{
-			throw new InvalidRequestParameterException("Specified alert is already processed.");
+			throw new InvalidRequestException("Specified alert is already processed.");
 		}
 		
 		pullAlertService.updateStatus(id, PullAlertStatus.PROCESSED, alertProcessedDetails);

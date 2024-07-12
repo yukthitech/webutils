@@ -27,6 +27,7 @@ import java.lang.reflect.Field;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.yukthitech.webutils.common.verification.VerificationType;
 
 /**
  * Provides details about model field, that can be used by clients for dynamic ui
@@ -119,12 +120,12 @@ public class FieldDef
 	/**
 	 * Type of verification needed by field.
 	 */
-	private String verificationType;
+	private VerificationType verificationType;
 	
 	/**
-	 * Name of the field to which this field's verification token should be expected.
+	 * Name of the field to which this field's token (used by verification, captcha) should be expected.
 	 */
-	private String verificationTokenField;
+	private String tokenField;
 	
 	/**
 	 * Instantiates a new field def.
@@ -454,24 +455,24 @@ public class FieldDef
 		this.format = format;
 	}
 	
-	public String getVerificationType()
+	public VerificationType getVerificationType()
 	{
 		return verificationType;
 	}
 
-	public void setVerificationType(String verificationType)
+	public void setVerificationType(VerificationType verificationType)
 	{
 		this.verificationType = verificationType;
 	}
-	
-	public String getVerificationTokenField()
+
+	public String getTokenField()
 	{
-		return verificationTokenField;
+		return tokenField;
 	}
 
-	public void setVerificationTokenField(String verificationTokenField)
+	public void setTokenField(String tokenField)
 	{
-		this.verificationTokenField = verificationTokenField;
+		this.tokenField = tokenField;
 	}
 
 	/* (non-Javadoc)

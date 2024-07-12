@@ -28,9 +28,9 @@ import java.util.Date;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.yukthitech.webutils.repository.IUserRepository;
-import com.yukthitech.webutils.repository.UserEntity;
 import com.yukthitech.webutils.services.WebutilsRepositoryFactory;
+import com.yukthitech.webutils.user.IUserRepository;
+import com.yukthitech.webutils.user.UserEntity;
 
 import jakarta.annotation.PostConstruct;
 

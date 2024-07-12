@@ -44,7 +44,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yukthitech.excel.exporter.ExcelExporter;
-import com.yukthitech.webutils.InvalidRequestParameterException;
+import com.yukthitech.webutils.InvalidRequestException;
 import com.yukthitech.webutils.SearchExcelDataReport;
 import com.yukthitech.webutils.annotations.ActionName;
 import com.yukthitech.webutils.common.FileInfo;
@@ -136,7 +136,7 @@ public class SearchController extends BaseController implements ISearchControlle
 				query = objectMapper.readValue(searchExecutionModel.getQueryModelJson(), queryType);
 			}catch(Exception ex)
 			{
-				throw new InvalidRequestParameterException(ex, "Failed to convert input json to {}. Input json - ", queryType.getName(), searchExecutionModel.getQueryModelJson());
+				throw new InvalidRequestException("Failed to convert input json to {}. Input json - ", queryType.getName(), searchExecutionModel.getQueryModelJson(), ex);
 			}
 		}
 		
@@ -166,7 +166,7 @@ public class SearchController extends BaseController implements ISearchControlle
 				query = objectMapper.readValue(searchExecutionModel.getQueryModelJson(), queryType);
 			}catch(Exception ex)
 			{
-				throw new InvalidRequestParameterException(ex, "Failed to convert input json to {}. Input json - ", queryType.getName(), searchExecutionModel.getQueryModelJson());
+				throw new InvalidRequestException("Failed to convert input json to {}. Input json - ", queryType.getName(), searchExecutionModel.getQueryModelJson(), ex);
 			}
 		}
 		
@@ -195,7 +195,7 @@ public class SearchController extends BaseController implements ISearchControlle
 				query = objectMapper.readValue(searchExecutionModel.getQueryModelJson(), queryType);
 			}catch(Exception ex)
 			{
-				throw new InvalidRequestParameterException(ex, "Failed to convert input json to {}. Input json - ", queryType.getName(), searchExecutionModel.getQueryModelJson());
+				throw new InvalidRequestException("Failed to convert input json to {}. Input json - ", queryType.getName(), searchExecutionModel.getQueryModelJson(), ex);
 			}
 		}
 		

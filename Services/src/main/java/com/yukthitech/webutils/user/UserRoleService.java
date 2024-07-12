@@ -1,4 +1,4 @@
-package com.yukthitech.webutils.services;
+package com.yukthitech.webutils.user;
 
 import java.util.HashMap;
 import java.util.List;
@@ -8,8 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import com.yukthitech.webutils.UserRoleKey;
-import com.yukthitech.webutils.repository.IUserRoleRepository;
-import com.yukthitech.webutils.repository.UserRoleEntity;
+import com.yukthitech.webutils.services.BaseCrudService;
 
 /**
  * Service to different types of roles.

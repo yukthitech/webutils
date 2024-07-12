@@ -52,6 +52,16 @@ public interface IWebUtilsCommonConstants
 	public int RESPONSE_CODE_INVALID_REQUEST = 4400;
 	
 	/**
+	 * Response code when invalid/wrong value is specified.
+	 */
+	public int RESPONSE_CODE_INVALID_VALUE = 4401;
+	
+	/**
+	 * Response code when expired value is specified.
+	 */
+	public int RESPONSE_CODE_EXPIRED_VALUE = 4402;
+
+	/**
 	 * Response code to be used when unhandled error occurs on server
 	 */
 	public int RESPONSE_CODE_UNHANDLED_SERVER_ERROR = 4500;
@@ -200,4 +210,6 @@ public interface IWebUtilsCommonConstants
 	 * Mapper that will be used to convert objects to and from json.
 	 */
 	public ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+	
+	public int CAPTCHA_LENGTH = 5;
 }

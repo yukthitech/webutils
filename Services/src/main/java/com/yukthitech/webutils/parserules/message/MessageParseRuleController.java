@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.yukthitech.utils.ObjectWrapper;
 import com.yukthitech.utils.exceptions.InvalidStateException;
-import com.yukthitech.webutils.InvalidRequestParameterException;
+import com.yukthitech.webutils.InvalidRequestException;
 import com.yukthitech.webutils.alerts.AlertEngine;
 import com.yukthitech.webutils.annotations.ActionName;
 import com.yukthitech.webutils.common.client.IRequestCustomizer;
@@ -106,7 +106,7 @@ public class MessageParseRuleController extends BaseCrudController<MessageParseR
 		
 		if(parsingRuleEntity == null)
 		{
-			throw new InvalidRequestParameterException("No parsing rule found with id: " + parsingRuleId);
+			throw new InvalidRequestException("No parsing rule found with id: " + parsingRuleId);
 		}
 		
 		BasicMessageParseRuleModel basicRule = new BasicMessageParseRuleModel();
@@ -123,7 +123,7 @@ public class MessageParseRuleController extends BaseCrudController<MessageParseR
 		
 		if(!parsedMessage.isMatchingWith(basicRule, errMssg))
 		{
-			throw new InvalidRequestParameterException("Specified message is not matching with specified rule: {}.\nError: {}", parsingRuleId, errMssg.getValue());
+			throw new InvalidRequestException("Specified message is not matching with specified rule: {}.\nError: {}", parsingRuleId, errMssg.getValue());
 		}
 		
 		//Build values by parsing message body with patterns

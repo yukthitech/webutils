@@ -2,10 +2,10 @@ package com.test.yukthitech.webutils.models;
 
 import com.yukthitech.validation.annotations.MatchWith;
 import com.yukthitech.validation.annotations.NotEmpty;
-import com.yukthitech.webutils.common.LovType;
 import com.yukthitech.webutils.common.annotations.LOV;
 import com.yukthitech.webutils.common.annotations.Label;
 import com.yukthitech.webutils.common.annotations.Model;
+import com.yukthitech.webutils.common.lov.LovType;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;

@@ -13,8 +13,8 @@ import com.yukthitech.persistence.annotations.UniqueConstraint;
 import com.yukthitech.persistence.annotations.UniqueConstraints;
 import com.yukthitech.persistence.conversion.impl.JsonWithTypeConverter;
 import com.yukthitech.webutils.common.search.SearchSettingsColumn;
-import com.yukthitech.webutils.repository.UserEntity;
 import com.yukthitech.webutils.repository.WebutilsBaseEntity;
+import com.yukthitech.webutils.user.UserEntity;
 
 /**
  * Search query customization settings.

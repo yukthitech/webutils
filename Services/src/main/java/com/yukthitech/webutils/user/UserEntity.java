@@ -21,7 +21,7 @@
  * SOFTWARE.
  */
 
-package com.yukthitech.webutils.repository;
+package com.yukthitech.webutils.user;
 
 import javax.persistence.Column;
 import javax.persistence.Table;
@@ -31,6 +31,7 @@ import com.yukthitech.persistence.annotations.NotUpdateable;
 import com.yukthitech.persistence.annotations.UniqueConstraint;
 import com.yukthitech.persistence.annotations.UniqueConstraints;
 import com.yukthitech.persistence.conversion.impl.PasswordEncryptionConverter;
+import com.yukthitech.webutils.repository.WebutilsEntity;
 
 /**
  * User details for authentication. All entities like Customer, Client or admin should create
@@ -58,6 +59,13 @@ public class UserEntity extends WebutilsEntity
 	@DataTypeMapping(converterType = PasswordEncryptionConverter.class)
 	private String password;
 	
+	/**
+	 * Password set temporarily during reset process.
+	 */
+	@Column(name = "RESET_PASSWORD", length = 500, nullable = true)
+	@DataTypeMapping(converterType = PasswordEncryptionConverter.class)
+	private String resetPassowrd;
+
 	/**
 	 * Display name.
 	 */
@@ -134,6 +142,15 @@ public class UserEntity extends WebutilsEntity
 		this.displayName = displayName;
 	}
 
+	public UserEntity(String spaceIdentity, String userName, String password, String displayName)
+	{
+		this.userName = userName;
+		this.password = password;
+		this.displayName = displayName;
+		
+		super.setSpaceIdentity(spaceIdentity);
+	}
+
 	/**
 	 * Gets the user name used for authentication.
 	 *
@@ -172,6 +189,27 @@ public class UserEntity extends WebutilsEntity
 	public void setPassword(String password)
 	{
 		this.password = password;
+	}
+
+	/**
+	 * Gets the password set temporarily during reset process.
+	 *
+	 * @return the password set temporarily during reset process
+	 */
+	public String getResetPassowrd()
+	{
+		return resetPassowrd;
+	}
+
+	/**
+	 * Sets the password set temporarily during reset process.
+	 *
+	 * @param resetPassowrd the new password set temporarily during reset
+	 *        process
+	 */
+	public void setResetPassowrd(String resetPassowrd)
+	{
+		this.resetPassowrd = resetPassowrd;
 	}
 
 	/**

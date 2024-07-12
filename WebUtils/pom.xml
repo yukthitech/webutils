@@ -4,7 +4,7 @@
 
 	<groupId>com.yukthitech.webutils</groupId>
 	<artifactId>WebUtils</artifactId>
-	<version>1.0.2-SNAPSHOT</version>
+	<version>1.0.3-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>WebUtils</name>
@@ -127,6 +127,7 @@
 					</execution>
 				</executions>
 			</plugin>
+			<!--
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
@@ -139,6 +140,7 @@
 					</execution>
 				</executions>
 			</plugin>
+			-->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-gpg-plugin</artifactId>

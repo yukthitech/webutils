@@ -1,19 +1,21 @@
-package com.yukthitech.webutils.repository;
+package com.yukthitech.webutils.user;
 
 import com.yukthitech.persistence.repository.annotations.AggregateFunction;
 import com.yukthitech.persistence.repository.annotations.Condition;
 import com.yukthitech.persistence.repository.annotations.DefaultCondition;
 import com.yukthitech.persistence.repository.annotations.Field;
 import com.yukthitech.persistence.repository.annotations.MethodConditions;
+import com.yukthitech.persistence.repository.annotations.SearchResult;
 import com.yukthitech.persistence.repository.annotations.UpdateFunction;
 import com.yukthitech.webutils.common.annotations.Conditional;
+import com.yukthitech.webutils.repository.IWebutilsRepository;
 
 /**
  * Repository for user authentication details.
  * 
  * @author akiran
  */
-@Conditional("(env['webutils.tenantSpaceBased']!'false') != 'true'")
+@Conditional("(env['webutils.tenantSpaceBased']!'false') != 'true' && (env['webutils.user.tenantSpaceBased']!'false') != 'true'")
 public interface IUserRepository extends IWebutilsRepository<UserEntity>
 {
 	/**
@@ -35,9 +37,8 @@ public interface IUserRepository extends IWebutilsRepository<UserEntity>
 	 * @return Encrypted password
 	 */
 	@MethodConditions(conditions = { @DefaultCondition(field = "deleted", value = "false") })
-	@Field("password")
-	public String fetchPassword(@Condition("userName") String userName,
-			@Condition("baseEntityType") String  baseEntityType);
+	@SearchResult
+	public UserPasswords fetchPassword(@Condition("userName") String userName);
 
 	@MethodConditions(conditions = { @DefaultCondition(field = "deleted", value = "false") })
 	@Field("password")
@@ -103,5 +104,10 @@ public interface IUserRepository extends IWebutilsRepository<UserEntity>
 	 *            Password
 	 * @return Success/failure
 	 */
-	public boolean updatePassword(@Condition("userName") String userName, @Field("password") String password);
+	public boolean updatePassword(@Condition("id") long userId, 
+			@Field("password") String password, 
+			@Field(value = "resetPassword") String resetPassword);
+
+	public boolean updateResetPassword(@Condition("id") long userId, 
+			@Field(value = "resetPassword") String resetPassword);
 }

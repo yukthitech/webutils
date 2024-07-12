@@ -31,9 +31,9 @@ import com.test.yukthitech.webutils.models.TestEmpSearchQuery;
 import com.test.yukthitech.webutils.models.TestEmpSearchResult;
 import com.yukthitech.persistence.repository.annotations.OrderBy;
 import com.yukthitech.persistence.repository.search.SearchQuery;
-import com.yukthitech.webutils.annotations.LovQuery;
 import com.yukthitech.webutils.annotations.SearchQueryMethod;
-import com.yukthitech.webutils.common.models.ValueLabel;
+import com.yukthitech.webutils.common.lov.ValueLabel;
+import com.yukthitech.webutils.lov.LovQuery;
 import com.yukthitech.webutils.repository.IWebutilsRepository;
 
 /**

@@ -13,14 +13,20 @@ public class CaptchaResponse extends BaseResponse
 	private String imageBase64;
 
 	/**
-	 * Encrypted answer.
+	 * Token with encrypted answer.
 	 */
-	private String encAns;
+	private String token;
 	
-	public CaptchaResponse(String imageBase64, String encAns)
+	/**
+	 * 
+	 *
+	 * @param imageBase64
+	 * @param token
+	 */
+	public CaptchaResponse(String imageBase64, String token)
 	{
 		this.imageBase64 = imageBase64;
-		this.encAns = encAns;
+		this.token = token;
 	}
 
 	/**
@@ -44,23 +50,22 @@ public class CaptchaResponse extends BaseResponse
 	}
 
 	/**
-	 * Gets the encrypted answer.
+	 * Gets the token with encrypted answer.
 	 *
-	 * @return the encrypted answer
+	 * @return the token with encrypted answer
 	 */
-	public String getEncAns()
+	public String getToken()
 	{
-		return encAns;
+		return token;
 	}
 
 	/**
-	 * Sets the encrypted answer.
+	 * Sets the token with encrypted answer.
 	 *
-	 * @param encAns the new encrypted answer
+	 * @param token the new token with encrypted answer
 	 */
-	public void setEncAns(String encAns)
+	public void setToken(String token)
 	{
-		this.encAns = encAns;
+		this.token = token;
 	}
-
 }

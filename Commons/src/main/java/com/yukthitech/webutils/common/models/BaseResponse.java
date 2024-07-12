@@ -23,6 +23,8 @@
 
 package com.yukthitech.webutils.common.models;
 
+import java.util.List;
+
 import com.yukthitech.webutils.common.IWebUtilsCommonConstants;
 
 /**
@@ -39,6 +41,12 @@ public class BaseResponse
 	 * Response message. 
 	 */
 	private String message;
+	
+	/**
+	 * In case of error response, this can be used to specify field
+	 * wise errors.
+	 */
+	private List<FieldError> fieldErrors;
 
 	/**
 	 * Instantiates a new base response.
@@ -47,7 +55,7 @@ public class BaseResponse
 	{
 		this(IWebUtilsCommonConstants.RESPONSE_CODE_SUCCESS, IWebUtilsCommonConstants.DEF_RESPONSE_SUCCES_MESSAGE);
 	}
-
+	
 	/**
 	 * Instantiates a new base response.
 	 *
@@ -70,6 +78,13 @@ public class BaseResponse
 	public BaseResponse(String message)
 	{
 		this(IWebUtilsCommonConstants.RESPONSE_CODE_SUCCESS, message);
+	}
+	
+	public BaseResponse(int code, String message, List<FieldError> fieldErrors)
+	{
+		this.code = code;
+		this.message = message;
+		this.fieldErrors = fieldErrors;
 	}
 
 	/**
@@ -110,6 +125,16 @@ public class BaseResponse
 	public void setMessage(String message)
 	{
 		this.message = message;
+	}
+	
+	public List<FieldError> getFieldErrors()
+	{
+		return fieldErrors;
+	}
+
+	public void setFieldErrors(List<FieldError> fieldErrors)
+	{
+		this.fieldErrors = fieldErrors;
 	}
 
 	/* (non-Javadoc)

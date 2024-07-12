@@ -1,9 +1,10 @@
-package com.yukthitech.webutils.repository;
+package com.yukthitech.webutils.user;
 
 import java.util.List;
 
 import com.yukthitech.persistence.repository.annotations.Condition;
 import com.yukthitech.webutils.common.annotations.Optional;
+import com.yukthitech.webutils.repository.IWebutilsRepository;
 
 /**
  * Repository for user authentication details.

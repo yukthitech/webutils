@@ -25,8 +25,8 @@ package com.test.yukthitech.webutils.entity;
 
 import java.util.List;
 
-import com.yukthitech.webutils.annotations.LovQuery;
-import com.yukthitech.webutils.common.models.ValueLabel;
+import com.yukthitech.webutils.common.lov.ValueLabel;
+import com.yukthitech.webutils.lov.LovQuery;
 import com.yukthitech.webutils.repository.IWebutilsRepository;
 
 /**

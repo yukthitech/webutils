@@ -27,6 +27,7 @@ import java.util.List;
 
 import com.yukthitech.webutils.common.ContactDetails;
 import com.yukthitech.webutils.extensions.ExtensionEntityDetails;
+import com.yukthitech.webutils.lov.StoredLovEntity;
 import com.yukthitech.webutils.repository.file.FileEntity;
 
 /**
@@ -54,6 +55,16 @@ public interface ISecurityService
 		return true;
 	}
 	
+	/**
+	 * This method should return true only if current user is authorized to access specified strored-lov.
+	 * @param lovEntity Lov which needs to be checked for authorization
+	 * @return True if current user is authorized to access specified lov
+	 */
+	public default boolean isAuthorized(StoredLovEntity lovEntity)
+	{
+		return true;
+	}
+
 	/**
 	 * This method should return identity string to which user belongs. If the app does not have user spaces, this method
 	 * can return null.

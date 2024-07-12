@@ -36,12 +36,12 @@ import com.yukthitech.utils.exceptions.InvalidStateException;
 import com.yukthitech.webutils.common.UserDetails;
 import com.yukthitech.webutils.repository.ITenantSpaceBased;
 import com.yukthitech.webutils.repository.ITrackedEntity;
-import com.yukthitech.webutils.repository.UserEntity;
 import com.yukthitech.webutils.repository.WebutilsBaseEntity;
 import com.yukthitech.webutils.security.IAuthenticationService;
 import com.yukthitech.webutils.services.CurrentUserService;
-import com.yukthitech.webutils.services.UserService;
 import com.yukthitech.webutils.services.freemarker.FreeMarkerService;
+import com.yukthitech.webutils.user.UserEntity;
+import com.yukthitech.webutils.user.UserService;
 import com.yukthitech.webutils.utils.WebUtils;
 
 /**

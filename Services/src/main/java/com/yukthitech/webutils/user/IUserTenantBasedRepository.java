@@ -1,10 +1,11 @@
-package com.yukthitech.webutils.repository;
+package com.yukthitech.webutils.user;
 
 import com.yukthitech.persistence.repository.annotations.AggregateFunction;
 import com.yukthitech.persistence.repository.annotations.Condition;
 import com.yukthitech.persistence.repository.annotations.DefaultCondition;
 import com.yukthitech.persistence.repository.annotations.Field;
 import com.yukthitech.persistence.repository.annotations.MethodConditions;
+import com.yukthitech.persistence.repository.annotations.SearchResult;
 import com.yukthitech.persistence.repository.annotations.UpdateFunction;
 import com.yukthitech.webutils.common.annotations.Conditional;
 
@@ -13,7 +14,7 @@ import com.yukthitech.webutils.common.annotations.Conditional;
  * 
  * @author akiran
  */
-@Conditional("(env['webutils.tenantSpaceBased']!'false') == 'true'")
+@Conditional("(env['webutils.tenantSpaceBased']!'false') == 'true' || env['webutils.user.tenantSpaceBased']!'false') == 'true'")
 public interface IUserTenantBasedRepository extends IUserRepository
 {
 	/**
@@ -39,10 +40,9 @@ public interface IUserTenantBasedRepository extends IUserRepository
 	 * @return Encrypted password
 	 */
 	@MethodConditions(conditions = { @DefaultCondition(field = "deleted", value = "false") })
-	@Field("password")
-	public String fetchPassword(@Condition("userName") String userName, 
-			@Condition("spaceIdentity") String userSpace,
-			@Condition("baseEntityType") String  baseEntityType);
+	@SearchResult
+	public UserPasswords fetchPassword(@Condition("userName") String userName, 
+			@Condition("spaceIdentity") String userSpace);
 
 	/**
 	 * Fetches user with specified details.
@@ -97,18 +97,4 @@ public interface IUserTenantBasedRepository extends IUserRepository
 	 */
 	@UpdateFunction
 	public boolean markDeletedByBaseEntity(@Condition("baseEntityType") String baseEntityType, @Condition("baseEntityId") long baseEntityId, @Field("deleted") boolean deleted);
-
-	/**
-	 * Updates password of user under specified ownership and with specified
-	 * user name.
-	 * 
-	 * @param userSpace
-	 *            User space
-	 * @param userName
-	 *            User name
-	 * @param password
-	 *            Password
-	 * @return Success/failure
-	 */
-	public boolean updatePassword(@Condition("spaceIdentity") String userSpace, @Condition("userName") String userName, @Field("password") String password);
 }

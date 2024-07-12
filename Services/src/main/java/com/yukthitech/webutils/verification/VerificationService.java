@@ -30,7 +30,8 @@ import org.springframework.stereotype.Service;
 import com.yukthitech.utils.Encryptor;
 import com.yukthitech.utils.exceptions.InvalidArgumentException;
 import com.yukthitech.utils.exceptions.InvalidStateException;
-import com.yukthitech.webutils.InvalidRequestParameterException;
+import com.yukthitech.webutils.InvalidRequestException;
+import com.yukthitech.webutils.common.IWebUtilsCommonConstants;
 import com.yukthitech.webutils.common.verification.OtpVerificationRequest;
 import com.yukthitech.webutils.common.verification.VerificationType;
 
@@ -140,14 +141,14 @@ public class VerificationService
 			encodedString = encryptor.decrypt(token);
 		}catch(Exception ex)
 		{
-			throw new InvalidRequestParameterException("Invalid token specified");
+			throw new InvalidRequestException("Invalid token specified");
 		}
 		
 		Matcher matcher = pattern.matcher(encodedString);
 		
 		if(!matcher.matches())
 		{
-			throw new InvalidRequestParameterException("Invalid token specified");
+			throw new InvalidRequestException("Invalid token specified");
 		}
 		
 		/*
@@ -158,7 +159,7 @@ public class VerificationService
 				(otp != null && !matcher.group(3).equals(otp))
 				)
 		{
-			throw new InvalidRequestParameterException("Specified OTP code is not valid.");
+			throw new InvalidRequestException("Specified OTP code is not valid.");
 		}
 		
 		long tokenTime = Long.parseLong(matcher.group(4));
@@ -168,7 +169,7 @@ public class VerificationService
 		
 		if(diffSec < 0 || diffSec > maxTime)
 		{
-			throw new InvalidRequestParameterException("Token expired.");
+			throw new InvalidRequestException(IWebUtilsCommonConstants.RESPONSE_CODE_EXPIRED_VALUE, "Token expired.");
 		}
 	}
 	

@@ -41,7 +41,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.yukthitech.webutils.InvalidRequestParameterException;
+import com.yukthitech.webutils.InvalidRequestException;
 import com.yukthitech.webutils.annotations.ActionName;
 import com.yukthitech.webutils.annotations.NoAuthentication;
 import com.yukthitech.webutils.common.client.IRequestCustomizer;
@@ -87,7 +87,7 @@ public class ModelController implements IModelController
 		
 		if(modelDef == null)
 		{
-			throw new InvalidRequestParameterException("Invalid model name specified - " + modelName);
+			throw new InvalidRequestException("Invalid model name specified - " + modelName);
 		}
 		
 		return new ModelDefResponse(modelDef);

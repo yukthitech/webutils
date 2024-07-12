@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.yukthitech.webutils.InvalidRequestParameterException;
+import com.yukthitech.webutils.InvalidRequestException;
 import com.yukthitech.webutils.annotations.ActionName;
 import com.yukthitech.webutils.common.client.IRequestCustomizer;
 import com.yukthitech.webutils.common.models.BaseResponse;
@@ -76,7 +76,7 @@ public class SearchSettingsController extends BaseController implements ISearchS
 		//ensure search query name specified is valid
 		if(searchService.getSearchQueryType(searchQueryName) == null)
 		{
-			throw new InvalidRequestParameterException("Invalid search query name specified - {}", searchQueryName);
+			throw new InvalidRequestException("Invalid search query name specified - {}", searchQueryName);
 		}
 		
 		SearchSettingsEntity entity = service.save(model);
@@ -94,7 +94,7 @@ public class SearchSettingsController extends BaseController implements ISearchS
 		//ensure search query name specified is valid
 		if(searchService.getSearchQueryType(searchQueryName) == null)
 		{
-			throw new InvalidRequestParameterException("Invalid search query name specified - {}", searchQueryName);
+			throw new InvalidRequestException("Invalid search query name specified - {}", searchQueryName);
 		}
 		
 		service.update(model);

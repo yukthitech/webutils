@@ -23,7 +23,7 @@
 
 package com.yukthitech.webutils.common.models.def;
 
-import com.yukthitech.webutils.common.LovType;
+import com.yukthitech.webutils.common.lov.LovType;
 
 /**
  * LOV details for lov field
