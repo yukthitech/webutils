@@ -35,7 +35,7 @@ public class UserService extends BaseCrudService<UserEntity, IUserRepository>
 		
 		if(repository instanceof IUserTenantBasedRepository)
 		{
-			count = ((IUserTenantBasedRepository) repository).checkForUser(userName, userSpace);
+			count = ((IUserTenantBasedRepository) repository).checkForUserBySpace(userName, userSpace);
 		}
 		else
 		{
@@ -58,7 +58,7 @@ public class UserService extends BaseCrudService<UserEntity, IUserRepository>
 	{
 		if(repository instanceof IUserTenantBasedRepository)
 		{
-			return ((IUserTenantBasedRepository) repository).fetchPassword(userName, userSpace);
+			return ((IUserTenantBasedRepository) repository).fetchPasswordBySpace(userName, userSpace);
 		}
 		
 		return repository.fetchPassword(userName);
@@ -83,7 +83,7 @@ public class UserService extends BaseCrudService<UserEntity, IUserRepository>
 	{
 		if(repository instanceof IUserTenantBasedRepository)
 		{
-			return ((IUserTenantBasedRepository) repository).fetchUser(userName, userSpace);
+			return ((IUserTenantBasedRepository) repository).fetchUserBySpace(userName, userSpace);
 		}
 		
 		return repository.fetchUser(userName);
@@ -142,7 +142,7 @@ public class UserService extends BaseCrudService<UserEntity, IUserRepository>
 	{
 		if(repository instanceof IUserTenantBasedRepository)
 		{
-			return ((IUserTenantBasedRepository) repository).markAsDeleted(id, true, null, securityService.getUserSpaceIdentity());
+			return ((IUserTenantBasedRepository) repository).markDeletedBySpace(id, true, null, securityService.getUserSpaceIdentity());
 		}
 		
 		return repository.markAsDeleted(id, true, null);

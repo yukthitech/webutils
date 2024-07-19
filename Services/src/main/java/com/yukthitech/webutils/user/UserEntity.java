@@ -64,7 +64,7 @@ public class UserEntity extends WebutilsEntity
 	 */
 	@Column(name = "RESET_PASSWORD", length = 500, nullable = true)
 	@DataTypeMapping(converterType = PasswordEncryptionConverter.class)
-	private String resetPassowrd;
+	private String resetPassword;
 
 	/**
 	 * Display name.
@@ -142,6 +142,14 @@ public class UserEntity extends WebutilsEntity
 		this.displayName = displayName;
 	}
 
+	/**
+	 * Instantiates a new user entity.
+	 *
+	 * @param spaceIdentity the space identity
+	 * @param userName user name used for authentication. This field value will be null for deleted users
+	 * @param password password used for authentication.
+	 * @param displayName display name.
+	 */
 	public UserEntity(String spaceIdentity, String userName, String password, String displayName)
 	{
 		this.userName = userName;
@@ -196,20 +204,19 @@ public class UserEntity extends WebutilsEntity
 	 *
 	 * @return the password set temporarily during reset process
 	 */
-	public String getResetPassowrd()
+	public String getResetPassword() 
 	{
-		return resetPassowrd;
+		return resetPassword;
 	}
 
 	/**
 	 * Sets the password set temporarily during reset process.
 	 *
-	 * @param resetPassowrd the new password set temporarily during reset
-	 *        process
+	 * @param resetPassword the new password set temporarily during reset process
 	 */
-	public void setResetPassowrd(String resetPassowrd)
+	public void setResetPassword(String resetPassword) 
 	{
-		this.resetPassowrd = resetPassowrd;
+		this.resetPassword = resetPassword;
 	}
 
 	/**

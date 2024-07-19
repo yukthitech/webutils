@@ -66,7 +66,8 @@ public interface IUserRepository extends IWebutilsRepository<UserEntity>
 	 * @return success/failure
 	 */
 	@UpdateFunction
-	public boolean markAsDeleted(@Condition("id") long userId, @Field("deleted") boolean deleted, @Field("userName") String userName);
+	public boolean markAsDeleted(@Condition("id") long userId, 
+			@Field("deleted") boolean deleted, @Field("userName") String userName);
 
 	/**
 	 * Fetches user based on base entity details.
@@ -92,7 +93,8 @@ public interface IUserRepository extends IWebutilsRepository<UserEntity>
 	 * @return Success/failure
 	 */
 	@UpdateFunction
-	public boolean markDeletedByBaseEntity(@Condition("baseEntityType") String baseEntityType, @Condition("baseEntityId") long baseEntityId, @Field("deleted") boolean deleted);
+	public boolean markDeletedByBaseEntity(@Condition("baseEntityType") String baseEntityType, 
+			@Condition("baseEntityId") long baseEntityId, @Field("deleted") boolean deleted);
 
 	/**
 	 * Updates password of user under specified ownership and with specified
