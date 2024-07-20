@@ -322,6 +322,15 @@ public class WebutilsRepositoryFactory
 			return repo;
 		}
 		
+		// Check in case extended repo is present with same type
+		repo = getActualRepository(repoType);
+		
+		if(repo != null)
+		{
+			return repo;
+		}
+
+		// for missing repos, return proxy repo
 		repo = (R) Proxy.newProxyInstance(RepositoryFactory.class.getClassLoader(), 
 				new Class<?>[] {repoType, IWebutilsRepositoryProxy.class}, 
 				new WebutilsRepositoryProxy(this, repoType));
