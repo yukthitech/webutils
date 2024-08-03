@@ -54,4 +54,9 @@ public class MailTemplateService extends BaseCrudService<MailTemplateEntity, IMa
 		MailTemplateEntity entity = repository.fetchByName(name);
 		return toModel(entity, MailTemplateModel.class);
 	}
+
+	public MailTemplateEntity fetchEntityByName(String name)
+	{
+		return repository.fetchByName(name);
+	}
 }

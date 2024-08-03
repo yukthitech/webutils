@@ -15,21 +15,46 @@
  */
 package com.yukthitech.webutils.verification;
 
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.yukthitech.utils.CommonUtils;
+import com.yukthitech.utils.exceptions.InvalidStateException;
 import com.yukthitech.webutils.common.verification.VerificationType;
+import com.yukthitech.webutils.mail.EmailService;
 
 @Service
 public class EmailVerificationSupport extends AbstractVerificationSupport
 {
+	/**
+	 * Service to send mails.
+	 */
+	@Autowired(required = false)
+	private EmailService emailService;
+	
+	@Value("${webutils.email.verification.template:}")
+	private String emailVerificationTemplateName;
+	
 	public EmailVerificationSupport()
 	{
 		super(VerificationType.EMAIL);
 	}
 
 	@Override
-	public void sendCode(String value, String code) throws CodeDeliveryException
+	public void sendCode(String emailId, String code) throws CodeDeliveryException
 	{
-		//TODO: Yet to be done
+		if(emailService == null)
+		{
+			throw new InvalidStateException("No email service is configured");
+		}
+		
+		if(StringUtils.isBlank(emailVerificationTemplateName))
+		{
+			throw new InvalidStateException("No email-template is configured for sending verification code.");
+		}
+		
+		emailService.sendEmail(emailVerificationTemplateName, CommonUtils.toMap("mailId", emailId, "otp", code));
 	}
 }

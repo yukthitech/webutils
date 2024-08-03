@@ -7,6 +7,7 @@ import java.awt.image.renderable.RenderableImage;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -58,6 +59,7 @@ import com.yukthitech.webutils.common.models.mails.EmailServerSettings;
 import com.yukthitech.webutils.common.models.mails.MailReadProtocol;
 import com.yukthitech.webutils.mail.template.MailTemplateConfigService;
 import com.yukthitech.webutils.mail.template.MailTemplateEntity;
+import com.yukthitech.webutils.mail.template.MailTemplateService;
 import com.yukthitech.webutils.services.freemarker.FreeMarkerService;
 
 /**
@@ -81,6 +83,18 @@ public class EmailService
 	 */
 	@Autowired
 	private MailTemplateConfigService mailTemplateConfigService;
+	
+	/**
+	 * Default email server settings to be used.
+	 */
+	@Autowired(required = false)
+	private EmailServerSettings emailServerSettings;
+	
+	/**
+	 * Service to access mail templates.
+	 */
+	@Autowired(required = false)
+	private MailTemplateService mailTemplateService;
 
 	/**
 	 * Freemarker service to process email templates.
@@ -238,7 +252,7 @@ public class EmailService
 			else if(value instanceof String)
 			{
 				File fieldFile = File.createTempFile(attachment.getName(), ".tmp");
-				FileUtils.write(fieldFile, (String) value);
+				FileUtils.write(fieldFile, (String) value, Charset.defaultCharset());
 				
 				fileAttachments = Arrays.asList( new FileAttachment(fieldFile, attachment.getName()) );
 			}
@@ -474,6 +488,18 @@ public class EmailService
 			throw new InvalidStateException("Failed to copy mail to sent folder", ex);
 		}
 	}
+	
+	public void sendEmail(String templateName, Object context)
+	{
+		MailTemplateEntity mailTemplateEntity = mailTemplateService.fetchEntityByName(templateName);
+		
+		if(mailTemplateEntity == null)
+		{
+			throw new InvalidArgumentException("Non existing mail template specified: {}", templateName);
+		}
+		
+		sendEmail(emailServerSettings, mailTemplateEntity, context);
+	}
 
 	/**
 	 * Sends the specified email message.
@@ -506,7 +532,7 @@ public class EmailService
 			copyToSentFolder(settings, message);
 		} catch(Exception ex)
 		{
-			logger.debug("An error occurred while copying mail to sent folder.", ex);
+			logger.debug("An error occurred while copying mail to sent folder. Error: {}", "" + ex);
 		}
 	}
 
@@ -569,12 +595,12 @@ public class EmailService
 			}
 			else if(part.getContentType().toLowerCase().contains("text/html") && !mailMessage.hasContent())
 			{
-				String contentStr = IOUtils.toString(part.getInputStream());
+				String contentStr = IOUtils.toString(part.getInputStream(), Charset.defaultCharset());
 				mailMessage.setContent(contentStr);
 			}
 			else if(part.getContentType().toLowerCase().contains("text"))
 			{
-				String contentStr = IOUtils.toString(part.getInputStream());
+				String contentStr = IOUtils.toString(part.getInputStream(), Charset.defaultCharset());
 				mailMessage.addTextContent(contentStr);
 			}
 		}

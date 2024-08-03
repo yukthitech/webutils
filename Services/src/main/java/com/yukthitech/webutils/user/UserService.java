@@ -19,6 +19,11 @@ public class UserService extends BaseCrudService<UserEntity, IUserRepository>
 	public UserService()
 	{
 	}
+	
+	public IUserRepository getRepository()
+	{
+		return super.repository;
+	}
 
 	/**
 	 * Checks if a user is already registered with specified details.

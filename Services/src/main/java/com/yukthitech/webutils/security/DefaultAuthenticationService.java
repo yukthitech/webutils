@@ -2,10 +2,10 @@ package com.yukthitech.webutils.security;
 
 import java.util.Map;
 
-import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.yukthitech.persistence.utils.PasswordEncryptor;
+import com.yukthitech.utils.StringUtils;
 import com.yukthitech.webutils.InvalidRequestException;
 import com.yukthitech.webutils.WebutilsConfiguration;
 import com.yukthitech.webutils.common.UserDetails;
@@ -68,6 +68,11 @@ public class DefaultAuthenticationService<R extends Enum<R>> implements IAuthent
 		{
 			userService.updatePassword(dbPasswords.getId(), dbPasswords.getResetPassword());
 		}
+		// if normal password is used but reset password is present, remove reset password
+		else if(dbPasswords.getResetPassword() != null)
+		{
+			userService.updateResetPassword(dbPasswords.getId(), null);
+		}
 		
 		UserEntity user = userService.getUser(userName, userSpace);
 		return toUserDetails(user);
@@ -93,21 +98,37 @@ public class DefaultAuthenticationService<R extends Enum<R>> implements IAuthent
 	public String resetPassword(String userName, Map<String, String> attributes)
 	{
 		String userSpace = getUserSpace(userName, attributes);
-		UserPasswords dbPasswords = userService.getPassword(userName, userSpace);
+		UserEntity user = userService.getUser(userName, userSpace);
 		
-		if(dbPasswords == null)
+		if(user == null)
 		{
 			throw new InvalidRequestException("No user found with specified user-name: {}", userName);
 		}
-		
-		String randPassword = RandomStringUtils.random(10, 0, 0, true, true, '@', '#', '$', '%', '&', '*');
-		
-		if(!userService.updateResetPassword(dbPasswords.getId(), randPassword))
+
+		String randPassword = StringUtils.randomAlphaNumericString(10, '@', '#', '$', '%', '&', '*');
+
+		userService.getRepository().executeInTransaction(false, () -> 
 		{
-			throw new InvalidRequestException("No user found with specified user-name: {}", userName);
-		}
+			if(!userService.updateResetPassword(user.getId(), randPassword))
+			{
+				throw new InvalidRequestException("No user found with specified user-name: {}", userName);
+			}
+
+			UserDetails<R> userDetails = toUserDetails(user);
+			notifyResetPassword(userDetails, randPassword);
+		});
 		
 		return randPassword;
+	}
+	
+	/**
+	 * Called after reset password is completed. This method is expected to send
+	 * notification to user regarding new reset password.
+	 * @param userName user name whose password is reset
+	 * @param resetPassword New reset password
+	 */
+	protected void notifyResetPassword(UserDetails<R> userDetails, String resetPassword)
+	{
 	}
 	
 	/**
