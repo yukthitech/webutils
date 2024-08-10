@@ -20,11 +20,11 @@ import org.springframework.stereotype.Service;
 import com.yukthitech.webutils.common.verification.VerificationType;
 
 @Service
-public class PhoneVerificationSupport extends AbstractVerificationSupport
+public class MobileVerificationSupport extends AbstractVerificationSupport
 {
-	public PhoneVerificationSupport()
+	public MobileVerificationSupport()
 	{
-		super(VerificationType.PHONE);
+		super(VerificationType.MOBILE);
 	}
 
 	@Override

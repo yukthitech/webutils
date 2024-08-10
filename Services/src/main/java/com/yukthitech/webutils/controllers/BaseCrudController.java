@@ -189,7 +189,7 @@ public class BaseCrudController<M extends BaseModel, S extends BaseCrudService<?
 		return null;
 	}
 	
-	protected void validate(M model)
+	protected void validate(Object model)
 	{
 		ModelDef modelDef = modelDetailsService.getModelDef(model.getClass());
 		List<FieldError> fieldErrors = new ArrayList<FieldError>();

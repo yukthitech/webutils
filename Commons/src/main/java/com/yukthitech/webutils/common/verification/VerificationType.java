@@ -17,5 +17,5 @@ package com.yukthitech.webutils.common.verification;
 
 public enum VerificationType
 {
-	EMAIL, PHONE;
+	EMAIL, MOBILE;
 }
