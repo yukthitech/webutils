@@ -12,12 +12,12 @@ public enum LovType
 	STATIC_TYPE, 
 	
 	/**
-	 * LOV whose list is dynamic and generally obtained from DB 
+	 * LOV whose list is obtained from service or repository methods.
 	 */
 	DYNAMIC_TYPE,
 	
 	/**
-	 * Lov whose list comes from common storage.
+	 * Lov whose list comes from common LOV storage.
 	 */
 	STORED_TYPE;
 }

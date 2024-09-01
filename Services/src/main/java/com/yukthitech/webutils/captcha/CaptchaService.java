@@ -37,7 +37,7 @@ public class CaptchaService
 	
 	private static TextProducer TEXT_PRODUCER = new DefaultTextProducer(IWebUtilsCommonConstants.CAPTCHA_LENGTH, CAPTCH_CHARS);
 	
-	@Autowired
+	@Autowired(required = false)
 	private Encryptor encryptor;
 	
 	public CaptchaResponse generate() throws Exception

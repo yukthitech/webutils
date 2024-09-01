@@ -140,7 +140,7 @@ public class ModelDetailsService
 
 			if(lov.getLovType() == LovType.STORED_TYPE && !storedLovService.isValidLov(lov.getName()))
 			{
-				throw new InvalidStateException("Invalid lov name '{}' specified on field {}", lov.getName(), lov.getFieldName());
+				throw new InvalidStateException("Non-existing stored-lov name '{}' specified on field {}", lov.getName(), lov.getFieldName());
 			}
 		}		
 	}
