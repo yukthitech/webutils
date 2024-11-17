@@ -51,6 +51,12 @@ public class LovDetails
 	 * Actual java underlying type of lov
 	 */
 	private FieldType actualType;
+	
+	/**
+	 * Populated when lov field should be able to accept new value also. And the
+	 * new value should be stored in field specified here.
+	 */
+	private String newValueField;
 
 	/**
 	 * Gets the type of lov.
@@ -130,6 +136,26 @@ public class LovDetails
 	public void setActualType(FieldType actualType)
 	{
 		this.actualType = actualType;
+	}
+
+	/**
+	 * Gets the populated when lov field should be able to accept new value also. And the new value should be stored in field specified here.
+	 *
+	 * @return the populated when lov field should be able to accept new value also
+	 */
+	public String getNewValueField()
+	{
+		return newValueField;
+	}
+
+	/**
+	 * Sets the populated when lov field should be able to accept new value also. And the new value should be stored in field specified here.
+	 *
+	 * @param newValueField the new populated when lov field should be able to accept new value also
+	 */
+	public void setNewValueField(String newValueField)
+	{
+		this.newValueField = newValueField;
 	}
 
 	/* (non-Javadoc)

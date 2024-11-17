@@ -118,7 +118,9 @@ public class FieldDefBuilder
 		fieldDef.setFieldType(FieldType.LIST_OF_VALUES);
 		
 		LovDetails lovDetails = new LovDetails();
-		lovDetails.setLovType(LovType.valueOf(lovAnnotation.type().name()));
+		LovType lovType = LovType.valueOf(lovAnnotation.type().name());
+		
+		lovDetails.setLovType(lovType);
 		
 		//add current lov as required lov, which would be validated
 		//  at end of application load by Model def builder
@@ -142,6 +144,57 @@ public class FieldDefBuilder
 		}
 		
 		lovDetails.setActualType(FieldType.getFieldType(field.getType()));
+		
+		if(lovType == LovType.STORED_TYPE && StringUtils.isNotBlank(lovAnnotation.newValueField()))
+		{
+			//fetch and validate new value field
+			Field newValueField = null;
+			
+			try
+			{
+				newValueField = modelType.getDeclaredField(lovAnnotation.newValueField());
+			}catch(Exception ex)
+			{
+				throw new InvalidStateException(ex, "Invalid lov-new-value field name '{}' specified in field {}.{}", 
+							lovAnnotation.newValueField(), modelType.getName(), field.getName());
+			}
+			
+			// Ensure new value field is string in case current field single value lov field
+			if(!fieldDef.isMultiValued())
+			{
+				if(!String.class.equals(newValueField.getType()))
+				{
+					throw new InvalidStateException("Non-String lov-new-value field name '{}' specified in field {}.{}", 
+							lovAnnotation.newValueField(), modelType.getName(), field.getName());
+				}
+			}
+			// Ensure new value field is List<String> in case current field multi value lov field
+			else
+			{
+				if(!Collection.class.isAssignableFrom(newValueField.getType()))
+				{
+					throw new InvalidStateException("Non-Collection lov-new-value field name '{}' specified in field {}.{}", 
+							lovAnnotation.newValueField(), modelType.getName(), field.getName());
+				}
+
+				ParameterizedType type = (ParameterizedType)newValueField.getGenericType();
+				
+				if(type.getActualTypeArguments().length != 1)
+				{
+					throw new InvalidConfigurationException("Failed to determine collection type argument field - {}.{}", modelType.getName(), newValueField.getName());
+				}
+				
+				Type paramType = type.getActualTypeArguments()[0];
+				
+				if(!String.class.equals(paramType))
+				{
+					throw new InvalidStateException("Non-String-collection lov-new-value field name '{}' specified in field {}.{}", 
+							lovAnnotation.newValueField(), modelType.getName(), field.getName());
+				}
+			}
+			
+			lovDetails.setNewValueField(lovAnnotation.newValueField());
+		}
 
 		fieldDef.setLovDetails(lovDetails);
 	}

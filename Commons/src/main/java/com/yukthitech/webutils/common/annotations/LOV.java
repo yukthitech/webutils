@@ -33,4 +33,12 @@ public @interface LOV
 	 * @return
 	 */
 	public DynLovType type() default DynLovType.DYNAMIC_TYPE;
+	
+	/**
+	 * This will be considered only for {@link DynLovType#STORED_TYPE}.
+	 * If specified, current stored LOV field will be able to accept new values also. And the
+	 * provided new value will be capture in this specified field.
+	 * @return
+	 */
+	public String newValueField() default "";
 }
