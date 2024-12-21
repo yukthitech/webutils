@@ -53,11 +53,10 @@ public class LovDetails
 	private FieldType actualType;
 	
 	/**
-	 * Populated when lov field should be able to accept new value also. And the
-	 * new value should be stored in field specified here.
+	 * Flag indicating this LOV field accepts new values also. 
 	 */
-	private String newValueField;
-
+	private boolean editableLov;
+	
 	/**
 	 * Gets the type of lov.
 	 *
@@ -139,23 +138,23 @@ public class LovDetails
 	}
 
 	/**
-	 * Gets the populated when lov field should be able to accept new value also. And the new value should be stored in field specified here.
+	 * Checks if is flag indicating this LOV field accepts new values also.
 	 *
-	 * @return the populated when lov field should be able to accept new value also
+	 * @return the flag indicating this LOV field accepts new values also
 	 */
-	public String getNewValueField()
+	public boolean isEditableLov()
 	{
-		return newValueField;
+		return editableLov;
 	}
 
 	/**
-	 * Sets the populated when lov field should be able to accept new value also. And the new value should be stored in field specified here.
+	 * Sets the flag indicating this LOV field accepts new values also.
 	 *
-	 * @param newValueField the new populated when lov field should be able to accept new value also
+	 * @param editableLov the new flag indicating this LOV field accepts new values also
 	 */
-	public void setNewValueField(String newValueField)
+	public void setEditableLov(boolean editableLov)
 	{
-		this.newValueField = newValueField;
+		this.editableLov = editableLov;
 	}
 
 	/* (non-Javadoc)

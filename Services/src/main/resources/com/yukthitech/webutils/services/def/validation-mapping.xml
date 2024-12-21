@@ -6,8 +6,8 @@
 	<validationConfig type="com.yukthitech.validation.annotations.MinLen" targetType="java.lang.String" name="minLength" attributes="value"/>
 	<validationConfig type="jakarta.validation.constraints.Pattern" targetType="java.lang.String" name="pattern" attributes="regexp"/>
 	<validationConfig type="com.yukthitech.validation.annotations.Mispattern" targetType="java.lang.String" name="mispattern" attributes="regexp"/>
+	<validationConfig type="com.yukthitech.validation.annotations.PropertyPattern" targetType="java.lang.Object" name="propertyPattern" attributes="property,regexp"/>
 	<validationConfig type="com.yukthitech.validation.annotations.NotEmpty" targetType="java.lang.String" name="required"/>
-
 
 	<!-- ======================================================================================== -->
 	<!-- Date related validations -->

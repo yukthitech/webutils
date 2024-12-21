@@ -56,6 +56,7 @@ import com.yukthitech.webutils.common.annotations.NeedVerification;
 import com.yukthitech.webutils.common.annotations.NonDisplayable;
 import com.yukthitech.webutils.common.annotations.Password;
 import com.yukthitech.webutils.common.annotations.ReadOnly;
+import com.yukthitech.webutils.common.lov.EditableLovValue;
 import com.yukthitech.webutils.common.lov.LovType;
 import com.yukthitech.webutils.common.models.def.FieldDef;
 import com.yukthitech.webutils.common.models.def.FieldType;
@@ -145,55 +146,44 @@ public class FieldDefBuilder
 		
 		lovDetails.setActualType(FieldType.getFieldType(field.getType()));
 		
-		if(lovType == LovType.STORED_TYPE && StringUtils.isNotBlank(lovAnnotation.newValueField()))
+		Class<?> lovFieldType = field.getType();
+		
+		if(fieldDef.isMultiValued())
 		{
-			//fetch and validate new value field
-			Field newValueField = null;
+			ParameterizedType type = (ParameterizedType) field.getGenericType();
 			
-			try
+			if(type.getActualTypeArguments().length != 1)
 			{
-				newValueField = modelType.getDeclaredField(lovAnnotation.newValueField());
-			}catch(Exception ex)
-			{
-				throw new InvalidStateException(ex, "Invalid lov-new-value field name '{}' specified in field {}.{}", 
-							lovAnnotation.newValueField(), modelType.getName(), field.getName());
+				throw new InvalidConfigurationException("Failed to determine collection type argument field (multiple parameter types) - {}.{}", modelType.getName(), field.getName());
 			}
 			
-			// Ensure new value field is string in case current field single value lov field
-			if(!fieldDef.isMultiValued())
+			Type paramType = type.getActualTypeArguments()[0];
+			
+			if(!(paramType instanceof Class))
 			{
-				if(!String.class.equals(newValueField.getType()))
-				{
-					throw new InvalidStateException("Non-String lov-new-value field name '{}' specified in field {}.{}", 
-							lovAnnotation.newValueField(), modelType.getName(), field.getName());
-				}
-			}
-			// Ensure new value field is List<String> in case current field multi value lov field
-			else
-			{
-				if(!Collection.class.isAssignableFrom(newValueField.getType()))
-				{
-					throw new InvalidStateException("Non-Collection lov-new-value field name '{}' specified in field {}.{}", 
-							lovAnnotation.newValueField(), modelType.getName(), field.getName());
-				}
-
-				ParameterizedType type = (ParameterizedType)newValueField.getGenericType();
-				
-				if(type.getActualTypeArguments().length != 1)
-				{
-					throw new InvalidConfigurationException("Failed to determine collection type argument field - {}.{}", modelType.getName(), newValueField.getName());
-				}
-				
-				Type paramType = type.getActualTypeArguments()[0];
-				
-				if(!String.class.equals(paramType))
-				{
-					throw new InvalidStateException("Non-String-collection lov-new-value field name '{}' specified in field {}.{}", 
-							lovAnnotation.newValueField(), modelType.getName(), field.getName());
-				}
+				throw new InvalidStateException("Failed to determine collection type argument field (non-class parameter type) - {}.{}", modelType.getName(), field.getName());
 			}
 			
-			lovDetails.setNewValueField(lovAnnotation.newValueField());
+			lovFieldType = (Class<?>) paramType;
+		}
+		
+		if(EditableLovValue.class.equals(lovFieldType))
+		{
+			if(lovType != LovType.STORED_TYPE)
+			{
+				throw new InvalidConfigurationException("For non-stored-type marked as editable (Field type used is: {}). Field: {}.{}", EditableLovValue.class.getName(),
+						modelType.getName(), field.getName());
+			}
+			
+			
+			lovDetails.setEditableLov(true);
+		}
+		else
+		{
+			if(!Long.class.equals(lovFieldType) && !long.class.equals(lovFieldType) && !String.class.equals(lovFieldType))
+			{
+				throw new InvalidConfigurationException("Non-long/non-string type used for LOV field: {}.{}", modelType.getName(), field.getName());
+			}
 		}
 
 		fieldDef.setLovDetails(lovDetails);
