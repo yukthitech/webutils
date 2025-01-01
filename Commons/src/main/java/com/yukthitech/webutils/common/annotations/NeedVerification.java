@@ -10,7 +10,7 @@ import com.yukthitech.webutils.common.verification.VerificationType;
 /**
  * Used to mark a String field which needs verification. 
  * 
- * @author Pritam
+ * @author Kranthi
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
@@ -21,10 +21,4 @@ public @interface NeedVerification
 	 * @return
 	 */
 	public VerificationType type();
-	
-	/**
-	 * Name of the field to which this field's verification token should be expected.
-	 * @return
-	 */
-	public String tokenField();
 }

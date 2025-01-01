@@ -28,6 +28,7 @@ import java.util.Map;
 
 import com.yukthitech.webutils.common.FileInfo;
 import com.yukthitech.webutils.common.ImageInfo;
+import com.yukthitech.webutils.common.ValueWithToken;
 
 /**
  * Enumerates list of supported model field types
@@ -63,7 +64,7 @@ public enum FieldType
 	/**
 	 * Captcha field to avoid robots.
 	 */
-	CAPTCHA("captcha", String.class),
+	CAPTCHA("captcha", ValueWithToken.class),
 	
 	INTEGER("int", int.class, Integer.class, int.class, Long.class, long.class, Short.class, short.class),
 	

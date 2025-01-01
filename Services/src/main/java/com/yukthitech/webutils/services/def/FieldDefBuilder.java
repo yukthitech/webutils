@@ -42,6 +42,7 @@ import org.springframework.stereotype.Component;
 
 import com.yukthitech.utils.exceptions.InvalidConfigurationException;
 import com.yukthitech.utils.exceptions.InvalidStateException;
+import com.yukthitech.webutils.common.ValueWithToken;
 import com.yukthitech.webutils.common.annotations.Captcha;
 import com.yukthitech.webutils.common.annotations.Color;
 import com.yukthitech.webutils.common.annotations.CustomType;
@@ -228,26 +229,6 @@ public class FieldDefBuilder
 				type, field.getDeclaringClass().getName(), field.getName());
 	}
 	
-	private Field checkForTokenField(Class<?> modelType, String name, String parentFieldFqn)
-	{
-		Field tokenField = null;
-		
-		try
-		{
-			tokenField = modelType.getDeclaredField(name);
-		}catch(NoSuchFieldException ex)
-		{
-			throw new InvalidStateException("Invalid token-field '{}' specified by field: {}", name, parentFieldFqn);
-		}
-		
-		if(!tokenField.getType().equals(String.class))
-		{
-			throw new InvalidStateException("Non-string token-field '{}' specified by field: {}", name, parentFieldFqn);
-		}
-		
-		return tokenField;
-	}
-	
 	public FieldDef getFieldDef(Class<?> modelType, Field field, Set<LovRef> requiredLovs)
 	{
 		String fqn = modelType.getName() + "." + field.getName();
@@ -333,6 +314,27 @@ public class FieldDefBuilder
 		{
 			fieldDef.setFieldType(FieldType.DATE_TIME);
 		}
+		else if(field.getAnnotation(Captcha.class) != null)
+		{
+			if(!ValueWithToken.class.isAssignableFrom(fieldType))
+			{
+				throw new InvalidStateException("Non {} type is used for captch field - {}", ValueWithToken.class.getName(), fqn);
+			}
+			
+			fieldDef.setFieldType(FieldType.CAPTCHA);
+		}
+		else if(field.getAnnotation(NeedVerification.class) != null)
+		{
+			if(!ValueWithToken.class.isAssignableFrom(fieldType))
+			{
+				throw new InvalidStateException("Non {} type is used for field with verification - {}", ValueWithToken.class.getName(), fqn);
+			}
+			
+			NeedVerification needVerification = field.getAnnotation(NeedVerification.class);
+			
+			fieldDef.setFieldType(FieldType.VERIFICATION);
+			fieldDef.setVerificationType(needVerification.type());
+		}
 		//if field type is enum
 		else if(fieldType.isEnum())
 		{
@@ -367,25 +369,6 @@ public class FieldDefBuilder
 				else if(field.getAnnotation(Color.class) != null)
 				{
 					fieldDef.setFieldType(FieldType.COLOR);
-				}
-				else if(field.getAnnotation(Captcha.class) != null)
-				{
-					Captcha captcha = field.getAnnotation(Captcha.class);
-					
-					fieldDef.setFieldType(FieldType.CAPTCHA);
-					
-					checkForTokenField(modelType, captcha.tokenField(), fqn);
-					fieldDef.setTokenField(captcha.tokenField());
-				}
-				else if(field.getAnnotation(NeedVerification.class) != null)
-				{
-					NeedVerification needVerification = field.getAnnotation(NeedVerification.class);
-					
-					fieldDef.setFieldType(FieldType.VERIFICATION);
-					fieldDef.setVerificationType(needVerification.type());
-					
-					checkForTokenField(modelType, needVerification.tokenField(), fqn);
-					fieldDef.setTokenField(needVerification.tokenField());
 				}
 				else
 				{

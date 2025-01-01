@@ -23,6 +23,7 @@ import com.yukthitech.webutils.annotations.ActionName;
 import com.yukthitech.webutils.captcha.CaptchaService;
 import com.yukthitech.webutils.common.BaseModel;
 import com.yukthitech.webutils.common.IWebUtilsActionConstants;
+import com.yukthitech.webutils.common.ValueWithToken;
 import com.yukthitech.webutils.common.client.IRequestCustomizer;
 import com.yukthitech.webutils.common.controllers.ICrudController;
 import com.yukthitech.webutils.common.models.BaseResponse;
@@ -196,6 +197,7 @@ public class BaseCrudController<M extends BaseModel, S extends BaseCrudService<?
 		
 		String value = null;
 		String token = null;
+		ValueWithToken valueWithToken = null;
 		
 		for(FieldDef field : modelDef.getFields())
 		{
@@ -206,14 +208,15 @@ public class BaseCrudController<M extends BaseModel, S extends BaseCrudService<?
 			
 			try
 			{
-				value = (String) PropertyUtils.getProperty(model, field.getName());
+				valueWithToken = (ValueWithToken) PropertyUtils.getProperty(model, field.getName());
 				
-				if(StringUtils.isBlank(value))
+				if(valueWithToken == null)
 				{
 					continue;
 				}
 				
-				token = (String) PropertyUtils.getProperty(model, field.getTokenField());
+				value = valueWithToken.getValue();
+				token = valueWithToken.getToken();
 			}catch(Exception ex)
 			{
 				throw new InvalidStateException("Failed to fetch values of field (or its token field). Field: {}", field.getName());

@@ -13,9 +13,4 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface Captcha
 {
-	/**
-	 * Name of the field to which this field's verification token should be expected.
-	 * @return
-	 */
-	public String tokenField();
 }

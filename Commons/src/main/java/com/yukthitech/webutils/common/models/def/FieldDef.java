@@ -123,11 +123,6 @@ public class FieldDef
 	private VerificationType verificationType;
 	
 	/**
-	 * Name of the field to which this field's token (used by verification, captcha) should be expected.
-	 */
-	private String tokenField;
-	
-	/**
 	 * Instantiates a new field def.
 	 */
 	public FieldDef()
@@ -463,16 +458,6 @@ public class FieldDef
 	public void setVerificationType(VerificationType verificationType)
 	{
 		this.verificationType = verificationType;
-	}
-
-	public String getTokenField()
-	{
-		return tokenField;
-	}
-
-	public void setTokenField(String tokenField)
-	{
-		this.tokenField = tokenField;
 	}
 
 	/* (non-Javadoc)
