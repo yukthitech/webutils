@@ -1,5 +1,6 @@
 package com.yukthitech.webutils.common;
 
+import com.yukthitech.validation.IStringConvertible;
 import com.yukthitech.validation.annotations.NotEmpty;
 import com.yukthitech.webutils.common.annotations.Model;
 
@@ -7,7 +8,7 @@ import com.yukthitech.webutils.common.annotations.Model;
  * Encapsulation of value and validation token.
  */
 @Model
-public class ValueWithToken
+public class ValueWithToken implements IStringConvertible
 {
 	/**
 	 * Actual value for the field.
@@ -59,5 +60,11 @@ public class ValueWithToken
 	public void setToken(String token)
 	{
 		this.token = token;
+	}
+	
+	@Override
+	public String toStringValue()
+	{
+		return value;
 	}
 }

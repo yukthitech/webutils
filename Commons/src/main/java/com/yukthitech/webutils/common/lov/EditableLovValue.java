@@ -1,12 +1,13 @@
 package com.yukthitech.webutils.common.lov;
 
+import com.yukthitech.validation.IStringConvertible;
 import com.yukthitech.webutils.common.annotations.Model;
 
 /**
  * Type to be used to accept value from editable lov field.
  */
 @Model
-public class EditableLovValue
+public class EditableLovValue implements IStringConvertible
 {
 	/**
 	 * Id of the selected lov.
@@ -56,5 +57,11 @@ public class EditableLovValue
 	public void setNewValue(String newValue)
 	{
 		this.newValue = newValue;
+	}
+	
+	@Override
+	public String toStringValue()
+	{
+		return newValue;
 	}
 }
