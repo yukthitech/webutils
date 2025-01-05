@@ -3,6 +3,8 @@ package com.yukthitech.webutils.common.lov;
 import com.yukthitech.validation.IStringConvertible;
 import com.yukthitech.webutils.common.annotations.Model;
 
+import jakarta.validation.constraints.Min;
+
 /**
  * Type to be used to accept value from editable lov field.
  */
@@ -12,6 +14,7 @@ public class EditableLovValue implements IStringConvertible
 	/**
 	 * Id of the selected lov.
 	 */
+	@Min(1)
 	private Long id;
 	
 	/**

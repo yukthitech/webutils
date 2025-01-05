@@ -52,6 +52,7 @@ import com.yukthitech.webutils.common.annotations.Format;
 import com.yukthitech.webutils.common.annotations.FullWidth;
 import com.yukthitech.webutils.common.annotations.Html;
 import com.yukthitech.webutils.common.annotations.LOV;
+import com.yukthitech.webutils.common.annotations.Model;
 import com.yukthitech.webutils.common.annotations.MultilineText;
 import com.yukthitech.webutils.common.annotations.NeedVerification;
 import com.yukthitech.webutils.common.annotations.NonDisplayable;
@@ -305,11 +306,6 @@ public class FieldDefBuilder
 		{
 			getCustomLovDetails(modelType, fieldDef, field, requiredLovs);
 		}
-		//if field type is enum
-		else if(field.getAnnotation(CustomType.class) != null)
-		{
-			fieldDef.setFieldType(FieldType.CUSTOM_TYPE);
-		}
 		else if(field.getAnnotation(DateTime.class) != null)
 		{
 			fieldDef.setFieldType(FieldType.DATE_TIME);
@@ -339,6 +335,10 @@ public class FieldDefBuilder
 		else if(fieldType.isEnum())
 		{
 			getEnumLovDetails(fieldDef, fieldType);
+		}
+		else if(field.getAnnotation(CustomType.class) != null || fieldType.getAnnotation(Model.class) != null)
+		{
+			fieldDef.setFieldType(FieldType.CUSTOM_TYPE);
 		}
 		//if it is a simple field
 		else
