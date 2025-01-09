@@ -244,15 +244,15 @@ public class ActionsService
 				if(action.isAttachmentsExpected())
 				{
 					throw new InvalidConfigurationException("@RequestBody is used in service method where attachments are expected. "
-							+ "Use @RequestPart(\"{}\") instead. Method - {}", IWebUtilsCommonConstants.MULTIPART_DEFAULT_PART, 
-								action.getRemoteMethodSignature());
+							+ "Use @RequestPart(\"{}\") instead. Method - {}.{}()", IWebUtilsCommonConstants.MULTIPART_DEFAULT_PART, 
+							mainClass.getName(), action.getRemoteMethodSignature());
 				}
 
 				//if multiple parameters are marked for body throw error
 				if(action.isBodyExpected())
 				{
-					throw new InvalidConfigurationException("Multiple parameters are marked as body attributes.  Method - {}",  
-								action.getRemoteMethodSignature());
+					throw new InvalidConfigurationException("Multiple parameters are marked as body attributes.  Method - {}.{}()",  
+							mainClass.getName(), action.getRemoteMethodSignature());
 				}
 				
 				actionParam.setType(ActionParamModel.TYPE_BODY);
@@ -271,16 +271,16 @@ public class ActionsService
 				if(!IWebUtilsCommonConstants.MULTIPART_DEFAULT_PART.equals(partName))
 				{
 					throw new InvalidConfigurationException("Invalid request part name used '{}'. "
-							+ "Only '{}' is supported as part name for action methods. Method - {}", 
+							+ "Only '{}' is supported as part name for action methods. Method - {}.{}()", 
 							partName, IWebUtilsCommonConstants.MULTIPART_DEFAULT_PART, 
-							action.getRemoteMethodSignature());
+							mainClass.getName(), action.getRemoteMethodSignature());
 				}
 				
 				//if multiple parameters are marked for body throw error
 				if(action.isBodyExpected())
 				{
-					throw new InvalidConfigurationException("Multiple parameters are marked as body attributes. Method - {}",  
-								action.getRemoteMethodSignature());
+					throw new InvalidConfigurationException("Multiple parameters are marked as body attributes. Method - {}.{}()",  
+							mainClass.getName(), action.getRemoteMethodSignature());
 				}
 
 				actionParam.setType(ActionParamModel.TYPE_BODY);
@@ -292,9 +292,9 @@ public class ActionsService
 				//if non model is declared as body throw error
 				if(parameter.getType().getAnnotation(Model.class) == null && parameter.getType().getAnnotation(ExtendableModel.class) == null)
 				{
-					throw new InvalidConfigurationException("Non-model parameter type '{}' is defined as body attribute. Method - {}", 
+					throw new InvalidConfigurationException("Non-model parameter type '{}' is defined as body attribute. Method - {}.{}()", 
 							parameter.getType().getName(), 
-							action.getRemoteMethodSignature());
+							mainClass.getName(), action.getRemoteMethodSignature());
 				}
 				
 				//if attachments are expected
@@ -306,9 +306,9 @@ public class ActionsService
 					//if no file fields are found
 					if(fileFields == null)
 					{
-						throw new InvalidConfigurationException("No file fields are found in model '{}' though service method is marked as attachments expected. Method - {}", 
+						throw new InvalidConfigurationException("No file fields are found in model '{}' though service method is marked as attachments expected. Method - {}.{}()", 
 								parameter.getType().getName(), 
-								action.getRemoteMethodSignature());
+								mainClass.getName(), action.getRemoteMethodSignature());
 					}
 					
 					action.setFileFields(fileFields);
@@ -321,8 +321,8 @@ public class ActionsService
 				
 				if( StringUtils.isBlank(paramName) )
 				{
-					throw new InvalidConfigurationException("@RequestParam is defined without value argument in method {}", 
-							action.getRemoteMethodSignature());
+					throw new InvalidConfigurationException("@RequestParam is defined without value argument in method {}.{}()", 
+							mainClass.getName(), action.getRemoteMethodSignature());
 				}
 				
 				actionParam.setName(paramName);
@@ -335,8 +335,8 @@ public class ActionsService
 				
 				if( StringUtils.isBlank(paramName) )
 				{
-					throw new InvalidConfigurationException("@PathVariable is defined without value argument in method {}", 
-							action.getRemoteMethodSignature());
+					throw new InvalidConfigurationException("@PathVariable is defined without value argument in method {}.{}()", 
+							mainClass.getName(), action.getRemoteMethodSignature());
 				}
 				
 				actionParam.setName(paramName);
@@ -356,8 +356,8 @@ public class ActionsService
 					//if the parameter is non-model type
 					if(parameter.getType().getAnnotation(Model.class) == null && parameter.getType().getAnnotation(ExtendableModel.class) == null)
 					{
-						throw new InvalidConfigurationException("Unable to determine action parameter type at index {} in method {}", 
-								idx, action.getRemoteMethodSignature());
+						throw new InvalidConfigurationException("Unable to determine action parameter type at index {} in method {}.{}()", 
+								idx, mainClass.getName(), action.getRemoteMethodSignature());
 					}
 					
 					actionParam.setType(ActionParamModel.TYPE_EMBEDDED_REQUEST_PARAMS);

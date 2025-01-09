@@ -182,7 +182,10 @@ public class FieldDefBuilder
 		}
 		else
 		{
-			if(!Long.class.equals(lovFieldType) && !long.class.equals(lovFieldType) && !String.class.equals(lovFieldType))
+			if(
+				!Long.class.equals(lovFieldType) && !long.class.equals(lovFieldType)
+				&& !Integer.class.equals(lovFieldType) && !int.class.equals(lovFieldType)
+				&& !String.class.equals(lovFieldType))
 			{
 				throw new InvalidConfigurationException("Non-long/non-string type used for LOV field: {}.{}", modelType.getName(), field.getName());
 			}
