@@ -50,6 +50,11 @@ public class EmailServerSettings
 	public static final String PROP_SMTP_HOST = "mail.smtp.host";
 	
 	/**
+	 * Host name property to the name you want to use for the HELO command.
+	 */
+	public static final String PROP_SMTP_LOCAL_HOST = "mail.smtp.localhost";
+
+	/**
 	 * Property for setting smtp port.
 	 */
 	public static final String PROP_SMTP_PORT = "mail.smtp.port";
@@ -71,6 +76,12 @@ public class EmailServerSettings
 	@Size(min = 3)
 	private String smtpHost;
 	
+	/**
+	* Host name property to the name you want to use for the HELO command.
+	*/
+	@Size(min = 3)
+	private String smtpLocalHost;
+
 	/**
 	 * Smtp port.
 	 */
@@ -145,6 +156,26 @@ public class EmailServerSettings
 	public void setSmtpHost(String smtpHost)
 	{
 		this.smtpHost = smtpHost;
+	}
+	
+	/**
+	 * Gets the host name property to the name you want to use for the HELO command.
+	 *
+	 * @return the host name property to the name you want to use for the HELO command
+	 */
+	public String getSmtpLocalHost()
+	{
+		return smtpLocalHost;
+	}
+
+	/**
+	 * Sets the host name property to the name you want to use for the HELO command.
+	 *
+	 * @param smtpLocalHost the new host name property to the name you want to use for the HELO command
+	 */
+	public void setSmtpLocalHost(String smtpLocalHost)
+	{
+		this.smtpLocalHost = smtpLocalHost;
 	}
 
 	/**
@@ -352,6 +383,11 @@ public class EmailServerSettings
 		
 		props.put(PROP_SMTP_HOST, forImap ? imapHost : smtpHost);
 		props.put(PROP_SMTP_PORT, forImap ? "" + imapPort : "" + smtpPort);
+		
+		if(smtpLocalHost != null && smtpLocalHost.trim().length() > 0)
+		{
+			props.put(PROP_SMTP_LOCAL_HOST, smtpLocalHost);
+		}
 		
 		if(enableTlsV2)
 		{
