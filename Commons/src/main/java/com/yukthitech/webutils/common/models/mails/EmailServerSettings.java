@@ -113,6 +113,11 @@ public class EmailServerSettings
 	private boolean enableTtls = false;
 	
 	/**
+	 * Flag indicating id SSL should be enabled.
+	 */
+	private boolean enableSsl = false;
+	
+	/**
 	 * Host address from where mail can be read or deleted.
 	 */
 	@NotNull
@@ -347,6 +352,16 @@ public class EmailServerSettings
 	{
 		this.enableTlsV2 = enableTlsV2;
 	}
+	
+	public boolean isEnableSsl()
+	{
+		return enableSsl;
+	}
+
+	public void setEnableSsl(boolean enableSsl)
+	{
+		this.enableSsl = enableSsl;
+	}
 
 	/**
 	* Validates required configuration params are provided.
@@ -379,7 +394,7 @@ public class EmailServerSettings
 		
 		props.put(PROP_USE_AUTH, "" + useAuthentication);
 		props.put(PROP_ENABLE_TTLS, "" + enableTtls);
-		props.put("mail.smtp.ssl.enable", "" + enableTtls);
+		props.put("mail.smtp.ssl.enable", "" + enableSsl);
 		
 		props.put(PROP_SMTP_HOST, forImap ? imapHost : smtpHost);
 		props.put(PROP_SMTP_PORT, forImap ? "" + imapPort : "" + smtpPort);

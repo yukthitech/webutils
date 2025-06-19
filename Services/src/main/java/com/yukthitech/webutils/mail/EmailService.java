@@ -18,29 +18,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.UUID;
 
-import javax.activation.DataHandler;
-import javax.activation.FileDataSource;
 import javax.imageio.ImageIO;
-import javax.mail.Address;
-import javax.mail.Authenticator;
-import javax.mail.BodyPart;
-import javax.mail.Flags;
-import javax.mail.Flags.Flag;
-import javax.mail.Folder;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Multipart;
-import javax.mail.Part;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-import javax.mail.Store;
-import javax.mail.Transport;
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -61,6 +41,27 @@ import com.yukthitech.webutils.mail.template.MailTemplateConfigService;
 import com.yukthitech.webutils.mail.template.MailTemplateEntity;
 import com.yukthitech.webutils.mail.template.MailTemplateService;
 import com.yukthitech.webutils.services.freemarker.FreeMarkerService;
+
+import jakarta.activation.DataHandler;
+import jakarta.activation.FileDataSource;
+import jakarta.mail.Address;
+import jakarta.mail.Authenticator;
+import jakarta.mail.BodyPart;
+import jakarta.mail.Flags;
+import jakarta.mail.Folder;
+import jakarta.mail.Message;
+import jakarta.mail.MessagingException;
+import jakarta.mail.Multipart;
+import jakarta.mail.Part;
+import jakarta.mail.PasswordAuthentication;
+import jakarta.mail.Session;
+import jakarta.mail.Store;
+import jakarta.mail.Transport;
+import jakarta.mail.internet.AddressException;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeBodyPart;
+import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.internet.MimeMultipart;
 
 /**
  * Service to send and receive mails.
@@ -196,7 +197,7 @@ public class EmailService
 	 *            Context to be used which is expected have attachments.
 	 */
 	@SuppressWarnings("unchecked")
-	private void addAttachments(Multipart multiPart, Object context) throws Exception
+	private void addAttachments(Multipart multiPart, Object context, List<File> tempFiles) throws Exception
 	{
 		if(context == null)
 		{
@@ -255,6 +256,7 @@ public class EmailService
 				FileUtils.write(fieldFile, (String) value, Charset.defaultCharset());
 				
 				fileAttachments = Arrays.asList( new FileAttachment(fieldFile, attachment.getName()) );
+				tempFiles.add(fieldFile);
 			}
 			else if(value instanceof byte[])
 			{
@@ -262,6 +264,7 @@ public class EmailService
 				FileUtils.writeByteArrayToFile(fieldFile, (byte[]) value);
 				
 				fileAttachments = Arrays.asList( new FileAttachment(fieldFile, attachment.getName()) );
+				tempFiles.add(fieldFile);
 			}
 			else if(value instanceof Image)
 			{
@@ -282,6 +285,7 @@ public class EmailService
 				ImageIO.write((RenderedImage) value, imgType.toLowerCase(), fieldFile);
 				
 				fileAttachments = Arrays.asList( new FileAttachment(fieldFile, attachment.getName()) );
+				tempFiles.add(fieldFile);
 			}
 			else
 			{
@@ -354,7 +358,7 @@ public class EmailService
 	 *            Context to be used for freemarker expressions parsing.
 	 * @return Converted message.
 	 */
-	private Message buildMessage(EmailServerSettings settings, MailTemplateEntity emailTemplate, Object context) throws AddressException, MessagingException
+	private Message buildMessage(EmailServerSettings settings, MailTemplateEntity emailTemplate, Object context, List<File> tempFiles) throws AddressException, MessagingException
 	{
 		// get the list of mail recipients
 		String toStr = processTemplate(emailTemplate.getTemplateName() + ".to", emailTemplate.getToListTemplate(), context);
@@ -404,6 +408,14 @@ public class EmailService
 		{
 			throw new InvalidArgumentException("An error occurred while parsing from mail id - {}", fromId);
 		}
+		
+		int idx = fromId.indexOf('@');
+		String domain = fromId.substring(idx + 1);
+		
+		message.addHeader("Message-ID", String.format("<%s@%s>", UUID.randomUUID().toString(), domain));
+		message.addHeader("Thread-Topic", mailMessage.getSubject());
+		message.addHeader("Thread-Index", UUID.randomUUID().toString());
+		message.addHeader("Content-Language", "en-US");
 
 		// set recipients mail lists
 		if(!isEmpty(mailMessage.getToList()))
@@ -437,7 +449,7 @@ public class EmailService
 		// add files if any
 		try
 		{
-			addAttachments(multiPart, context);
+			addAttachments(multiPart, context, tempFiles);
 		} catch(Exception ex)
 		{
 			throw new InvalidStateException("An error occurred while setting attachments", ex);
@@ -455,6 +467,7 @@ public class EmailService
 	 * @param settings the settings
 	 * @param message the message
 	 */
+	/*
 	private void copyToSentFolder(EmailServerSettings settings, Message message)
 	{
 		Session mailSession = newSession(settings, true);
@@ -488,6 +501,7 @@ public class EmailService
 			throw new InvalidStateException("Failed to copy mail to sent folder", ex);
 		}
 	}
+	*/
 	
 	public void sendEmail(String templateName, Object context)
 	{
@@ -517,16 +531,24 @@ public class EmailService
 		
 		try
 		{
+			// Used to collect the temp files generated by this class alone (not externally sent)
+			List<File> tempFiles = new ArrayList<>();
+			
 			// Build mail message object
-			message = buildMessage(settings, email, context);
+			message = buildMessage(settings, email, context, tempFiles);
 			
 			// send the message
 			Transport.send(message);
+			
+			// Delete temp files generated by this class (not externally attached files)
+			tempFiles.forEach(file -> file.delete());
 		} catch(Exception ex)
 		{
 			throw new InvalidStateException(ex, "An error occurred while sending email - {}", email, ex);
 		}
 		
+		/*
+		 * COpy-to is taken care by most of SMTP servers themselves
 		try
 		{
 			copyToSentFolder(settings, message);
@@ -534,6 +556,7 @@ public class EmailService
 		{
 			logger.debug("An error occurred while copying mail to sent folder. Error: {}", "" + ex);
 		}
+		*/
 	}
 
 	public File generateEmlFile(EmailServerSettings settings, MailTemplateEntity email, Object context)
@@ -542,8 +565,11 @@ public class EmailService
 		
 		try
 		{
+			// Used to collect the temp files generated by this class alone (not externally sent)
+			List<File> tempFiles = new ArrayList<>();
+			
 			// Build mail message object
-			message = buildMessage(settings, email, context);
+			message = buildMessage(settings, email, context, tempFiles);
 			
 			File emlFile = File.createTempFile("sample", ".eml");
 			FileOutputStream fos = new FileOutputStream(emlFile);
@@ -552,6 +578,8 @@ public class EmailService
 			fos.flush();
 			fos.close();
 			
+			// Delete temp files generated by this class (not externally attached files)
+			tempFiles.forEach(file -> file.delete());
 			return emlFile;
 		} catch(Exception ex)
 		{
