@@ -8,6 +8,90 @@
 	display: none;
 }
 
+.webutils-modal-dialog
+{
+	max-width: 50rem;
+	min-width: 20rem;
+    width: max-content;
+}
+
+.webutils-btn-primary, .webutils-btn-cancel
+{
+	background-image: linear-gradient(#0dccea, #0d70ea);
+	border: 0px;
+	border-radius: 6px;
+	box-shadow: rgba(0, 0, 0, .3) 0 5px 15px;
+	box-sizing: border-box;
+	color: #fff;
+	cursor: pointer;
+	font-family: Montserrat,sans-serif;
+	font-size: .9em;
+	text-align: center;
+	padding: 5px 15px;
+}
+
+.webutils-btn-cancel
+{
+	background-image: linear-gradient(#c90fdd, #ea0d7d);
+}
+
+.webutils-btn-primary:hover, .webutils-btn-cancel:hover
+{
+	border: 2px solid black;
+	padding: 3px 13px;
+}
+
+#webutilsInputDialog .form-group
+{
+	margin: 0.5rem;
+	width: max-content;
+}
+
+#webutilsInputDialog .form-control
+{
+	margin-left: 1rem;
+	margin-top: 5px;
+	width: 20rem;
+}
+
+.webutils-prompt-error
+{
+	margin-left: 1rem;
+	color: red;
+}
+
+.webutils-group
+{
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+
+.webutils-group .webutls-group-label
+{
+    font-weight: bold;
+    background-image: linear-gradient(#c1edd0, #44cfcf);
+    color: #411891;
+    padding: 3px 15px;
+    border-radius: 5px;
+}
+
+.webutils-error
+{
+	display: block;
+	margin-top: .25rem;
+	font-size: .875em;
+	color: #dc3545;
+}
+
+
+
+
+
+
+/*
+ ********************************************************************
+*/
+
 #webutilsPageLoading
 {
 	position: absolute;
@@ -31,7 +115,6 @@
 	margin-bottom: 0px !important;
 	font-size: 0.75rem;
 	font-weight: bold;
-	color: blue;
 }
 
 .webutil-field
@@ -39,6 +122,13 @@
 	margin-bottom: 0.2rem !important;
 	font-size: 1rem;
 	padding: 0.2rem  !important;
+}
+
+.webutil-switch
+{
+	display: block !important;
+	width: 3rem !important;
+	height: 1.5rem !important;
 }
 
 .webutil-button
@@ -132,7 +222,7 @@ button.webutils-info-close-button:hover
 .webutils-search-box
 {
 	width: 100%;
-	padding: 0.8rem;
+	padding: 0.6rem;
 	background: #f2f2f2;
 	border-radius: 1rem;
 }
@@ -156,7 +246,7 @@ button.webutils-info-close-button:hover
 	padding: 0.3rem;
 	background: #f2f2f2;
 	font-weight: bold;
-	font-size: 0.9rem;
+	font-size: 0.7rem;
 }
 
 .webutils-search-results
@@ -180,7 +270,7 @@ button.webutils-info-close-button:hover
 {
 	border: 1px solid #dddddd;
 	font-weight: bold;
-	font-size: 0.9rem;
+	font-size: 0.8rem;
 	background: #f2f2f2;
 	text-align: center;
 	padding: 0.3rem;
@@ -189,6 +279,331 @@ button.webutils-info-close-button:hover
 .webutils-search-results td
 {
 	border: 1px solid #dddddd;
-	font-size: 0.9rem;
+	font-size: 0.8rem;
 	padding: 0.3rem;
+	cursor: pointer;
 }
+
+.webutils-modal-header
+{
+	background-image: linear-gradient(to right, indigo, violet);
+	color: white;
+	font-weight: bold;
+	font-size: 0.9rem;
+	max-height: 3rem;
+	border: 1px solid white;
+}
+
+.webutils-progress-container {
+	height: 25px;
+	background-color: #e0e0e0;
+	border-radius: 10px;
+	overflow: hidden;
+	position: relative;
+}
+
+.webutils-progress-bar {
+	width: 50%;
+	height: 100%;
+	background: linear-gradient(135deg, #4caf50, #81c784);
+	animation: progress-animation 2s infinite linear;
+}
+
+.webutils-progress-bar::after {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 100%;
+	width: 100%;
+	background: rgba(255, 255, 255, 0.3);
+	opacity: 0.6;
+	transform: translateX(-100%);
+	animation: shimmer-animation 1.5s infinite linear;
+}
+
+@keyframes progress-animation {
+	0% {
+		width: 0%;
+	}
+	100% {
+		width: 100%;
+	}
+}
+
+@keyframes shimmer-animation {
+	0% {
+		transform: translateX(-100%);
+	}
+	100% {
+		transform: translateX(100%);
+	}
+}
+
+
+
+.modal-close-button
+{
+    position: relative;
+    float: right;
+    background: #b82020;
+    color: white;
+    font-size: 0.8rem;
+    border-radius: 5px;
+}
+
+.field-icon {
+    margin-left: -30px;
+    cursor: pointer;
+}
+
+.verify-button {
+	font-size: 0.8rem;
+	font-weight: bold;
+	cursor: pointer;
+	color: blue;
+	height: 100%;
+}
+
+.verified-button  {
+	font-size: 0.8rem;
+	font-weight: bold;
+	background-color: #97cb90;
+	color: #2d663f;
+	cursor: default;
+	height: 100%;
+}
+
+.yk-active-nav-link
+{
+    color: blue !important; 
+    border-bottom: 2px solid blue;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 0.2rem;
+}
+
+.yk-nav-link
+{
+    color: rgb(128, 128, 128); 
+    font-weight: bold;
+    cursor: pointer;
+    padding: 0.2rem;
+}
+
+.yk-navbar
+{
+	padding-bottom: 2px; 
+	border-bottom: 2px ridge; 
+	padding-top: 2px;
+	position: fixed;
+	width: 100%;
+	z-index: 1000;
+}
+
+.yk-subnavbar
+{
+	border: 2px ridge; 
+	
+	border-top-width: 0px;
+	padding-bottom: 1px; 
+	padding-top: 1px;
+	font-size: 0.8rem;
+}
+
+.yk-navbar-user
+{
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
+.yk-navbar-user>span
+{
+	font-weight: bold; 
+	margin-right: 1rem; 
+	font-size: 0.9rem;	
+}
+
+.yk-navbar-user>a
+{
+	font-weight: bold; 
+	margin-left: 1rem; 
+	font-size: 0.9rem;	
+}
+
+.yk-input-field
+{
+	border-radius: 5px !important;
+}
+
+.yk-remove-button
+{
+    background-color: red;
+    color: white;
+    text-align: center;
+    width: 1.2rem;
+    height: 1.2rem;
+    display: inline-block;
+    vertical-align: middle;
+    font-weight: bold;
+    border-radius: 50%;
+    line-height: 1rem;
+    margin-right: 0.3rem;	
+}
+
+.yk-img-upload-btn
+{
+	padding: 2px;
+	display: block;
+	width: 100%;
+	height: 1.5rem;
+	background-color: rgb(220,220,220);
+	font-size: 0.8rem;
+	color: rgb(130,130,130);
+	font-weight: bold;
+	border-width: 0px;
+}
+
+.yuk-autocomplete
+{
+  position: relative;
+  width: 100%;
+  display: inline-block;
+}
+
+.new-tag {
+	position: absolute;
+	top: 0;
+	right: 0;
+	background-color: blue;
+	color: white;
+	font-size: 0.7rem;
+	font-weight: bold;
+	padding: 2px 4px;
+	transform-origin: top right;
+	pointer-events: none; /* Ensure tag is not clickable */
+	font-family: sans-serif;
+	border-bottom-left-radius: 5px;
+}
+
+.yuk-autocomplete ul
+{
+  position: absolute;
+  width: 100%;
+  max-height: 150px;
+  overflow-y: auto;
+  background-color: white;
+  border: 1px solid #ccc;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  z-index: 1000;
+  border-radius: 5px;
+}
+
+.yuk-autocomplete li
+{
+  padding: 8px;
+  cursor: pointer;
+}
+
+.yuk-autocomplete li.highlighted
+{
+  background-color: #007bff;
+  color: white;
+}
+
+.yuk-autocomplete span.match
+{
+	color: #FF9800;
+	font-weight: bold;
+}
+
+.yk-multi-editable-lov-field
+{
+	border: 1px ridge rgb(200, 200, 200);
+}
+
+.yk-multi-editable-lov-field .selected-tag
+{
+	border: 1px ridge rgb(200, 200, 200);
+	padding: 5px 10px;
+	border-radius: 15px;
+	display: inline-flex;
+	align-items: center;
+	margin: 0.5rem;
+	position: relative;
+}
+
+.remove-button
+{
+	cursor: pointer;
+	color: red;
+    font-weight: bold;
+    margin-left: 0.3rem;	
+}
+
+/*************************************************
+ *  Side bar related styles
+**************************************************/
+.yk-sidebar {
+	height: 100vh;
+	width: 250px;
+	border-right: 2px ridge;
+	background: #f8f9fa;
+	transition: all 0.3s;
+	position: fixed;
+}
+
+.yk-sidebar.collapsed {
+	width: 80px;
+}
+
+.yk-sidebar a {
+	color: rgba(0,0,0,.55);
+	display: flex;
+	align-items: center;
+	padding: 10px;
+	text-decoration: none;
+	transition: all 0.3s;
+}
+
+.yk-sidebar i {
+	font-size: 20px;
+	width: 30px;
+	text-align: center;
+}
+
+.yk-sidebar span {
+	transition: all 0.3s;
+}
+
+.yk-sidebar.collapsed .menu-text {
+	display: none;
+}
+
+
+.yk-sidebar.collapsed + .content {
+	margin-left: 80px;
+}
+
+.yk-side-bar-content
+{
+	margin-left: 250px;
+}
+
+/* Sidebar collapse on small screens */
+@media (max-width: 992px) {
+	.yk-sidebar {
+		width: 60px;
+	}
+	.yk-sidebar .menu-text {
+		display: none;
+	}
+	.yk-side-bar-content {
+		margin-left: 60px;
+	}
+}
+
+
+

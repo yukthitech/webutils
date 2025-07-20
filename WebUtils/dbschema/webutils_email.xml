@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext 
+		http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd 
+		http://www.liquibase.org/xml/ns/dbchangelog 
+		http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet author="akiran" id="Mail template table">
+        <createTable tableName="WEBUTILS_MAIL_TEMPLATE">
+            <column autoIncrement="true" name="ID" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="VERSION" type="INT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="NAME" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="TO_TEMPLATE" type="VARCHAR(1000)"/>
+            <column name="CC_TEMPLATE" type="VARCHAR(1000)"/>
+            <column name="BCC_TEMPLATE" type="VARCHAR(1000)"/>
+            <column name="SUBJECT_TEMPLATE" type="VARCHAR(2000)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="CONTENT_TEMPLATE" type="LONGTEXT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="CUSTOMIZATION" type="LONGTEXT"/>
+
+            <column name="OWNER_ENTITY_TYPE" type="VARCHAR(250)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="OWNER_ENTITY_ID" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        
+        <addUniqueConstraint 
+        	constraintName="UQ_MAILTEMPLATEENTITY_TEMPLATE_NAME"
+        	tableName="webutils_mail_template"
+        	columnNames="NAME"  />
+    </changeSet>
+</databaseChangeLog>

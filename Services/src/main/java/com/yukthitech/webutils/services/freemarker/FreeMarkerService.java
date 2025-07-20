@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.yukthitech.utils.fmarker.FreeMarkerEngine;
+import com.yukthitech.utils.fmarker.annotaion.FreeMarkerDirective;
 import com.yukthitech.utils.fmarker.annotaion.FreeMarkerMethod;
 import com.yukthitech.webutils.services.ClassScannerService;
 
@@ -48,7 +49,14 @@ public class FreeMarkerService
 		freeMarkerEngine = new FreeMarkerEngine(excludeDefaultMehods, excludeDefaultDirectives);
 		
 		Set<Method> freeMarkerMethods = classScannerService.getMethodsAnnotatedWith(FreeMarkerMethod.class);
+		registerMethods(freeMarkerMethods);
 		
+		Set<Method> dirMethods = classScannerService.getMethodsAnnotatedWith(FreeMarkerDirective.class);
+		registerMethods(dirMethods);
+	}
+	
+	private void registerMethods(Set<Method> freeMarkerMethods)
+	{
 		if(freeMarkerMethods == null)
 		{
 			return;

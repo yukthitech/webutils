@@ -2,12 +2,8 @@ package com.yukthitech.webutils.controllers;
 
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.TypeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -17,26 +13,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.yukthitech.utils.exceptions.InvalidStateException;
 import com.yukthitech.webutils.InvalidRequestException;
 import com.yukthitech.webutils.annotations.ActionName;
-import com.yukthitech.webutils.captcha.CaptchaService;
 import com.yukthitech.webutils.common.BaseModel;
 import com.yukthitech.webutils.common.IWebUtilsActionConstants;
-import com.yukthitech.webutils.common.ValueWithToken;
 import com.yukthitech.webutils.common.client.IRequestCustomizer;
 import com.yukthitech.webutils.common.controllers.ICrudController;
 import com.yukthitech.webutils.common.models.BaseResponse;
 import com.yukthitech.webutils.common.models.BasicReadResponse;
 import com.yukthitech.webutils.common.models.BasicSaveResponse;
-import com.yukthitech.webutils.common.models.FieldError;
-import com.yukthitech.webutils.common.models.def.FieldDef;
-import com.yukthitech.webutils.common.models.def.FieldType;
-import com.yukthitech.webutils.common.models.def.ModelDef;
 import com.yukthitech.webutils.repository.WebutilsBaseEntity;
 import com.yukthitech.webutils.services.BaseCrudService;
-import com.yukthitech.webutils.services.ModelDetailsService;
-import com.yukthitech.webutils.verification.VerificationService;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.validation.Valid;
@@ -57,24 +44,6 @@ public class BaseCrudController<M extends BaseModel, S extends BaseCrudService<?
 	 */
 	@Autowired
 	private ApplicationContext applicationContext;
-	
-	/**
-	 * Used to access model-def during verification.
-	 */
-	@Autowired
-	private ModelDetailsService modelDetailsService;
-	
-	/**
-	 * For captcha field validation.
-	 */
-	@Autowired
-	private CaptchaService captchaService;
-	
-	/**
-	 * Foe verification field validation.
-	 */
-	@Autowired
-	private VerificationService verificationService;
 	
 	/**
 	 * Service to be used for current controller apis.
@@ -131,7 +100,6 @@ public class BaseCrudController<M extends BaseModel, S extends BaseCrudService<?
 	@Override
 	public BasicSaveResponse save(@RequestBody @Valid M model)
 	{
-		validate(model);
 		WebutilsBaseEntity entity = getService().save(model);
 		return new BasicSaveResponse(entity.getId());
 	}
@@ -163,7 +131,6 @@ public class BaseCrudController<M extends BaseModel, S extends BaseCrudService<?
 			throw new InvalidRequestException("Invalid id specified for update: " + model.getId());
 		}
 		
-		validate(model);
 		getService().update(model);
 		return new BaseResponse();
 	}
@@ -188,65 +155,5 @@ public class BaseCrudController<M extends BaseModel, S extends BaseCrudService<?
 	public C setRequestCustomizer(IRequestCustomizer customizer)
 	{
 		return null;
-	}
-	
-	protected void validate(Object model)
-	{
-		ModelDef modelDef = modelDetailsService.getModelDef(model.getClass());
-		List<FieldError> fieldErrors = new ArrayList<FieldError>();
-		
-		String value = null;
-		String token = null;
-		ValueWithToken valueWithToken = null;
-		
-		for(FieldDef field : modelDef.getFields())
-		{
-			if(field.getFieldType() != FieldType.CAPTCHA && field.getFieldType() != FieldType.VERIFICATION)
-			{
-				continue;
-			}
-			
-			try
-			{
-				valueWithToken = (ValueWithToken) PropertyUtils.getProperty(model, field.getName());
-				
-				if(valueWithToken == null)
-				{
-					continue;
-				}
-				
-				value = valueWithToken.getValue();
-				token = valueWithToken.getToken();
-			}catch(Exception ex)
-			{
-				throw new InvalidStateException("Failed to fetch values of field (or its token field). Field: {}", field.getName());
-			}
-			
-			if(StringUtils.isBlank(token))
-			{
-				fieldErrors.add(new FieldError(field.getName(), 0, "No token specified"));
-				continue;
-			}
-	
-			try
-			{
-				if(field.getFieldType() == FieldType.CAPTCHA)
-				{
-					captchaService.validate(token, value);
-				}
-				else
-				{
-					verificationService.validateVerification(field.getVerificationType(), value, token);
-				}
-			}catch(InvalidRequestException ex)
-			{
-				fieldErrors.add(new FieldError(field.getName(), ex.getStatusCode(), ex.getMessage()));
-			}
-		}
-		
-		if(!fieldErrors.isEmpty())
-		{
-			throw new InvalidRequestException(fieldErrors, "Request validation failed");
-		}
 	}
 }

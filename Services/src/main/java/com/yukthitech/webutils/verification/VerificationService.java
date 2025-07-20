@@ -34,6 +34,7 @@ import com.yukthitech.webutils.InvalidRequestException;
 import com.yukthitech.webutils.common.IWebUtilsCommonConstants;
 import com.yukthitech.webutils.common.verification.OtpVerificationRequest;
 import com.yukthitech.webutils.common.verification.VerificationType;
+import com.yukthitech.webutils.common.verification.VerificationValidator;
 
 import jakarta.annotation.PostConstruct;
 
@@ -96,6 +97,18 @@ public class VerificationService
 			verificationSupportes.put(supporter.getVerificationType(), supporter);
 			logger.debug("Adding verification support for type {} using class: {}", supporter.getVerificationType(), supporter.getClass().getName());
 		}
+		
+		VerificationValidator.setValidatorFunction((verificationType, valueWithToken) -> 
+		{
+			try
+			{
+				validateVerification(verificationType, valueWithToken.getValue(), valueWithToken.getToken());
+				return true;
+			}catch(InvalidRequestException ex)
+			{
+				return false;
+			}
+		});
 	}
 
 	/**
@@ -187,10 +200,9 @@ public class VerificationService
 		return encryptor.encrypt(verEncodedString);
 	}
 	
-	public void validateVerification(VerificationType type, String value, String verificationToken)
+	private void validateVerification(VerificationType type, String value, String verificationToken)
 	{
 		verify(verificationToken, type, value, 
 				null, VERIFICATION_PATTERN, maxVerTokenTimeSec);
-		
 	}
 }

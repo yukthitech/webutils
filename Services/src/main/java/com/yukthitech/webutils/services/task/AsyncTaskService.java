@@ -55,7 +55,7 @@ public class AsyncTaskService
 	/**
 	 * Number of threads to be used.
 	 */
-	@Value("${webutils.async.threadCount:15}")
+	@Value("${webutils.async.threadCount:5}")
 	private int threadCount;
 	
 	/**
@@ -239,7 +239,7 @@ public class AsyncTaskService
 	}
 	
 	/**
-	 * Executes specified runnable object in background.
+	 * Executes specified runnable object in background which gets executed after specified delay.
 	 * @param name Name of the execution
 	 * @param runnable runnable to execute
 	 * @param delay time in millis after which task should be executed.
@@ -252,7 +252,7 @@ public class AsyncTaskService
 	}
 
 	/**
-	 * Executes specified runnable object in background.
+	 * Executes specified runnable object in background which gets executed after specified delay in millis.
 	 * @param name Name of the execution
 	 * @param runnable runnable to execute
 	 * @param delay time in millis after which task should be executed.
@@ -260,7 +260,7 @@ public class AsyncTaskService
 	 */
 	public Future<?> executeTask(String name, Runnable runnable, long delay)
 	{
-		return threadPool.schedule( wrap(name, runnable), delay, TimeUnit.MILLISECONDS );
+		return this.executeTask(name, runnable, delay, TimeUnit.MILLISECONDS);
 	}
 
 	/**
@@ -272,5 +272,12 @@ public class AsyncTaskService
 	public Future<?> executeTask(String name, Runnable runnable)
 	{
 		return threadPool.submit( wrap(name, runnable) );
+	}
+	
+	public void scheduleWithFixedDelay(String name, Runnable runnable, long initialDelay, long delay, TimeUnit timeUnit)
+	{
+		logger.debug("Scheduling fixed-delay task {} with first time scheduled-execution at - {} [Initial Delay: {}, Delay: {}, Unit: {}]", 
+				name, initialDelay, delay, timeUnit);
+		threadPool.scheduleWithFixedDelay(runnable, initialDelay, delay, timeUnit);
 	}
 }

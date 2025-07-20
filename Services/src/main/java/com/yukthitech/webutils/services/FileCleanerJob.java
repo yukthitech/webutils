@@ -28,22 +28,20 @@ import java.util.Date;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-import com.yukthitech.webutils.annotations.CronJob;
 import com.yukthitech.webutils.repository.file.IFileRepository;
-import com.yukthitech.webutils.services.job.IJob;
+import com.yukthitech.webutils.services.task.ScheduledTask;
 
 import jakarta.annotation.PostConstruct;
 
 /**
- * Job to delete temporaty files. Expected to run once every day.
+ * Job to delete temporary files. Expected to run once every day.
  * @author akiran
  */
-@CronJob(name = "Temp File Cleaner", cronExpression = "0 0 23 * * ?")
-public class FileCleanerJob implements IJob
+@Component
+public class FileCleanerJob
 {
 	private static Logger logger = LogManager.getLogger(FileCleanerJob.class);
 	
@@ -72,8 +70,8 @@ public class FileCleanerJob implements IJob
 		fileRepository = repositoryFactory.getRepository(IFileRepository.class);
 	}
 	
-	@Override
-	public void execute(Object jobData, JobExecutionContext context) throws JobExecutionException
+	@ScheduledTask(time = "01:00 am")
+	public void deleteTempFiles()
 	{
 		logger.debug("Deleting temporary files");
 		

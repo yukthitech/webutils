@@ -6,15 +6,18 @@ import java.util.Random;
 
 import javax.imageio.ImageIO;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.yukthitech.utils.Encryptor;
 import com.yukthitech.utils.exceptions.InvalidStateException;
-import com.yukthitech.webutils.InvalidRequestException;
 import com.yukthitech.webutils.common.IWebUtilsCommonConstants;
 import com.yukthitech.webutils.common.captcha.CaptchaResponse;
+import com.yukthitech.webutils.common.captcha.CaptchaValidator;
 
+import jakarta.annotation.PostConstruct;
 import nl.captcha.Captcha;
 import nl.captcha.backgrounds.GradiatedBackgroundProducer;
 import nl.captcha.gimpy.FishEyeGimpyRenderer;
@@ -25,6 +28,8 @@ import nl.captcha.text.producer.TextProducer;
 @Service
 public class CaptchaService
 {
+	private static Logger logger = LogManager.getLogger(CaptchaService.class);
+	
 	private static Random random = new Random(System.currentTimeMillis());
 	
 	private static char[] CAPTCH_CHARS = new char[] {
@@ -39,6 +44,20 @@ public class CaptchaService
 	
 	@Autowired(required = false)
 	private Encryptor encryptor;
+	
+	@PostConstruct
+	private void init()
+	{
+		CaptchaValidator.setValidatorFunction(valueWithToken -> 
+		{
+			if(valueWithToken == null)
+			{
+				return true;
+			}
+
+			return validate(valueWithToken.getToken(), valueWithToken.getValue());
+		});
+	}
 	
 	public CaptchaResponse generate() throws Exception
 	{
@@ -76,7 +95,7 @@ public class CaptchaService
 	 * @param token
 	 * @param userAns
 	 */
-	public void validate(String token, String userAns)
+	private boolean validate(String token, String userAns)
 	{
 		if(encryptor == null)
 		{
@@ -90,12 +109,15 @@ public class CaptchaService
 			decryptedAns = encryptor.decrypt(token);
 		}catch(Exception ex)
 		{
-			throw new InvalidRequestException("Invalid token specified");
+			logger.trace("User specified invalid token (which cannot be decrypted): {}", token);
+			return false;
 		}
 		
 		if(!decryptedAns.equals(userAns))
 		{
-			throw new InvalidRequestException(IWebUtilsCommonConstants.RESPONSE_CODE_INVALID_VALUE, "Invalid captcha value specified");
+			return false;
 		}
+		
+		return true;
 	}
 }

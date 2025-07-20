@@ -1,4 +1,6 @@
-$.validationService = {
+import {$logger, $utils} from "./common.js";
+
+export var $validationService = {
 	"dataTypePatterns": {
 		"INTEGER": /^\d+$/,
 		"FLOAT": /^\d+\.\d+$/,
@@ -7,29 +9,29 @@ $.validationService = {
 	},
 	
 	"defaultMessages": {
-		"minLength" : "Min length of value should be ${config.value}",
-		"maxLength" : "Max length of value can be ${config.value}",
+		"minLength" : "Min length of value should be ${value}",
+		"maxLength" : "Max length of value can be ${value}",
 		"pattern" : "Value is not matching with required pattern",
 		"mispattern" : "Value is matching with unwanted pattern",
 		
 		"required" : "Value is mandatory",
-		"mandatoryOption" : "Value is mandatory for fields ${config.fields}",
-		"matchWith" : "Value is not matching with ${config.field}",
+		"mandatoryOption" : "Value is mandatory for fields ${validation.config.fields}",
+		"matchWith" : "Value is not matching with ${validation.config.field}",
 		
 		"futureOrToday" : "Value should be greater than or equal to today",
-		"greaterThanDateField" : "Value should be greater than field ${config.field}",
-		"greaterThanEqualsDateField" : "Value should be greater than or equal to field ${config.value}",
-		"lessThanDateField" : "Value should be less than field ${config.value}",
-		"lessThanEqualsDateField" : "Value should be less than or equal to field ${config.value}",
+		"greaterThanDateField" : "Value should be greater than field ${validation.config.field}",
+		"greaterThanEqualsDateField" : "Value should be greater than or equal to field ${value}",
+		"lessThanDateField" : "Value should be less than field ${value}",
+		"lessThanEqualsDateField" : "Value should be less than or equal to field ${value}",
 		"pastOrToday" : "Value should be less than or equal to today",
 		
-		"greaterThan" : "Value should be greater than field ${config.field}",
-		"greaterThanEquals" : "Value should be greater than or equal to field ${config.field}",
-		"lessThan" : "Value should be less than field ${config.field}",
-		"lessThanEquals" : "Value should be less than or equal to field ${config.field}",
+		"greaterThan" : "Value should be greater than field ${validation.config.field}",
+		"greaterThanEquals" : "Value should be greater than or equal to field ${validation.config.field}",
+		"lessThan" : "Value should be less than field ${validation.config.field}",
+		"lessThanEquals" : "Value should be less than or equal to field ${validation.config.field}",
 		
-		"minValue" : "Value should be less than or equal to ${config.value}",
-		"maxValue" : "Value should be less than or equal to ${config.value}"
+		"minValue" : "Value should be less than or equal to ${value}",
+		"maxValue" : "Value should be less than or equal to ${value}"
 	},
 		
 	"validators": {
@@ -69,6 +71,11 @@ $.validationService = {
 				return true;
 			}
 			
+			if(value.length == 0)
+			{
+				return true;
+			}
+			
 			var pattern = new RegExp("^" + config.regexp + "$");
 			
 			if(!pattern.test(value))
@@ -84,6 +91,11 @@ $.validationService = {
 				return true;
 			}
 			
+			if(value.length == 0)
+			{
+				return true;
+			}
+
 			var pattern = new RegExp(config.regexp);
 			
 			if(pattern.test(value))
@@ -359,7 +371,7 @@ $.validationService = {
 		{
 			if(!this.validators[validation.name])
 			{
-				$.logger.warn("Invalid validator used: " + validation.name);
+				$logger.warn("Invalid validator used: " + validation.name);
 				continue;
 			}
 			
@@ -371,12 +383,12 @@ $.validationService = {
 					"model": model
 				};
 				
-				var mssg = validation.message;
+				var mssg = validation.errorMessage;
 				mssg = mssg ? mssg : this.defaultMessages[validation.name];
 				
 				throw {
 					"validation": validation,
-					"message": $.utils.processTemplate(mssg, context)
+					"message": $utils.processTemplate(mssg, context)
 				};
 			}
 		}

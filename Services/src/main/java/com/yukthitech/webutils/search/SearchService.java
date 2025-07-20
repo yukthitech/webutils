@@ -476,7 +476,13 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 		//if customizer is available
 		if(queryCustomizer != null)
 		{
-			queryCustomizer.customizeQuery(new SearchCustomizationContext(searchQueryName, query));
+			SearchCustomizationContext custContext = new SearchCustomizationContext()
+					.setRepositoryType(searchQueryDetails.repository.getType())
+					.setMethod(searchQueryDetails.method)
+					.setSearchQueryName(searchQueryName)
+					.setQuery(query);
+					
+			queryCustomizer.customizeQuery(custContext);
 		}
 		
 		SearchCustomizerMethod customizerMethod = this.customizerMethods.get(searchQueryName);
@@ -485,7 +491,13 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 		{
 			try
 			{
-				customizerMethod.method.invoke(customizerMethod.service, new SearchCustomizationContext(searchQueryName, query));
+				SearchCustomizationContext custContext = new SearchCustomizationContext()
+						.setRepositoryType(searchQueryDetails.repository.getType())
+						.setMethod(searchQueryDetails.method)
+						.setSearchQueryName(searchQueryName)
+						.setQuery(query);
+
+				customizerMethod.method.invoke(customizerMethod.service, custContext);
 			}catch(Exception ex)
 			{
 				throw new InvalidStateException("An error occurred while invoking customization-method for search query: {}", searchQueryName, ex);
@@ -719,8 +731,14 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 			// instance of customizer
 			if(!ISearchResultCustomizer.class.equals(searchQueryDetails.customizerType))
 			{
+				SearchCustomizationContext custContext = new SearchCustomizationContext()
+						.setRepositoryType(searchQueryDetails.repository.getType())
+						.setMethod(searchQueryDetails.method)
+						.setSearchQueryName(searchQueryName)
+						.setQuery(query);
+
 				ISearchResultCustomizer customizerResult = searchQueryDetails.customizerType.getConstructor().newInstance();
-				results = customizerResult.customize(results);
+				results = customizerResult.customize(custContext, results);
 			}
 			
 			return toResponse(searchQueryName, results, searchSettingsWrapper.getValue(), searchExecutionModel, count);

@@ -1,5 +1,8 @@
-$.restService = {
+import {$logger, $utils, $appConfiguration} from "./common.js";
+
+export var $restService = {
 	"lovCache": {},
+	"modelDefCache": {},
 	
 	"dummy": function()
 	{
@@ -55,11 +58,23 @@ $.restService = {
 			"headers": settings.headers,
 			
 			"success": $.proxy(function(resData, textStatus, jqXHR){
-				this.onSuccess({
+				var resultObj = {
 					"response": resData,
 					"statusCode": jqXHR.statusCode().status,
-					"responseCode": resData.code
-				});
+					"responseCode": resData.code,
+					"extraInfo": this.extraInfo
+				};
+				
+				if(this.onSuccess)
+				{ 
+					this.onSuccess(resultObj);
+				}
+				
+				if(this.onResult)
+				{
+					this.onResult(resultObj);
+				}
+					
 			}, settings),
 			
 			"error": $.proxy(function(jqXHR, textStatus, errorThrown){
@@ -67,28 +82,41 @@ $.restService = {
 				
 				//on session expiry, if app is configure to handle expiry
 				// invoke the same and return
-				if(jqXHR.statusCode().status == 401 && $.appConfiguration.onSessionExpiry)
+				if(jqXHR.statusCode().status == 401 && $appConfiguration.onSessionExpiry)
 				{
-					$.logger.debug("Invoking session expiry handler of app-config");
-					$.appConfiguration.onSessionExpiry();
+					$logger.debug("Invoking session expiry handler of app-config");
+					$appConfiguration.onSessionExpiry();
 					return;
 				}
 				
 				try
 				{
 					resData = $.parseJSON(jqXHR.responseText);
-					$.logger.error("Got error as - {}", resData);
+					$logger.error("Got error as - {}", resData);
 				}catch(ex)
 				{
-					$.logger.error("Failed to parsed error response text as json. Error - {}", ex);
-					$.logger.error("Error Response text: " + jqXHR.responseText);
+					$logger.error("Failed to parsed error response text as json. Error - {}", ex);
+					$logger.error("Error Response text: " + jqXHR.responseText);
+					
+					resData = {"code": jqXHR.statusCode().status, "message": "Server Error"};
 				}
 				
-				this.onError({
+				var resultObj = {
 					"response": resData,
 					"statusCode": jqXHR.statusCode().status,
-					"responseCode": -1
-				});
+					"responseCode": -1,
+					"extraInfo": this.extraInfo
+				};
+				
+				if(this.onError)
+				{
+					this.onError(resultObj);
+				}
+				
+				if(this.onResult)
+				{
+					this.onResult(resultObj);
+				}
 			}, settings)
 		});
 	},
@@ -97,6 +125,16 @@ $.restService = {
 	{
 		settings = (settings == null) ? {} : settings;
 		settings.method = "POST";
+
+		body = (body != null) ? JSON.stringify(body) : null;
+		
+		this.invokeRestApi(url, body, settings);
+	},
+
+	"invokePut": function(url, body, settings)
+	{
+		settings = (settings == null) ? {} : settings;
+		settings.method = "PUT";
 
 		body = (body != null) ? JSON.stringify(body) : null;
 		
@@ -119,11 +157,46 @@ $.restService = {
 		this.invokeRestApi(url, params, settings);
 	},
 	
-	"fetchLovValues": function(name, lovType, successCallback)
+	"fetchModelDef": function(name, successCallback, isNoAuthReq)
 	{
-		if(this.lovCache[name])
+		if(this.modelDefCache[name])
 		{
-			successCallback(this.lovCache[name]);
+			successCallback(this.modelDefCache[name]);
+			return;
+		}
+
+		let callback = $.proxy(function(result) {
+			this.$this.modelDefCache[this.name] = result.response.modelDef;
+			this.successCallback(result.response.modelDef)
+		}, {"$this": this, "successCallback": successCallback, "name": name});
+
+		let urlPrefix = isNoAuthReq ? "/api/models/noAuth/fetch/" : "/api/models/fetch/";
+		let url = urlPrefix + name;
+			
+		$utils.executeWithInProgress($.proxy(function() {
+			this.$this.invokeGet(
+					this.url, 
+					null,
+					{
+						"context": this.$this, 
+						"onSuccess": this.callback
+					}
+				);
+		}, {"url": url, "$this": this, "callback": callback}));
+	},
+	
+	"fetchLovValues": function(name, lovType, successCallback, parentValue, isNoAuthReq)
+	{
+		var cacheKey = name;
+		
+		if(!parentValue)
+		{
+			cacheKey += "-" + parentValue;
+		}
+		
+		if(this.lovCache[cacheKey])
+		{
+			successCallback(this.lovCache[cacheKey]);
 			return;
 		}
 		
@@ -135,17 +208,28 @@ $.restService = {
 				lovOptions.push(lov);
 			}
 			
-			this.$this.lovCache[this.name] = lovOptions;
+			this.$this.lovCache[this.cacheKey] = lovOptions;
 			this.successCallback(lovOptions)
-		}, {"$this": this, "successCallback": successCallback, "name": name});
+		}, {"$this": this, "successCallback": successCallback, "name": name, "cacheKey": cacheKey});
 		
-		$.restService.invokeGet(
-				"/api/lov/fetch/" + name + "/" + lovType, 
-				null,
-				{
-					"context": this, 
-					"onSuccess": callback
-				}
-			);
+		var urlPrefix = isNoAuthReq ? "/api/lov/noAuth/fetch/" : "/api/lov/fetch/";
+		var url = urlPrefix + name + "/" + lovType;
+		
+		if(parentValue)
+		{
+			urlPrefix = isNoAuthReq ? "/api/lov/noAuth/fetchDependentLov/" : "/api/lov/fetchDependentLov/";
+			url = urlPrefix + name + "/" + lovType + "/" + parentValue;
+		}
+			
+		$utils.executeWithInProgress($.proxy(function() {
+			this.$this.invokeGet(
+					this.url, 
+					null,
+					{
+						"context": this.$this, 
+						"onSuccess": this.callback
+					}
+				);
+		}, {"url": url, "$this": this, "callback": callback}))
 	}
 };

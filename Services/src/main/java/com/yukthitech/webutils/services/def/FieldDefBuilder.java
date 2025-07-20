@@ -123,6 +123,12 @@ public class FieldDefBuilder
 		LovDetails lovDetails = new LovDetails();
 		LovType lovType = LovType.valueOf(lovAnnotation.type().name());
 		
+		if(lovType == LovType.STATIC_TYPE)
+		{
+			throw new InvalidStateException("Static lov type is specified explicitly (it is derived implicitly for enum types) on field {}.{}", 
+					modelType.getName(), field.getName());
+		}
+		
 		lovDetails.setLovType(lovType);
 		
 		//add current lov as required lov, which would be validated

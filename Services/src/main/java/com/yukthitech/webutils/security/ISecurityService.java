@@ -25,6 +25,7 @@ package com.yukthitech.webutils.security;
 
 import java.util.List;
 
+import com.yukthitech.webutils.WebutilsOperation;
 import com.yukthitech.webutils.common.ContactDetails;
 import com.yukthitech.webutils.extensions.ExtensionEntityDetails;
 import com.yukthitech.webutils.lov.StoredLovEntity;
@@ -44,6 +45,16 @@ public interface ISecurityService
 	 * @return True, if user is authorized to invoke the method
 	 */
 	public boolean isAuthorized(SecurityInvocationContext context);
+	
+	/**
+	 * Checks whether current user have access to perform specified operation.
+	 * @param operation
+	 * @return
+	 */
+	public default boolean isAuthorized(WebutilsOperation operation)
+	{
+		return true;
+	}
 	
 	/**
 	 * This method should return true only if current user is authorized to access specified file content.

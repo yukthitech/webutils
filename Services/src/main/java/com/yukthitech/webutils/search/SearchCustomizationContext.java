@@ -15,8 +15,27 @@
  */
 package com.yukthitech.webutils.search;
 
+import java.lang.reflect.Method;
+
+import com.yukthitech.persistence.ICrudRepository;
+
+import lombok.Data;
+import lombok.experimental.Accessors;
+
+@Data
+@Accessors(chain = true)
 public class SearchCustomizationContext
 {
+	/**
+	 * Repository in which the search method is defined.
+	 */
+	private Class<? extends ICrudRepository<?>> repositoryType;
+	
+	/**
+	 * Search method being invoked.
+	 */
+	private Method method;
+
 	/**
 	 * Name of search query.
 	 */
@@ -26,20 +45,4 @@ public class SearchCustomizationContext
 	 * Search query pojo.
 	 */
 	private Object query;
-
-	public SearchCustomizationContext(String searchQueryName, Object query)
-	{
-		this.searchQueryName = searchQueryName;
-		this.query = query;
-	}
-
-	public String getSearchQueryName()
-	{
-		return searchQueryName;
-	}
-
-	public Object getQuery()
-	{
-		return query;
-	}
 }

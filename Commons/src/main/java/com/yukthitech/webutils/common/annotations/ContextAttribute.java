@@ -14,7 +14,8 @@ import java.lang.annotation.Target;
 public @interface ContextAttribute
 {
 	/**
-	 * Name of the context attribute
+	 * Property expression that can be executed on WebutilsContext.attributeMap.
+	 * Eg: currentUser.userId
 	 * @return Name of the context attribute
 	 */
 	public String value();

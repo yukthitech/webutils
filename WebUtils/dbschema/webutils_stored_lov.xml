@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext 
+		http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd 
+		http://www.liquibase.org/xml/ns/dbchangelog 
+		http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet author="akiran" id="Creating strored lov table">
+        <createTable tableName="WEBUTILS_STORED_LOV">
+            <column autoIncrement="true" name="ID" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="VERSION" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="SPACE_IDENTITY" type="VARCHAR(150)"/>
+
+            <column name="NAME" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="EXTRA_INFO" type="VARCHAR(500)"/>
+
+            <column name="CREATED_BY_ID" type="BIGINT"/>
+            <column name="CREATED_ON" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="UPDATED_BY_ID" type="BIGINT"/>
+            <column name="UPDATED_ON" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        
+        <addUniqueConstraint columnNames="NAME" constraintName="UQ_ST_LOV_NAME" tableName="WEBUTILS_STORED_LOV"/>
+        
+        <addForeignKeyConstraint baseColumnNames="CREATED_BY_ID" baseTableName="WEBUTILS_STORED_LOV" constraintName="FK_ST_LOV_CREATED_BY_ID" 
+        	deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="WEBUTILS_USERS"/>
+        	
+        <addForeignKeyConstraint baseColumnNames="UPDATED_BY_ID" baseTableName="WEBUTILS_STORED_LOV" constraintName="FK_ST_LOV_UPDATED_BY_ID" 
+        	deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="WEBUTILS_USERS"/>
+    </changeSet>
+
+    <changeSet author="akiran" id="Creating strored lov value table">
+        <createTable tableName="WEBUTILS_STORED_LOV_OPTION">
+            <column autoIncrement="true" name="ID" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="VERSION" type="INT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="PARENT_LOV_ID" type="BIGINT">
+            	<constraints nullable="false"/>
+            </column>
+            <column name="PARENT_LOV_OPTION_ID" type="BIGINT">
+            	<constraints nullable="true"/>
+            </column>
+
+            <column name="LABEL" type="VARCHAR(500)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="IS_APPROVED" type="BIT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="CREATED_BY_ID" type="BIGINT"/>
+            <column name="CREATED_ON" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="APPROVED_BY_ID" type="BIGINT"/>
+            <column name="APPROVED_ON" type="datetime(6)"/>
+        </createTable>
+        
+        <addUniqueConstraint columnNames="PARENT_LOV_ID, PARENT_LOV_OPTION_ID, LABEL" constraintName="UQ_ST_LOV_OPT_LBL" tableName="WEBUTILS_STORED_LOV_OPTION"/>
+
+        <addForeignKeyConstraint baseColumnNames="PARENT_LOV_ID" baseTableName="WEBUTILS_STORED_LOV_OPTION" constraintName="FK_ST_LOV_OPT_PAR_LOV" 
+        	deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="WEBUTILS_STORED_LOV"/>
+        	
+        <addForeignKeyConstraint baseColumnNames="PARENT_LOV_OPTION_ID" baseTableName="WEBUTILS_STORED_LOV_OPTION" constraintName="FK_ST_LOV_OPT_PAR_LOV_OPT" 
+        	deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="WEBUTILS_STORED_LOV_OPTION"/>
+
+        <addForeignKeyConstraint baseColumnNames="CREATED_BY_ID" baseTableName="WEBUTILS_STORED_LOV_OPTION" constraintName="FK_ST_LOV_OPT_CREATED_BY_ID" 
+        	deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="WEBUTILS_USERS"/>
+        	
+        <addForeignKeyConstraint baseColumnNames="APPROVED_BY_ID" baseTableName="WEBUTILS_STORED_LOV_OPTION" constraintName="FK_ST_LOV_OPT_APPROV_BY_ID" 
+        	deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID" referencedTableName="WEBUTILS_USERS"/>
+    </changeSet>
+    <!--
+    	In MYSQL, a null unique column will allow multiple entries with same values keeping one of the column null.
+    	
+    	For ex,  in WEBUTILS_STORED_LOV_OPTION a unique constraint is present on columns PARENT_LOV_ID, PARENT_LOV_OPTION_ID, LABEL. If PARENT_LOV_OPTION_ID is nullable
+    	then mysql allows rows with following values
+    		PARENT_LOV_ID = 1, PARENT_LOV_OPTION_ID = null, LABEL = label1
+    		PARENT_LOV_ID = 1, PARENT_LOV_OPTION_ID = null, LABEL = label1
+    	In above example, though parent is same, same label is allowed as PARENT_LOV_OPTION_ID is null.
+    	
+    	To avoid this issue, PARENT_LOV_OPTION_ID is made nullable but needs to be populated with DUMMY parent-lov where parent is not needed.
+    	Below change set adds these DUMMY parent entries.
+     -->
+    <changeSet author="akiran" id="Adding dummy base entries">
+    	<sql>
+    		INSERT INTO WEBUTILS_STORED_LOV(VERSION, NAME, CREATED_ON, UPDATED_ON) 
+    		VALUES (1, 'DUMMY', now(), now());
+    	</sql>
+    	<sql>
+    		INSERT INTO WEBUTILS_STORED_LOV_OPTION(VERSION, PARENT_LOV_ID, LABEL, IS_APPROVED, CREATED_ON) 
+    		VALUES (1,
+    			(SELECT ID FROM WEBUTILS_STORED_LOV WHERE NAME = 'DUMMY'), 
+    			'DUMMY', 1, now());
+    	</sql>
+    </changeSet>
+</databaseChangeLog>

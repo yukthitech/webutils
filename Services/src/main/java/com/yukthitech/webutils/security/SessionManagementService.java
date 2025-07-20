@@ -15,7 +15,7 @@ import com.yukthitech.utils.exceptions.InvalidStateException;
 import com.yukthitech.webutils.cache.WebutilsCacheManager;
 import com.yukthitech.webutils.common.UserDetails;
 import com.yukthitech.webutils.services.WebutilsRepositoryFactory;
-import com.yukthitech.webutils.services.job.BackgroundThreadManager;
+import com.yukthitech.webutils.services.task.AsyncTaskService;
 import com.yukthitech.webutils.user.IUserRepository;
 import com.yukthitech.webutils.user.UserEntity;
 
@@ -73,7 +73,7 @@ public class SessionManagementService
 	 * To schedule background thread which would clean old/expired sessions.
 	 */
 	@Autowired
-	private BackgroundThreadManager backgroundThreadManager;
+	private AsyncTaskService asyncTaskService;
 	
 	/**
 	 * Used to fetch application specific user details.
@@ -92,7 +92,7 @@ public class SessionManagementService
 		this.sessionRepository = repositoryFactory.getRepository(ISessionRepository.class);
 		this.userRepository = repositoryFactory.getRepository(IUserRepository.class);
 		
-		this.backgroundThreadManager.scheduleWithFixedDelay(this :: cleanOldSessions, 0, sessionTimeout * 2, TimeUnit.SECONDS);
+		this.asyncTaskService.scheduleWithFixedDelay("Old-Session-Cleaner", this::cleanOldSessions, sessionTimeout * 2, sessionTimeout * 2, TimeUnit.SECONDS);
 	}
 	
 	/**

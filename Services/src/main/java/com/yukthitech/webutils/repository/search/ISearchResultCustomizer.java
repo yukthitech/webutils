@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.yukthitech.webutils.common.FileInfo;
 import com.yukthitech.webutils.common.search.ExecuteSearchResponse;
+import com.yukthitech.webutils.search.SearchCustomizationContext;
 
 /**
  * The Interface ISearchResultCustomizer method can be used to 
@@ -19,7 +20,7 @@ public interface ISearchResultCustomizer<T>
 	 * @param results the results
 	 * @return the list
 	 */
-	public default List<T> customize(List<T> results)
+	public default List<T> customize(SearchCustomizationContext context, List<T> results)
 	{
 		return results;
 	}
@@ -30,7 +31,7 @@ public interface ISearchResultCustomizer<T>
 	 * @param resultFile
 	 * @return
 	 */
-	public default FileInfo customizeExportingFile(ExecuteSearchResponse results, FileInfo resultFile)
+	public default FileInfo customizeExportingFile(SearchCustomizationContext context, ExecuteSearchResponse results, FileInfo resultFile)
 	{
 		return resultFile;
 	}
