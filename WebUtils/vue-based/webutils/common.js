@@ -328,7 +328,7 @@ export var $utils = {
 		this.ykDialogs.executeWithInProgress(func);
 	},
 
-		/**
+	/**
 	 * Executes list of function specified by "functionLst" in a sequential order. During every function call
 	 * a callback method is passed, which needs to be invoked by the executing function at end, to execute the next
 	 * step function in the flow. If callback method is invoked with arguments, those arguments are passed to next method
@@ -338,6 +338,9 @@ export var $utils = {
 	 * 
 	 * As a first argument a context is accepted. All the functions are executed as part of the same context. So that data
 	 * can be shared between the functions using simple "this."
+	 * 
+	 * @param context Context object on which the specified functions will be called.
+	 * @param functionLst list of functions to be invoked in sequential chained manner.
 	 */
 	"executeAsyncSteps" : function(context, functionLst) {
 		
@@ -555,7 +558,7 @@ export var $pageUrl = {
 	},
 	
 	/**
-	 * Sets specified url into onto current url. Also pushes the
+	 * Sets specified url into current url. Also pushes the
 	 * modified url to history.
 	 * 
 	 * urlInfo can have following parameters

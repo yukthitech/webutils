@@ -1,5 +1,9 @@
 import {$logger, $utils, $appConfiguration} from "./common.js";
 
+/**
+ * Handles all REST API interactions with the backend.
+ * @namespace $restService
+ */
 export var $restService = {
 	"lovCache": {},
 	"modelDefCache": {},
@@ -24,6 +28,22 @@ export var $restService = {
 		return $.proxy(func, context);
 	},
 		
+	/**
+	 * Generic method for invoking REST APIs. This is an internal method and should not be called directly.
+	 * All `invoke` methods accept a `settings` object to configure the request.
+	 *
+	 * @param {string} url - The API endpoint.
+	 * @param {object} data - The request payload.
+	 * @param {object} settings - Configuration for the request.
+	 * @param {object} [settings.context=null] - The `this` context for the callback functions.
+	 * @param {Function} [settings.onSuccess=null] - Callback function executed on a successful (2xx) response. Receives a `result` object.
+	 * @param {Function} [settings.onError=null] - Callback function executed on an error (non-2xx) response. Receives an `error` object.
+	 * @param {Function} [settings.onResult=null] - Callback function executed after `onSuccess` or `onError`.
+	 * @param {string} [settings.contentType="application/json"] - The content type of the request.
+	 * @param {boolean} [settings.async=true] - Whether the request should be asynchronous.
+	 * @param {boolean} [settings.multipart=false] - Set to `true` for multipart/form-data requests (e.g., file uploads).
+	 * @param {boolean} [settings.includeAuthToken=true] - If `false`, the `AUTH_TOKEN` header will not be sent with the request.
+	 */
 	"invokeRestApi": function(url, data, settings)
 	{
 		settings.onSuccess = this.proxy(settings.context, settings.onSuccess);
@@ -121,6 +141,12 @@ export var $restService = {
 		});
 	},
 
+	/**
+     * Sends a POST request.
+     * @param {string} url - The API endpoint.
+     * @param {object} body - The request payload, which will be JSON-stringified.
+     * @param {object} settings - Configuration for the request. See invokeRestApi for details.
+     */
 	"invokePost": function(url, body, settings)
 	{
 		settings = (settings == null) ? {} : settings;
@@ -131,6 +157,12 @@ export var $restService = {
 		this.invokeRestApi(url, body, settings);
 	},
 
+	/**
+     * Sends a PUT request.
+     * @param {string} url - The API endpoint.
+     * @param {object} body - The request payload, which will be JSON-stringified.
+     * @param {object} settings - Configuration for the request. See invokeRestApi for details.
+     */
 	"invokePut": function(url, body, settings)
 	{
 		settings = (settings == null) ? {} : settings;
@@ -141,6 +173,12 @@ export var $restService = {
 		this.invokeRestApi(url, body, settings);
 	},
 
+	/**
+     * Sends a GET request.
+     * @param {string} url - The API endpoint.
+     * @param {object} params - An object of query parameters to be appended to the URL.
+     * @param {object} settings - Configuration for the request. See invokeRestApi for details.
+     */
 	"invokeGet": function(url, params, settings)
 	{
 		settings = (settings == null) ? {} : settings;
@@ -149,6 +187,12 @@ export var $restService = {
 		this.invokeRestApi(url, params, settings);
 	},
 
+	/**
+     * Sends a DELETE request.
+     * @param {string} url - The API endpoint.
+     * @param {object} params - An object of query parameters to be appended to the URL.
+     * @param {object} settings - Configuration for the request. See invokeRestApi for details.
+     */
 	"invokeDelete": function(url, params, settings)
 	{
 		settings = (settings == null) ? {} : settings;
@@ -157,6 +201,12 @@ export var $restService = {
 		this.invokeRestApi(url, params, settings);
 	},
 	
+	/**
+     * Fetches a model definition from the server and caches it.
+     * @param {string} name - The name of the model.
+     * @param {Function} successCallback - A function to call with the fetched model definition.
+     * @param {boolean} [isNoAuthReq=false] - If `true`, the request is made to a non-authenticated endpoint.
+     */
 	"fetchModelDef": function(name, successCallback, isNoAuthReq)
 	{
 		if(this.modelDefCache[name])
@@ -185,6 +235,14 @@ export var $restService = {
 		}, {"url": url, "$this": this, "callback": callback}));
 	},
 	
+	/**
+     * Fetches a List of Values (LOV) from the server and caches it.
+     * @param {string} name - The name of the LOV.
+     * @param {string} lovType - The type of LOV.
+     * @param {Function} successCallback - A function to call with the fetched LOV list.
+     * @param {*} [parentValue] - An optional parent value for dependent LOVs.
+     * @param {boolean} [isNoAuthReq=false] - If `true`, the request is made to a non-authenticated endpoint.
+     */
 	"fetchLovValues": function(name, lovType, successCallback, parentValue, isNoAuthReq)
 	{
 		var cacheKey = name;

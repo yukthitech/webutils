@@ -40,19 +40,19 @@ WebUtils is a powerful and flexible multi-tier framework built upon the robust f
 
 ## Dependencies
 
-- **Backend:**
-  - **Spring Boot:** The core of the backend framework.
-  - **yukthi-data:** A powerful ORM for data persistence.
-  - **yukthi-free-marker:** For processing FreeMarker templates.
-  - **yukthi-validators:** For server-side request validation, used alongside Hibernate/Jakarta Validators.
-- **Persistence:**
-  - **Liquibase:** For database schema versioning and metadata management.
-- **UI:**
-  - **Vue.js, Bootstrap, jQuery:** The core UI technologies.
-  - **bootstrap-datepicker:** A date picker widget.
-  - **bootstrap-icons & fontawesome-free:** For glyph icons.
-  - **tinymce:** A rich content editor.
-  - **vue-cookies:** for handling cookies.
+-   **Backend:**
+    -   **Spring Boot:** The core of the backend framework.
+    -   **yukthi-data:** A powerful ORM for data persistence. [Documentation](https://raw.githubusercontent.com/yukthitech/utils/refs/heads/master/yukthi-orm/README.MD)
+    -   **yukthi-free-marker:** For processing FreeMarker templates. [Documentation](https://raw.githubusercontent.com/yukthitech/utils/refs/heads/master/yukthi-free-marker/README.md)
+    -   **yukthi-validators:** For server-side request validation, used alongside Hibernate/Jakarta Validators. [Documentation](https://raw.githubusercontent.com/yukthitech/utils/refs/heads/master/yukthi-validators/README.md)
+-   **Persistence:**
+    -   **Liquibase:** For database schema versioning and metadata management.
+-   **UI:**
+    -   **Vue.js, Bootstrap, jQuery:** The core UI technologies.
+    -   **bootstrap-datepicker:** A date picker widget.
+    -   **bootstrap-icons & fontawesome-free:** For glyph icons.
+    -   **tinymce:** A rich content editor.
+    -   **vue-cookies:** for handling cookies.
 
 ## Framework Modules
 
@@ -262,7 +262,9 @@ This section provides a step-by-step guide on how to create a new entity with CR
 
 2.  **Create the entity:**
 
-    Next, you need to create an entity class that maps to the table you just created. This class should be placed in the `services` module.
+    Next, you need to create an entity class that maps to the table you just created. This class should be placed in the `services` module. An entity class can extend one of the following base classes:
+    -   `com.yukthitech.webutils.repository.WebutilsBaseEntity`: This will include `id` and `version` (for optimistic locking) in the entity.
+    -   `com.yukthitech.webutils.repository.WebutilsTrackedEntity`: This is an extension of `WebutilsBaseEntity`, which will additionally include creation/updation details (like `createdBy`, `createdOn`, `updatedBy`, `updatedOn`).
 
     ```java
     @Entity
@@ -284,7 +286,7 @@ This section provides a step-by-step guide on how to create a new entity with CR
 
 3.  **Create the repository:**
 
-    Now, you need to create a repository interface for your entity. This interface should extend `IWebutilsRepository` and be placed in the `services` module.
+    Now, you need to create a repository interface for your entity. This interface should extend `com.yukthitech.webutils.repository.IWebutilsRepository` and be placed in the `services` module. The `IWebutilsRepository` itself extends `com.yukthitech.persistence.ICrudRepository`, which provides basic common methods to save, update, delete, find by ID, search, count, and manage transactions.
 
     ```java
     public interface IProductRepository extends IWebutilsRepository<ProductEntity> {
@@ -294,8 +296,18 @@ This section provides a step-by-step guide on how to create a new entity with CR
 
 4.  **Create the model:**
 
-    Next, you need to create a model class that represents the data that will be transferred between the client and the server. This class should be placed in the `commons` module.
+    Next, you need to create a model class (a DTO) that represents the data transferred between the client and the server. This class should be placed in the `commons` module and should be annotated with `@com.yukthitech.webutils.common.annotations.Model` to be used for dynamic UI generation.
 
+    Model classes generally extend `com.yukthitech.webutils.common.BaseModel`, which adds common `id` and `version` fields.
+
+    **In the Model class:**
+    ```java
+    //...
+    private Long userId;
+    //...
+    ```
+
+    Here is an example of a simple model:
     ```java
     @Model
     public class ProductModel extends BaseModel {
@@ -312,21 +324,42 @@ This section provides a step-by-step guide on how to create a new entity with CR
     }
     ```
 
+    For entity fields that represent relations (e.g., a `UserEntity` object field), the corresponding model will typically have a simple ID field (e.g., `userId` of type `long`). The `@com.yukthitech.persistence.annotations.PropertyMapping` annotation is used on the entity's relation field to bridge this gap. It tells the framework how to map the model's ID field to the `id` subproperty of the related entity during persistence (saving/updating from a model) and how to map the entity's relation back to the model's ID field when fetching data.
+
+    For example:
+
+    **In the Entity class:**
+    ```java
+    //...
+    @ManyToOne
+    @JoinColumn(name = "USER_ID")
+    @PropertyMapping(type = JobSeekerModel.class, from = "userId", subproperty = "id")
+    private UserEntity user;
+    //...
+    ```
+
 5.  **Create the service:**
 
-    Now, you need to create a service class that contains the business logic for your entity. This class should extend `BaseCrudService` and be placed in the `services` module.
+    Now, you need to create a service class that contains the business logic for your entity. This class should be placed in the `services` module. Service classes generally extend `com.yukthitech.webutils.services.BaseCrudService`, which provides the following functionality:
+    -   Maps models to entities and vice-versa.
+    -   Provides basic CRUD functionality.
+    -   Injects tracking data (user and dates) if the entity is a `WebutilsTrackedEntity`.
+    -   Persists files separately if the entity has file-based fields.
 
     ```java
     @Service
     public class ProductService extends BaseCrudService<ProductModel, ProductEntity, IProductRepository> {
 
     }
-
     ```
 
 6.  **Create the controller:**
 
-    Finally, you need to create a controller class that exposes the APIs for your entity. This class should extend `SimpleBaseCrudController` and be placed in the `services` module.
+    Finally, you need to create a controller class that exposes the APIs for your entity. This class should be placed in the `services` module.
+    -   For simple CRUD operations, extend `com.yukthitech.webutils.controllers.SimpleBaseCrudController`.
+    -   If the model contains file/image fields, extend `com.yukthitech.webutils.controllers.BaseControllerWithAttachments`.
+
+    The controller class should be annotated with `@com.yukthitech.webutils.annotations.ActionName("entityName")`, and each method should also be annotated with `@com.yukthitech.webutils.annotations.ActionName("operationName")`. The combination of these names is used by the UI to invoke the API.
 
     ```java
     @Action("product")
@@ -339,7 +372,7 @@ This section provides a step-by-step guide on how to create a new entity with CR
 
 7.  **Create the UI:**
 
-    Now, you can create a UI for your entity. You can use the framework's dynamic UI generation capabilities to create a form for your entity.
+    Now, you can create a UI for your entity. You can use the framework's dynamic UI generation capabilities by referencing the model name in a `<yukthi-form>` component.
 
     ```html
     <div id="product-form">
@@ -352,6 +385,7 @@ This section provides a step-by-step guide on how to create a new entity with CR
         });
     </script>
     ```
+
 
 ## Dynamic UI Generation
 
@@ -369,100 +403,243 @@ The `FieldDef` object is built by the `FieldDefBuilder` class. The following is 
 -   The name is the same as the field name.
 -   The label is derived from the field name, unless it is overridden by the `@Label` annotation.
 -   The description is specified using the `@Description` annotation.
--   The default value is specified using the `@DefaultValue` annotation.
+-   The default value is specified using the `@DefaultValue` annotation. The value can be a static string, a number, a boolean, or it can be loaded from a classpath resource or a system property.
+
+    **Examples:**
+
+    -   **Static String:** `@DefaultValue("8.3333%")`
+    -   **Number:** `@DefaultValue("90")`
+    -   **Boolean:** `@DefaultValue("true")`
+    -   **From Classpath Resource:** `@DefaultValue(resource = "/terms_n_conditions_template.html")`
+    -   **From System Property:** `@DefaultValue(property = "jobOpening.smsTemplateForNew")`
+
 -   The field type is determined based on the Java type of the field and any annotations that are present.
 
-### Field Types
+### Field Types and UI Widget Mapping
 
-The following are the supported field types:
+The framework determines a normalized `FieldType` for each model field, which in turn dictates the UI widget used for that field. This process is influenced by various annotations. Additionally, validation annotations are processed and included in the `FieldDef` to enable client-side validation.
 
--   `STRING`
--   `INTEGER`
--   `FLOAT`
--   `BOOLEAN`
--   `DATE`
--   `FILE`
--   `IMAGE`
--   `COLOR`
--   `MULTI_LINE_STRING`
--   `PASSWORD`
--   `HTML`
+The following steps outline how a field's `FieldType` is determined:
 
-### Field Annotations
+-   **`@LOV`**: Marks a field as a "List of Values," which will be rendered as a dropdown (select) or list in the UI. Refer to the `LOV (List of Values)` section for more details.
 
-The following are the supported field annotations:
+    ```java
+    @LOV(name = "activeEmployerLov")
+    private Long employerId;
+    ```
 
--   `@LOV`: Marks a field as a list of values.
--   `@DateTime`: Marks a field as a date-time field.
--   `@Captcha`: Marks a field as a captcha field.
--   `@NeedVerification`: Marks a field as a field that needs verification.
--   `@CustomType`: Marks a field as a custom type.
--   `@MultilineText`: Marks a string field as a multi-line text field.
--   `@Password`: Marks a string field as a password field.
--   `@Html`: Marks a string field as an HTML field.
--   `@Color`: Marks a string field as a color field.
--   `@ReadOnly`: Marks a field as read-only.
--   `@NonDisplayable`: Marks a field as non-displayable.
--   `@FullWidth`: Marks a field as a full-width field.
--   `@Format`: Specifies the format for a date field.
+-   **`@DateTime`**: Marks a field to accept both date and time, typically rendered with a date-time picker widget.
+
+-   **`@Captcha`**: Designates a field for captcha verification. The field type should be `ValueWithToken`.
+
+-   **`@NeedVerification`**: Used for fields that require verification, such as a phone number or email address. The field type should be `ValueWithToken`, and the `VerificationType` can be specified (e.g., `VerificationType.MOBILE` or `VerificationType.EMAIL`).
+
+-   **Enum Types**: If a field's type is an `enum`, it is automatically treated as a static LOV, with the enum constants populating the dropdown options.
+
+-   **`@CustomType`**: Allows for a custom field type, where the UI widget must be manually implemented.
+
+-   **Standard Java Types**: For fields without the above annotations, the `FieldType` is determined by the Java type:
+    -   `String`: `STRING`
+    -   `int`, `long`, `short` (and wrappers): `INTEGER`
+    -   `float`, `double` (and wrappers): `FLOAT`
+    -   `boolean` (and wrapper): `BOOLEAN`
+    -   `Date`: `DATE`
+    -   `FileInfo`: `FILE` (allows file uploads)
+    -   `ImageInfo`: `IMAGE` (allows image uploads with a preview)
+    -   `Color`: `COLOR`
+
+-   **String Field Annotations**: For `String` fields, the following annotations further refine the UI widget:
+    -   `@MultilineText`: `MULTI_LINE_STRING` (renders a `<textarea>`)
+    -   `@Password`: `PASSWORD` (renders a password input with masked text)
+    -   `@Html`: `HTML` (renders a rich text editor like TinyMCE)
+    -   `@Color`: `COLOR` (renders a color picker widget)
+
+### Field Behavior Annotations
+
+The following annotations control the behavior and appearance of UI fields:
+
+-   `@ReadOnly`: Makes a field non-editable.
+-   `@NonDisplayable`: Hides a field from the UI, though its value is still sent to the client.
+-   `@FullWidth`: In a multi-column layout, this field will span the full width of the form.
+-   `@Format`: Specifies the display format, typically for `Date` fields (e.g., `@Format("dd/MM/yyyy")`).
+
+### Validation Annotations
+
+Validation annotations from `jakarta.validation.constraints` (e.g., `@Required`, `@MaxLen`, `@Min`, `@Pattern`) are processed and included in the `FieldDef`. This allows the UI framework to perform client-side validation, providing immediate feedback to the user.
 
 ## LOV (List of Values)
 
-A field can be marked as a "List of Values" (LOV) using the `@LOV` annotation. An LOV can be one of the following types:
+A field can be marked as a "List of Values" (LOV) using the `@LOV` annotation. This will render the field as a dropdown or list in the UI. There are three types of LOVs:
 
--   **`STATIC_TYPE`**: This type is automatically set by the framework when the field type is an enum. The enum values themselves become the options for the LOV.
--   **`DYNAMIC_TYPE`**: This type of LOV references a service or repository method. At runtime, these methods are invoked to get the list of options for the LOV.
--   **`STORED_TYPE`**: This is a persisted variety of LOV, where the LOV details (such as name and label) and its options are stored in the database. When the LOV is displayed, the options are fetched from the database. With configuration, this LOV enables users to add new options at runtime.
+-   **`STATIC_TYPE`**: This type is automatically assigned when the field is an `enum`. The enum constants become the LOV options. The label for each option can be customized using the `@Label` annotation on the enum constant.
 
-For a field, the dynamic or stored type can be specified using the `type` attribute of the `@LOV` annotation. The `name` attribute specifies the name of the LOV to be used.
+    ```java
+    public enum Priority {
+        LOW, 
+        @Label("Medium Priority")
+        MEDIUM, 
+        HIGH
+    }
+    
+    // In the model:
+    private Priority taskPriority;
+    ```
 
-If the field type is `EditableLovValue`, the field will be considered editable (meaning the user can add more options at runtime). The editable feature is only possible for `STORED_TYPE`.
+-   **`DYNAMIC_TYPE`**: This LOV fetches its options from a service or repository method at runtime. The `name` attribute of the `@LOV` annotation is used to reference the method.
 
-For non-editable fields, the field type should be one of `int`, `long`, or `String`.
+    -   **`@LovMethod`**: Annotate a service method with `@LovMethod` to expose it as a dynamic LOV. The method should return a `List` of `LovOption` objects.
 
-The `parentField` attribute of the `@LOV` annotation can be used to refer to another field in the same class. The parent field should be present before the current field. This indicates that the options of the current field are based on the value of the `parentField`. For example, a "state" field would depend on a "country" field.
+        ```java
+        // In a service class:
+        @LovMethod(name = "activeUsersLov")
+        public List<LovOption> getActiveUsers() {
+            // ... fetch active users and return as List<LovOption>
+        }
 
-For enum-based `STATIC_TYPE` LOVs, the value and label for the options will be the enum constant names. The label of an enum constant can be customized or overridden using the `@Label` annotation.
+        // In the model:
+        @LOV(name = "activeUsersLov", type = LovType.DYNAMIC_TYPE)
+        private Long userId;
+        ```
 
-The `@LovMethod` annotation can be used to mark a service method as an LOV method, which can provide a dynamic LOV at runtime. This method can then be referenced by the `@LOV` annotation for `DYNAMIC_TYPE`.
+    -   **`@LovQuery`**: Annotate a repository method with `@LovQuery` to expose it as a dynamic LOV. 
 
-The `@LovQuery` annotation can be used to mark a repository method as an LOV method, which can provide a dynamic LOV at runtime. This method can then be referenced by the `@LOV` annotation for `DYNAMIC_TYPE`.
+        ```java
+        // In a repository interface:
+        @LovQuery(name = "customerLov", labelField = "name", valueField = "id")
+        public List<Customer> findActiveCustomers(SearchQuery searchQuery);
+
+        // In the model:
+        @LOV(name = "customerLov", type = LovType.DYNAMIC_TYPE)
+        private Long customerId;
+        ```
+
+-   **`STORED_TYPE`**: This LOV is persisted in the database. The options are fetched from the `WEBUTILS_STORED_LOV` and `WEBUTILS_STORED_LOV_OPTION` tables. This type of LOV can be configured to allow users to add new options at runtime.
+
+    -   **Editable LOV**: If the field type is `EditableLovValue`, the user will be able to add new options to the stored LOV at runtime.
+
+        ```java
+        // In the model:
+        @LOV(name = "productCategories", type = LovType.STORED_TYPE)
+        private EditableLovValue category;
+        ```
+
+    -   **Non-Editable LOV**: For non-editable stored LOVs, the field type should be `String`, `long`, or `int`.
+
+        ```java
+        // In the model:
+        @LOV(name = "statusCodes", type = LovType.STORED_TYPE)
+        private String statusCode;
+        ```
+
+-   **Dependent LOVs**: The `parentField` attribute of the `@LOV` annotation can be used to create dependent LOVs. The parent field must be defined before the child field in the model. The options of the child LOV will be filtered based on the value of the parent field.
+
+    ```java
+    // In the model:
+    @LOV(name = "countryLov")
+    private String country;
+
+    @LOV(name = "stateLov", parentField = "country")
+    private String state;
+    ```
 
 ## Search Operations
 
-WebUtils supports highly dynamic search operations end-to-end, which are fully metadata-driven.
+WebUtils supports highly dynamic, metadata-driven search operations. The following steps outline how to define search functionality:
 
-Below are the steps on how an application can define search methods and their corresponding customization behavior:
+1.  **Define the Search Query Method:**
 
-1.  Mark a repository method with the `@SearchQueryMethod` annotation. In this annotation, the `name` attribute can be used to specify a name for the search query, and the `queryModel` can be used to specify the query POJO type that will define the query conditions. Optionally, the `customizer` attribute can be used to specify a query result customizer, which will be invoked after the search results are obtained. This can modify the result values as per the business logic.
+    In your repository interface, create a method annotated with `@com.yukthitech.webutils.annotations.SearchQueryMethod`. This annotation registers the method as a searchable query.
 
-    -   These methods should accept a single parameter of type `SearchQuery`.
-    -   These methods should always return a `List` of result POJOs.
-    -   These search methods are invoked via APIs exposed by WebUtils. Before invoking the search method, the registered `ISecurityService` (if any) method `isAuthorized(SecurityInvocationContext context)` will be invoked to check for authorization of the current user to execute this search method. So, application annotations can be used on these methods to provide authorization information.
-    -   The `@OrderBy` annotation from `yukthi-data` can be used to specify the field details by which ordering should be done.
+    -   `name`: A unique name for the search query.
+    -   `queryModel`: The class that defines the search filter fields.
+    -   `customizer`: An optional `ISearchResultCustomizer` implementation to modify the results.
 
-2.  Create a query POJO (referred to by the `queryModel` attribute of the `@SearchQueryMethod` annotation).
+    The method must accept a single parameter of type `com.yukthitech.persistence.repository.search.SearchQuery` and return a `List` of result POJOs. You can also use `@com.yukthitech.persistence.repository.annotations.OrderBy` to specify a default sort order.
 
-    -   This should have the `@Model` annotation at the class level so that dynamic metadata can be collected by the framework, which in turn will be used to render the search widget. All the rules mentioned in the model-def building will be applicable here as well.
-    -   Each field of this class will have `@Condition` annotations from `yukthi-data` defining the conditions to be applied in the search query. Only non-null fields will be considered when building the search query.
-    -   These fields can be annotated with the `@ContextAttribute` annotation by passing a property expression to the `value` attribute. The property expression will be executed on the attribute map of `WebutilsContext`. If specified, the current field value will be ignored, and the result of the specified property expression will be used. Note that the current user details will be available on request threads with the name `currentUser`, so an expression like `currentUser.userId` will inject the current user ID as this field value, which in turn will be used as a query condition.
+    Before invoking the search method, the registered `ISecurityService` (if any) method `isAuthorized(SecurityInvocationContext context)` will be invoked to check for authorization of the current user to execute this search method. Application-specific annotations can be used on these methods to provide authorization information.
 
-3.  Create a result POJO object that is used by the search method in the return type. This also should be annotated with `@Model`, which helps the framework to collect the metadata required for display.
+    ```java
+    // In IProductRepository.java
+    @SearchQueryMethod(name = "productSearch", queryModel = ProductSearchQuery.class)
+    @OrderBy("name")
+    public List<ProductSearchResult> searchProducts(SearchQuery searchQuery);
+    ```
 
-    -   Fields of this class will be annotated with the `@Field` annotation from `yukthi-data` to map the entity field name to these POJO fields. Fields without the `@Field` annotation will not be populated.
-    -   This POJO can extend `BasicSearchResult`, which includes common fields like `id` and other tracking fields.
-    -   The `@SearchFieldInfo` annotation can be used to specify the order of fields in the UI (mainly used with a big value like 1000 to ensure these fields are displayed at the end). The `resultType` attribute of this annotation can be used to mark phone and email fields so that in the UI, corresponding action icons will be displayed for these fields (like a call option for a phone and a send mail option for a mailId).
+2.  **Create the Query Model:**
 
-4.  An application can register implementations of `ISearchCustomizer` as a Spring service. If available, this interface's `customizeQuery()` method will be invoked before the execution of the query method by passing a context object that will have the search method details (being invoked) and the current query object. The query object can be customized as per business needs.
+    Create a query model POJO that defines the fields for the search filter. This class should be annotated with `@com.yukthitech.webutils.common.annotations.Model` at the class level, enabling the framework to collect dynamic metadata for rendering the search widget.
 
-5.  If the application has an `ISecurityService` and its `getUserSpaceIdentity()` method returns a non-empty string, then the query will be injected with a condition to limit the search `spaceIdentity` with this user space.
+    -   Each field that acts as a filter should be annotated with `@com.yukthitech.persistence.repository.annotations.Condition` from `yukthi-data` to define the query condition (e.g., `Operator.LIKE`, `Operator.GE`). Only non-null fields will be considered when building the search query.
+    -   These fields can be annotated with `@com.yukthitech.webutils.common.annotations.ContextAttribute` by passing a property expression to the `value` attribute. The property expression will be executed on the attribute map of `WebutilsContext`. If specified, the current field value will be ignored, and the result of the specified property expression will be used. For example, `currentUser.userId` will inject the current user ID as this field value, which in turn will be used as a query condition.
 
-6.  An application can register implementations of `ISearchResultCustomizer` as a Spring service. If available, this interface's `customize()` method will be invoked after the execution of the query method by passing a context object that will have the search method details (invoked) and the obtained results. The result objects can be customized as per business needs.
+    ```java
+    // In ProductSearchQuery.java
+    @Model
+    public class ProductSearchQuery {
+        @Condition(op = Operator.LIKE, ignoreCase = true)
+        private String name;
+
+        @Condition(op = Operator.GE)
+        private Double minPrice;
+
+        @Condition(op = Operator.LE)
+        private Double maxPrice;
+
+        @ContextAttribute("currentUser.userId")
+        private Long createdByUserId;
+
+        // Getters and setters
+    }
+    ```
+
+3.  **Create the Result Model:**
+
+    Create a result POJO object that is used by the search method in the return type. This class should also be annotated with `@com.yukthitech.webutils.common.annotations.Model`, which helps the framework to collect the metadata required for display.
+
+    -   Fields of this class will be annotated with `@com.yukthitech.persistence.repository.annotations.Field` from `yukthi-data` to map entity field names to these POJO fields. Fields without the `@Field` annotation will not be populated.
+    -   This POJO can extend `com.yukthitech.webutils.common.BasicSearchResult`, which includes common fields like `id` and other tracking fields.
+    -   The `@com.yukthitech.webutils.common.annotations.SearchFieldInfo` annotation can be used to specify the order of fields in the UI (mainly used with a big value like 1000 to ensure these fields are displayed at the end). The `resultType` attribute of this annotation can be used to mark phone and email fields so that in the UI, corresponding action icons will be displayed for these fields (like a call option for a phone and a send mail option for a mailId).
+
+    ```java
+    // In ProductSearchResult.java
+    @Model
+    public class ProductSearchResult extends BasicSearchResult {
+        @Field("name")
+        private String name;
+
+        @Field("price")
+        private Double price;
+
+        @SearchFieldInfo(resultType = SearchResultType.EMAIL)
+        @Field("vendor.email")
+        private String vendorEmail;
+
+        @SearchFieldInfo(order = 1000)
+        @Field("creationDate")
+        private Date creationDate;
+
+        // Getters and setters
+    }
+    ```
+
+4.  **Implement Customizers (Optional):**
+
+    -   An application can register implementations of `com.yukthitech.webutils.search.ISearchCustomizer` as a Spring service. If available, this interface's `customizeQuery()` method will be invoked before the execution of the query method by passing a context object that will have the search method details (being invoked) and the current query object. The query object can be customized as per business needs.
+    -   An application can register implementations of `com.yukthitech.webutils.search.ISearchResultCustomizer` as a Spring service. If available, this interface's `customize()` method will be invoked after the execution of the query method by passing a context object that will have the search method details (invoked) and the obtained results. The result objects can be customized as per business needs.
+
+5.  **Security and User Space Filtering:**
+
+    If the application has an `ISecurityService` and its `getUserSpaceIdentity()` method returns a non-empty string, then the query will be injected with a condition to limit the search `spaceIdentity` with this user-space.
+
+### Search Controllers
 
 The search query widget from the UI uses APIs exposed by the following controllers:
 
 -   **`SearchSettingsController`**: This exposes CRUD operations for `SearchSettingsEntity`, which holds customized settings per query for the current user. These settings mainly define which result columns to be displayed, their order, and the page size.
--   **`SearchController`**: Exposes an API to get the metadata of the search query used to display the search widget, an API to expose the search query, and an API to export the search results of the current query as an Excel file.
+-   **`SearchController`**: Exposes APIs to:
+    -   Get the metadata of the search query used to display the search widget.
+    -   Expose the search query. Along with the query POJO JSON, this API accepts pagination details like `pageSize` and `pageNo`.
+    -   Export the search results of the current query as an Excel file.
 
 ## Important Features or Services
 
@@ -515,3 +692,4 @@ Spring-registered services/components can have methods annotated with the below 
 -   **`CurrentUserService`**: This service's `getCurrentUserDetails()` method can be invoked to fetch the user details for the current request on the current thread (if the current thread is not a request thread, then `null` will be returned).
 -   **`WebutilsRepositoryFactory`**: By default, the CRUD service mentioned above will have access to the current repository instance. To access other repositories, this factory's `getRepository(Class<R> repoType)` method can be used.
 -   **`FreeMarkerService`**: This service, during startup, creates a `FreeMarkerEngine` instance and registers all the methods annotated with `@FreeMarkerMethod` and `@FreeMarkerDirective` annotations. This service can be used to process templates and condition-templates, which in turn can use all the application-registered FreeMarker methods. Applications can exclude the loading of `yukthi-freemarker`-provided default methods/directives using the boolean-valued application properties `webutils.fmarker.excludeDefaultMehods`/`webutils.fmarker.excludeDefaultDirectives`, respectively.
+
