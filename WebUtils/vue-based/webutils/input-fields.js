@@ -1,9 +1,26 @@
+/**
+ * @file This file contains the definitions for various Vue-based input field widgets.
+ * These components are the building blocks for creating forms in the WebUtils framework.
+ * They are not intended to be used directly in application pages. Instead, they are
+ * dynamically rendered by the generic <yk-model-field> component and used within a 
+ * <yk-model-form> or <yk-search-form>.
+ */
 import {$utils, $mergeObjProperty} from "./common.js";
 import {$validationService} from "./validation.js";
 import {$restService} from "./rest-service.js";
 
 export const inputFieldComponents = {};
 
+/**
+ * A factory function to create and register a new Vue UI input component.
+ * It injects a common set of props, data, methods, and lifecycle hooks to ensure
+ * consistency and provide baseline functionality like v-model support, validation handling,
+ * and event emission.
+ *
+ * @param {string} name - The name of the component to register (e.g., 'yk-input-field').
+ * @param {object} vueData - The Vue component definition object, which can include
+ *   a template, custom props, data, and methods.
+ */
 export function newVueUiComponent(name, vueData){
 	var defData = {
 		"data": {
@@ -219,8 +236,15 @@ export function newVueUiComponent(name, vueData){
 };
 
 /**
- * Used to render model field which gets all the required info
- * from model-form which in turn is expected to be obtained from server.
+ * A generic widget that dynamically renders the appropriate input field component
+ * based on a field's metadata from a model definition. This component acts as a
+ * wrapper and is the primary way to render form fields.
+ *
+ * @prop {object} modelDef - The full model definition object from the server, which must be indexed.
+ * @prop {string} fieldName - The name of the field within the model to render.
+ * @prop {object} formData - The form's data object, used for data binding.
+ * @prop {number} [columnCount=12] - The Bootstrap grid column count for the field.
+ * @prop {*} modelValue - The value of the field, used for v-model binding.
  */
 inputFieldComponents['yk-model-field'] = {
 	"props": {
@@ -294,23 +318,8 @@ inputFieldComponents['yk-model-field'] = {
 
 
 /**
- * Custom-node to add input field.
- * Parameters:
- * 		* field
- * 			* name: 
- * 				Name of the field. And also the name of field to be populated in 'data'.
- * 			* label:
- * 				Label to be used for the field.
- * 			# size:
- * 				Number of columns to be used for this field. Defaults to 12.
- * 			# placeHolder:
- * 				Place holder for the field. Defaults to label.
- * 			# validations:
- * 				list of validations to be done on this field. Each should be object of format
- * 					{"name": "minValue", config: {"value": 10}}
- * 		* data
- * 			field data	
- * 			 
+ * A versatile input component for handling various text-based inputs,
+ * including `text`, `password`, `email`, `number`, etc.
  */
 newVueUiComponent('yk-input-field', {
 	"data": {
@@ -341,6 +350,10 @@ newVueUiComponent('yk-input-field', {
 	`
 });
 
+/**
+ * A component for uploading a single file. It displays the selected file name
+ * and provides a button to clear the selection.
+ */
 newVueUiComponent('yk-input-file', {
 	"data": {
 		"fromServer": false			
@@ -392,7 +405,7 @@ newVueUiComponent('yk-input-file', {
 
 					<button type="button" class="btn btn-primary action-button fileProxy" 
 							style="padding: 0.3em; float: right;" @click="onBrowseClick" data-toggle="tooltip" title="Browse">...</button>
-					<input type="file" ref="fileButton" style="display: none;" @change="onFileChange">										
+					<input type="file" ref="fileButton" style="display: none;" @change="onFileChange">								
 				</div>
 
 				<div class="invalid-feedback">{{fieldInfo.error}}</div>
@@ -401,6 +414,12 @@ newVueUiComponent('yk-input-file', {
 	`
 });
 
+/**
+ * A specialized file upload component for images, which includes a preview
+ * of the selected image.
+ * @prop {number} [width=150] - The width of the image preview box.
+ * @prop {number} [height=150] - The height of the image preview box.
+ */
 newVueUiComponent('yk-input-image', {
 	"props": {
 		"width": { "type": Number, "default": 150},
@@ -467,7 +486,7 @@ newVueUiComponent('yk-input-image', {
 							@click="onBrowseClick" data-toggle="tooltip" title="Browse">Upload</button>
 					<input type="file" ref="fileButton" style="display: none;"
 							accept="image/gif, image/jpg, image/jpeg, image/png" 
-							@change="onFileChange">										
+							@change="onFileChange">								
 				</div>
 
 				<div class="invalid-feedback">{{fieldInfo.error}}</div>
@@ -477,7 +496,8 @@ newVueUiComponent('yk-input-image', {
 });
 
 /**
- * Input field with verification support. Like OTP for mobile, email, etc.
+ * An input field that requires verification, typically via an OTP (One-Time Password)
+ * sent to the user's email or phone. It includes a "Verify" button to trigger the flow.
  */
 newVueUiComponent('yk-ver-input-field', {
 	"data": {
@@ -616,7 +636,8 @@ newVueUiComponent('yk-ver-input-field', {
 });
 
 /**
- * Input field with captcha verification support.
+ * A field for CAPTCHA verification to prevent automated submissions. It displays
+ * a CAPTCHA image and an input for the user to enter the text.
  */
 newVueUiComponent('yk-captcha-field', {
 	"computed": {
@@ -694,6 +715,9 @@ newVueUiComponent('yk-captcha-field', {
 	`
 });
 
+/**
+ * A multi-line text input area (textarea).
+ */
 newVueUiComponent('yk-textarea-field', {
 	"template": `
 		<div class="form-group">
@@ -711,6 +735,12 @@ newVueUiComponent('yk-textarea-field', {
 	`
 });
 
+/**
+ * A rich text editor powered by TinyMCE, providing a WYSIWYG editing experience.
+ * @prop {string} toolbar - A space-separated string of TinyMCE toolbar controls.
+ * @prop {Array} plugins - A list of TinyMCE plugins to enable.
+ * @prop {boolean} [menubar=true] - Whether to display the TinyMCE menubar.
+ */
 newVueUiComponent('yk-html-editor', {
 	"props": {
 		//Toolbar options can be found @ https://www.tiny.cloud/docs/advanced/available-toolbar-buttons/
@@ -780,6 +810,9 @@ newVueUiComponent('yk-html-editor', {
 	`
 });
 
+/**
+ * A toggle switch for boolean values.
+ */
 newVueUiComponent('yk-switch', {
 	"template": `
 		<div class="form-group">
@@ -792,6 +825,14 @@ newVueUiComponent('yk-switch', {
 	`
 });
 
+/**
+ * A dropdown select field populated from a List of Values (LOV).
+ * @prop {string} [staticLovType] - Name of a static LOV type.
+ * @prop {string} [dynamicLovName] - Name of a dynamic LOV.
+ * @prop {string} [storedLovName] - Name of a stored LOV.
+ * @prop {boolean} [noAuth=false] - If `true`, fetches the LOV without authentication.
+ * @prop {string} [emptyOption] - Text for the initial empty option (e.g., "Select an option").
+ */
 newVueUiComponent('yk-lov-field', {
 	"data": {
 		"lovOptions": [],
@@ -947,6 +988,10 @@ newVueUiComponent('yk-lov-field', {
 	`
 });
 
+/**
+ * A base object containing common logic for editable LOV components.
+ * This is not a component itself but is extended by yk-editable-lov-field and yk-multi-editable-lov-field.
+ */
 let editableLovBase = {
 	"props": {
 		debounceTime: {type: Number, default: 300},
@@ -1156,7 +1201,10 @@ let editableLovBase = {
 	}
 };
 
-
+/**
+ * An advanced dropdown that allows users to either select an existing option
+ * or type a new one. New entries are flagged for the backend to process.
+ */
 newVueUiComponent('yk-editable-lov-field', {
 	"extends": editableLovBase,
 	
@@ -1224,6 +1272,10 @@ newVueUiComponent('yk-editable-lov-field', {
 	`
 });
 
+/**
+ * Similar to the editable LOV, but allows for selecting and creating multiple
+ * values, which are displayed as tags.
+ */
 newVueUiComponent('yk-multi-editable-lov-field', {
 	"extends": editableLovBase,
 

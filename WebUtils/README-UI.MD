@@ -446,110 +446,292 @@ $restService.invokePost("/api/products", newProduct, {
 ## User Service
 
 ### `$userService`
-Manages user authentication and details.
+Manages user authentication, session, and details. To use this service, import it from `user-service.js`:
 
-**Methods:**
--   `authenticate(loginInfo)`: Authenticates a user.
--   `getLoginInfoFromCache()`: Retrieves cached login information.
--   `getUserDetails(successCallback, errorCallback, forceRefresh)`: Fetches user details.
--   `clearSession()`: Clears user session data.
--   `logout()`: Logs out the current user.
--   `hasRoles(roleStr)`: Checks if the current user has specified roles.
-
-**Usage:**
 ```javascript
-import { $userService } from './user-service.js';
-
-$userService.authenticate({
-    userName: "testuser",
-    password: "password123",
-    rememberMe: true,
-    successCallback: () => {
-        console.log("Login successful!");
-    },
-    errorCallback: () => {
-        console.error("Login failed.");
-    }
-});
+import { $userService } from '/lib/webutils/user-service.js';
 ```
 
-## Validation Service
-
-### `$validationService`
-Provides client-side validation functionalities.
-
 **Methods:**
--   `validate(dataType, validations, value, model)`: Validates a value against a set of rules.
 
-**Usage:**
+-   `authenticate(loginInfo)`: Authenticates a user against the backend. On successful login, it stores the received authentication token in `sessionStorage` and as a cookie. If `rememberMe` is enabled, it also caches the login credentials in `localStorage`.
+    -   `loginInfo` (Object): An object containing login credentials and callbacks.
+        -   `userName` (String): The user's username.
+        -   `password` (String): The user's password.
+        -   `rememberMe` (boolean): If `true`, the credentials will be stored in `localStorage`.
+        -   `successCallback` (Function): A callback executed on successful login.
+        -   `errorCallback` (Function): A callback executed on login failure.
+
+-   `getLoginInfoFromCache()`: Retrieves the user's credentials (`userName`, `password`, `rememberMe`) that were previously cached in `localStorage` if the "Remember Me" option was selected during a prior login.
+    -   **Returns:** An object with the structure `{ userName, password, rememberMe }` if cached data exists, otherwise `null`.
+
+-   `getUserDetails(successCallback, errorCallback, forceRefresh)`: Fetches the details of the currently logged-in user. It first checks for cached details in `sessionStorage`. If not found, or if `forceRefresh` is true, it makes a REST call to the server.
+    -   `successCallback` (Function): A callback executed with the user details object.
+    -   `errorCallback` (Function): A callback executed if fetching details fails.
+    -   `forceRefresh` (boolean): If `true`, forces a refetch from the server, ignoring any cached data.
+    -   **Returns (via callback):** A `UserDetails` object with the following structure, plus any application-specific fields:
+        ```json
+        {
+            "userId": 101,
+            "userName": "testuser",
+            "userSpace": "default",
+            "displayName": "Test User",
+            "roles": ["USER_ROLE", "ADMIN_ROLE"],
+            "jsDateFormat": "dd/MM/yyyy"
+        }
+        ```
+
+-   `clearSession()`: Clears all user-related data from the current session, including the auth token and user details from `sessionStorage`.
+
+-   `logout()`: Logs the current user out by making a call to the backend, clearing the session via `clearSession()`, removing the auth cookie, and finally invoking the global `$appConfiguration.onLogout()` handler.
+
+-   `hasRoles(roleStr)`: Checks if the currently logged-in user has one or more of the specified roles.
+    -   `roleStr` (String): A comma-separated string of role names to check (e.g., `"ADMIN,SUPERVISOR"`).
+    -   **Returns:** `true` if the user has at least one of the specified roles, otherwise `false`.
+
+**Usage Example:**
 ```javascript
-import { $validationService } from './validation.js';
+// On a login page
+function attemptLogin() {
+    const loginData = {
+        userName: this.username,
+        password: this.password,
+        rememberMe: this.rememberMe,
+        successCallback: () => {
+            // Redirect to dashboard on success
+            window.location.href = '/dashboard.html';
+        },
+        errorCallback: () => {
+            this.errorMessage = "Login failed. Please try again.";
+        }
+    };
+    $userService.authenticate(loginData);
+}
 
-try {
-    $validationService.validate("STRING", [{ name: "required" }], "someValue", {});
-    console.log("Validation successful.");
-} catch (error) {
-    console.error("Validation failed:", error.message);
+// On a protected page, check for a specific role
+function checkAdminAccess() {
+    if (!$userService.hasRoles("ADMIN_ROLE")) {
+        $utils.alert("Access Denied: You do not have administrative privileges.");
+        return false;
+    }
+    return true;
 }
 ```
 
 ## Vue.js Components
 
-### Form Components (`forms.js`)
+All the component widgets mentioned below will be available by default within the HTML element marked as your Vue app. This is because the application's Vue instance is created using the `Webutils.newVueApp()` method, which automatically registers all available widgets, making them ready for use in your templates.
 
-#### `<yk-form>`
-A generic form component for submitting data.
+
+
+### Generic Field Component: `<yk-model-field>`
+
+This powerful component acts as a wrapper that can render *any* of the above input widgets dynamically. Instead of choosing a specific widget, you provide it with the model definition and the field name, and it automatically selects and configures the correct widget based on the field's metadata (like `dataType`, `lovDetails`, etc.).
+
+This is the preferred way to build forms when using a `<yk-model-form>`, as it handles the rendering logic for you.
 
 **Props:**
--   `method`: HTTP method (e.g., "POST", "PUT").
--   `url`: API endpoint URL.
--   `formData`: Object to hold form data and validation errors.
--   `validationActivated`: Boolean to control error display.
+
+*   `modelDef` (Object, required): The full model definition object from the server.
+*   `fieldName` (String, required): The name of the field to render.
+*   `formData` (Object): The form's data object, used for data binding.
+*   `columnCount` (Number, default: `12`): The Bootstrap grid column count for the field.
+
+**Example Usage (inside a custom form):**
+
+```html
+<!-- This will render a <yk-input-field> for the 'name' and a <yk-lov-field> for the 'category' -->
+<yk-model-field :model-def="productModel" field-name="name" v-model="product.name"></yk-model-field>
+<yk-model-field :model-def="productModel" field-name="category" v-model="product.category"></yk-model-field>
+```
+
+### Form Components (`forms.js`)
+
+#### `<yk-model-form>`
+
+A powerful component that dynamically generates a complete form based on a server-side model definition. It handles field rendering, layout, client-side validation, and provides hooks for submission and error handling.
+
+**Props:**
+
+*   `modelName` (String, required): The name of the model (e.g., `UserModel`) to generate the form for. The component fetches the model's definition from the server.
+*   `columnCount` (Number, default: `1`): The number of columns to use for the form layout.
+*   `style` (String): Custom CSS style to be applied to the form's root element.
+*   `noAuth` (Boolean, default: `false`): If `true`, fetches the model definition without sending authentication tokens.
+*   `groups` (Array): An array of objects to define field grouping and layout. Each object can have the following attributes:
+    *   `label` (String): The label to display for the group.
+    *   `fields` (Array): A list of field names that should be part of this group.
+    *   `default` (Boolean): A flag indicating if this group should be considered the default group. Fields not specified in any group will be added here. If no default group is specified, a new group without a label will be added at the end for the remaining fields.
+    *   **Examples:**
+        *   `{"label": "Basic Info", "default": true}`
+        *   `{"label": "Address Info", fields: ["street", "city", "stateId", "pinCode"]}`
+*   `modelValue` (Object): Binds the form's data object using `v-model`, allowing two-way data binding.
+
+**Slots:**
+
+*   `header`: Content to display at the top of the form, before any fields.
+*   `footer`: Content to display at the bottom of the form, typically used for action buttons like 'Submit' or 'Cancel'.
 
 **Events:**
--   `submit`: Emitted on form submission, with success status and result.
 
-**Usage:**
+*   `update:modelValue`: Emitted on every change to any field in the form, keeping the parent's `v-model` object in sync.
+
+**Methods:**
+
+*   `evaluateForm()`: Triggers validation on all fields. If any validation fails, it displays the errors and throws an exception. If all validations pass, it returns the form's data object.
+*   `setFormStatusListener(callback)`: Registers a listener function that is invoked whenever the form's overall error status changes. The callback receives a boolean `formHasErrors`.
+*   `setServerErrors(errors)`: Takes an array of field-specific error objects from a server response and displays them next to the corresponding fields. This is useful for validations that can only be performed on the server (e.g., checking for a unique username).
+
+**Example:**
+
+Here is how to implement a user registration form using `<yk-model-form>`.
+
+**1. The HTML (`user-registration.html`)**
+
+The component is used directly in the HTML. We bind the form data to `userModel` and the group definitions to `formGroups`. The footer slot is used for the submit button and a global error message.
+
 ```html
-<template>
-    <yk-form method="POST" url="/api/products" :form-data="productForm" @submit="onFormSubmit">
-        <yk-input-field :field="productNameField" v-model="productForm.data.name" />
-        <!-- other fields -->
-        <button type="button" @click="$refs.productForm.submitForm()">Save</button>
-    </yk-form>
-</template>
+<div id="app">
+    <h1>User Registration</h1>
 
-<script>
-import { formComponents } from './forms.js';
-import { inputFieldComponents } from './input-fields.js';
+    <yk-model-form 
+        ref="registrationForm"
+        model-name="UserModel"
+        :column-count="2"
+        :groups="formGroups"
+        v-model="userModel">
 
-export default {
-    components: {
-        'yk-form': formComponents['yk-form'],
-        'yk-input-field': inputFieldComponents['yk-input-field'],
-    },
+        <!-- Use the footer slot for buttons and global messages -->
+        <template #footer>
+            <div v-if="globalError" class="alert alert-danger">{{ globalError }}</div>
+            <button @click="submitRegistration" class="btn btn-primary">Register</button>
+        </template>
+
+    </yk-model-form>
+</div>
+```
+
+**2. The JavaScript (`user-registration.js`)**
+
+The corresponding JavaScript file manages the form's state and logic.
+
+```javascript
+import { Webutils } from '/lib/webutils/webutils.js';
+
+const app = Webutils.newVueApp({
     data() {
         return {
-            productForm: {
-                data: { name: '' },
-                errorFields: [],
-                displayErrors: false
-            },
-            productNameField: { name: 'name', label: 'Product Name', validations: [{ name: 'required' }] }
+            // Data model for the form, bound using v-model
+            userModel: {},
+            // Global error message for server-side issues
+            globalError: null,
+            // Definition for grouping fields in the form
+            formGroups: [
+                {
+                    label: "Account Details",
+                    fields: ["username", "password", "confirmPassword"]
+                },
+                {
+                    label: "Contact Information",
+                    fields: ["email", "phone"]
+                }
+            ]
         };
     },
     methods: {
-        onFormSubmit(success, result) {
-            if (success) {
-                $utils.info("Product saved successfully!");
+        /**
+         * Called when the Register button is clicked.
+         */
+        submitRegistration() {
+            try {
+                // 1. Evaluate the form. Throws an error if client-side validation fails.
+                const formData = this.$refs.registrationForm.evaluateForm();
+
+                // 2. If validation passes, submit the data to the server.
+                this.$restService.invokePost("/api/users/register", formData, {
+                    onSuccess: (result) => {
+                        $utils.alert("Registration successful!");
+                    },
+                    onError: this.onRegistrationError
+                });
+
+            } catch (error) {
+                // This catch block is triggered by evaluateForm() on validation failure.
+                console.log("Client-side validation failed.");
+            }
+        },
+
+        /**
+         * Handles errors from the server API call.
+         */
+        onRegistrationError(error) {
+            // Check if the error response contains field-specific errors
+            if (error.response && error.response.fieldErrors) {
+                // 3. Display server-side validation errors on the form fields.
+                this.globalError = "Please correct the errors.";
+                this.$refs.registrationForm.setServerErrors(error.response.fieldErrors);
             } else {
-                $utils.alert("Failed to save product: " + result.response.message);
+                // Display a generic global error
+                this.globalError = error.response ? error.response.message : "An unknown error occurred.";
+            }
+        },
+
+        /**
+         * Listener for the form's overall validation status.
+         */
+        onFormStatusChange(formHasErrors) {
+            // 4. If the form becomes error-free, clear the global error message.
+            if (!formHasErrors) {
+                this.globalError = null;
             }
         }
+    },
+    mounted() {
+        // 5. Register the status listener when the component is mounted.
+        this.$refs.registrationForm.setFormStatusListener(this.onFormStatusChange);
     }
-}
-</script>
+});
+
+app.mount('#app');
 ```
+
+#### `<yk-multi-row-model-form>`
+The `<yk-multi-row-model-form>` component is designed to accept one or more model objects of the same type from the user. By default, it displays a single row for the child model object, and users can dynamically add, modify, or remove rows.
+
+**Key Features:**
+- Displays one row by default for a child model object.
+- Allows users to add more rows (more model objects).
+- Enables modification of existing model row values.
+- Provides an option to remove existing model rows.
+
+**Props:**
+-   `modelName`: (String, required) The name of the model for each row.
+-   `modelValue`: (Array, required) Used with `v-model` for two-way binding of the multi-row model data.
+-   `labelProp`: (String, required) The property name in each row object to be used as a label for confirmation dialogs, especially during deletion.
+-   `defaultValue`: (Object, optional) A default object to be used when adding a new, empty row.
+
+**Events:**
+-   `update:modelValue`: This event is emitted whenever there is a change in the rows (addition, modification, or removal), allowing for seamless two-way data binding with `v-model`.
+
+**Example Usage:**
+Consider a `UserProfile` model that contains a list of `LanguageDetails` objects. To allow a user to input multiple languages, `<yk-multi-row-model-form>` can be used.
+
+*   **Parent Model:** `UserProfile.java`
+*   **Child Model:** `LanguageDetails.java`
+
+The following snippet from `profile-basic.html` shows how to implement this:
+```html
+<yk-multi-row-model-form modelName="LanguageDetails" 
+    :defaultValue="newLangRow"
+    labelProp="language.label"
+    v-model="formData.languages">
+</yk-multi-row-model-form>
+```
+In this example:
+- `modelName="LanguageDetails"` specifies that each row will be a `LanguageDetails` object.
+- `v-model="formData.languages"` binds the component to the `languages` array within the `formData` object.
+- `labelProp="language.label"` indicates that the `label` property of the `language` object within a row should be used in confirmation messages.
+- `:defaultValue="newLangRow"` provides a template for new rows.
+
 
 #### `<yk-search-form>`
 Component for building dynamic search forms based on server-side query models.
@@ -621,161 +803,6 @@ export default {
 </script>
 ```
 
-#### `<yk-model-form>`
-Generates a form dynamically based on a server-side model definition.
-
-**Props:**
--   `modelName`: Name of the model to generate the form for.
--   `columnCount`: Number of columns for layout (default: 1).
--   `style`: Custom CSS style for the form.
--   `noAuth`: Boolean, if true, fetches model def without authentication.
--   `groups`: Array of objects to define field grouping.
--   `modelValue`: (v-model) Binds form data.
-
-**Slots:**
--   `header`: Content to display at the top of the form.
--   `footer`: Content to display at the bottom of the form.
-
-**Usage:**
-```html
-<template>
-    <yk-model-form model-name="ProductModel" :column-count="2" v-model="productData">
-        <template #header>
-            <h3>Product Details</h3>
-        </template>
-        <template #footer>
-            <button @click="saveProduct">Save</button>
-        </template>
-    </yk-model-form>
-</template>
-
-<script>
-import { formComponents } from './forms.js';
-
-export default {
-    components: {
-        'yk-model-form': formComponents['yk-model-form'],
-    },
-    data() {
-        return {
-            productData: {} // This will be populated by the form
-        };
-    },
-    methods: {
-        saveProduct() {
-            try {
-                const dataToSave = this.$refs.modelForm.evaluateForm();
-                console.log("Saving:", dataToSave);
-                // Call API to save data
-            } catch (error) {
-                console.error("Form has errors:", error);
-            }
-        }
-    }
-}
-</script>
-```
-
-#### `<yk-multi-row-model-form>`
-Allows managing multiple rows of data, where each row is a model form.
-
-**Props:**
--   `modelName`: Name of the model for each row.
--   `defaultValue`: Default object to use when adding a new row.
--   `labelProp`: Property name in each row object to use as a label for confirmation dialogs.
--   `modelValue`: (v-model) Binds the array of row data.
-
-**Usage:**
-```html
-<template>
-    <yk-multi-row-model-form model-name="ItemModel" label-prop="itemName" v-model="items" />
-</template>
-
-<script>
-import { formComponents } from './forms.js';
-
-export default {
-    components: {
-        'yk-multi-row-model-form': formComponents['yk-multi-row-model-form'],
-    },
-    data() {
-        return {
-            items: [] // Array of item objects
-        };
-    }
-}
-</script>
-```
-
-### Input Field Components (`input-fields.js`)
-
-These components are generally used within `<yk-model-form>` or `<yk-form>` and are dynamically rendered based on the model definition.
-
-#### `<yk-input-field>`
-Standard text input field.
-
-**Props:**
--   `field`: Field definition object from the model.
--   `enableError`: Boolean to enable/disable error display.
--   `modelValue`: (v-model) Binds the field's value.
-
-**Usage (within `<yk-model-form>`):**
-```html
-<!-- Rendered automatically by yk-model-form -->
-<yk-model-form model-name="UserModel" v-model="userData" />
-```
-**Direct Usage (less common):**
-```html
-<template>
-    <yk-input-field :field="usernameField" v-model="username" :enable-error="true" />
-</template>
-
-<script>
-import { inputFieldComponents } from './input-fields.js';
-
-export default {
-    components: {
-        'yk-input-field': inputFieldComponents['yk-input-field'],
-    },
-    data() {
-        return {
-            username: '',
-            usernameField: { name: 'username', label: 'Username', inputType: 'text', validations: [{ name: 'required' }] }
-        };
-    }
-}
-</script>
-```
-
-#### `<yk-input-file>`
-File upload input.
-
-#### `<yk-input-image>`
-Image upload input with preview.
-
-#### `<yk-ver-input-field>`
-Input field with verification (e.g., OTP for mobile/email).
-
-#### `<yk-captcha-field>`
-Input field for captcha verification.
-
-#### `<yk-textarea-field>`
-Multi-line text input (textarea).
-
-#### `<yk-html-editor>`
-Rich text editor (TinyMCE integration).
-
-#### `<yk-switch>`
-Toggle switch for boolean values.
-
-#### `<yk-lov-field>`
-Dropdown for List of Values (LOV).
-
-#### `<yk-editable-lov-field>`
-Editable LOV field, allowing users to add new options.
-
-#### `<yk-multi-editable-lov-field>`
-Multi-select editable LOV field.
 
 ### Modal Dialog Components (`modal-dialogs.js`)
 
@@ -991,3 +1018,142 @@ export default {
 </script>
 ```
 
+## For Developers: Extending the Framework
+
+### Adding Custom Validations
+
+The WebUtils validation framework is designed to be extensible, allowing you to add new custom validations that flow from server-side Java annotations to the client-side JavaScript.
+
+#### The Validation Flow
+
+1.  **Server-Side Annotation:** A validation starts with a Java annotation (either a standard Jakarta/Hibernate one or a custom one) on a model's field.
+
+2.  **Metadata Extraction:** The `ValidationDefBuilder` service on the server inspects these annotations. It uses a mapping configuration (`validation-mapping.xml`) to translate the Java annotation into a `ValidationDef` object. This object contains:
+    *   `name`: A short name for the validation (e.g., `maxLength`).
+    *   `config`: A map of the annotation's attributes (e.g., `{ value: 100 }`).
+    *   `errorMessage`: The error message to be displayed on failure.
+
+3.  **Client-Side Service:** This `ValidationDef` object is sent to the client and used by the `$validationService` in `validation.js`.
+
+4.  **Client-Side Execution:** The `$validationService`'s `validate()` method is called for a field. It looks up the corresponding validator function in its `validators` map using the `name` from the `ValidationDef` and executes it.
+
+#### Steps to Add a New Validation
+
+Let's say you want to add a new `@ZipCode` validation.
+
+1.  **Create the Java Annotation:**
+    ```java
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    @Constraint(validatedBy = ZipCodeValidator.class) //for server-side validation
+    public @interface ZipCode {
+        String message() default "Invalid ZIP code";
+        Class<?>[] groups() default {};
+        Class<? extends Payload>[] payload() default {};
+    }
+    ```
+
+2.  **Update `validation-mapping.xml`:**
+    Add a new entry to map your annotation to a client-side validator name.
+    ```xml
+    <validationConfig 
+        type="com.yourcompany.validation.annotations.ZipCode" 
+        targetType="java.lang.String" 
+        name="zipCode" />
+    ```
+
+3.  **Implement the Client-Side Validator in `validation.js`:**
+    -   **Add a default message:**
+        ```javascript
+        "defaultMessages": {
+            // ... other messages
+            "zipCode": "Invalid ZIP code format."
+        },
+        ```
+    -   **Add the validator function:**
+        ```javascript
+        "validators": {
+            // ... other validators
+            "zipCode": function(config, value) {
+                if (!value) return true; // Don't validate empty values, use @Required for that
+                return /^\d{5}(-\d{4})?$/.test(value);
+            }
+        }
+        ```
+
+Now, whenever a model field is annotated with `@ZipCode`, it gets rendered in a `<yk-model-form>` and the `zipCode` validator will be automatically triggered on the client side.
+
+### Adding New Input Widgets
+
+New input widgets can be added to `input-fields.js` by using the `newVueUiComponent()` factory function. This function provides a baseline of common functionality for all input fields.
+
+#### Available Input Widgets
+
+| Name                          | Purpose                                                                                             | Server Type                     | Sample Image                                                                                                |
+| ----------------------------- | --------------------------------------------------------------------------------------------------- | ------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `yk-input-field`              | A versatile input for text, passwords, emails, numbers, etc.                                        | `STRING`, `PASSWORD`, `INTEGER` | <img src="https://raw.githubusercontent.com/yukthitech/webutils/master/WebUtils/tmp/input-fields.png?raw=true" alt="Input Field" width="200"/> |
+| `yk-textarea-field`           | A multi-line text input area.                                                                       | `MULTI_LINE_STRING`             |                                                                                                             |
+| `yk-switch`                   | A toggle switch for boolean values.                                                                 | `BOOLEAN`                       | <img src="https://raw.githubusercontent.com/yukthitech/webutils/master/WebUtils/tmp/input-fields.png?raw=true" alt="Switch Field" width="100"/> |
+| `yk-lov-field`                | A dropdown select field populated from a List of Values (LOV).                                      | `LIST_OF_VALUES`                |                                                                                                             |
+| `yk-editable-lov-field`       | An advanced dropdown that allows selecting an existing option or typing a new one.                  | `EDITABLE_LIST_OF_VALUES`       |                                                                                                             |
+| `yk-multi-editable-lov-field` | Similar to the editable LOV, but allows for selecting and creating multiple values.                 | `MULTI_EDITABLE_LIST_OF_VALUES` |                                                                                                             |
+| `yk-input-file`               | A component for uploading a single file.                                                            | `FILE`                          |                                                                                                             |
+| `yk-input-image`              | A specialized file upload component for images with a preview.                                      | `IMAGE`                         |                                                                                                             |
+| `yk-ver-input-field`          | An input field that requires verification (e.g., OTP).                                              | `VERIFICATION`                  |                                                                                                             |
+| `yk-captcha-field`            | A field for CAPTCHA verification.                                                                   | `CAPTCHA`                       |                                                                                                             |
+| `yk-html-editor`              | A rich text editor powered by TinyMCE.                                                              | `MULTI_LINE_STRING`             |                                                                                                             |
+
+
+#### Core `newVueUiComponent` Functionality
+
+*   **Events:**
+    *   `created`: Initializes the component's `fieldValue` from the `modelValue` prop and builds the `fieldInfo` object.
+    *   `watch`: A watcher on the `fieldValue` triggers the `onFieldValueChange` method whenever the value changes.
+    *   `update:modelValue`: Emitted to enable two-way `v-model` binding with the parent.
+    *   `valueChanged`: Emitted with the new value and the field's info, allowing parent components to react to changes.
+
+*   **Exposed Methods:**
+    *   `reset(val)`: Resets the field's value to the provided value or an empty string.
+    *   `getError()`: Returns the current validation error message, if any.
+    *   `displayError()`: Returns `true` if there is an error and the `enableError` prop is true.
+    *   `setServerError(error)`: Allows a parent component (like `<yk-form>`) to push a server-side validation error to the field.
+
+#### Steps to Add a New Widget
+
+1.  **Define the Vue Component:** Create a new Vue component object.
+2.  **Use the Factory Function:** Call `newVueUiComponent('your-widget-name', yourComponentObject)`.
+3.  **Define the Template:** Provide the HTML structure for your widget in the `template` property.
+4.  **Add Custom Logic:** If needed, add custom `data`, `props`, and `methods` to your component object. You can also hook into the component lifecycle by defining methods like `onCreate` and `onMounted`.
+5.  **Map to Server Data Type:** In `WebUtils/vue-based/webutils/model-def-service.js`, do one of the following:
+    *   Add a direct mapping in the `$dataTypeMapping` object from a server-side data type to your new component.
+    *   Or, if the mapping is conditional, add logic to the `populateFieldDef()` method to set the `componentType` based on the field's metadata.
+
+**Example: Creating a simple `<yk-color-picker>` widget:**
+
+```javascript
+// In WebUtils/vue-based/webutils/input-fields.js
+
+newVueUiComponent('yk-color-picker', {
+    template: `
+        <div class="form-group">
+            <label class="webutil-field-label">{{fieldInfo.label}}:</label>
+            <input
+                type="color" 
+                class="form-control form-control-color" 
+                :name="fieldInfo.name"
+                v-model="fieldValue"
+                :title="fieldInfo.label"
+            />
+            <div class="invalid-feedback d-block">{{fieldInfo.error}}</div>
+        </div>
+    `
+});
+
+// In WebUtils/vue-based/webutils/model-def-service.js
+var $dataTypeMapping = {
+    // ... other mappings
+    "COLOR": {"componentType": "yk-color-picker", "inputType": "text"},
+};
+```
+
+This new widget will now be available for use and will automatically have all the standard validation and data-binding features.
