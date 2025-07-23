@@ -1,5 +1,6 @@
 import {$restService} from "./rest-service.js";
 import {$utils} from "./common.js";
+import {$modelDefService} from "./model-def-service.js";
 
 export var formComponents = {};
 
@@ -424,7 +425,7 @@ formComponents['yk-model-form'] = {
 		"setModelDef": function(modelDef) {
 			modelDef = $utils.deepClone(modelDef);
 			// Divide fields into groups and rows
-			$utils.divideModelGroups(modelDef, this.modelFieldGroups, this.columnCount, this.groups);
+			$modelDefService.divideModelGroups(modelDef, this.modelFieldGroups, this.columnCount, this.groups);
 		},
 
 		"onFieldValueChange": function(newVal, fieldInfo)
@@ -568,97 +569,6 @@ formComponents['yk-model-form'] = {
 		</div>
 	`
 };
-
-
-/**
- * Used to render model field which gets all the required info
- * from model-form which in turn is expected to be obtained from server.
- */
-formComponents['yk-model-field'] = {
-	"props": {
-		"modelDef": { "type": Object, "required": false },
-		"fieldName": { "type": String, "required": false },
-		
-		"formData": { "type": Object, "required": false },
-		
-		
-		"fieldDef": { "type": Object, "required": false },
-		"columnCount": { "type": Number, "default": 12 },
-		/**
-		 * Can be used to set initial value for the field.
-		 * This also helps in 2-way binding with parent fields using v-model
-		 */
-		"modelValue": {},
-	},
-	
-	"computed": {
-		"fieldValue": {
-			get() {
-				return this.modelValue;
-			},
-			set(value) {
-				this.$emit("update:modelValue", value);
-			}
-		}
-	},
-	
-	"data": function() {
-		return {
-			"field": null,
-			"columnClass": "col-md-12",
-		}
-	},
-
-	"created": function() {
-		
-		if(!this.fieldDef && this.modelDef && this.modelDef.fields) {
-			for(var fldDef of this.modelDef.fields)
-			{
-				if(fldDef.displayable == false)
-				{
-					continue;
-				}
-				
-				if(fldDef.name == this.fieldName)
-				{
-					this.field = fldDef;
-					break;
-				}
-			}
-			
-			if(!this.field) {
-				throw "No field found with name: " + this.fieldName;
-			}
-		}
-		else {
-			this.field = this.fieldDef;
-		}	
-		
-		this.columnClass = "col-md-" + this.columnCount;
-	},
-	
-	"methods":
-	{
-		"setServerError": function(error) {
-			this.$refs["field"][0].setServerError(error);
-		},
-	},
-	
-	template: `
-		<div :class="columnClass">
-			<component
-				ref="field"
-				:key="field.index"
-				:is="field.componentType"
-				:formData.sync="formData"
-				:field="field"
-				:empty-option="'Select ' + field.label"
-				v-model="fieldValue"
-				/>
-		</div>
-	`
-};
-
 
 formComponents['yk-multi-row-model-form'] = {
 	"props": {

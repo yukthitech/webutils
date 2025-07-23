@@ -211,7 +211,8 @@ export var $restService = {
 	{
 		if(this.modelDefCache[name])
 		{
-			successCallback(this.modelDefCache[name]);
+			let cloned = $utils.deepClone(this.modelDefCache[name]);
+			successCallback(cloned);
 			return;
 		}
 

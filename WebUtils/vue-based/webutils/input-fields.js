@@ -218,6 +218,80 @@ export function newVueUiComponent(name, vueData){
 	inputFieldComponents[name] = vueData;
 };
 
+/**
+ * Used to render model field which gets all the required info
+ * from model-form which in turn is expected to be obtained from server.
+ */
+inputFieldComponents['yk-model-field'] = {
+	"props": {
+		"modelDef": { "type": Object, "required": false },
+		"fieldName": { "type": String, "required": false },
+		
+		"formData": { "type": Object, "required": false },
+		
+		"columnCount": { "type": Number, "default": 12 },
+		/**
+		 * Can be used to set initial value for the field.
+		 * This also helps in 2-way binding with parent fields using v-model
+		 */
+		"modelValue": {},
+	},
+	
+	"computed": {
+		"fieldValue": {
+			get() {
+				return this.modelValue;
+			},
+			set(value) {
+				this.$emit("update:modelValue", value);
+			}
+		}
+	},
+	
+	"data": function() {
+		return {
+			"field": null,
+			"columnClass": "col-md-12",
+		}
+	},
+
+	"created": function() {
+		if(!this.modelDef.fieldIndex) {
+			throw "Specified model-def is not indexed (use $modelDefService.populateFieldDetails()): " + this.fieldName;
+		}
+		
+		this.field = this.modelDef.fieldIndex[this.fieldName];
+		
+		if(!this.field) {
+			throw "No field found with name: " + this.fieldName;
+		}
+		
+		this.columnClass = "col-md-" + this.columnCount;
+	},
+	
+	"methods":
+	{
+		"setServerError": function(error) {
+			this.$refs["field"][0].setServerError(error);
+		},
+	},
+	
+	template: `
+		<div :class="columnClass">
+			<component
+				ref="field"
+				:key="field.index"
+				:is="field.componentType"
+				:formData.sync="formData"
+				:field="field"
+				:empty-option="'Select ' + field.label"
+				v-model="fieldValue"
+				/>
+		</div>
+	`
+};
+
+
 
 /**
  * Custom-node to add input field.
@@ -403,7 +477,7 @@ newVueUiComponent('yk-input-image', {
 });
 
 /**
- * Input field with verification support.
+ * Input field with verification support. Like OTP for mobile, email, etc.
  */
 newVueUiComponent('yk-ver-input-field', {
 	"data": {
@@ -542,7 +616,7 @@ newVueUiComponent('yk-ver-input-field', {
 });
 
 /**
- * Input field with verification support.
+ * Input field with captcha verification support.
  */
 newVueUiComponent('yk-captcha-field', {
 	"computed": {

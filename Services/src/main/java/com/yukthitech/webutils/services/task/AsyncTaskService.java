@@ -13,7 +13,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +21,8 @@ import com.yukthitech.utils.exceptions.InvalidArgumentException;
 import com.yukthitech.utils.exceptions.InvalidStateException;
 import com.yukthitech.webutils.services.ServiceMethod;
 import com.yukthitech.webutils.services.SpringUtilsService;
+
+import jakarta.annotation.PostConstruct;
 
 /**
  * Service to execute in execute async jobs.
@@ -64,19 +66,29 @@ public class AsyncTaskService
 	private ScheduledExecutorService threadPool;
 	
 	/**
+	 * Flag indicating if application services are registered or not.
+	 */
+	private boolean servicesRegisterd = false;
+	
+	@PostConstruct
+	private void init()
+	{
+		threadPool = Executors.newScheduledThreadPool(threadCount);
+	}
+	
+	/**
 	 * Post application construct method to initialize the thread pool.
 	 * @param event event object
 	 */
 	@EventListener
-	private void init(ContextRefreshedEvent event)
+	private synchronized void onStart(ApplicationReadyEvent event)
 	{
 		//ensure initialization happens only once
-		if(threadPool != null)
+		if(servicesRegisterd)
 		{
 			return;
 		}
 		
-		threadPool = Executors.newScheduledThreadPool(threadCount);
 		
 		//Register schedule task methods
 		List<ServiceMethod> methods = springUtilsService.fetchServiceMethods("Schedule-task", ScheduledTask.class);
@@ -93,6 +105,8 @@ public class AsyncTaskService
 		{
 			registerRepetitiveMethod(method);
 		}
+		
+		servicesRegisterd = true;
 	}
 	
 	/**
@@ -276,7 +290,7 @@ public class AsyncTaskService
 	
 	public void scheduleWithFixedDelay(String name, Runnable runnable, long initialDelay, long delay, TimeUnit timeUnit)
 	{
-		logger.debug("Scheduling fixed-delay task {} with first time scheduled-execution at - {} [Initial Delay: {}, Delay: {}, Unit: {}]", 
+		logger.debug("Scheduling fixed-delay task {} with first time scheduled-execution [Initial Delay: {}, Delay: {}, Unit: {}]", 
 				name, initialDelay, delay, timeUnit);
 		threadPool.scheduleWithFixedDelay(runnable, initialDelay, delay, timeUnit);
 	}

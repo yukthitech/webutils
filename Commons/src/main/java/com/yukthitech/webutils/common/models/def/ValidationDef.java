@@ -25,12 +25,15 @@ package com.yukthitech.webutils.common.models.def;
 
 import java.util.Map;
 
+import lombok.Data;
+
 /**
  * Indicates validation on a model field. That can be used on client side to
  * generate dynamic validations.
  * 
  * @author akiran
  */
+@Data
 public class ValidationDef
 {
 	/**
@@ -51,105 +54,7 @@ public class ValidationDef
 	private boolean crossValidation;
 
 	/**
-	 * Value map that can be used to specify parameters for validator
+	 * Value/config map that can be used to specify parameters for validator (obtained from annotations).
 	 */
-	private Map<String, Object> values;
-
-	/**
-	 * Gets the name of the validator.
-	 *
-	 * @return the name of the validator
-	 */
-	public String getName()
-	{
-		return name;
-	}
-
-	/**
-	 * Sets the name of the validator.
-	 *
-	 * @param name the new name of the validator
-	 */
-	public void setName(String name)
-	{
-		this.name = name;
-	}
-
-	/**
-	 * Gets the internalized error message to be used in case validation fails.
-	 *
-	 * @return the internalized error message to be used in case validation fails
-	 */
-	public String getErrorMessage()
-	{
-		return errorMessage;
-	}
-
-	/**
-	 * Sets the internalized error message to be used in case validation fails.
-	 *
-	 * @param errorMessage the new internalized error message to be used in case validation fails
-	 */
-	public void setErrorMessage(String errorMessage)
-	{
-		this.errorMessage = errorMessage;
-	}
-
-	/**
-	 * Gets the value map that can be used to specify parameters for validator.
-	 *
-	 * @return the value map that can be used to specify parameters for validator
-	 */
-	public Map<String, Object> getValues()
-	{
-		return values;
-	}
-
-	/**
-	 * Sets the value map that can be used to specify parameters for validator.
-	 *
-	 * @param values the new value map that can be used to specify parameters for validator
-	 */
-	public void setValues(Map<String, Object> values)
-	{
-		this.values = values;
-	}
-
-	/**
-	 * Checks if is indicates this is cross validation (validates against other field).
-	 *
-	 * @return the indicates this is cross validation (validates against other field)
-	 */
-	public boolean isCrossValidation()
-	{
-		return crossValidation;
-	}
-
-	/**
-	 * Sets the indicates this is cross validation (validates against other field).
-	 *
-	 * @param crossValidation the new indicates this is cross validation (validates against other field)
-	 */
-	public void setCrossValidation(boolean crossValidation)
-	{
-		this.crossValidation = crossValidation;
-	}
-
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString()
-	{
-		StringBuilder builder = new StringBuilder(super.toString());
-		builder.append("[");
-
-		builder.append("Name: ").append(name);
-		builder.append(",").append("is Cross Val: ").append(crossValidation);
-		builder.append(",").append("Values: ").append(values);
-		
-		builder.append("]");
-		return builder.toString();
-	}
-
+	private Map<String, Object> config;
 }

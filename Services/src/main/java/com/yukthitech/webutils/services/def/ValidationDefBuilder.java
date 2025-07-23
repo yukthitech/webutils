@@ -221,7 +221,7 @@ public class ValidationDefBuilder
 			//if validation has attribute values
 			if(!valueMap.isEmpty())
 			{
-				validationDef.setValues(new HashMap<>(valueMap));
+				validationDef.setConfig(new HashMap<>(valueMap));
 			}
 			
 			//set flag to indicate if the validation is cross field validation

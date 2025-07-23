@@ -2,12 +2,22 @@ import {$utils, $appConfiguration} from "./common.js";
 import {$restService} from "./rest-service.js";
 import "../vue-cookies/vue-cookies.js";
 
+/**
+ * Manages user authentication, session, and details.
+ * @namespace $userService
+ */
 export var $userService = {
 
 	/**
-	 * Used to authenticate the user and handle post login work
-	 * setting token in storage and cookie.
-	 * Param loginInfo -  userName, password, rememberMe, successCallback, errorCallback 
+	 * Authenticates a user against the backend. On successful login, it stores the received authentication token
+	 * in `sessionStorage` and as a cookie. If `rememberMe` is enabled, it also caches the login credentials in `localStorage`.
+	 * 
+	 * @param {object} loginInfo - An object containing login credentials and callbacks.
+	 * @param {string} loginInfo.userName - The user's username.
+	 * @param {string} loginInfo.password - The user's password.
+	 * @param {boolean} loginInfo.rememberMe - If `true`, the credentials will be stored in `localStorage`.
+	 * @param {Function} loginInfo.successCallback - A callback executed on successful login.
+	 * @param {Function} loginInfo.errorCallback - A callback executed on login failure.
 	 */
 	authenticate: function(loginInfo)
 	{
@@ -29,7 +39,6 @@ export var $userService = {
 		var onLogin = function(result) {
 			sessionStorage.setItem("authToken", result.response.authToken);
 			$cookies.set('AUTH_TOKEN', result.response.authToken);
-			//$cookies.put("AUTH_TOKEN", result.response.authToken, {"path": "/"});
 			
 			if(loginInfo.successCallback)
 			{
@@ -67,6 +76,12 @@ export var $userService = {
 		}, {"context": this, "onSuccess": onLogin, "onError": onError, "includeAuthToken": false});
 	},
 	
+	/**
+	 * Retrieves the user's credentials (`userName`, `password`, `rememberMe`) that were previously cached in `localStorage`
+	 * if the "Remember Me" option was selected during a prior login.
+	 * 
+	 * @returns {object|null} An object with the structure `{ userName, password, rememberMe }` if cached data exists, otherwise `null`.
+	 */
 	"getLoginInfoFromCache": function() {
 		var json = localStorage.getItem("loginInfo");
 		
@@ -78,6 +93,14 @@ export var $userService = {
 		return null;		
 	},
 	
+	/**
+	 * Fetches the details of the currently logged-in user. It first checks for cached details in `sessionStorage`.
+	 * If not found, or if `forceRefresh` is true, it makes a REST call to the server.
+	 * 
+	 * @param {Function} successCallback - A callback executed with the user details object.
+	 * @param {Function} errorCallback - A callback executed if fetching details fails.
+	 * @param {boolean} [forceRefresh=false] - If `true`, forces a refetch from the server, ignoring any cached data.
+	 */
 	"getUserDetails": function(successCallback, errorCallback, forceRefresh) {
 		var json = forceRefresh ? null : sessionStorage.getItem("userDetails");
 		
@@ -114,25 +137,40 @@ export var $userService = {
 				{"context": this, "onSuccess": onUserFetch, "onError": onUserFetchError, "async": false});
 	},
 	
+	/**
+	 * Clears all user-related data from the current session, including the auth token and user details from `sessionStorage`.
+	 */
 	"clearSession": function() {
 		$.userDetails = null;
 		sessionStorage.removeItem("userDetails");
 		sessionStorage.removeItem("authToken");
 	},
 	
+	/**
+	 * Logs the current user out by making a call to the backend, clearing the session via `clearSession()`,
+	 * removing the auth cookie, and finally invoking the global `$appConfiguration.onLogout()` handler.
+	 */
 	logout: function()
 	{
 		var onLogout = function() {
 			this.clearSession();
 			$cookies.remove('AUTH_TOKEN');
 			
-			$appConfiguration.onLogout();
+			if($appConfiguration.onLogout)
+			{
+				$appConfiguration.onLogout();
+			}
 		};
 
 		$restService.invokePost("/api/auth/logout", null, 
 			{"context": this, "onSuccess": onLogout, "onError": onLogout, "includeAuthToken": true});
 	},
 
+	/**
+	 * Checks if the currently logged-in user has one or more of the specified roles.
+	 * @param {string} roleStr - A comma-separated string of role names to check (e.g., `"ADMIN,SUPERVISOR"`).
+	 * @returns {boolean} `true` if the user has at least one of the specified roles, otherwise `false`.
+	 */
 	"hasRoles": function(roleStr) {
 		if(!roleStr)
 		{
@@ -149,7 +187,7 @@ export var $userService = {
 			}
 		}
 		
-		var roles = roleStr.split(/\s*\,\s*/);
+		var roles = roleStr.split(/\s*,\s*/);
 		
 		for(var role of roles)
 		{
@@ -162,8 +200,6 @@ export var $userService = {
 		return false;
 	}
 };
-
-
 
 export function $hasRoles(roles)
 {
