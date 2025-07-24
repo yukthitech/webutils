@@ -3,9 +3,30 @@ import {$utils, $appConfiguration} from "./common.js";
 
 export var dialogComponents = {};
 
+/**
+ * @typedef {object} ModalConfig
+ * @property {function} [onShow] - Optional callback function to be executed when the modal is shown.
+ * @property {function} [onHide] - Optional callback function to be executed when the modal is hidden.
+ * @property {object} [context] - Optional context to be used for the onShow and onHide callbacks.
+ */
+
+/**
+ * This is an internal object (not expected to be used outside of framework) and this helps in managing display multiple modal dialogs 
+ * one over the other and to safely close them in order.
+ * @type {object}
+ */
 var $modalManager = {
+	/**
+	 * Maintains list of modal dialog ids which are currently open.
+	 * @type {Array<String>}
+	 */
 	"modalStack": [],
 		
+	/**
+	 * Opens a modal dialog with the specified id.
+	 * @param {String} id - The id of the modal dialog to open.
+	 * @param {ModalConfig} [config] - Optional configuration for the modal dialog.
+	 */
 	"openModal": function(id, config) {
 		var dlg = $("#" + id);
 		
@@ -14,6 +35,8 @@ var $modalManager = {
 			throw "No modal found with specified id - " + id;
 		}
 		
+		// Add code what needs to happen when modal dialog is DISPLAYED
+		//   before that remove previous listeners if any (with off method)
 		$('#' + id).off('shown.bs.modal').on('shown.bs.modal', $.proxy(function (e) {
 			this.modalStack.push(this.id);
 			
@@ -40,6 +63,8 @@ var $modalManager = {
 			
 		}, {"modalStack": this.modalStack, "config": config, "id": id}));
 
+		// Add code what needs to happen when modal dialog is CLOSED/HIDDEN
+		//   before that remove previous listeners if any (with off method)
 		$('#' + id).off('hidden.bs.modal').on('hidden.bs.modal', $.proxy(function (e) {
 			var idx = this.modalStack.indexOf(this.id);
 			
@@ -50,6 +75,10 @@ var $modalManager = {
 			
 			this.modalStack.splice(idx, 1);
 			
+			/**
+			 * Based on whether more dialogs are open apart from current dialog
+			 * set the approp CSS classes (to overcome bootstrap issues of handling multiple dialogs) 
+			 */
 			if(this.modalStack.length > 0)
 			{
 				$('body').addClass('modal-open');
@@ -76,28 +105,61 @@ var $modalManager = {
 		$('#' + id).modal('show');
 	},
 	
+	/**
+	 * Closes a modal dialog with the specified id.
+	 * @param {String} id - The id of the modal dialog to close.
+	 */
 	"closeModal": function(id)
 	{
 		$('#' + id).modal('hide');
 	}
 };
 
-
+/**
+ * A customizable modal dialog component that can be used to display custom content, forms, or information to the user. 
+ * It provides a structured layout with a header, body, and footer, and can be controlled programmatically.
+ * @vue-component
+ */
 dialogComponents['yk-modal-dialog'] = {
 	"props": {
+		/**
+		 * A unique identifier for the modal dialog. This ID is used to open and close the modal programmatically.
+		 * @type {String}
+		 * @required
+		 */
 		"id": String,
+		
+		/**
+		 * The text to display in the modal's header.
+		 * @type {String}
+		 */
 		"title": String,
+		
+		/**
+		 * The text for the primary (submit) button in the footer. If not provided, the button will not be displayed.
+		 * @type {String}
+		 */
 		"submitText": String,
+		
+		/**
+		 * The text for the secondary (close/cancel) button in the footer.
+		 * @type {String}
+		 */
 		"closeText": String,
 		
+		/**
+		 * The size of the modal dialog. Accepts standard Bootstrap modal size classes like "modal-lg", "modal-sm", etc.
+		 * @type {String}
+		 * @default 'modal-xl'
+		 */
 		"size": {
 			"type": String,
 			"default": "modal-xl"
 		},
 		
-		/*
-		 * Margin to be used for modal on the top. If not specified
-		 * default margin will be used.
+		/**
+		 * A custom CSS top margin for the dialog (e.g., "5rem").
+		 * @type {String}
 		 */
 		"topMargin": String 
 	},
@@ -110,6 +172,12 @@ dialogComponents['yk-modal-dialog'] = {
 	
 	"methods":
 	{
+		/**
+		 * Displays the modal.
+		 * @param {Function} [callback] - A function to be executed when the modal is hidden.
+		 * @param {object} [config] - A configuration object.
+		 * @param {String} [config.title] - If specified, this title will be used as dynamic title for the dialog.
+		 */
 		"display": function(callback, config)
 		{
 			if(config && config.title)
@@ -137,68 +205,120 @@ dialogComponents['yk-modal-dialog'] = {
 			});
 		},
 		
+		/**
+		 * Closes (hides) the modal dialog.
+		 */
 		"close": function() 
 		{
 			$('#' + this.id).modal('hide');
 		}
 	},
-	
-	template: `
-		<div class="modal fade" :id="id" tabindex="-1">
-			<div :class="'modal-dialog ' + size" :style="topMargin ? 'margin-top: ' + topMargin : ''">
-				<div class="modal-content">
-					<div class="modal-header modal-title webutils-modal-header">
-						{{dataTitle ? dataTitle : title}}
-						
-						<button class="modal-close-button" data-bs-dismiss="modal">
-							<i class="fa-solid fa-xmark"></i>
-						</button>
-					</div>
-					
-					
-					<div class="modal-body">
-						<slot></slot>
-					</div>
-					
-					<div class="modal-footer" style="padding: 0.1rem">
-						<button type="button" class="btn btn-primary webutil-button" v-if="submitText" @click="$emit('submit')">{{submitText}}</button>
-						<button type="button" class="btn btn-danger webutil-button" data-bs-dismiss="modal">{{closeText}}</button>
-					</div>
-				</div>
-			</div>
-		</div>
-	`
 };
 
+/**
+ * A modal dialog that contains a dynamically generated form based on a server-side model definition.
+ * It is designed for both creating new records and updating existing ones, complete with built-in form submission and handling.
+ * @vue-component
+ */
 dialogComponents['yk-model-form-dialog'] = {
 	"props": {
+		/**
+		 * A unique identifier for the modal dialog.
+		 * @type {String}
+		 * @required
+		 */
 		"id": String,
+		
+		/**
+		 * The text to display in the modal's header.
+		 * @type {String}
+		 * @required
+		 */
 		"title": String,
 		
+		/**
+		 * The HTTP method (e.g., "POST", "PUT") to use for form submission.
+		 * @type {String}
+		 * @required
+		 */
 		"method": { "type": String, "required": true },
+		
+		/**
+		 * The API endpoint URL where the form data will be submitted.
+		 * @type {String}
+		 * @required
+		 */
 		"url": { "type": String, "required": true },
 
+		/**
+		 * The size of the modal dialog (e.g., "modal-lg").
+		 * @type {String}
+		 * @default 'modal-xl'
+		 */
 		"size": {
 			"type": String,
 			"default": "modal-xl"
 		},
+		
+		/**
+		 * The name of the model to be used for generating the form fields.
+		 * @type {String}
+		 * @required
+		 */
 		"modelName": { "type": String, "required": true },
+		
+		/**
+		 * The number of columns to use for the form layout.
+		 * @type {Number}
+		 * @default 2
+		 */
 		"columnCount": { "type": Number, "default": 2 }
 	},
 	
 	"data": function() {
 		return {
+			/**
+			 * Holds the structured field definitions for rendering in rows and columns.
+			 * @type {Array<object>}
+			 */
 			"modelFieldRows": [
 			],
+			
+			/**
+			 * CSS class for Bootstrap grid columns, calculated from `columnCount`.
+			 * @type {String}
+			 */
 			"columnClass": "col-md-6",
+			
+			/**
+			 * The main data object for the form.
+			 * @type {object}
+			 * @property {object} data - The actual model data object being edited.
+			 * @property {Array<String>} errorFields - An array of field names that currently have validation errors.
+			 * @property {boolean} displayErrors - A flag to control the visibility of validation errors.
+			 */
 			"formData": {
 				"data": {},
 				"errorFields": [],
 				"displayErrors": false
 			},
+			
+			/**
+			 * The text label for the submit button (e.g., 'Save', 'Update').
+			 * @type {String}
+			 */
 			"saveLabel": "Save",
+			
+			/**
+			 * A flag to prevent duplicate form submissions.
+			 * @type {boolean}
+			 */
 			"formSubmitted": false,
 			
+			/**
+			 * A map to manage listeners for fields that have dependents (e.g., parent LOVs).
+			 * @type {object}
+			 */
 			"fieldChangeListeners": {}
 		}
 	},
@@ -242,6 +362,11 @@ dialogComponents['yk-model-form-dialog'] = {
 	
 	"methods":
 	{
+		/**
+		 * Internal method to handle value changes, primarily for triggering updates in dependent fields.
+		 * @param {*} newVal - The new value of the field.
+		 * @param {object} fieldInfo - The field's information object.
+		 */
 		"onFieldValueChange": function(newVal, fieldInfo)
 		{
 			console.log("Field value change: ", fieldInfo, newVal);
@@ -259,6 +384,12 @@ dialogComponents['yk-model-form-dialog'] = {
 			}
 		},
 		
+		/**
+		 * Displays the modal for creating a new entry.
+		 * @param {Function} [callback] - A function to be executed after the dialog is closed.
+		 * @param {object} [extraConfig] - An object for additional configuration.
+		 * @param {String} [extraConfig.saveLabel] - Custom label for the save button.
+		 */
 		"display": function(callback, extraConfig)
 		{
 			this.saveLabel = (extraConfig && extraConfig.saveLabel)? extraConfig.saveLabel : "Save";
@@ -284,6 +415,11 @@ dialogComponents['yk-model-form-dialog'] = {
 			});
 		},
 		
+		/**
+		 * Displays the modal for editing an existing entry, pre-filling the form with the provided data.
+		 * @param {object} data - The object containing the data to edit.
+		 * @param {Function} [callback] - A function to be executed after the dialog is closed.
+		 */
 		"displayForEdit": function(data, callback)
 		{
 			this.formSubmitted = false;
@@ -293,15 +429,26 @@ dialogComponents['yk-model-form-dialog'] = {
 			this.saveLabel = "Update";
 		},
 		
+		/**
+		 * Closes (hides) the modal dialog.
+		 */
 		"close": function() 
 		{
 			$('#' + this.id).modal('hide');
 		},
 
+		/**
+		 * Internal method to process the model definition from the server and arrange fields into rows.
+		 * @param {object} modelDef - The model definition object.
+		 */
 		"setFormData": function(modelDef) {
 			$utils.divideModelRows(modelDef, this.modelFieldRows, this.columnCount);
 		},
 		
+		/**
+		 * Validates the form and submits the data to the configured URL and method.
+		 * Emits a 'submit' event with the result.
+		 */
 		"submitForm": function()
 		{
 			//this flag will ensure the api is invoked only once
@@ -335,12 +482,20 @@ dialogComponents['yk-model-form-dialog'] = {
 			}
 		},
 	
+		/**
+		 * Internal success callback for the form submission API call.
+		 * @param {object} result - The success result from the server.
+		 */
 		"submitSuccess": function(result) {
 			this.formSubmitted = false;
 			this.$emit('submit', true, result);
 			$modalManager.closeModal(this.id);
 		},
 		
+		/**
+		 * Internal error callback for the form submission API call.
+		 * @param {object} result - The error result from the server.
+		 */
 		"submitFailed": function(result) {
 			this.formSubmitted = false;
 			
@@ -352,6 +507,10 @@ dialogComponents['yk-model-form-dialog'] = {
 			this.$emit('submit', false, result);
 		},
 		
+		/**
+		 * Resets the form with new data, clearing all existing values and validation errors.
+		 * @param {object} [newData] - The new data to populate the form with. If not provided, the form will be cleared.
+		 */
 		"reset": function(newData) {
 			newData = newData ? newData : {};
 			this.formData.data = newData;
@@ -402,26 +561,79 @@ dialogComponents['yk-model-form-dialog'] = {
 	`
 };
 
+/**
+ * A global component that provides standard, application-wide dialogs such as alert, confirm, input, and info messages.
+ * This component is essential for the `$utils` helper functions (`$utils.alert`, `$utils.confirm`, etc.) to work correctly.
+ * It should be included once in the main application template (e.g., index.html) to make these dialogs available globally.
+ * The methods on this component are not intended to be called directly, but are instead invoked by the wrapper functions in `$utils`.
+ * @vue-component
+ */
 dialogComponents['yk-dialogs'] = {
 	data: function() {
 		return  {
+			/**
+			 * The message content for the alert dialog.
+			 * @type {String}
+			 */
 			"alertMessage": "",
 			
+			/**
+			 * The message/label for the input dialog.
+			 * @type {String}
+			 */
 			"inputMessage": "",
+			
+			/**
+			 * The value bound to the input field in the input dialog.
+			 * @type {*}
+			 */
 			"inputValue": null,
+			
+			/**
+			 * The callback function to be executed when the input dialog is closed.
+			 * @type {Function}
+			 */
 			"inputCallback": null,
 			
+			/**
+			 * The message content for the confirmation dialog.
+			 * @type {String}
+			 */
 			"confirmMessage": "",
+			
+			/**
+			 * Stores the result (true for 'Yes', false for 'No') of the confirmation dialog.
+			 * @type {boolean}
+			 */
 			"confirmResult": false,
+			
+			/**
+			 * The callback function to be executed when the confirmation dialog is closed.
+			 * @type {Function}
+			 */
 			"confirmCallback": null,
 			
-			// List of functions being executed with in-progress dialog
+			/**
+			 * A queue of functions to be executed while the 'in-progress' dialog is shown.
+			 * @type {Array<Function>}
+			 */
 			"inProgressFunctions": [],
+			
+			/**
+			 * A flag indicating if the 'in-progress' dialog is currently visible.
+			 * @type {boolean}
+			 */
 			"inProgressDisplayed": false, // Flag indicating if in-progress dialog is displayed
 		};
 	},
 	
 	"methods": {
+		/**
+		 * Internal helper to process and format a message string, handling arrays and newlines.
+		 * @param {String|Array} message - The message to process.
+		 * @returns {String} The formatted HTML string.
+		 * @private
+		 */
 		"processMessage": function(message) {
 			message = $.isArray(message) ? $utils.format(message[0], message, 1) : message;
 			message = message.replace(/\n/g, "<br/>");
@@ -429,6 +641,12 @@ dialogComponents['yk-dialogs'] = {
 			return message;			
 		},
 		
+		/**
+		 * Displays a modal alert dialog. Called via `$utils.alert()`.
+		 * @param {String|Array} message - The message to display.
+		 * @param {Function} [callback] - A function to execute after the dialog is closed.
+		 * @private
+		 */
 		"displayAlert": function(message, callback) {
 			this.alertMessage = this.processMessage(message);
 			
@@ -450,10 +668,21 @@ dialogComponents['yk-dialogs'] = {
 			});
 		},
 		
+		/**
+		 * Closes the alert dialog.
+		 * @private
+		 */
 		"closeAlert": function() {
 			$('#webutilsAlertDialog').modal('hide');
 		},
 		
+		/**
+		 * Displays a modal dialog to get input from the user. Called via `$utils.input()`.
+		 * @param {String|Array} message - The message/label to display.
+		 * @param {*} initialValue - The initial value for the input field.
+		 * @param {Function} callback - The function to call with the user's input.
+		 * @private
+		 */
 		"displayInput": function(message, initialValue, callback) {
 			this.inputMessage = this.processMessage(message);
 			this.inputValue = initialValue;
@@ -478,6 +707,11 @@ dialogComponents['yk-dialogs'] = {
 			
 		},
 
+		/**
+		 * Closes the input dialog, passing the result to the callback.
+		 * @param {boolean} res - Indicates if the dialog was confirmed (true) or canceled (false).
+		 * @private
+		 */
 		"closeInput": function(res) {
 			if(!res) {
 				this.inputValue = null;
@@ -486,6 +720,11 @@ dialogComponents['yk-dialogs'] = {
 			$('#webutilsInputDialog').modal('hide');
 		},
 		
+		/**
+		 * Displays a non-modal info message that disappears automatically. Called via `$utils.info()`.
+		 * @param {String|Array} message - The message to display.
+		 * @private
+		 */
 		"displayInfo": function(message) {
 			message = this.processMessage(message);
 			
@@ -502,10 +741,20 @@ dialogComponents['yk-dialogs'] = {
 			}, (time * 1000));
 		},
 		
+		/**
+		 * Closes the info message box.
+		 * @private
+		 */
 		"closeInfo": function() {
 			$('#webutilsInfoBox').css("display", "none");
 		},
 		
+		/**
+		 * Displays a modal confirmation dialog. Called via `$utils.confirm()`.
+		 * @param {String|Array} message - The confirmation message.
+		 * @param {Function} callback - The function to call with the result (true/false).
+		 * @private
+		 */
 		"displayConfirm": function(message, callback) {
 			this.confirmMessage = this.processMessage(message);
 			this.confirmCallback = callback;
@@ -529,12 +778,22 @@ dialogComponents['yk-dialogs'] = {
 			});
 		},
 		
+		/**
+		 * Closes the confirmation dialog, passing the result to the callback.
+		 * @param {boolean} res - The user's choice (true for 'Yes', false for 'No').
+		 * @private
+		 */
 		"closeConfirm": function(res)
 		{
 			this.confirmResult = res;
 			$('#webutilsConfirmDialog').modal('hide');
 		},
 		
+		/**
+		 * Executes a function while displaying a global 'in-progress' dialog. Called via `$utils.executeWithInProgress()`.
+		 * @param {Function} func - The function to execute.
+		 * @private
+		 */
 		"executeWithInProgress": function(func) {
 			this.inProgressFunctions.push(func);
 			
@@ -572,6 +831,7 @@ dialogComponents['yk-dialogs'] = {
 			});
 		}
 	},
+
 	
 	template: `
 		<div>

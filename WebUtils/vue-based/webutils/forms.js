@@ -594,7 +594,14 @@ formComponents['yk-search-form'] = {
 		//Name of the query to be displayed
 		"queryName": { "type": String, "required": true },
 		"columnCount": { "type": Number, "default": 2 },
-		"simpleSearch": { "type": Boolean, "default": false }
+		
+		/**
+		 * Flag indicating if the search has to be peformed to 
+		 * fetch results in tabular format or as simple objects.
+		 * Defaults true, so that the results obtaied in compatible
+		 * with "yk-search-results" widget.
+		 */
+		"tabularSearch": { "type": Boolean, "default": true }
 	},
 	
 	"data": function() {
@@ -652,7 +659,7 @@ formComponents['yk-search-form'] = {
 			}
 			
 			var searchCriteria = JSON.stringify(this.formData.data);
-			var url = this.simpleSearch ? "/api/search/search/" : "/api/search/execute/";
+			var url = this.tabularSearch ? "/api/search/execute/" : "/api/search/search/";
 			
 			$restService.invokeGet(
 					url + this.queryName, 

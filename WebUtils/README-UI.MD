@@ -734,250 +734,293 @@ In this example:
 
 
 #### `<yk-search-form>`
-Component for building dynamic search forms based on server-side query models.
+A component that dynamically builds a search form based on a server-side query model definition. It fetches the required fields, renders the appropriate inputs, and handles the execution of the search.
 
 **Props:**
--   `queryName`: Name of the search query model.
--   `columnCount`: Number of columns for layout (default: 2).
--   `simpleSearch`: Boolean, if true uses a simplified search API.
+-   `queryName` (String, required): The name of the search query model (e.g., `productSearch`) that the form should be built for.
+-   `columnCount` (Number, default: `2`): The number of columns to use for the form layout.
+-   `tabularSearch` (Boolean, default: `true`): A flag indicating the expected search result format. When `true`, it calls an API endpoint that returns results structured for the `<yk-search-results>` component.
 
 **Events:**
--   `search`: Emitted with search results.
+-   `search(results)`: Emitted when the search is successfully executed. The `results` object is the response from the server, which can be directly passed to the `setSearchResults` method of the `<yk-search-results>` component.
 
-**Usage:**
-```html
-<template>
-    <yk-search-form query-name="productSearch" @search="onSearchResults" />
-</template>
-
-<script>
-import { formComponents } from './forms.js';
-
-export default {
-    components: {
-        'yk-search-form': formComponents['yk-search-form'],
-    },
-    methods: {
-        onSearchResults(results) {
-            console.log("Search results:", results);
-            // Pass results to a <yk-search-results> component
-        }
-    }
-}
-</script>
-```
+**Methods:**
+-   `search()`: Programmatically triggers a search.
+-   `refreshSearch()`: Re-executes the last performed search with the same criteria.
 
 #### `<yk-search-results>`
-Displays search results in a table format.
+A component designed to display search results in a table format. It is intended to be used in conjunction with `<yk-search-form>`.
+
+**Props:**
+-   This component does not have any props. It is controlled via its methods.
 
 **Events:**
--   `select`: Emitted when a row is selected.
--   `double-click`: Emitted when a row is double-clicked.
+-   `select(rowData)`: Emitted when a user clicks on a row. `rowData` is an object containing the data for the selected row.
+-   `double-click(rowData)`: Emitted when a user double-clicks on a row.
 
-**Usage:**
+**Methods:**
+-   `setSearchResults(searchResult)`: The primary method used to populate the table with data. The `searchResult` object should be the payload received from the `<yk-search-form>`'s `search` event.
+
+**Example: Implementing a Search Page**
+
+This example demonstrates how to create a complete search and results view for products.
+
+**1. The HTML**
+
+Set up the search form and the results table. The `@search` event from the form is wired to the `onSearchResults` method, and the results table is given a `ref` so its methods can be called.
+
 ```html
-<template>
-    <yk-search-results ref="searchResultsComp" @select="onRowSelect" @double-click="onRowDoubleClick" />
-</template>
+<div id="app">
+    <h3>Search for Products</h3>
+    <yk-search-form 
+        query-name="productSearch" 
+        @search="onSearchResults">
+    </yk-search-form>
 
-<script>
-import { formComponents } from './forms.js';
+    <hr/>
 
-export default {
-    components: {
-        'yk-search-results': formComponents['yk-search-results'],
-    },
-    mounted() {
-        // Example: Set search results from a parent component or API call
-        // this.$refs.searchResultsComp.setSearchResults(apiResponse.searchResults);
+    <h3>Search Results</h3>
+    <yk-search-results 
+        ref="searchResultsTable" 
+        @select="onRowSelected" 
+        @double-click="onRowDoubleClicked">
+    </yk-search-results>
+</div>
+```
+
+**2. The JavaScript**
+
+The script orchestrates the data flow between the two components.
+
+```javascript
+import { Webutils } from '/lib/webutils/webutils.js';
+
+const app = Webutils.newVueApp({
+    data() {
+        return {
+            selectedProduct: null
+        };
     },
     methods: {
-        onRowSelect(rowData) {
-            console.log("Selected row:", rowData);
+        /**
+         * This method is called when the yk-search-form emits the 'search' event.
+         */
+        onSearchResults(results) {
+            console.log("Received search results:", results);
+            // Use the ref to call the method on the results component
+            this.$refs.searchResultsTable.setSearchResults(results);
         },
-        onRowDoubleClick(rowData) {
-            console.log("Double-clicked row:", rowData);
+
+        /**
+         * Called when a row is selected in the results table.
+         */
+        onRowSelected(rowData) {
+            console.log("Row selected:", rowData);
+            this.selectedProduct = rowData;
+            $utils.info(`Product '${rowData.name}' selected.`);
+        },
+
+        /**
+         * Called when a row is double-clicked.
+         */
+        onRowDoubleClicked(rowData) {
+            console.log("Row double-clicked:", rowData);
+            $utils.alert(`Viewing details for '${rowData.name}'.`);
+            // You could open an edit dialog here, for example:
+            // this.$refs.productEditDialog.displayForEdit(rowData);
         }
     }
-}
-</script>
+});
+
+app.mount('#app');
 ```
 
 
 ### Modal Dialog Components (`modal-dialogs.js`)
 
 #### `<yk-modal-dialog>`
-A customizable modal dialog component.
+A customizable modal dialog component that can be used to display custom content, forms, or information to the user. It provides a structured layout with a header, body, and footer, and can be controlled programmatically.
 
 **Props:**
--   `id`: Unique ID for the modal.
--   `title`: Title of the modal.
--   `submitText`: Text for the submit button.
--   `closeText`: Text for the close button.
--   `size`: Modal size (e.g., "modal-lg", "modal-xl").
--   `topMargin`: Custom top margin.
+-   `id` (String, required): A unique identifier for the modal dialog. This ID is used to open and close the modal programmatically.
+-   `title` (String): The text to display in the modal's header.
+-   `submitText` (String): The text for the primary (submit) button in the footer. If not provided, the button will not be displayed.
+-   `closeText` (String): The text for the secondary (close/cancel) button in the footer.
+-   `size` (String, default: `modal-xl`): The size of the modal dialog. Accepts standard Bootstrap modal size classes like `"modal-lg"`, `"modal-sm"`, etc.
+-   `topMargin` (String): A custom CSS top margin for the dialog (e.g., `"5rem"`).
+
+**Slots:**
+-   Default Slot: The content placed inside the `<yk-modal-dialog>` tags will be rendered as the body of the modal.
 
 **Events:**
--   `submit`: Emitted when the submit button is clicked.
+-   `submit`: Emitted when the submit button (as defined by `submitText`) is clicked.
 
 **Methods:**
 -   `display(callback, config)`: Displays the modal.
--   `close()`: Closes the modal.
+    -   `callback` (Function, optional): A function to be executed when the modal is hidden.
+    -   `config` (Object, optional): A configuration object. Can contain `title` to dynamically set the modal title.
+-   `close()`: Closes (hides) the modal dialog.
 
-**Usage:**
+**Example Usage:**
+
+Here is how to create and control a modal dialog to confirm a user action.
+
+**1. The HTML**
+
+Place the `<yk-modal-dialog>` in your component's template. Use the `ref` attribute to access its methods from your script. The content for the modal body goes inside the component tags.
+
 ```html
-<template>
-    <yk-modal-dialog id="myModal" title="My Custom Dialog" submit-text="Save" close-text="Close" @submit="onModalSubmit">
-        <p>This is the content of my modal dialog.</p>
+<div id="app">
+    <button @click="showConfirmation" class="btn btn-danger">Delete Item</button>
+
+    <yk-modal-dialog 
+        ref="confirmDialog"
+        id="deleteConfirmModal" 
+        title="Confirm Deletion" 
+        submit-text="Yes, Delete" 
+        close-text="Cancel"
+        size="modal-md"
+        @submit="handleDelete">
+
+        <!-- This is the modal body -->
+        <p>Are you sure you want to delete this item? This action cannot be undone.</p>
+
     </yk-modal-dialog>
-</template>
+</div>
+```
 
-<script>
-import { dialogComponents } from './modal-dialogs.js';
+**2. The JavaScript**
 
-export default {
-    components: {
-        'yk-modal-dialog': dialogComponents['yk-modal-dialog'],
-    },
+Use the `ref` to call the `display()` and `close()` methods on the modal component.
+
+```javascript
+import { Webutils } from '/lib/webutils/webutils.js';
+
+const app = Webutils.newVueApp({
     methods: {
-        openModal() {
-            this.$refs.myModal.display();
+        showConfirmation() {
+            // Use the ref to access the component and call its display method
+            this.$refs.confirmDialog.display();
         },
-        onModalSubmit() {
-            console.log("Modal submitted!");
-            this.$refs.myModal.close();
+        handleDelete() {
+            console.log("Delete action confirmed by user.");
+            
+            // Perform the delete operation here...
+            
+            // Close the modal after the action is complete
+            this.$refs.confirmDialog.close();
+            $utils.info("Item has been deleted.");
         }
     }
-}
-</script>
+});
+
+app.mount('#app');
 ```
 
 #### `<yk-model-form-dialog>`
-A modal dialog that dynamically generates a form based on a model.
+A modal dialog that contains a dynamically generated form based on a server-side model definition. It is designed for both creating new records and updating existing ones, complete with built-in form submission and handling.
 
 **Props:**
--   `id`: Unique ID for the modal.
--   `title`: Title of the modal.
--   `method`: HTTP method for form submission.
--   `url`: API endpoint for form submission.
--   `size`: Modal size.
--   `modelName`: Name of the model for the form.
--   `columnCount`: Number of columns for the form layout.
+-   `id` (String, required): A unique identifier for the modal dialog.
+-   `title` (String, required): The text to display in the modal's header.
+-   `method` (String, required): The HTTP method (e.g., `"POST"`, `"PUT"`) to use for form submission.
+-   `url` (String, required): The API endpoint URL where the form data will be submitted.
+-   `size` (String, default: `modal-xl`): The size of the modal dialog (e.g., `"modal-lg"`).
+-   `modelName` (String, required): The name of the model to be used for generating the form fields.
+-   `columnCount` (Number, default: `2`): The number of columns to use for the form layout.
 
 **Events:**
--   `submit`: Emitted on form submission.
+-   `submit(success, result)`: Emitted when the form submission is complete.
+    -   `success` (Boolean): `true` if the submission was successful, `false` otherwise.
+    -   `result` (Object): The full response object from the server.
 
 **Methods:**
--   `display(callback, extraConfig)`: Displays the modal for new entry.
--   `displayForEdit(data, callback)`: Displays the modal for editing an existing entry.
--   `close()`: Closes the modal.
+-   `display(callback, extraConfig)`: Displays the modal for creating a new entry.
+    -   `callback` (Function, optional): A function to be executed after the dialog is closed.
+    -   `extraConfig` (Object, optional): An object for additional configuration. Can be used to set a custom `saveLabel`.
+-   `displayForEdit(data, callback)`: Displays the modal for editing an existing entry, pre-filling the form with the provided `data`.
+    -   `data` (Object): The object containing the data to edit.
+    -   `callback` (Function, optional): A function to be executed after the dialog is closed.
+-   `close()`: Closes (hides) the modal dialog.
 
-**Usage:**
+**Example Usage:**
+
+Here is how to use `<yk-model-form-dialog>` to manage a "Product" entity.
+
+**1. The HTML**
+
+Define the component in your template, setting its properties and listening for the `submit` event. Use a `ref` to access its methods.
+
 ```html
-<template>
-    <yk-model-form-dialog id="productFormModal" title="Product Editor" method="POST" url="/api/products" model-name="ProductModel" @submit="onProductFormSubmit" />
-</template>
+<div id="app">
+    <button @click="openNewProductDialog" class="btn btn-primary">Add Product</button>
+    <button @click="editProduct(existingProduct)" class="btn btn-secondary">Edit Product</button>
 
-<script>
-import { dialogComponents } from './modal-dialogs.js';
+    <yk-model-form-dialog 
+        ref="productDialog"
+        id="productFormModal" 
+        title="Product Editor" 
+        method="POST" 
+        url="/api/products" 
+        model-name="ProductModel"
+        @submit="onProductFormSubmit">
+    </yk-model-form-dialog>
+</div>
+```
 
-export default {
-    components: {
-        'yk-model-form-dialog': dialogComponents['yk-model-form-dialog'],
+**2. The JavaScript**
+
+Manage the dialog's state and handle its submission event.
+
+```javascript
+import { Webutils } from '/lib/webutils/webutils.js';
+
+const app = Webutils.newVueApp({
+    data() {
+        return {
+            // Example existing product data for editing
+            existingProduct: {
+                id: 123,
+                name: "Super Widget",
+                price: 19.99,
+                inStock: true
+            }
+        };
     },
     methods: {
-        openNewProductModal() {
-            this.$refs.productFormModal.display();
+        /**
+         * Opens the dialog in "new" mode.
+         */
+        openNewProductDialog() {
+            // The callback will be executed when the dialog closes for any reason.
+            const onDialogClose = () => console.log("New product dialog closed.");
+            this.$refs.productDialog.display(onDialogClose);
         },
+
+        /**
+         * Opens the dialog in "edit" mode, pre-filled with data.
+         */
         editProduct(productData) {
-            this.$refs.productFormModal.displayForEdit(productData);
+            const onDialogClose = () => console.log("Edit product dialog closed.");
+            this.$refs.productDialog.displayForEdit(productData, onDialogClose);
         },
+
+        /**
+         * Handles the result of the form submission.
+         */
         onProductFormSubmit(success, result) {
             if (success) {
-                $utils.info("Product saved!");
+                $utils.info("Product saved successfully!");
+                // Optionally, refresh your list of products here
             } else {
+                // The dialog remains open on failure, showing validation errors.
                 $utils.alert("Error saving product: " + result.response.message);
             }
         }
     }
-}
-</script>
-```
-
-#### `<yk-dialogs>`
-A global component that provides utility dialogs (alert, confirm, input, info, in-progress). This component should be placed once in the root Vue application.
-
-**Usage (typically in `index.html` or root Vue component):**
-```html
-<template>
-    <div id="app">
-        <!-- Your main application content -->
-        <yk-dialogs ref="ykDialogs" />
-    </div>
-</template>
-
-<script>
-import { dialogComponents } from './modal-dialogs.js';
-import { newVueApp } from './webutils-app.js';
-
-const app = newVueApp({
-    components: {
-        'yk-dialogs': dialogComponents['yk-dialogs'],
-    },
-    mounted() {
-        // $utils.ykDialogs is automatically set by newVueApp
-        $utils.alert("Welcome to the app!");
-    }
 });
+
 app.mount('#app');
-</script>
-```
-
-### Navigation Bar Components (`nav-bar.js`)
-
-#### `<yk-route-nav-bar>`
-A top navigation bar component that handles routing based on hash changes.
-
-**Props:**
--   `id`: Unique ID for the nav bar.
--   `logoIcon`: URL for the logo image.
--   `defaultItem`: ID of the default active item.
--   `items`: Array of navigation items (each with `id`, `label`, `route`, `componentName`, `script`, `uri`).
--   `disableUserInfo`: Boolean to hide user info.
--   `subnav`: Boolean, if true, renders as a sub-navigation bar.
-
-**Events:**
--   `navChanged`: Emitted when the active navigation item changes.
-
-**Usage:**
-```html
-<template>
-    <yk-route-nav-bar id="mainNav" logo-icon="/images/logo.png" default-item="home" :items="mainMenuItems" @nav-changed="onNavChange" />
-</template>
-
-<script>
-import { navBarComponents } from './nav-bar.js';
-
-export default {
-    components: {
-        'yk-route-nav-bar': navBarComponents['yk-route-nav-bar'],
-    },
-    data() {
-        return {
-            mainMenuItems: [
-                { id: 'home', label: 'Home', route: 'home', componentName: 'home-page', script: './pages/home.js', uri: './pages/home.html' },
-                { id: 'products', label: 'Products', route: 'products', componentName: 'product-list', script: './pages/products.js', uri: './pages/products.html' },
-            ]
-        };
-    },
-    methods: {
-        onNavChange(activeItem) {
-            console.log("Navigation changed to:", activeItem.id);
-            // Update main content area based on activeItem.componentDef
-        }
-    }
-}
-</script>
 ```
 
 #### `<yk-route-side-bar>`
