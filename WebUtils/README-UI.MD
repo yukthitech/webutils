@@ -1023,42 +1023,175 @@ const app = Webutils.newVueApp({
 app.mount('#app');
 ```
 
-#### `<yk-route-side-bar>`
-A side navigation bar component, similar to `yk-route-nav-bar` but for vertical navigation.
+### Navigation Components (`nav-bar.js`)
+
+These components provide routing and dynamic content loading capabilities for building single-page application (SPA) style user interfaces. They manage navigation state via URL hashes and dynamically load and render child components based on the selected navigation item.
+
+#### `<yk-route-nav-bar>`
+A responsive, top navigation bar, typically used as the main navigation for an application. It can display a logo, user information, and a list of navigation items.
 
 **Props:**
--   `id`: Unique ID.
--   `defaultItem`: Default active item.
--   `items`: Array of navigation items (can include `icon`, `iconColor`).
+-   `id` (String, required): A unique identifier for the navigation bar.
+-   `logoIcon` (String): The URL path to the logo image to be displayed on the left side.
+-   `defaultItem` (String): The `id` of the navigation item that should be selected by default when the page loads.
+-   `items` (Array, required): An array of navigation item objects. Each object defines a link in the bar and has the following structure:
+    -   `id` (String): A unique ID for the item.
+    -   `componentName` (String): The tag name of the Vue component to be loaded when this item is active (e.g., `home-page`).
+    
+    -   `label` (String): The text to display for the item.
+    -   `uri` (String): The URL path to the HTML file for the component's template (if not an SFC).
+    -   `route` (String): The URL hash value associated with this item (e.g., `home`).
+    -   `script` (String): The URL path to the JavaScript file where the component is defined.
+-   `disableUserInfo` (Boolean, default: `false`): If `true`, the user display name and logout button will be hidden.
+-   `subnav` (Boolean, default: `false`): If `true`, renders with a style suitable for a sub-navigation bar.
 
-**Usage:**
+**Events:**
+-   `navChanged(activeItem)`: Emitted when a navigation item is clicked and the route changes. The `activeItem` object contains the full definition of the item that was selected.
+
+**Example Usage:**
+
+This example shows a main application page with a top navigation bar that loads different "page" components into a content area.
+
+**1. The HTML (`index.html`)**
+
 ```html
-<template>
-    <yk-route-side-bar id="sideNav" default-item="dashboard" :items="sideMenuItems" @nav-changed="onSideNavChange" />
-</template>
+<div id="app">
+    <yk-route-nav-bar
+        id="mainNav"
+        logo-icon="/images/app-logo.png"
+        default-item="home"
+        :items="menuItems"
+        @nav-changed="onNavChange">
+    </yk-route-nav-bar>
 
-<script>
-import { navBarComponents } from './nav-bar.js';
+    <!-- The dynamic component will be rendered here -->
+    <div class="container mt-3">
+        <component :is="activeComponent"></component>
+    </div>
 
-export default {
-    components: {
-        'yk-route-side-bar': navBarComponents['yk-route-side-bar'],
-    },
+    <yk-dialogs></yk-dialogs>
+</div>
+```
+
+**2. The JavaScript (`index.js`)**
+
+```javascript
+import { Webutils } from '/lib/webutils/webutils.js';
+
+const app = Webutils.newVueApp({
     data() {
         return {
-            sideMenuItems: [
-                { id: 'dashboard', label: 'Dashboard', route: 'dashboard', icon: 'bi bi-speedometer', iconColor: 'blue', componentName: 'dashboard-page', script: './pages/dashboard.js', uri: './pages/dashboard.html' },
-                { id: 'settings', label: 'Settings', route: 'settings', icon: 'bi bi-gear', iconColor: 'gray', componentName: 'settings-page', script: './pages/settings.js', uri: './pages/settings.html' },
+            activeComponent: null, // Holds the currently active page component
+            menuItems: [
+                {
+                    id: 'home', 
+                    label: 'Home', 
+                    route: 'home', 
+                    componentName: 'home-page',
+                    uri: '/home/home.html',
+                    script: '/home/home.js'
+                },
+                {
+                    id: 'products', 
+                    label: 'Products', 
+                    route: 'products', 
+                    componentName: 'product-page', 
+                    uri: '/product/product.html',
+                    script: '/product/products.js'
+                }
             ]
         };
     },
     methods: {
-        onSideNavChange(activeItem) {
-            console.log("Side navigation changed to:", activeItem.id);
+        /**
+         * Handles the navChanged event from the nav bar.
+         */
+        onNavChange(navItem) {
+            console.log(`Navigation changed to: ${navItem.label}`);
+            // The component definition is attached to the nav item object
+            this.activeComponent = navItem.componentDef;
         }
     }
-}
-</script>
+});
+
+app.mount('#app');
+```
+
+#### `<yk-route-side-bar>`
+A vertical navigation bar, typically used for sub-navigation within a specific section of an application (e.g., a user profile page with multiple tabs).
+
+**Props:**
+-   `id` (String, required): A unique identifier for the side bar.
+-   `defaultItem` (String): The `id` of the navigation item to select by default.
+-   `items` (Array, required): An array of navigation item objects. The structure is the same as for `<yk-route-nav-bar>`, but with two additional optional properties for icons:
+    -   `icon` (String): A CSS class for an icon (e.g., `bi bi-gear`).
+    -   `iconColor` (String): A CSS color for the icon (e.g., `blue`).
+
+**Events:**
+-   `navChanged(activeItem)`: Emitted when a navigation item is clicked. The `activeItem` object contains the full definition of the selected item.
+
+**Example Usage:**
+
+This example shows a user profile page with a side menu to switch between different profile sections.
+
+**1. The HTML (`profile.html`)**
+
+```html
+<div id="app" class="d-flex">
+    <yk-route-side-bar
+        id="profileSideNav"
+        default-item="basicInfo"
+        :items="profileMenuItems"
+        @nav-changed="onSideNavChange">
+    </yk-route-side-bar>
+
+    <div class="flex-grow-1 p-3">
+        <component :is="activeProfileSection"></component>
+    </div>
+
+    <yk-dialogs></yk-dialogs>
+</div>
+```
+
+**2. The JavaScript (`profile.js`)**
+
+```javascript
+import { Webutils } from '/lib/webutils/webutils.js';
+
+const app = Webutils.newVueApp({
+    data() {
+        return {
+            activeProfileSection: null,
+            profileMenuItems: [
+                {
+                    id: 'basicInfo',
+                    label: 'Basic Info',
+                    route: 'basic',
+                    icon: 'fa fa-user',
+                    componentName: 'basic-info-editor',
+                    uri: '/profile/basic-info.html',
+                    script: '/profile/basic-info.js'
+                },
+                {
+                    id: 'security',
+                    label: 'Security',
+                    route: 'security',
+                    icon: 'fa fa-lock',
+                    componentName: 'security-settings',
+                    uri: '/profile/security.html'
+                    script: '/profile/security.js'
+                }
+            ]
+        };
+    },
+    methods: {
+        onSideNavChange(navItem) {
+            this.activeProfileSection = navItem.componentDef;
+        }
+    }
+});
+
+app.mount('#app');
 ```
 
 ## For Developers: Extending the Framework

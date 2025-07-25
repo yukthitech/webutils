@@ -3,33 +3,49 @@ import {$pageUrl} from "./common.js";
 
 export var navBarComponents = {};
 
+/**
+ * @typedef {object} NavItem
+ * @property {String} id - A unique ID for the navigation item.
+ * @property {String} label - The text to display for the item.
+ * @property {String} route - The URL hash value associated with this item (e.g., 'home').
+ * @property {String} componentName - The tag name of the Vue component to be loaded when this item is active.
+ * @property {String} script - The URL path to the JavaScript file where the component is defined.
+ * @property {String} [uri] - The URL path to the HTML file for the component's template (if not an SFC).
+ * @property {String} [icon] - A CSS class for an icon (e.g., 'bi bi-gear'). Used by side-bar.
+ * @property {String} [iconColor] - A CSS color for the icon (e.g., 'blue'). Used by side-bar.
+ * @property {boolean} [disabled] - If true, the item will be disabled.
+ */
+
+/**
+ * A responsive, top navigation bar, typically used as the main navigation for an application.
+ * It manages routing via URL hashes and dynamically loads and renders child components.
+ * @vue-component
+ */
 navBarComponents['yk-route-nav-bar'] = {
 	"props": {
 		/**
-		 * Unique id for this nav bar. This is used in routes also.
+		 * A unique identifier for the navigation bar. This is used to manage routing state in the URL hash.
+		 * @type {String}
+		 * @required
 		 */
 		"id": { "type": String},
 		
 		/**
-		 * Logo to be used on nav bar
+		 * The URL path to the logo image to be displayed on the left side.
+		 * @type {String}
 		 */
 		"logoIcon": { "type": String},
 		
 		/**
-		 * Default item id in the list. Will be used when logo
-		 * is clicked.
+		 * The `id` of the navigation item that should be selected by default on initial load.
+		 * @type {String}
 		 */
 		"defaultItem": { "type": String},
 		
 		/**
-		 * List of nav bar items. Each should have properties
-		 *   id - id to be used for item
-		 *   label - Label to be used
-		 *   contents - List of content object. Each object contains 
-		 * 		- locator: where content has to be populated
-		 *      - uri: Uri to be loaded
-		 * 		- script - Module script to be loaded
-		 *   disabled - Flag indicating if this item is disabled
+		 * An array of navigation item objects to be displayed in the bar.
+		 * @type {Array<NavItem>}
+		 * @required
 		 */
 		"items": {
 			type: Object,
@@ -37,21 +53,44 @@ navBarComponents['yk-route-nav-bar'] = {
 		},
 		
 		/**
-		 * Flag indicating if the user info should be displayed or not.
+		 * If `true`, the user display name and logout button will be hidden.
+		 * @type {Boolean}
+		 * @default false
 		 */
 		"disableUserInfo": { "type": Boolean, "default": false },
 
 		/**
-		 * Flag indicating if this is a subnav bar.
+		 * If `true`, renders with a style suitable for a sub-navigation bar.
+		 * @type {Boolean}
+		 * @default false
 		 */
 		"subnav": { "type": Boolean, "default": false },
 	},
 	
 	"data": function() {
 		return {
+			/**
+			 * A map from item ID to the full item object for quick lookups.
+			 * @type {Object<String, NavItem>}
+			 */
 			"idToItem": {},
+			
+			/**
+			 * The currently active navigation item object.
+			 * @type {NavItem}
+			 */
 			"activeItem": null,
+			
+			/**
+			 * Holds the application instance.
+			 * @type {object}
+			 */
 			"appInstance": null,
+			
+			/**
+			 * Holds the details of the currently logged-in user.
+			 * @type {object}
+			 */
 			"userDetails": null
 		}; 
 	},
@@ -62,6 +101,11 @@ navBarComponents['yk-route-nav-bar'] = {
 	
 	"methods":
 	{
+		/**
+		 * Initializes the component by building the item map, setting the initial active route from the URL hash,
+		 * and fetching user details.
+		 * @private
+		 */
 		"activate": function() {
 			for(let item of this.items) {
 				this.idToItem[item.id] = item;
@@ -81,6 +125,12 @@ navBarComponents['yk-route-nav-bar'] = {
 			}
 		},
 		
+		/**
+		 * Sets the active item based on a route value from the URL.
+		 * @param {String} route - The route value to match.
+		 * @returns {boolean} True if a matching item was found and activated, false otherwise.
+		 * @private
+		 */
 		"setActiveRoute": function(route) {
 			for(let id in this.idToItem) {
 				if(this.idToItem[id].route == route){
@@ -92,6 +142,12 @@ navBarComponents['yk-route-nav-bar'] = {
 			return false;
 		},
 		
+		/**
+		 * Sets the specified item as the active one.
+		 * @param {String} id - The ID of the item to activate.
+		 * @returns {boolean} True if the item was successfully activated.
+		 * @private
+		 */
 		"setActiveItem": function(id) {
 			if(!this.idToItem[id]) {
 				return false;
@@ -110,6 +166,12 @@ navBarComponents['yk-route-nav-bar'] = {
 			return true;
 		},
 		
+		/**
+		 * Asynchronously loads the component definition (script and template) for a navigation item if it hasn't been loaded yet.
+		 * @param {NavItem} activeItem - The item whose component needs to be loaded.
+		 * @param {Function} callback - A callback function to execute after the component is loaded.
+		 * @private
+		 */
 		"loadNavComponent": async function(activeItem, callback) {
 			// if the component def is already loaded
 			if(activeItem.componentDef || !activeItem.componentName) {
@@ -130,6 +192,11 @@ navBarComponents['yk-route-nav-bar'] = {
 			$.application.component(activeItem.componentName, componentDef);
 		},
 		
+		/**
+		 * Handles the click event on a navigation item. It sets the item as active, updates the URL hash,
+		 * and emits the `navChanged` event.
+		 * @param {String} id - The ID of the clicked item.
+		 */
 		"onClick": function(id) {
 			if(!this.setActiveItem(id)) {
 				return;
@@ -144,10 +211,16 @@ navBarComponents['yk-route-nav-bar'] = {
 			}, this));
 		},
 		
+		/**
+		 * Handles the click event on the logo, activating the default item.
+		 */
 		"onDefaultClick": function() {
 			this.onClick(this.defaultItem);
 		},
 		
+		/**
+		 * Handles the logout action.
+		 */
 		"onLogout": function() {
 			$userService.logout();
 		}
@@ -188,29 +261,30 @@ navBarComponents['yk-route-nav-bar'] = {
 	`
 };
 
-
+/**
+ * A vertical navigation bar, typically used for sub-navigation within a specific section of an application.
+ * It manages routing via URL hashes and dynamically loads and renders child components.
+ * @vue-component
+ */
 navBarComponents['yk-route-side-bar'] = {
 	"props": {
 		/**
-		 * Unique id for this nav bar. This is used in routes also.
+		 * A unique identifier for the side bar. This is used to manage routing state in the URL hash.
+		 * @type {String}
+		 * @required
 		 */
 		"id": { "type": String},
 		
 		/**
-		 * Default item id in the list. Will be used when logo
-		 * is clicked.
+		 * The `id` of the navigation item that should be selected by default on initial load.
+		 * @type {String}
 		 */
 		"defaultItem": { "type": String},
 		
 		/**
-		 * List of nav bar items. Each should have properties
-		 *   id - id to be used for item
-		 *   label - Label to be used
-		 *   contents - List of content object. Each object contains 
-		 * 		- locator: where content has to be populated
-		 *      - uri: Uri to be loaded
-		 * 		- script - Module script to be loaded
-		 *   disabled - Flag indicating if this item is disabled
+		 * An array of navigation item objects to be displayed in the bar.
+		 * @type {Array<NavItem>}
+		 * @required
 		 */
 		"items": {
 			type: Object,
@@ -221,9 +295,25 @@ navBarComponents['yk-route-side-bar'] = {
 	
 	"data": function() {
 		return {
+			/**
+			 * A map from item ID to the full item object for quick lookups.
+			 * @type {Object<String, NavItem>}
+			 */
 			"idToItem": {},
+			/**
+			 * The currently active navigation item object.
+			 * @type {NavItem}
+			 */
 			"activeItem": null,
+			/**
+			 * Holds the application instance.
+			 * @type {object}
+			 */
 			"appInstance": null,
+			/**
+			 * Holds the details of the currently logged-in user.
+			 * @type {object}
+			 */
 			"userDetails": null
 		}; 
 	},
@@ -234,6 +324,10 @@ navBarComponents['yk-route-side-bar'] = {
 	
 	"methods":
 	{
+		/**
+		 * Initializes the component by building the item map and setting the initial active route from the URL hash.
+		 * @private
+		 */
 		"activate": function() {
 			for(let item of this.items) {
 				this.idToItem[item.id] = item;
@@ -253,6 +347,12 @@ navBarComponents['yk-route-side-bar'] = {
 			}
 		},
 		
+		/**
+		 * Sets the active item based on a route value from the URL.
+		 * @param {String} route - The route value to match.
+		 * @returns {boolean} True if a matching item was found and activated, false otherwise.
+		 * @private
+		 */
 		"setActiveRoute": function(route) {
 			for(let id in this.idToItem) {
 				if(this.idToItem[id].route == route){
@@ -264,6 +364,12 @@ navBarComponents['yk-route-side-bar'] = {
 			return false;
 		},
 		
+		/**
+		 * Sets the specified item as the active one.
+		 * @param {String} id - The ID of the item to activate.
+		 * @returns {boolean} True if the item was successfully activated.
+		 * @private
+		 */
 		"setActiveItem": function(id) {
 			if(!this.idToItem[id]) {
 				return false;
@@ -282,6 +388,12 @@ navBarComponents['yk-route-side-bar'] = {
 			return true;
 		},
 		
+		/**
+		 * Asynchronously loads the component definition (script and template) for a navigation item if it hasn't been loaded yet.
+		 * @param {NavItem} activeItem - The item whose component needs to be loaded.
+		 * @param {Function} callback - A callback function to execute after the component is loaded.
+		 * @private
+		 */
 		"loadNavComponent": async function(activeItem, callback) {
 			// if the component def is already loaded
 			if(activeItem.componentDef || !activeItem.componentName) {
@@ -302,6 +414,11 @@ navBarComponents['yk-route-side-bar'] = {
 			$.application.component(activeItem.componentName, componentDef);
 		},
 		
+		/**
+		 * Handles the click event on a navigation item. It sets the item as active, updates the URL hash,
+		 * and emits the `navChanged` event.
+		 * @param {String} id - The ID of the clicked item.
+		 */
 		"onClick": function(id) {
 			if(!this.setActiveItem(id)) {
 				return;
@@ -316,6 +433,9 @@ navBarComponents['yk-route-side-bar'] = {
 			}, this));
 		},
 		
+		/**
+		 * Handles the click event on the logo, activating the default item.
+		 */
 		"onDefaultClick": function() {
 			this.onClick(this.defaultItem);
 		},
