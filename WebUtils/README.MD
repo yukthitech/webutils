@@ -2,29 +2,6 @@
 
 WebUtils is a powerful and flexible multi-tier framework built upon the robust foundations of Spring Boot and a curated selection of other cutting-edge technologies. This framework is designed to streamline the development of modern web applications by providing a comprehensive suite of features that cater to both the backend and frontend aspects of your project.
 
-## Table of Contents
-
-- [WebUtils](#webutils)
-  - [Table of Contents](#table-of-contents)
-  - [Features](#features)
-  - [Dependencies](#dependencies)
-  - [Framework Modules](#framework-modules)
-  - [Application's Structure](#applications-structure)
-  - [Webutils Entities and Tables](#webutils-entities-and-tables)
-  - [Application Properties](#application-properties)
-  - [Application Configurations](#application-configurations)
-  - [Authentication](#authentication)
-  - [Authorization](#authorization)
-  - [End-to-End Flow](#end-to-end-flow)
-  - [Dynamic UI Generation](#dynamic-ui-generation)
-  - [LOV (List of Values)](#lov-list-of-values)
-  - [Search Operations](#search-operations)
-  - [Important Features or Services](#important-features-or-services)
-  - [Application Configuration](#application-configuration)
-  - [Email Service](#email-service)
-  - [Async Task Service](#async-task-service)
-  - [Other services](#other-services)
-
 ## Features
 
 - **Backend:**
@@ -200,16 +177,92 @@ To implement authorization, you need to provide a Spring service that implements
 
 The most important method to implement is `isAuthorized(SecurityInvocationContext context)`, which is used to authorize API requests. The context object provides details about the API and the controller method being invoked.
 
-Here is an example of a custom security service:
+### Defining Application Roles
+
+It is highly recommended to define your application's roles using an `enum` for type safety and clarity.
+
+```java
+// Example: In your common module (e.mycompany.myapp.common.enums.AppRole.java)
+package com.mycompany.myapp.common.enums;
+
+public enum AppRole {
+    ADMIN_ROLE,
+    RECRUITER_ROLE,
+    USER_ROLE,
+    // Add other application-specific roles here
+}
+```
+
+### Custom Authorization Annotation
+
+Create a custom annotation that allows you to specify the required roles directly on your controller methods. This annotation should reside in a common module accessible by both your service and controller layers.
+
+```java
+// Example: In your common module (e.g., com.mycompany.myapp.common.annotations.RequiredRoles.java)
+package com.mycompany.myapp.common.annotations;
+
+import com.mycompany.myapp.common.enums.AppRole; // Import your AppRole enum
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface RequiredRoles {
+    AppRole[] value() default {}; // Array of AppRole enums required for access
+}
+```
+
+### Implementing the `ISecurityService`
+
+Your `ISecurityService` implementation will read the `@RequiredRoles` annotation from the invoked method and check if the current user possesses any of the specified roles.
 
 ```java
 @Service
 public class MySecurityService implements ISecurityService {
 
+    @Autowired
+    private CurrentUserService currentUserService;
+
     @Override
     public boolean isAuthorized(SecurityInvocationContext context) {
-        // Custom authorization logic here
-        return true;
+        // Get the method being invoked
+        Method method = context.getMethod();
+
+        // Check for custom authorization annotation
+        RequiredRoles requiredRolesAnnotation = method.getAnnotation(RequiredRoles.class);
+
+        // If no custom annotation, apply default security (e.g., require authentication)
+        if (requiredRolesAnnotation == null) {
+            // For APIs without specific role requirements, ensure user is authenticated
+            return currentUserService.getCurrentUserDetails() != null;
+        }
+
+        // If custom annotation is present, check roles
+        AppRole[] requiredRoles = requiredRolesAnnotation.value();
+
+        // If no specific roles are defined in the annotation, allow if authenticated
+        if (requiredRoles.length == 0) {
+            return currentUserService.getCurrentUserDetails() != null;
+        }
+
+        // Get current user's roles
+        UserDetails currentUser = currentUserService.getCurrentUserDetails();
+        if (currentUser == null) {
+            return false; // Not authenticated, cannot have roles
+        }
+
+        // Assuming UserDetails.getRoles() returns a Set<AppRole>
+        Set<AppRole> userRoles = currentUser.getRoles();
+
+        // Check if the user has at least one of the required roles
+        for (AppRole requiredRole : requiredRoles) {
+            if (userRoles.contains(requiredRole)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -233,6 +286,39 @@ public class MySecurityService implements ISecurityService {
     @Override
     public void addSecurityCustomization(FileEntity fileEntity) {
         // Add custom attributes to the file entity before saving
+    }
+}
+```
+
+### Applying Roles to Controller Methods
+
+Once your `AppRole` enum and `@RequiredRoles` annotation are defined, you can apply them to your controller methods.
+
+```java
+// Example: In your controller
+import com.mycompany.myapp.common.annotations.RequiredRoles;
+import com.mycompany.myapp.common.enums.AppRole;
+// ... other imports
+
+@Action("jobOpening")
+@RestController
+@RequestMapping("/jobopening")
+public class JobOpeningController extends SimpleBaseCrudController<JobOpeningModel, JobOpeningService> {
+
+    @Action("importAndScheduleProfiles")
+    @RequiredRoles({AppRole.ADMIN_ROLE, AppRole.RECRUITER_ROLE}) // Requires ADMIN_ROLE or RECRUITER_ROLE
+    @PostMapping("/import-schedule")
+    public ImportResponse importAndScheduleProfiles(@RequestBody ImportRequest request) {
+        // ... business logic
+        return new ImportResponse("Profiles imported and scheduled.");
+    }
+
+    @Action("viewPublicData")
+    @RequiredRoles({}) // No specific roles required, but still requires authentication (handled by default in MySecurityService)
+    @GetMapping("/public-data")
+    public PublicDataResponse viewPublicData() {
+        // ... public data logic
+        return new PublicDataResponse("This is public data.");
     }
 }
 ```
@@ -640,6 +726,309 @@ The search query widget from the UI uses APIs exposed by the following controlle
     -   Get the metadata of the search query used to display the search widget.
     -   Expose the search query. Along with the query POJO JSON, this API accepts pagination details like `pageSize` and `pageNo`.
     -   Export the search results of the current query as an Excel file.
+
+## Adding New Custom Flows to Existing Controllers and Services
+
+Beyond the standard CRUD operations provided by `BaseCrudService` and `SimpleBaseCrudController`, you will often need to implement custom business logic and expose new API endpoints. This section details how to add such new flows, leveraging the existing framework structure and Spring's capabilities.
+
+#### 1. Defining Custom Request/Response Models (DTOs) with Lombok
+
+For new flows, especially those that don't directly map to an existing entity's full model, it's good practice to define specific Data Transfer Objects (DTOs) for requests and responses. These should reside in your `commons` module.
+
+To streamline development and reduce boilerplate, it is recommended to use [Lombok](https://projectlombok.org/) annotations to automatically generate getters, setters, constructors, and other common methods.
+
+**Example: `GenerateReportRequest.java` (in `my-app-common` module)**
+
+```java
+package com.mycompany.myapp.common.models;
+
+import com.yukthitech.webutils.common.annotations.Model;
+import jakarta.validation.constraints.NotEmpty;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.util.Date;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Model
+public class GenerateReportRequest {
+    @NotEmpty
+    private String reportType;
+    private Date startDate;
+    private Date endDate;
+}
+```
+
+**Example: `ReportGenerationResponse.java` (in `my-app-common` module)**
+
+```java
+package com.mycompany.myapp.common.models;
+
+import com.yukthitech.webutils.common.annotations.Model;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Model
+public class ReportGenerationResponse {
+    private String reportUrl;
+    private String message;
+    private boolean success;
+}
+```
+
+#### 2. Implementing New Methods in Services
+
+You can add new methods to your existing `BaseCrudService` implementations (e.g., `ProductService`) or create entirely new service classes (e.g., `ReportService`) if the logic is distinct. These services are standard Spring `@Service` components.
+
+*   **Inject Repositories:** Use `@Autowired` to inject any `IWebutilsRepository` instances you need to interact with the database.
+*   **Reuse Existing Services:** Inject and utilize other WebUtils services (e.g., `FileService`, `EmailService`, `CurrentUserService`) or your application's custom services.
+
+**Example: Adding to `ProductService.java` (in `my-app-services` module)**
+
+```java
+package com.mycompany.myapp.services;
+
+import com.mycompany.myapp.common.models.GenerateReportRequest;
+import com.mycompany.myapp.common.models.ReportGenerationResponse;
+import com.mycompany.myapp.repository.IProductRepository;
+import com.mycompany.myapp.repository.ProductEntity;
+import com.yukthitech.webutils.services.BaseCrudService;
+import com.yukthitech.webutils.services.CurrentUserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+@Service
+public class ProductService extends BaseCrudService<ProductModel, ProductEntity, IProductRepository> {
+
+    @Autowired
+    private CurrentUserService currentUserService; // Example of reusing an existing service
+
+    // You can also inject other custom services or repositories here
+    // @Autowired
+    // private IOrderRepository orderRepository;
+
+    /**
+     * Custom method to generate a product report.
+     * @param request Details for report generation.
+     * @return Response with report URL.
+     */
+    public ReportGenerationResponse generateProductReport(GenerateReportRequest request) {
+        // Access current user details
+        // UserDetails currentUser = currentUserService.getCurrentUserDetails();
+        // System.out.println("Report requested by: " + currentUser.getUserName());
+
+        // Implement your custom business logic here
+        // This might involve:
+        // - Fetching data using injected repositories (e.g., productRepository.find(...))
+        // - Performing calculations
+        // - Interacting with external systems
+        // - Generating a file (and saving it via FileService if needed)
+
+        System.out.println("Generating report of type: " + request.getReportType() + 
+                           " from " + request.getStartDate() + " to " + request.getEndDate());
+
+        // For demonstration, return a dummy response
+        ReportGenerationResponse response = new ReportGenerationResponse();
+        response.setSuccess(true);
+        response.setMessage("Report generation initiated successfully.");
+        response.setReportUrl("/reports/product-summary-" + System.currentTimeMillis() + ".pdf");
+        
+        return response;
+    }
+}
+```
+
+#### 3. Exposing New Endpoints in Controllers
+
+New API endpoints are defined as methods within your `@RestController` classes. These can be added to existing controllers (e.g., `ProductController`) or new ones.
+
+*   **`@Action` Annotation:** Crucially, use the `@com.yukthitech.webutils.annotations.Action` annotation on your controller method. This annotation, combined with the class-level `@Action` annotation, forms the unique identifier that the UI framework uses to invoke the API.
+    *   The `name` attribute of the method-level `@Action` should be unique within that controller.
+*   **Standard Spring Annotations:** Use standard Spring annotations like `@RequestMapping`, `@PostMapping`, `@GetMapping`, `@RequestBody`, `@RequestParam`, etc., to define the endpoint's path, HTTP method, and how parameters are bound.
+
+**Example: Adding to `ProductController.java` (in `my-app-services` module)**
+
+```java
+package com.mycompany.myapp.controllers;
+
+import com.mycompany.myapp.common.models.GenerateReportRequest;
+import com.mycompany.myapp.common.models.ReportGenerationResponse;
+import com.mycompany.myapp.services.ProductService;
+import com.yukthitech.webutils.annotations.Action;
+import com.yukthitech.webutils.controllers.SimpleBaseCrudController;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+@Action("product") // Class-level action name
+@RestController
+@RequestMapping("/products")
+public class ProductController extends SimpleBaseCrudController<ProductModel, ProductService> {
+
+    @Autowired
+    private ProductService productService; // Inject your service
+
+    /**
+     * New custom endpoint to generate a product report.
+     * The full action name for UI invocation will be "product.generateReport".
+     */
+    @Action("generateReport") // Method-level action name
+    @PostMapping("/generate-report") // Standard Spring mapping
+    public ReportGenerationResponse generateReport(@RequestBody GenerateReportRequest request) {
+        // Delegate the business logic to the service layer
+        return productService.generateProductReport(request);
+    }
+}
+```
+
+##### Public APIs (`@NoAuthentication`)
+
+For APIs that do not require user authentication (e.g., user registration, public data access), annotate the controller method with `@com.yukthitech.webutils.annotations.NoAuthentication`.
+
+**Example:** (Referencing `WebUtils\tmp\sethu4u\sethu4u-services\src\main\java\com\sethu4u\jobseeker\JobSeekerController.java` `register()` method)
+
+```java
+// In JobSeekerController.java
+import com.yukthitech.webutils.annotations.NoAuthentication;
+// ... other imports
+
+@Action("jobSeeker")
+@RestController
+@RequestMapping("/jobseeker")
+public class JobSeekerController extends SimpleBaseCrudController<JobSeekerModel, JobSeekerService> {
+
+    @Action("register")
+    @NoAuthentication // This API can be invoked without authentication
+    @PostMapping("/register")
+    public RegistrationResponse register(@RequestBody JobSeekerRegistrationRequest request) {
+        // ... registration logic
+        return new RegistrationResponse("User registered successfully!");
+    }
+}
+```
+
+##### Handling File Attachments
+
+When your API endpoints need to accept file uploads, follow these steps:
+
+1.  **Annotate the Controller Method:** Mark the controller method with `@com.yukthitech.webutils.annotations.AttachmentsExpected`. This annotation signals to the framework that the request body will contain multipart data.
+2.  **Accept `MultipartHttpServletRequest`:** The controller method should accept `org.springframework.web.multipart.MultipartHttpServletRequest` as one of its parameters. This object provides access to the uploaded files.
+3.  **Model Field Types:** In your request model (DTO), define fields that will hold the file information using `com.yukthitech.webutils.common.FileInfo` for general files or `com.yukthitech.webutils.common.ImageInfo` for images. The framework automatically handles the mapping of uploaded files to these fields.
+
+**Example Controller Method:** (Referencing `WebUtils\tmp\recruit\Services\src\main\java\com\recruitment\services\candidate\CandidateController.java` `save()` method)
+
+```java
+// In CandidateController.java
+package com.recruitment.services.candidate;
+
+import com.recruitment.candidate.CandidateModel;
+import com.yukthitech.webutils.annotations.Action;
+import com.yukthitech.webutils.annotations.AttachmentsExpected;
+import com.yukthitech.webutils.controllers.BaseControllerWithAttachments;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
+
+@Action("candidate")
+@RestController
+@RequestMapping("/candidate")
+public class CandidateController extends BaseControllerWithAttachments<CandidateModel, CandidateService> {
+
+    @Action("save")
+    @AttachmentsExpected // Indicates that this API expects file attachments
+    @PostMapping("/save")
+    public SaveResponse save(@RequestBody CandidateModel model, MultipartHttpServletRequest request) {
+        // The framework automatically processes the MultipartHttpServletRequest
+        // and populates the FileInfo/ImageInfo fields in the CandidateModel.
+        // You can then proceed to save the model via the service.
+        return super.save(model, request); // Calling super.save() from BaseControllerWithAttachments
+    }
+
+    // ... other methods
+}
+```
+
+**Example Model Fields with Attachments:** (Referencing `WebUtils\tmp\recruit\Common\src\main\java\com\recruitment\candidate\CandidateModel.java` `resume`, `photo` fields)
+
+```java
+// In CandidateModel.java
+package com.recruitment.candidate;
+
+import com.yukthitech.webutils.common.FileInfo;
+import com.yukthitech.webutils.common.ImageInfo;
+import com.yukthitech.webutils.common.annotations.Model;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Model
+public class CandidateModel extends BaseModel {
+    // ... other fields
+
+    private FileInfo resume; // Field to hold resume file information
+    private ImageInfo photo; // Field to hold photo image information
+
+    // ... other fields
+}
+```
+
+#### 4. UI Integration
+
+On the UI side, you will use the `$restService` to invoke these new custom endpoints. The `url` for the `invoke` methods will be the Spring `@RequestMapping` path.
+
+**Example: Invoking the new report generation API from UI (in your Vue component's JavaScript)**
+
+```javascript
+import { $restService } from '/lib/webutils/rest-service.js';
+import { $utils } from '/lib/webutils/common.js';
+
+// Assuming this is part of a Vue component's methods
+export default {
+    methods: {
+        triggerReportGeneration() {
+            const reportRequest = {
+                reportType: "SALES_SUMMARY",
+                startDate: new Date("2024-01-01"),
+                endDate: new Date("2024-12-31")
+            };
+
+            $restService.invokePost("/api/products/generate-report", reportRequest, {
+                onSuccess: (result) => {
+                    const response = result.response; // Assuming response is directly the DTO
+                    if (response.success) {
+                        $utils.info(`Report generated: ${response.message}. URL: ${response.reportUrl}`);
+                        // Optionally, open the report URL
+                        // window.open(response.reportUrl, '_blank');
+                    } else {
+                        $utils.alert(`Failed to generate report: ${response.message}`);
+                    }
+                },
+                onError: (error) => {
+                    $utils.alert(`Error during report generation: ${error.response ? error.response.message : 'Unknown error'}`);
+                }
+            });
+        }
+    }
+};
+```
+
+#### 5. Security and Authorization for New Flows
+
+For custom API endpoints, you can define required roles directly on controller methods using application-specific authorization annotations. The `ISecurityService` implementation, configured during project setup (see "Authorization" section), will then read these annotations from the `SecurityInvocationContext` to enforce authorization.
 
 ## Important Features or Services
 
