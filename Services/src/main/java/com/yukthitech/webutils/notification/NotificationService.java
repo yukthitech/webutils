@@ -114,7 +114,7 @@ public class NotificationService
 		} catch(TransactionException ex)
 		{
 			logger.error("An error occurred while setting user preferences for notification", ex);
-			throw new InvalidStateException(ex, "An error occurred while setting user preferences");
+			throw new InvalidStateException("An error occurred while setting user preferences", ex);
 		}
 	}
 

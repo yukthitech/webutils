@@ -119,6 +119,11 @@ public class LovService implements IRepositoryMethodRegistry<LovQuery>
 	@EventListener
 	public void postInitApp(ContextRefreshedEvent event)
 	{
+		loadLovMethods();
+	}
+
+	private void loadLovMethods()
+	{
 		Set<Method> lovMethods = classScannerService.getMethodsAnnotatedWith(LovMethod.class);
 		LovMethod lovMethod = null;
 		DynamicMethod dynamicMethod = null;
@@ -171,7 +176,7 @@ public class LovService implements IRepositoryMethodRegistry<LovQuery>
 			nameToLovMet.put(name, dynamicMethod);
 		}
 	}
-	
+
 	@Override
 	public void registerRepositoryMethod(Method method, LovQuery annotation, ICrudRepository<?> repository)
 	{

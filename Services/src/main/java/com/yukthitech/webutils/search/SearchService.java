@@ -549,7 +549,7 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 					value = PropertyUtils.getProperty(context.getAttributeMap(), contextAttribute.value());
 				} catch(Exception ex)
 				{
-					throw new InvalidStateException(ex, "An error occurred while fetching context attribute - {}", contextAttribute.value());
+					throw new InvalidStateException("An error occurred while fetching context attribute - {}", contextAttribute.value(), ex);
 				}
 			}
 
@@ -676,7 +676,7 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 			return (List) searchQueryDetails.method.invoke(searchQueryDetails.repository, repoSearchQuery);
 		} catch(Exception ex)
 		{
-			throw new InvalidStateException(ex, "An error occurred while executing search query - {}", searchQueryName);
+			throw new InvalidStateException("An error occurred while executing search query - {}", searchQueryName, ex);
 		}
 	}
 

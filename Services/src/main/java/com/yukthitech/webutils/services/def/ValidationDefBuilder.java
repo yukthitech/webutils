@@ -100,7 +100,7 @@ public class ValidationDefBuilder
 			return method.invoke(annotation);
 		}catch(Exception ex)
 		{
-			throw new InvalidStateException(ex, "An error occurred while fetching attribute '{}' from annotation", name, annotation.annotationType().getName());
+			throw new InvalidStateException("An error occurred while fetching attribute '{}' from annotation", name, annotation.annotationType().getName(), ex);
 		}
 	}
 	

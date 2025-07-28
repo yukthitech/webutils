@@ -26,7 +26,7 @@ public class MailTemplateModelForLoad extends MailTemplateModel
 			super.setContentTemplate(contentHtml);
 		}catch(Exception ex)
 		{
-			throw new InvalidStateException(ex, "An error occurred while loading file: {}", file);
+			throw new InvalidStateException("An error occurred while loading file: {}", file, ex);
 		}
 	}
 }

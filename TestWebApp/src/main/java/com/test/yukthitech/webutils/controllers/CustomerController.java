@@ -37,7 +37,7 @@ import com.yukthitech.webutils.annotations.ActionName;
 import com.yukthitech.webutils.common.models.BaseResponse;
 import com.yukthitech.webutils.common.models.BasicSaveResponse;
 import com.yukthitech.webutils.controllers.BaseController;
-import com.yukthitech.webutils.utils.WebUtils;
+import com.yukthitech.webutils.services.prop.PropertyCopyService;
 
 /**
  * Test controller to test spring validation enablement
@@ -51,12 +51,15 @@ public class CustomerController extends BaseController
 	@Autowired
 	private CustomerService customerService;
 	
+	@Autowired
+	private PropertyCopyService propertyCopyService;
+	
 	@ResponseBody
 	@RequestMapping(value = "/save", method = RequestMethod.POST)
 	@ActionName("save")
 	public BasicSaveResponse save(@RequestBody TestCustomerModel model)
 	{
-		CustomerEntity entity = WebUtils.convertBean(model, CustomerEntity.class); 
+		CustomerEntity entity = propertyCopyService.cloneBean(model, CustomerEntity.class); 
 		customerService.save(entity);
 		return new BasicSaveResponse(entity.getId());
 	}
@@ -66,7 +69,7 @@ public class CustomerController extends BaseController
 	@ActionName("fetch")
 	public TestCustomerModel fetch(@PathVariable("name") String name)
 	{
-		return WebUtils.convertBean(customerService.findByName(name), TestCustomerModel.class);
+		return propertyCopyService.cloneBean(customerService.findByName(name), TestCustomerModel.class);
 	}
 
 	@ResponseBody

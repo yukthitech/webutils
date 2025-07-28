@@ -68,7 +68,7 @@ import com.yukthitech.webutils.repository.ExtensionFieldEntity;
 import com.yukthitech.webutils.security.ISecurityService;
 import com.yukthitech.webutils.security.UnauthorizedException;
 import com.yukthitech.webutils.services.ExtensionService;
-import com.yukthitech.webutils.utils.WebUtils;
+import com.yukthitech.webutils.services.prop.PropertyCopyService;
 
 import jakarta.validation.Valid;
 
@@ -93,6 +93,9 @@ public class ExtensionController extends BaseController implements IExtensionCon
 	
 	@Autowired(required = false)
 	private IExtensionContextProvider extensionContextProvider;
+	
+	@Autowired
+	private PropertyCopyService propertyCopyService;
 
 	@Override
 	@ActionName(ACTION_TYPE_FETCH)
@@ -112,7 +115,7 @@ public class ExtensionController extends BaseController implements IExtensionCon
 		List<ExtensionFieldEntity> extensionFields = extensionService.getExtensionFields(extensionName);
 		logger.debug("Found {} extension fields", (extensionFields != null) ? extensionFields.size() : 0);
 		
-		List<ExtensionFieldModel> extensionFieldModels = WebUtils.convertBeans(extensionFields, ExtensionFieldModel.class);
+		List<ExtensionFieldModel> extensionFieldModels = propertyCopyService.cloneList(extensionFields, ExtensionFieldModel.class);
 		
 		return new ExtensionFieldsResponse(extensionFieldModels);
 	}
@@ -202,7 +205,7 @@ public class ExtensionController extends BaseController implements IExtensionCon
 		}
 		
 		logger.debug("Saving extension field");
-		ExtensionFieldEntity extFieldEntity = WebUtils.convertBean(extensionField, ExtensionFieldEntity.class);
+		ExtensionFieldEntity extFieldEntity = propertyCopyService.cloneBean(extensionField, ExtensionFieldEntity.class);
 		extensionService.saveExtensionField(extensionEntity.getId(), extFieldEntity);
 		
 		return new BasicSaveResponse(extFieldEntity.getId());
@@ -267,7 +270,7 @@ public class ExtensionController extends BaseController implements IExtensionCon
 		validateExtensionFieldForSave(extensionField);
 
 		logger.debug("Updating extension field");
-		ExtensionFieldEntity extFieldEntity = WebUtils.convertBean(extensionField, ExtensionFieldEntity.class);
+		ExtensionFieldEntity extFieldEntity = propertyCopyService.cloneBean(extensionField, ExtensionFieldEntity.class);
 		extFieldEntity.setExtension(new ExtensionEntity(extensionId));
 		
 		extensionService.updateExtensionField(extFieldEntity);
@@ -308,7 +311,7 @@ public class ExtensionController extends BaseController implements IExtensionCon
 		
 		ExtensionFieldEntity fieldEntity = extensionService.fetchExtensionField(extensionName, fieldId);
 		
-		ExtensionFieldModel model = WebUtils.convertBean(fieldEntity, ExtensionFieldModel.class);
+		ExtensionFieldModel model = propertyCopyService.cloneBean(fieldEntity, ExtensionFieldModel.class);
 		model.setExtensionName(extensionName);
 		
 		return new ExtensionFieldReadResponse(model);

@@ -114,7 +114,7 @@ public class ImageService
 					fieldValue = field.get(model);
 				}catch(Exception ex)
 				{
-					throw new InvalidStateException(ex, "An error occurred while fetching image information from field - {}.{}", model.getClass().getName(), fieldDef.getName());
+					throw new InvalidStateException("An error occurred while fetching image information from field - {}.{}", model.getClass().getName(), fieldDef.getName(), ex);
 				}
 				
 				if(fieldValue == null)
@@ -139,7 +139,7 @@ public class ImageService
 		}catch(Exception ex)
 		{
 			logger.error("An error occurred while saving image fields of model - " + model, ex);
-			throw new InvalidStateException(ex, "An error occurred while saving image fields of model - {}", model);
+			throw new InvalidStateException("An error occurred while saving image fields of model - {}", model, ex);
 		}
 	}
 
@@ -201,7 +201,7 @@ public class ImageService
 				field.set(model, new ImageInfo( filesFromDb.get(0).getId() ));
 			}catch(Exception ex)
 			{
-				throw new InvalidStateException(ex, "An error occurred while setting file information to field - {}.{}", model.getClass().getName(), field.getName());
+				throw new InvalidStateException("An error occurred while setting file information to field - {}.{}", model.getClass().getName(), field.getName(), ex);
 			}
 		}
 	}

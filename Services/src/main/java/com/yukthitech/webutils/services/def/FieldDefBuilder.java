@@ -145,8 +145,8 @@ public class FieldDefBuilder
 				modelType.getDeclaredField(lovAnnotation.parentField());
 			}catch(Exception ex)
 			{
-				throw new InvalidStateException(ex, "Invalid lov-parent field name '{}' specified in field {}.{}", 
-							lovAnnotation.parentField(), modelType.getName(), field.getName());
+				throw new InvalidStateException("Invalid lov-parent field name '{}' specified in field {}.{}", 
+							lovAnnotation.parentField(), modelType.getName(), field.getName(), ex);
 			}
 			
 			lovDetails.setParentField(lovAnnotation.parentField());

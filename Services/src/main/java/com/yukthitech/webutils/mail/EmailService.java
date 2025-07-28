@@ -169,7 +169,7 @@ public class EmailService
 				res[i] = new InternetAddress(ids[i]);
 			} catch(Exception ex)
 			{
-				throw new InvalidArgumentException(ex, "An error occurred while parsing email-id {} from {} list", ids[i], listName);
+				throw new InvalidArgumentException("An error occurred while parsing email-id {} from {} list", ids[i], listName, ex);
 			}
 		}
 
@@ -544,7 +544,7 @@ public class EmailService
 			tempFiles.forEach(file -> file.delete());
 		} catch(Exception ex)
 		{
-			throw new InvalidStateException(ex, "An error occurred while sending email - {}", email, ex);
+			throw new InvalidStateException("An error occurred while sending email - {}", email, ex);
 		}
 		
 		/*
@@ -583,7 +583,7 @@ public class EmailService
 			return emlFile;
 		} catch(Exception ex)
 		{
-			throw new InvalidStateException(ex, "An error occurred while generating eml file - {}", email, ex);
+			throw new InvalidStateException("An error occurred while generating eml file - {}", email, ex);
 		}
 	}
 

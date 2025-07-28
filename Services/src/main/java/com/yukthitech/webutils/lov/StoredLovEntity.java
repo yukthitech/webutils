@@ -24,6 +24,7 @@
 package com.yukthitech.webutils.lov;
 
 import javax.persistence.Column;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import com.yukthitech.persistence.annotations.NotUpdateable;
@@ -31,10 +32,15 @@ import com.yukthitech.persistence.annotations.UniqueConstraint;
 import com.yukthitech.persistence.annotations.UniqueConstraints;
 import com.yukthitech.webutils.repository.WebutilsTrackedEntity;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
 /**
  * Represents store LOV entry.
  * @author akiran
  */
+@Data
+@EqualsAndHashCode(callSuper = true)
 @UniqueConstraints({
 	@UniqueConstraint(name = "UQ_ST_LOV_NAME", fields = {"name"}, finalName = true)
 	})
@@ -60,68 +66,17 @@ public class StoredLovEntity extends WebutilsTrackedEntity
 	 */
 	@Column(name = "EXTRA_INFO", length = 500, nullable = true)
 	private String extraInfo;
-
+	
 	/**
-	 * Gets the space identity.
-	 *
-	 * @return the space identity
+	 * Parent lov if any.
 	 */
-	public String getSpaceIdentity()
-	{
-		return spaceIdentity;
-	}
-
+	@Column(name = "PARENT_LOV_ID", nullable = true)
+	@ManyToOne
+	private StoredLovEntity parent;
+	
 	/**
-	 * Sets the space identity.
-	 *
-	 * @param spaceIdentity the new space identity
+	 * Parent lov option id provider.
 	 */
-	public void setSpaceIdentity(String spaceIdentity)
-	{
-		this.spaceIdentity = spaceIdentity;
-	}
-
-	/**
-	 * Gets the name of lov.
-	 *
-	 * @return the name of lov
-	 */
-	public String getName()
-	{
-		return name;
-	}
-
-	/**
-	 * Sets the name of lov.
-	 *
-	 * @param name the new name of lov
-	 */
-	public void setName(String name)
-	{
-		this.name = name;
-	}
-
-	/**
-	 * Gets the used to store extra info that can be used by applications for
-	 * authorization and other purposes.
-	 *
-	 * @return the used to store extra info that can be used by applications for
-	 *         authorization and other purposes
-	 */
-	public String getExtraInfo()
-	{
-		return extraInfo;
-	}
-
-	/**
-	 * Sets the used to store extra info that can be used by applications for
-	 * authorization and other purposes.
-	 *
-	 * @param extraInfo the new used to store extra info that can be used by
-	 *        applications for authorization and other purposes
-	 */
-	public void setExtraInfo(String extraInfo)
-	{
-		this.extraInfo = extraInfo;
-	}
+	@Column(name = "PARENT_OPT_ID_PROVIDER", length = 150, nullable = true)
+	private String parentOptIdProvider;
 }

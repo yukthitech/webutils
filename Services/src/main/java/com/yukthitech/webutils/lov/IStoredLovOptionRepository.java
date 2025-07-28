@@ -38,4 +38,8 @@ public interface IStoredLovOptionRepository extends IWebutilsRepository<StoredLo
 {
 	public List<StoredLovOptionEntity> fetchByLov(@Condition("parentLov.id") Long lovId, 
 			@Condition("parentLovOption.id") Long parentLovOptionId);
+	
+	public Long fetchIdByParentAndLabel(
+			@Condition("parentLovOption.name") String parentLovName, 
+			@Condition(value = "label", ignoreCase = true) String optionLabel);
 }

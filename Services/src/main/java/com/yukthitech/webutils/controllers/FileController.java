@@ -60,8 +60,8 @@ import com.yukthitech.webutils.repository.file.FileEntity;
 import com.yukthitech.webutils.security.ISecurityService;
 import com.yukthitech.webutils.security.UnauthorizedException;
 import com.yukthitech.webutils.services.FileService;
+import com.yukthitech.webutils.services.prop.PropertyCopyService;
 import com.yukthitech.webutils.utils.WebAttachmentUtils;
-import com.yukthitech.webutils.utils.WebUtils;
 
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -93,6 +93,9 @@ public class FileController
 	@Autowired
 	private HttpServletResponse response;
 	
+	@Autowired
+	private PropertyCopyService propertyCopyService;
+
 	/**
 	 * Controller method to upload file.
 	 * @param file File information to save
@@ -144,7 +147,7 @@ public class FileController
 			throw new UnauthorizedException("Current user is not authorized to access file with id - {}", id);
 		}
 		
-		FileInfo fileInfo = WebUtils.convertBean(fileEntity, FileInfo.class);
+		FileInfo fileInfo = propertyCopyService.cloneBean(fileEntity, FileInfo.class);
 		fileInfo.setFile(fileEntity.getFile());
 		
 		return fileInfo;

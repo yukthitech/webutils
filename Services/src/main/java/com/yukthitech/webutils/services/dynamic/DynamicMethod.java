@@ -161,7 +161,7 @@ public class DynamicMethod
 						argValues[i] = PropertyUtils.getProperty(context.getAttributeMap(), arguments[i].getName());
 					}catch(Exception ex)
 					{
-						throw new InvalidStateException(ex, "An error occurred while fetching context attribute - {}", arguments[i].getName());
+						throw new InvalidStateException("An error occurred while fetching context attribute - {}", arguments[i].getName(), ex);
 					}
 				}
 				else

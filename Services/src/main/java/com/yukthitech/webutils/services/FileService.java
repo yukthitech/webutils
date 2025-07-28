@@ -49,7 +49,7 @@ import com.yukthitech.webutils.repository.ITenantBasedRepository;
 import com.yukthitech.webutils.repository.file.FileEntity;
 import com.yukthitech.webutils.repository.file.IFileRepository;
 import com.yukthitech.webutils.security.ISecurityService;
-import com.yukthitech.webutils.utils.WebUtils;
+import com.yukthitech.webutils.services.prop.PropertyCopyService;
 
 import jakarta.annotation.PostConstruct;
 
@@ -85,6 +85,9 @@ public class FileService
 	 */
 	@Autowired
 	private ModelDetailsService modelDetailsService;
+	
+	@Autowired
+	private PropertyCopyService propertyCopyService;
 
 	/**
 	 * File repository.
@@ -243,7 +246,7 @@ public class FileService
 					fieldValue = field.get(model);
 				}catch(Exception ex)
 				{
-					throw new InvalidStateException(ex, "An error occurred while fetching file information from field - {}.{}", model.getClass().getName(), fieldDef.getName());
+					throw new InvalidStateException("An error occurred while fetching file information from field - {}.{}", model.getClass().getName(), fieldDef.getName(), ex);
 				}
 				
 				logger.debug("Saving file(s) specified on model field - {}.{}", model.getClass().getName(), field.getName()); 
@@ -270,7 +273,7 @@ public class FileService
 		}catch(Exception ex)
 		{
 			logger.error("An error occurred while saving file fields of model - " + model, ex);
-			throw new InvalidStateException(ex, "An error occurred while saving file fields of model - {}", model);
+			throw new InvalidStateException("An error occurred while saving file fields of model - {}", model, ex);
 		}
 	}
 	
@@ -286,7 +289,7 @@ public class FileService
 	{
 		logger.trace("Saving file {} under owner - {}, {}, {}", file, ownerEntityType.getName(), ownerEntityField, ownerEntityId);
 		
-		FileEntity fileEntity = WebUtils.convertBean(file, FileEntity.class);
+		FileEntity fileEntity = propertyCopyService.cloneBean(file, FileEntity.class); 
 		
 		//if file is specified as content instead of file, convert content to file
 		
@@ -399,7 +402,7 @@ public class FileService
 
 				if(fieldDef.isMultiValued())
 				{
-					Collection<Object> resCollection = (Collection) fieldDef.getCompatibleCollectionType().newInstance();
+					Collection<Object> resCollection = (Collection) fieldDef.getCompatibleCollectionType().getConstructor().newInstance();
 					resCollection.addAll(filesFromDb);
 					
 					field.set(model, resCollection);
@@ -410,7 +413,7 @@ public class FileService
 				}
 			}catch(Exception ex)
 			{
-				throw new InvalidStateException(ex, "An error occurred while setting file information to field - {}.{}", model.getClass().getName(), field.getName());
+				throw new InvalidStateException("An error occurred while setting file information to field - {}.{}", model.getClass().getName(), field.getName(), ex);
 			}
 		}
 	}
@@ -524,7 +527,7 @@ public class FileService
 			return null;
 		}
 		
-		FileInfo fileInfo = WebUtils.convertBean(file, FileInfo.class);
+		FileInfo fileInfo = propertyCopyService.cloneBean(file, FileInfo.class); 
 		fileInfo.setFile(file.getFile());
 		
 		return fileInfo;

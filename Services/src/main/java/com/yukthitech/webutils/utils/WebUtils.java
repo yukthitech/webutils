@@ -54,7 +54,7 @@ public class WebUtils
 	 * @param source Source to be converted
 	 * @param targetType Target type to be converted to
 	 * @return Converted bean
-	 */
+	 * /
 	public static <T> T convertBean(Object source, Class<T> targetType)
 	{
 		if(source == null)
@@ -82,7 +82,7 @@ public class WebUtils
 	 * @param sourceLst Source bean list to be converted
 	 * @param targetType Target bean type
 	 * @return Converted bean list
-	 */
+	 * /
 	public static <T> List<T> convertBeans(Collection<?> sourceLst, Class<T> targetType)
 	{
 		if(CollectionUtils.isEmpty(sourceLst))

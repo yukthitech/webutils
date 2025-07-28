@@ -37,17 +37,23 @@ import com.yukthitech.persistence.annotations.UniqueConstraints;
 import com.yukthitech.webutils.repository.WebutilsBaseEntity;
 import com.yukthitech.webutils.user.UserEntity;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
+
 /**
  * Represents store LOV entry.
  * @author akiran
  */
+@Data
+@EqualsAndHashCode(callSuper = true)
+@Accessors(chain = true)
 @UniqueConstraints({
 	@UniqueConstraint(name = "UQ_ST_LOV_OPT_LBL", fields = {"parentLov", "parentLovOption", "label"}, finalName = true)
 	})
 @Table(name = "WEBUTILS_STORED_LOV_OPTION")
 public class StoredLovOptionEntity extends WebutilsBaseEntity
 {
-	
 	/**
 	 * The parent lov.
 	 */
@@ -103,164 +109,4 @@ public class StoredLovOptionEntity extends WebutilsBaseEntity
 	@Column(name = "APPROVED_ON", nullable = true)
 	@DataTypeMapping(type = DataType.DATE_TIME)
 	private Date approvedOn = new Date();
-
-	/**
-	 * Gets the parent lov.
-	 *
-	 * @return the parent lov
-	 */
-	public StoredLovEntity getParentLov()
-	{
-		return parentLov;
-	}
-
-	/**
-	 * Sets the parent lov.
-	 *
-	 * @param parentLov the new parent lov
-	 */
-	public void setParentLov(StoredLovEntity parentLov)
-	{
-		this.parentLov = parentLov;
-	}
-	
-	/**
-	 * Gets the parent lov option. Eg: Parent state of a city.
-	 *
-	 * @return the parent lov option
-	 */
-	public StoredLovOptionEntity getParentLovOption()
-	{
-		return parentLovOption;
-	}
-
-	/**
-	 * Sets the parent lov option. Eg: Parent state of a city.
-	 *
-	 * @param parentLovOption the new parent lov option
-	 */
-	public void setParentLovOption(StoredLovOptionEntity parentLovOption)
-	{
-		this.parentLovOption = parentLovOption;
-	}
-
-	/**
-	 * Gets the label of lob.
-	 *
-	 * @return the label of lob
-	 */
-	public String getLabel()
-	{
-		return label;
-	}
-
-	/**
-	 * Sets the label of lob.
-	 *
-	 * @param label the new label of lob
-	 */
-	public void setLabel(String label)
-	{
-		this.label = label;
-	}
-
-	/**
-	 * Gets the created by user.
-	 *
-	 * @return the created by user
-	 */
-	public UserEntity getCreatedBy()
-	{
-		return createdBy;
-	}
-
-	/**
-	 * Sets the created by user.
-	 *
-	 * @param createdBy the new created by user
-	 */
-	public void setCreatedBy(UserEntity createdBy)
-	{
-		this.createdBy = createdBy;
-	}
-
-	/**
-	 * Checks if is approved.
-	 *
-	 * @return true, if is approved
-	 */
-	public boolean isApproved()
-	{
-		return approved;
-	}
-
-	/**
-	 * Sets the approved.
-	 *
-	 * @param approved the new approved
-	 */
-	public void setApproved(boolean approved)
-	{
-		this.approved = approved;
-	}
-
-	/**
-	 * Gets the created on time.
-	 *
-	 * @return the created on time
-	 */
-	public Date getCreatedOn()
-	{
-		return createdOn;
-	}
-
-	/**
-	 * Sets the created on time.
-	 *
-	 * @param createdOn the new created on time
-	 */
-	public void setCreatedOn(Date createdOn)
-	{
-		this.createdOn = createdOn;
-	}
-
-	/**
-	 * Gets the approving user.
-	 *
-	 * @return the approving user
-	 */
-	public UserEntity getApprovedBy()
-	{
-		return approvedBy;
-	}
-
-	/**
-	 * Sets the approving user.
-	 *
-	 * @param approvedBy the new approving user
-	 */
-	public void setApprovedBy(UserEntity approvedBy)
-	{
-		this.approvedBy = approvedBy;
-	}
-
-	/**
-	 * Gets the approved on.
-	 *
-	 * @return the approved on
-	 */
-	public Date getApprovedOn()
-	{
-		return approvedOn;
-	}
-
-	/**
-	 * Sets the approved on.
-	 *
-	 * @param approvedOn the new approved on
-	 */
-	public void setApprovedOn(Date approvedOn)
-	{
-		this.approvedOn = approvedOn;
-	}
 }

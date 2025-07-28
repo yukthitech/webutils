@@ -48,6 +48,7 @@ import com.yukthitech.webutils.repository.IWebutilsRepository;
 import com.yukthitech.webutils.repository.WebutilsBaseEntity;
 import com.yukthitech.webutils.repository.WebutilsExtendableEntity;
 import com.yukthitech.webutils.security.ISecurityService;
+import com.yukthitech.webutils.services.prop.PropertyCopyService;
 import com.yukthitech.webutils.utils.WebUtils;
 
 import jakarta.annotation.PostConstruct;
@@ -100,6 +101,9 @@ public abstract class BaseCrudService<E extends WebutilsBaseEntity, R extends IW
 	@Autowired
 	protected ImageService imageService;
 	
+	@Autowired
+	private PropertyCopyService propertyCopyService;
+	
 	/**
 	 * Repository type.
 	 */
@@ -140,7 +144,7 @@ public abstract class BaseCrudService<E extends WebutilsBaseEntity, R extends IW
 	public E save(Object model)
 	{
 		//convert to entity
-		E entity = WebUtils.convertBean(model, entityType);
+		E entity = propertyCopyService.cloneBean(model, entityType);
 		
 		//save entity
 		save(entity, model);
@@ -224,7 +228,7 @@ public abstract class BaseCrudService<E extends WebutilsBaseEntity, R extends IW
 	public E update(Object model)
 	{
 		//convert to entity
-		E entity = WebUtils.convertBean(model, entityType);
+		E entity = propertyCopyService.cloneBean(model, entityType);
 		
 		//update entity
 		update(entity, model);
@@ -365,7 +369,7 @@ public abstract class BaseCrudService<E extends WebutilsBaseEntity, R extends IW
 			return null;
 		}
 		
-		M model = WebUtils.convertBean(entity, modelType);
+		M model = propertyCopyService.cloneBean(entity, modelType);
 		
 		if(model instanceof IExtendableModel)
 		{

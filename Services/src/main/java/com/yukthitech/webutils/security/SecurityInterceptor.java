@@ -52,6 +52,7 @@ import com.yukthitech.webutils.annotations.NoAuthentication;
 import com.yukthitech.webutils.common.IWebUtilsCommonConstants;
 import com.yukthitech.webutils.common.UserDetails;
 import com.yukthitech.webutils.common.models.BaseResponse;
+import com.yukthitech.webutils.services.RequestCache;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.Cookie;
@@ -96,6 +97,9 @@ public class SecurityInterceptor implements HandlerInterceptor
 	@Autowired
 	private WebutilsSecurityService webutilsSecurityService;
 	
+	@Autowired
+	private RequestCache requestCache;
+	
 	@Value("${webutils.ui.freeUris:''}")
 	private String freeUri;
 	
@@ -139,7 +143,7 @@ public class SecurityInterceptor implements HandlerInterceptor
 			os.close();
 		}catch(Exception ex)
 		{
-			throw new InvalidStateException(ex, "An error occurred while sending error to response");
+			throw new InvalidStateException("An error occurred while sending error to response", ex);
 		}
 	}
 	
@@ -331,6 +335,7 @@ public class SecurityInterceptor implements HandlerInterceptor
 	@Override
 	public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception
 	{
+		requestCache.clear();
 		ThreadContext.clearAll();
 	}
 }

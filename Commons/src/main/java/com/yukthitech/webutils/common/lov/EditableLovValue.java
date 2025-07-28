@@ -5,10 +5,14 @@ import com.yukthitech.validation.IStringConvertible;
 import com.yukthitech.webutils.common.annotations.Model;
 
 import jakarta.validation.constraints.Min;
+import lombok.Data;
+import lombok.experimental.Accessors;
 
 /**
  * Type to be used to accept value from editable lov field.
  */
+@Data
+@Accessors(chain = true)
 @Model
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class EditableLovValue implements IStringConvertible
@@ -24,46 +28,6 @@ public class EditableLovValue implements IStringConvertible
 	 */
 	private String newValue;
 
-	/**
-	 * Gets the id of the selected lov.
-	 *
-	 * @return the id of the selected lov
-	 */
-	public Long getId()
-	{
-		return id;
-	}
-
-	/**
-	 * Sets the id of the selected lov.
-	 *
-	 * @param id the new id of the selected lov
-	 */
-	public void setId(Long id)
-	{
-		this.id = id;
-	}
-
-	/**
-	 * Gets the new value fed for the field.
-	 *
-	 * @return the new value fed for the field
-	 */
-	public String getNewValue()
-	{
-		return newValue;
-	}
-
-	/**
-	 * Sets the new value fed for the field.
-	 *
-	 * @param newValue the new new value fed for the field
-	 */
-	public void setNewValue(String newValue)
-	{
-		this.newValue = newValue;
-	}
-	
 	@Override
 	public String toStringValue()
 	{

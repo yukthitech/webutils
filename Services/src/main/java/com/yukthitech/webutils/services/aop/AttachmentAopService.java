@@ -160,8 +160,8 @@ public class AttachmentAopService
 					}
 				}catch(Exception ex)
 				{
-					throw new InvalidStateException(ex, "An error occurred while setting file attachment on field - {}.{}", 
-							joinPoint.getSignature().getDeclaringTypeName(), joinPoint.getSignature().getName());
+					throw new InvalidStateException("An error occurred while setting file attachment on field - {}.{}", 
+							joinPoint.getSignature().getDeclaringTypeName(), joinPoint.getSignature().getName(), ex);
 				}
 			}
 		}

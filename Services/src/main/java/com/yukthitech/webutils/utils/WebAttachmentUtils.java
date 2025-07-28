@@ -231,7 +231,7 @@ public class WebAttachmentUtils
 					fos.close();
 				}catch(IOException ex)
 				{
-					throw new InvalidStateException(ex, "An error occurred while uploading file content to temp file");
+					throw new InvalidStateException("An error occurred while uploading file content to temp file", ex);
 				}
 				
 				
