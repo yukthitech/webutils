@@ -26,6 +26,7 @@ package com.yukthitech.webutils.lov;
 import java.util.List;
 
 import com.yukthitech.persistence.repository.annotations.Condition;
+import com.yukthitech.persistence.repository.annotations.Field;
 import com.yukthitech.webutils.common.annotations.Optional;
 import com.yukthitech.webutils.repository.IWebutilsRepository;
 
@@ -39,7 +40,8 @@ public interface IStoredLovOptionRepository extends IWebutilsRepository<StoredLo
 	public List<StoredLovOptionEntity> fetchByLov(@Condition("parentLov.id") Long lovId, 
 			@Condition("parentLovOption.id") Long parentLovOptionId);
 	
+	@Field("id")
 	public Long fetchIdByParentAndLabel(
-			@Condition("parentLovOption.name") String parentLovName, 
+			@Condition("parentLov.name") String parentLovName, 
 			@Condition(value = "label", ignoreCase = true) String optionLabel);
 }

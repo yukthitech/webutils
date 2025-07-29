@@ -27,6 +27,12 @@ public class EditableLovValue implements IStringConvertible
 	 * New value fed for the field.
 	 */
 	private String newValue;
+	
+	/**
+	 * This field is populated during read from the server.
+	 * This field will not be considered during persistence operations.
+	 */
+	private String label;
 
 	@Override
 	public String toStringValue()

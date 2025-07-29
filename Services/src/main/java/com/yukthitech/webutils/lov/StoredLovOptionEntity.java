@@ -39,7 +39,7 @@ import com.yukthitech.webutils.user.UserEntity;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.experimental.Accessors;
+import lombok.NoArgsConstructor;
 
 /**
  * Represents store LOV entry.
@@ -47,7 +47,7 @@ import lombok.experimental.Accessors;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@Accessors(chain = true)
+@NoArgsConstructor
 @UniqueConstraints({
 	@UniqueConstraint(name = "UQ_ST_LOV_OPT_LBL", fields = {"parentLov", "parentLovOption", "label"}, finalName = true)
 	})
@@ -109,4 +109,9 @@ public class StoredLovOptionEntity extends WebutilsBaseEntity
 	@Column(name = "APPROVED_ON", nullable = true)
 	@DataTypeMapping(type = DataType.DATE_TIME)
 	private Date approvedOn = new Date();
+	
+	public StoredLovOptionEntity(long id)
+	{
+		super(id);
+	}
 }

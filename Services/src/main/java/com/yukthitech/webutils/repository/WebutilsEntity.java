@@ -4,9 +4,16 @@ import javax.persistence.Column;
 
 import com.yukthitech.persistence.annotations.NotUpdateable;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+
 /**
  * Base class for entities containing common fields for tracking and space separation.
  */
+@Data
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor
 public abstract class WebutilsEntity extends WebutilsTrackedEntity implements ITenantSpaceBased
 {
 	/**
@@ -15,12 +22,6 @@ public abstract class WebutilsEntity extends WebutilsTrackedEntity implements IT
 	@NotUpdateable
 	@Column(name = "SPACE_IDENTITY", length = 150, nullable = false)
 	private String spaceIdentity = "";
-
-	/**
-	 * Instantiates a new base entity.
-	 */
-	public WebutilsEntity()
-	{}
 	
 	/**
 	 * Instantiates a new base entity.
@@ -30,25 +31,5 @@ public abstract class WebutilsEntity extends WebutilsTrackedEntity implements IT
 	public WebutilsEntity(Long id)
 	{
 		super.setId(id);
-	}
-
-	/**
-	 * Gets the space identity.
-	 *
-	 * @return the space identity
-	 */
-	public String getSpaceIdentity()
-	{
-		return spaceIdentity;
-	}
-
-	/**
-	 * Sets the space identity.
-	 *
-	 * @param spaceIdentity the new space identity
-	 */
-	public void setSpaceIdentity(String spaceIdentity)
-	{
-		this.spaceIdentity = spaceIdentity;
 	}
 }

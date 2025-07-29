@@ -298,7 +298,14 @@ public class StoredLovService extends BaseCrudService<StoredLovEntity, IStoredLo
 	@ValueConverter(sourceType = EditableLovValue.class, targetType = StoredLovOptionEntity.class)
 	public StoredLovOptionEntity editableToLov(EditableLovValue editable, CopyContext context)
 	{
+		return toStoredLov(editable, context, false);
+	}
+
+	private StoredLovOptionEntity toStoredLov(EditableLovValue editable, CopyContext context, boolean forString)
+	{
 		LOV lov = context.getSourceField().getAnnotation(LOV.class);
+		boolean skipPersist = (forString && !lov.persist());
+		
 		StoredLovEntity lovEntity = getLov(lov.name());
 		
 		// Fetch parent option id (based on configured parent provider name with lov)
@@ -325,32 +332,35 @@ public class StoredLovService extends BaseCrudService<StoredLovEntity, IStoredLo
 			}
 			
 			// if not present, create new one
-			lovOpt = new StoredLovOptionEntity()
-					.setParentLov(lovEntity)
-					.setLabel(editable.getNewValue())
-					.setCreatedBy(new UserEntity(currentUserService.getCurrentUserDetails().getUserId()))
-					.setApproved(false)
-					.setApprovedOn(new Date())
-					.setParentLovOption((StoredLovOptionEntity) new StoredLovOptionEntity().setId(defaultLovOptionId))
-					;
+			lovOpt = new StoredLovOptionEntity();
+			lovOpt.setParentLov(lovEntity);
+			lovOpt.setLabel(editable.getNewValue());
+			lovOpt.setCreatedBy(new UserEntity(currentUserService.getCurrentUserDetails().getUserId()));
+			lovOpt.setApproved(false);
+			lovOpt.setApprovedOn(new Date());
+			lovOpt.setParentLovOption(new StoredLovOptionEntity(defaultLovOptionId));
 			
-			lovValRepository.save(lovOpt);
+			if(!skipPersist)
+			{
+				lovValRepository.save(lovOpt);
+				
+				// update cached list with new option
+				optLst.addLovOption(lovOpt);
+			}
 			
-			// update cached list with new option
-			optLst.addLovOption(lovOpt);
 			return lovOpt;
 		}
 		
 		// ensure existing id provided is part of current lov list
-		boolean isValid = (optLst.getById(editable.getId()) != null);
-				
+		StoredLovOptionEntity lovOpt = optLst.getById(editable.getId());
+		
 		// if not valid throw exception
-		if(!isValid)
+		if(lovOpt == null)
 		{
 			throw new InvalidArgumentException("Invalid option-id '{}' specified for LOV: {}", editable.getId(), lov.name());
 		}
 		
-		return (StoredLovOptionEntity) new StoredLovOptionEntity().setId(editable.getId());
+		return lovOpt;
 	}
 	
 	/**
@@ -362,9 +372,67 @@ public class StoredLovService extends BaseCrudService<StoredLovEntity, IStoredLo
 	@ValueConverter(sourceType = StoredLovOptionEntity.class, targetType = EditableLovValue.class)
 	public EditableLovValue lovToEditable(StoredLovOptionEntity entity, CopyContext context)
 	{
-		return new EditableLovValue().setId(entity.getId());
+		return new EditableLovValue()
+				.setId(entity.getId())
+				.setLabel(entity.getLabel());
 	}
 	
+	/**
+	 * A converter method that converts {@link EditableLovValue} into String which
+	 * can be persisted directly. 
+	 * 
+	 * This will be used during write operations.
+	 * 
+	 * @param editable
+	 * @param context
+	 * @return
+	 */
+	@ValueConverter(sourceType = EditableLovValue.class, targetType = String.class)
+	public String editableToString(EditableLovValue editable, CopyContext context)
+	{
+		StoredLovOptionEntity lovOpt = toStoredLov(editable, context, true);
+		return lovOpt.getLabel();
+	}
+	
+	/**
+	 * Converter method which converts a persisted label string to EditableLovValue. This will be helpful during read operation.
+	 * @param entity
+	 * @param context
+	 * @return
+	 */
+	@ValueConverter(sourceType = String.class, targetType = EditableLovValue.class)
+	public EditableLovValue stringToEditable(String strValue, CopyContext context)
+	{
+		LOV lov = context.getTargetField().getAnnotation(LOV.class);
+		
+		StoredLovEntity lovEntity = getLov(lov.name());
+		
+		// Fetch parent option id (based on configured parent provider name with lov)
+		Long parentOptionId = fetchParentLovOptionId(lovEntity);
+		
+		// Fetch the lov option list (indexed with label and id)
+		//    the list will be cached on request. So that on same request db will not hit again
+		LovOptionListWrapper optLst = requestCache.get(String.format("lov-opt-list", lovEntity.getId(), parentOptionId), key -> 
+		{
+			List<StoredLovOptionEntity> options = lovValRepository.fetchByLov(lovEntity.getId(), parentOptionId);
+			return new LovOptionListWrapper(options);
+		});
+		
+		// check in case insensitive way, if option is already present 
+		StoredLovOptionEntity lovOpt = optLst.getLovOptionByLabel(strValue);
+		
+		if(lovOpt != null)
+		{
+			return new EditableLovValue()
+					.setId(lovOpt.getId())
+					.setLabel(lovOpt.getLabel()); 
+		}
+
+		return new EditableLovValue()
+				.setLabel(strValue)
+				.setNewValue(strValue);
+	}
+
 	private StoredLovEntity getLov(String name)
 	{
 		return cache.get(name, lovName -> 

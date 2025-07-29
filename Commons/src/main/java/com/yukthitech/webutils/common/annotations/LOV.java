@@ -33,4 +33,14 @@ public @interface LOV
 	 * @return
 	 */
 	public DynLovType type() default DynLovType.DYNAMIC_TYPE;
+	
+	/**
+	 * Used to mark editable lov as not-persist for new options.
+	 * 
+	 * This can be set to 'false' on editable-lov (which is getting converted to string), which can take help of existing lov values.
+	 * However the new items will not be persisted as lov options, if this flag is set to false.
+	 * 
+	 * @return
+	 */
+	public boolean persist() default true;
 }

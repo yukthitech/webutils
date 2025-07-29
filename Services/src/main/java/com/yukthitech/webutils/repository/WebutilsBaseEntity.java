@@ -7,13 +7,11 @@ import javax.persistence.Id;
 import javax.persistence.Version;
 
 import lombok.Data;
-import lombok.experimental.Accessors;
 
 /**
  * Base class for entities containing common fields like id and version.
  */
 @Data
-@Accessors(chain = true)
 public abstract class WebutilsBaseEntity
 {
 	/**

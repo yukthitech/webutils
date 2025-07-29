@@ -39,6 +39,8 @@ import com.yukthitech.persistence.ITransaction;
 import com.yukthitech.persistence.PersistenceException;
 import com.yukthitech.utils.exceptions.InvalidStateException;
 import com.yukthitech.webutils.IWebUtilsInternalConstants;
+import com.yukthitech.webutils.annotations.transaction.TransactionType;
+import com.yukthitech.webutils.annotations.transaction.Transactional;
 import com.yukthitech.webutils.cache.WebutilsCacheEvict;
 import com.yukthitech.webutils.cache.WebutilsCacheable;
 import com.yukthitech.webutils.common.IExtendableModel;
@@ -141,6 +143,7 @@ public abstract class BaseCrudService<E extends WebutilsBaseEntity, R extends IW
 	 * @return Converted and saved entity
 	 */
 	@WebutilsCacheEvict(groups = IWebUtilsInternalConstants.CACHE_GROUP_GROUPED)
+	@Transactional(TransactionType.NEW_OR_EXISTING)
 	public E save(Object model)
 	{
 		//convert to entity
@@ -158,6 +161,7 @@ public abstract class BaseCrudService<E extends WebutilsBaseEntity, R extends IW
 	 * @param model Model with extension fields and file informations to save. Optional, can be null
 	 */
 	@WebutilsCacheEvict(groups = IWebUtilsInternalConstants.CACHE_GROUP_GROUPED)
+	@Transactional(TransactionType.NEW_OR_EXISTING)
 	public void save(E entity, Object model)
 	{
 		try(ITransaction transaction = repository.newOrExistingTransaction())
@@ -225,6 +229,7 @@ public abstract class BaseCrudService<E extends WebutilsBaseEntity, R extends IW
 	 * @return Converted entity
 	 */
 	@WebutilsCacheEvict(groups = {IWebUtilsInternalConstants.CACHE_GROUP_GROUPED, "#p0.id"})
+	@Transactional(TransactionType.NEW_OR_EXISTING)
 	public E update(Object model)
 	{
 		//convert to entity
@@ -243,6 +248,7 @@ public abstract class BaseCrudService<E extends WebutilsBaseEntity, R extends IW
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@WebutilsCacheEvict(groups = {IWebUtilsInternalConstants.CACHE_GROUP_GROUPED, "#p0.id"})
+	@Transactional(TransactionType.NEW_OR_EXISTING)
 	public void update(E entity, Object model)
 	{
 		WebUtils.validateEntityForUpdate(entity);
