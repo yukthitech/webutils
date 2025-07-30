@@ -15,9 +15,12 @@
  */
 package com.yukthitech.webutils.common.models;
 
+import lombok.Data;
+
 /**
  * Represents an error message on the field along with code.
  */
+@Data
 public class FieldError
 {
 	/**
@@ -42,36 +45,6 @@ public class FieldError
 	{
 		this.field = field;
 		this.code = code;
-		this.message = message;
-	}
-
-	public String getField()
-	{
-		return field;
-	}
-
-	public void setField(String field)
-	{
-		this.field = field;
-	}
-
-	public int getCode()
-	{
-		return code;
-	}
-
-	public void setCode(int code)
-	{
-		this.code = code;
-	}
-
-	public String getMessage()
-	{
-		return message;
-	}
-
-	public void setMessage(String message)
-	{
 		this.message = message;
 	}
 }

@@ -23,13 +23,17 @@
 
 package com.yukthitech.webutils.common.models;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.yukthitech.webutils.common.IWebUtilsCommonConstants;
 
+import lombok.Data;
+
 /**
  * Base for all response classes to include response code and message.
  */
+@Data
 public class BaseResponse
 {
 	/** 
@@ -86,70 +90,21 @@ public class BaseResponse
 		this.message = message;
 		this.fieldErrors = fieldErrors;
 	}
-
-	/**
-	 * Gets the  Response code.
-	 *
-	 * @return the  Response code
-	 */
-	public int getCode()
-	{
-		return code;
-	}
-
-	/**
-	 * Sets the  Response code.
-	 *
-	 * @param code the new  Response code
-	 */
-	public void setCode(int code)
-	{
-		this.code = code;
-	}
-
-	/**
-	 * Gets the  Response message.
-	 *
-	 * @return the  Response message
-	 */
-	public String getMessage()
-	{
-		return message;
-	}
-
-	/**
-	 * Sets the  Response message.
-	 *
-	 * @param message the new  Response message
-	 */
-	public void setMessage(String message)
-	{
-		this.message = message;
-	}
 	
-	public List<FieldError> getFieldErrors()
-	{
-		return fieldErrors;
-	}
-
-	public void setFieldErrors(List<FieldError> fieldErrors)
-	{
-		this.fieldErrors = fieldErrors;
-	}
-
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
+	/** 
+	 * Adds value to {@link #fieldErrors fieldErrors}
+	 *
+	 * @param error error to be added
 	 */
-	@Override
-	public String toString()
-	{
-		StringBuilder builder = new StringBuilder(super.toString());
-		builder.append("[");
-
-		builder.append("Code: ").append(code);
-		builder.append(",").append("Message: ").append(message);
-
-		builder.append("]");
-		return builder.toString();
-	}
+	 public BaseResponse addFieldError(FieldError error)
+	 {
+		 if(fieldErrors == null)
+		 {
+			 fieldErrors = new ArrayList<FieldError>();
+		 }
+		 
+		 fieldErrors.add(error);
+		 return this;
+	 }
+	 
 }

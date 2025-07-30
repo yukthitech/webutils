@@ -313,7 +313,7 @@ public class StoredLovService extends BaseCrudService<StoredLovEntity, IStoredLo
 		
 		// Fetch the lov option list (indexed with label and id)
 		//    the list will be cached on request. So that on same request db will not hit again
-		LovOptionListWrapper optLst = requestCache.get(String.format("lov-opt-list", lovEntity.getId(), parentOptionId), key -> 
+		LovOptionListWrapper optLst = requestCache.get(String.format("lov-opt-list[Id:%s,Par:%s]", lovEntity.getId(), parentOptionId), key -> 
 		{
 			List<StoredLovOptionEntity> options = lovValRepository.fetchByLov(lovEntity.getId(), parentOptionId);
 			return new LovOptionListWrapper(options);

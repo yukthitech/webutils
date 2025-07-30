@@ -13,7 +13,9 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 import com.yukthitech.utils.CommonUtils;
@@ -77,7 +79,7 @@ public class PropertyCopyService
 	 */
 	private final Map<ClassPair, ConverterFunction> customMappers = new ConcurrentHashMap<>();
 	
-	@PostConstruct
+	@EventListener(ApplicationReadyEvent.class)
 	private void init()
 	{
 		try
@@ -102,7 +104,7 @@ public class PropertyCopyService
 				continue;
 			}
 			
-			Object service = applicationContext.getBeansOfType(serviceType);
+			Object service = applicationContext.getBean(serviceType);
 
 			register(service, method);
 		}

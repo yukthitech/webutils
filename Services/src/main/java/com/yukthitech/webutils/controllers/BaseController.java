@@ -88,15 +88,20 @@ public class BaseController
 		//Compute the error message
 		List<ObjectError> errors = ex.getBindingResult().getAllErrors();
 		
-		StringBuilder responseMsg = new StringBuilder();
+		StringBuilder responseMsg = new StringBuilder("Field Errors: ");
 		FieldError fldError = null;
+		
+		BaseResponse baseResponse = new BaseResponse(IWebUtilsCommonConstants.RESPONSE_CODE_INVALID_REQUEST, "Error"); 
 		
 		for(ObjectError error: errors)
 		{
 			if(error instanceof FieldError)
 			{
-				fldError = (FieldError)error;
-				responseMsg.append( String.format("Field '%s' [Error - %s]", fldError.getField(), fldError.getDefaultMessage()) ).append("\n");
+				fldError = (FieldError) error;
+				
+				baseResponse.addFieldError(new com.yukthitech.webutils.common.models.FieldError(fldError.getField(), -1, fldError.getDefaultMessage()));
+				responseMsg.append( String.format("\n[Field: %s, Code: %s] - %s]", 
+						fldError.getField(), fldError.getCode(), fldError.getDefaultMessage()) );
 			}
 			else
 			{
@@ -106,7 +111,9 @@ public class BaseController
 		
 		response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		
-		return new BaseResponse(IWebUtilsCommonConstants.RESPONSE_CODE_INVALID_REQUEST, responseMsg.toString());
+		baseResponse.setMessage(responseMsg.toString());
+		
+		return baseResponse;
 	}
 	
 	@ExceptionHandler(value={BeanValidationException.class})

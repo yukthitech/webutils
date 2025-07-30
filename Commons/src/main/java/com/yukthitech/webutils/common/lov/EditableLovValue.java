@@ -37,6 +37,11 @@ public class EditableLovValue implements IStringConvertible
 	@Override
 	public String toStringValue()
 	{
+		if(id != null && id > 0)
+		{
+			return id.toString();
+		}
+		
 		return newValue;
 	}
 }
