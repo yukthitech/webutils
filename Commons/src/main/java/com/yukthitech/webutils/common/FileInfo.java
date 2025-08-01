@@ -26,7 +26,6 @@ package com.yukthitech.webutils.common;
 import java.io.File;
 
 import com.yukthitech.persistence.repository.annotations.Field;
-import com.yukthitech.utils.annotations.IgnorePropertyDestination;
 import com.yukthitech.webutils.common.annotations.NonDisplayable;
 
 /**
@@ -57,7 +56,6 @@ public class FileInfo
 	/**
 	 * File content
 	 */
-	@IgnorePropertyDestination
 	private File file;
 
 	/**

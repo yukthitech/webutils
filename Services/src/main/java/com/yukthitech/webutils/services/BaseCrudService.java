@@ -96,13 +96,6 @@ public abstract class BaseCrudService<E extends WebutilsBaseEntity, R extends IW
 	@Autowired
 	protected ISecurityService securityService;
 	
-	/**
-	 * Service to maintain images of the model.
-	 */
-	@Lazy
-	@Autowired
-	protected ImageService imageService;
-	
 	@Autowired
 	private PropertyCopyService propertyCopyService;
 	
@@ -198,7 +191,6 @@ public abstract class BaseCrudService<E extends WebutilsBaseEntity, R extends IW
 			if(model != null)
 			{
 				fileService.saveFilesFromModel(model, entityType, entity.getId());
-				imageService.saveImagesFromModel(model, entityType, entity.getId());
 			}
 			
 			transaction.commit();
@@ -287,7 +279,6 @@ public abstract class BaseCrudService<E extends WebutilsBaseEntity, R extends IW
 			if(model != null)
 			{
 				fileService.saveFilesFromModel(model, entityType, entity.getId());
-				imageService.saveImagesFromModel(model, entityType, entity.getId());
 			}
 
 			transaction.commit();
@@ -384,9 +375,6 @@ public abstract class BaseCrudService<E extends WebutilsBaseEntity, R extends IW
 
 		//fetch file information
 		fileService.readFilesForModel(model, entityType, entity.getId());
-		
-		//fetch image information
-		imageService.readImagesForModel(model, entityType, entity.getId());
 		
 		return model;
 	}

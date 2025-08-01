@@ -1,12 +1,16 @@
 package com.yukthitech.webutils.services.prop;
 
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import com.yukthitech.utils.PropertyAccessor;
+import com.yukthitech.utils.PropertyAccessor.Property;
 import com.yukthitech.utils.ReflectionUtils;
 import com.yukthitech.webutils.lov.StoredLovEntity;
 
@@ -26,14 +30,14 @@ public class TestPropertyCopyService
 	
 	@Data
 	@AllArgsConstructor
-	private static class SourceBean
+	public static class SourceBean
 	{
 		private String strProp;
 		private int intProp;
 	}
 	
 	@Data
-	private static class TargetBean
+	public static class TargetBean
 	{
 		private String strProp;
 		private int intProp;
@@ -42,6 +46,21 @@ public class TestPropertyCopyService
 	@Test
 	public void testCopyProperties_simple()
 	{
+		Method methods[] = SourceBean.class.getMethods();
+		
+		for(Method method : methods)
+		{
+			System.out.println(method);
+		}
+		
+		Map<String, Property> propMap = PropertyAccessor.getProperties(SourceBean.class);
+		
+		for(Property prop : propMap.values())
+		{
+			System.out.println(prop);
+		}
+
+		
 		SourceBean source = new SourceBean("Test", 123);
 		TargetBean target = new TargetBean();
 		
@@ -53,13 +72,13 @@ public class TestPropertyCopyService
 	
 	@Data
 	@AllArgsConstructor
-	private static class NestedSource
+	public static class NestedSource
 	{
 		private SourceBean bean;
 	}
 	
 	@Data
-	private static class NestedTarget
+	public static class NestedTarget
 	{
 		private TargetBean bean;
 	}
@@ -79,13 +98,13 @@ public class TestPropertyCopyService
 	
 	@Data
 	@AllArgsConstructor
-	private static class SourceWithList
+	public static class SourceWithList
 	{
 		private List<SourceBean> beans;
 	}
 
 	@Data
-	private static class TargetWithList
+	public static class TargetWithList
 	{
 		private List<TargetBean> beans;
 	}
@@ -137,7 +156,7 @@ public class TestPropertyCopyService
 	@Data
 	@AllArgsConstructor
 	@NoArgsConstructor
-	private static class SourceWithId
+	public static class SourceWithId
 	{
 		private Long lov;
 	}
@@ -145,7 +164,7 @@ public class TestPropertyCopyService
 	@Data
 	@AllArgsConstructor
 	@NoArgsConstructor
-	private static class TargetWithEntity
+	public static class TargetWithEntity
 	{
 		private StoredLovEntity lov;
 	}

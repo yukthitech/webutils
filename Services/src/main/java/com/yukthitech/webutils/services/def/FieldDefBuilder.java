@@ -42,6 +42,7 @@ import org.springframework.stereotype.Component;
 
 import com.yukthitech.utils.exceptions.InvalidConfigurationException;
 import com.yukthitech.utils.exceptions.InvalidStateException;
+import com.yukthitech.webutils.common.FileInfo;
 import com.yukthitech.webutils.common.ValueWithToken;
 import com.yukthitech.webutils.common.annotations.Captcha;
 import com.yukthitech.webutils.common.annotations.Color;
@@ -51,6 +52,7 @@ import com.yukthitech.webutils.common.annotations.DefaultValue;
 import com.yukthitech.webutils.common.annotations.Format;
 import com.yukthitech.webutils.common.annotations.FullWidth;
 import com.yukthitech.webutils.common.annotations.Html;
+import com.yukthitech.webutils.common.annotations.Image;
 import com.yukthitech.webutils.common.annotations.LOV;
 import com.yukthitech.webutils.common.annotations.Model;
 import com.yukthitech.webutils.common.annotations.MultilineText;
@@ -319,11 +321,20 @@ public class FieldDefBuilder
 		{
 			fieldDef.setFieldType(FieldType.DATE_TIME);
 		}
+		else if(field.getAnnotation(Image.class) != null)
+		{
+			if(!FileInfo.class.isAssignableFrom(fieldType))
+			{
+				throw new InvalidStateException("Non {} type is used for image field - {}", FileInfo.class.getName(), fqn);
+			}
+			
+			fieldDef.setFieldType(FieldType.IMAGE);
+		}
 		else if(field.getAnnotation(Captcha.class) != null)
 		{
 			if(!ValueWithToken.class.isAssignableFrom(fieldType))
 			{
-				throw new InvalidStateException("Non {} type is used for captch field - {}", ValueWithToken.class.getName(), fqn);
+				throw new InvalidStateException("Non {} type is used for captcha field - {}", ValueWithToken.class.getName(), fqn);
 			}
 			
 			fieldDef.setFieldType(FieldType.CAPTCHA);

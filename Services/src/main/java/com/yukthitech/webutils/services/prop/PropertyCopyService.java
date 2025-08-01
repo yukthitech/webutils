@@ -19,13 +19,14 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 import com.yukthitech.utils.CommonUtils;
+import com.yukthitech.utils.PropertyAccessor;
+import com.yukthitech.utils.PropertyAccessor.Property;
 import com.yukthitech.utils.exceptions.InvalidArgumentException;
 import com.yukthitech.utils.exceptions.InvalidConfigurationException;
 import com.yukthitech.utils.exceptions.InvalidStateException;
 import com.yukthitech.webutils.repository.WebutilsBaseEntity;
 import com.yukthitech.webutils.services.ClassScannerService;
 
-import jakarta.annotation.PostConstruct;
 import lombok.Data;
 
 @Service
@@ -68,11 +69,6 @@ public class PropertyCopyService
 	
 	@Autowired
 	private ApplicationContext applicationContext;
-
-	/**
-	 * Cache for storing properties of scanned types.
-	 */
-	private final Map<Class<?>, Map<String, FieldDescriptor>> propertyCache = new ConcurrentHashMap<>();
 
 	/**
 	 * Custom mappers: (sourceClass, targetClass) -> conversion function
@@ -161,21 +157,6 @@ public class PropertyCopyService
 		return entity.getId();
 	}
 
-	private synchronized Map<String, FieldDescriptor> getProperties(Class<?> type)
-	{
-		return propertyCache.computeIfAbsent(type, t -> 
-		{
-			try
-			{
-				Map<String, FieldDescriptor> map = FieldDescriptor.loadFields(type);
-				return map;
-			} catch(Exception e)
-			{
-				throw new RuntimeException("Failed to extract fields for class: " + t.getName(), e);
-			}
-		});
-	}
-	
 	public <T> T cloneBean(Object source, Class<T> targetType)
 	{
 		T target = null;
@@ -211,17 +192,17 @@ public class PropertyCopyService
 			return;
 		}
 
-		Map<String, FieldDescriptor> sourceProps = getProperties(source.getClass());
-		Map<String, FieldDescriptor> targetProps = getProperties(target.getClass());
+		Map<String, Property> sourceProps = PropertyAccessor.getProperties(source.getClass());
+		Map<String, Property> targetProps = PropertyAccessor.getProperties(target.getClass());
 
-		for(Map.Entry<String, FieldDescriptor> entry : sourceProps.entrySet())
+		for(Map.Entry<String, Property> entry : sourceProps.entrySet())
 		{
 			String propName = entry.getKey();
 		
-			FieldDescriptor sourcePd = entry.getValue();
-			FieldDescriptor targetPd = targetProps.get(propName);
+			Property sourcePd = entry.getValue();
+			Property targetPd = targetProps.get(propName);
 
-			if(targetPd == null)
+			if(sourcePd.getGetter() == null || targetPd == null || targetPd.getSetter() == null)
 			{
 				continue;
 			}

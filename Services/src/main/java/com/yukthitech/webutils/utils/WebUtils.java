@@ -24,19 +24,11 @@
 package com.yukthitech.webutils.utils;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.collections.CollectionUtils;
-
-import com.yukthitech.utils.beans.PropertyMapper;
-import com.yukthitech.utils.exceptions.InvalidStateException;
 import com.yukthitech.webutils.InvalidRequestException;
 import com.yukthitech.webutils.repository.WebutilsBaseEntity;
 

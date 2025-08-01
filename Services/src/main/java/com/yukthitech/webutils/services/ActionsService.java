@@ -175,7 +175,7 @@ public class ActionsService
 		for(FieldDef field : modelDef.getFields())
 		{
 			//if file field is found and to res set
-			if(field.getFieldType() == FieldType.FILE)
+			if(field.getFieldType().isFileType())
 			{
 				fileFields.add(field.getName());
 			}

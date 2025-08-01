@@ -43,7 +43,6 @@ import com.yukthitech.utils.exceptions.InvalidArgumentException;
 import com.yukthitech.utils.exceptions.InvalidStateException;
 import com.yukthitech.webutils.common.FileInfo;
 import com.yukthitech.webutils.common.models.def.FieldDef;
-import com.yukthitech.webutils.common.models.def.FieldType;
 import com.yukthitech.webutils.common.models.def.ModelDef;
 import com.yukthitech.webutils.repository.ITenantBasedRepository;
 import com.yukthitech.webutils.repository.file.FileEntity;
@@ -233,7 +232,7 @@ public class FileService
 			for(FieldDef fieldDef : modelDef.getFields())
 			{
 				//ignore non file fields
-				if(fieldDef.getFieldType() != FieldType.FILE)
+				if(!fieldDef.getFieldType().isFileType())
 				{
 					continue;
 				}
@@ -379,7 +378,7 @@ public class FileService
 		for(FieldDef fieldDef : modelDef.getFields())
 		{
 			//ignore non file fields
-			if(fieldDef.getFieldType() != FieldType.FILE)
+			if(!fieldDef.getFieldType().isFileType())
 			{
 				continue;
 			}

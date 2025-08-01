@@ -27,7 +27,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.yukthitech.webutils.common.FileInfo;
-import com.yukthitech.webutils.common.ImageInfo;
 import com.yukthitech.webutils.common.ValueWithToken;
 
 /**
@@ -83,7 +82,7 @@ public enum FieldType
 	/**
 	 * Represent image type file data. 
 	 */
-	IMAGE("image", ImageInfo.class, ImageInfo.class),
+	IMAGE("image", FileInfo.class),
 	
 	COLOR("color", Color.class),
 	
@@ -112,6 +111,11 @@ public enum FieldType
 	private Class<?> defaultJavaType;
 	
 	/**
+	 * Flag indicating if this type represents a file.
+	 */
+	private boolean fileType;
+	
+	/**
 	 * Instantiates a new field type.
 	 *
 	 * @param name Name of the type
@@ -127,6 +131,9 @@ public enum FieldType
 		}
 		
 		this.defaultJavaType = defaultJavaType;
+		
+		this.fileType = FileInfo.class.equals(defaultJavaType);
+		
 		this.javaTypes = javaTypes;
 	}
 	
@@ -187,5 +194,10 @@ public enum FieldType
 	public Class<?> getDefaultJavaType()
 	{
 		return defaultJavaType;
+	}
+	
+	public boolean isFileType()
+	{
+		return fileType;
 	}
 }

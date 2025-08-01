@@ -26,13 +26,13 @@ package com.yukthitech.webutils.services.dynamic;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
-import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.yukthitech.utils.CommonUtils;
 import com.yukthitech.utils.ConvertUtils;
+import com.yukthitech.utils.PropertyAccessor;
 import com.yukthitech.utils.exceptions.InvalidStateException;
 import com.yukthitech.webutils.WebutilsContext;
 
@@ -158,7 +158,7 @@ public class DynamicMethod
 				{
 					try
 					{
-						argValues[i] = PropertyUtils.getProperty(context.getAttributeMap(), arguments[i].getName());
+						argValues[i] = PropertyAccessor.getProperty(context.getAttributeMap(), arguments[i].getName());
 					}catch(Exception ex)
 					{
 						throw new InvalidStateException("An error occurred while fetching context attribute - {}", arguments[i].getName(), ex);

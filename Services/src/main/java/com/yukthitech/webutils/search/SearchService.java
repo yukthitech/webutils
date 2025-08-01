@@ -38,7 +38,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -59,6 +58,7 @@ import com.yukthitech.persistence.repository.annotations.OrderBy;
 import com.yukthitech.persistence.repository.annotations.OrderByType;
 import com.yukthitech.persistence.repository.search.SearchCondition;
 import com.yukthitech.utils.ObjectWrapper;
+import com.yukthitech.utils.PropertyAccessor;
 import com.yukthitech.utils.exceptions.InvalidConfigurationException;
 import com.yukthitech.utils.exceptions.InvalidStateException;
 import com.yukthitech.webutils.IRepositoryMethodRegistry;
@@ -546,7 +546,7 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 			{
 				try
 				{
-					value = PropertyUtils.getProperty(context.getAttributeMap(), contextAttribute.value());
+					value = PropertyAccessor.getProperty(context.getAttributeMap(), contextAttribute.value());
 				} catch(Exception ex)
 				{
 					throw new InvalidStateException("An error occurred while fetching context attribute - {}", contextAttribute.value(), ex);
@@ -839,7 +839,7 @@ public class SearchService implements IRepositoryMethodRegistry<SearchQueryMetho
 				// if column belong to static field
 				else
 				{
-					value = PropertyUtils.getProperty(result, column.getPropertyName());
+					value = PropertyAccessor.getProperty(result, column.getPropertyName());
 				}
 
 				if(value == null)

@@ -1,5 +1,7 @@
 package com.yukthitech.webutils.services.prop;
 
+import com.yukthitech.utils.PropertyAccessor.Property;
+
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -20,18 +22,18 @@ public class CopyContext
 	/**
 	 * Source field from where copy has to be done.
 	 */
-	private FieldDescriptor sourceField;
+	private Property sourceField;
 	
 	/**
 	 * Target field where value has to be copied.
 	 */
-	private FieldDescriptor targetField;
+	private Property targetField;
 	
 	private Class<?> sourceElementType;
 	
 	private Class<?> targetElementType;
 
-	public CopyContext(Object source, Object target, FieldDescriptor sourceField, FieldDescriptor targetField)
+	public CopyContext(Object source, Object target, Property sourceField, Property targetField)
 	{
 		this.source = source;
 		this.target = target;

@@ -27,7 +27,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -38,12 +37,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.MultipartRequest;
 
+import com.yukthitech.utils.PropertyAccessor;
 import com.yukthitech.utils.exceptions.InvalidStateException;
 import com.yukthitech.webutils.annotations.AttachmentsExpected;
 import com.yukthitech.webutils.common.FileInfo;
 import com.yukthitech.webutils.common.annotations.Model;
 import com.yukthitech.webutils.common.models.def.FieldDef;
-import com.yukthitech.webutils.common.models.def.FieldType;
 import com.yukthitech.webutils.common.models.def.ModelDef;
 import com.yukthitech.webutils.services.ModelDetailsService;
 import com.yukthitech.webutils.utils.WebAttachmentUtils;
@@ -112,7 +111,7 @@ public class AttachmentAopService
 			//loop through field list and populate file fields
 			for(FieldDef field : modelDef.getFields())
 			{
-				if(field.getFieldType() != FieldType.FILE)
+				if(!field.getFieldType().isFileType())
 				{
 					continue;
 				}
@@ -138,7 +137,7 @@ public class AttachmentAopService
 					//for multi valued file field
 					if(field.isMultiValued())
 					{
-						fieldValue = (List) PropertyUtils.getProperty(arg, field.getName());
+						fieldValue = (List) PropertyAccessor.getProperty(arg, field.getName());
 						
 						//append attachments to client sent values
 						if(fieldValue != null)
@@ -151,12 +150,12 @@ public class AttachmentAopService
 							fieldValue = fileDetailsLst;
 						}
 						
-						PropertyUtils.setProperty(arg, field.getName(), fieldValue);
+						PropertyAccessor.setProperty(arg, field.getName(), fieldValue);
 					}
 					//for single file field, replace client sent value with attachment details
 					else
 					{
-						PropertyUtils.setProperty(arg, field.getName(), (fileDetailsLst != null) ? fileDetailsLst.get(0) : null);
+						PropertyAccessor.setProperty(arg, field.getName(), (fileDetailsLst != null) ? fileDetailsLst.get(0) : null);
 					}
 				}catch(Exception ex)
 				{
