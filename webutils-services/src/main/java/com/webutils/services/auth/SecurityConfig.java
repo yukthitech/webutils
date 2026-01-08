@@ -1,13 +1,16 @@
-package com.webutils.services.common;
+package com.webutils.services.auth;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
  * Security configuration for the AI Assistant application
@@ -20,10 +23,21 @@ import org.springframework.security.web.SecurityFilterChain;
  */
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig
+public class SecurityConfig implements WebMvcConfigurer
 {
 	private static Logger logger = LogManager.getLogger(SecurityConfig.class);
 	
+	@Autowired
+	private SecurityInterceptor securityInterceptor;
+	
+	@Override
+	public void addInterceptors(InterceptorRegistry registry)
+	{
+		registry.addInterceptor(securityInterceptor)
+			.addPathPatterns("/**")
+			.order(1);
+	}
+
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception
 	{

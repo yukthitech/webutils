@@ -1,5 +1,6 @@
 package com.webutils.common.repo;
 
+import java.util.Arrays;
 import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
@@ -36,30 +37,33 @@ public class RepositoryRegistrar implements ImportBeanDefinitionRegistrar
 		    }
 		};
 		
-		String basePackage = (String) attrs.get("basePackage");
+		String[] basePackages = (String[]) attrs.get("basePackages");
 		
-		logger.debug("Loading repositories from package: {}", basePackage);
+		logger.debug("Loading repositories from package: {}", Arrays.toString(basePackages));
 
 		scanner.addIncludeFilter(new AssignableTypeFilter(ICrudRepository.class));
 		
-		for(BeanDefinition candidate : scanner.findCandidateComponents(basePackage))
+		for(String basePackage : basePackages)
 		{
-			try
+			for(BeanDefinition candidate : scanner.findCandidateComponents(basePackage))
 			{
-				String className = candidate.getBeanClassName();
-				
-				logger.debug("Registering repository of type: {}", className);
-				
-				Class<?> repoInterface = Class.forName(className);
-				
-				BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(RepositoryFactoryBean.class);
-				builder.addConstructorArgValue(repoInterface);
-
-				registry.registerBeanDefinition(repoInterface.getSimpleName(), builder.getBeanDefinition());
-
-			} catch(ClassNotFoundException e)
-			{
-				throw new RuntimeException(e);
+				try
+				{
+					String className = candidate.getBeanClassName();
+					
+					logger.debug("Registering repository of type: {}", className);
+					
+					Class<?> repoInterface = Class.forName(className);
+					
+					BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(RepositoryFactoryBean.class);
+					builder.addConstructorArgValue(repoInterface);
+	
+					registry.registerBeanDefinition(repoInterface.getSimpleName(), builder.getBeanDefinition());
+	
+				} catch(ClassNotFoundException e)
+				{
+					throw new RuntimeException(e);
+				}
 			}
 		}
 	}

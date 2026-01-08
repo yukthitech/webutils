@@ -12,5 +12,5 @@ import org.springframework.context.annotation.Import;
 @Import(RepositoryRegistrar.class)
 public @interface EnableRepositories 
 {
-    String basePackage();
+    String[] basePackages();
 }
