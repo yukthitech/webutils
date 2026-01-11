@@ -1,51 +1,52 @@
 package com.webutils.cache;
 
-import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 
-public class LocalCache implements ICache
+public class LocalCache<K,V> implements ICache<K,V>
 {
-	private Cache<String, Object> cache;
+	private Cache<K, V> cache;
 	
-	public LocalCache()
+	public LocalCache(CacheConfig<K,V> config)
 	{
-		this.cache = Caffeine.newBuilder()
-	            .maximumSize(Integer.MAX_VALUE)
-	            .build();
-	}
-	
-	public LocalCache(long expiryTime, TimeUnit expiryTimeUnit)
-	{
-		this.cache = Caffeine.newBuilder()
-            .expireAfterAccess(expiryTime, expiryTimeUnit)
-            .maximumSize(Integer.MAX_VALUE)
-            .build();
+		Caffeine<Object, Object> builder = Caffeine.newBuilder();
+
+		if(config.getExpiryTime() > 0)
+		{
+			builder.expireAfterAccess(config.getExpiryTime(), config.getExpiryTimeUnit());
+		}
+
+		if(config.getMaxSize() > 0)
+		{
+			builder.maximumSize(config.getMaxSize());
+		}
+
+		this.cache = builder.build();
 	}
 	
 	@Override
-	public void set(String key, Object value)
+	public void set(K key, V value)
 	{
 		cache.put(key, value);
 	}
 	
-	@SuppressWarnings({ "unchecked", "unused" })
+	@SuppressWarnings("unused")
 	@Override
-	public <T> T computeIfAbsent(String key, Supplier<T> valueSupplier)
+	public V computeIfAbsent(K key, Supplier<V> valueSupplier)
 	{
-		return (T) cache.get(key, k -> valueSupplier.get());
+		return cache.get(key, k -> valueSupplier.get());
 	}
 	
 	@Override
-	public Object get(String key)
+	public V get(K key)
 	{
 		return cache.getIfPresent(key);
 	}
 	
 	@Override
-	public void remove(String key)
+	public void remove(K key)
 	{
 		cache.invalidate(key);
 	}

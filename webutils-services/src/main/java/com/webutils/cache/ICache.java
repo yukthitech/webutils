@@ -2,13 +2,13 @@ package com.webutils.cache;
 
 import java.util.function.Supplier;
 
-public interface ICache
+public interface ICache<K,V>
 {
-	public void set(String key, Object value);
+	public void set(K key, V value);
 	
-	public <T> T computeIfAbsent(String key, Supplier<T> valueSupplier);
+	public V computeIfAbsent(K key, Supplier<V> valueSupplier);
 	
-	public Object get(String key);
+	public V get(K key);
 	
-	public void remove(String key);
+	public void remove(K key);
 }
