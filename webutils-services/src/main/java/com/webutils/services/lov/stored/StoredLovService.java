@@ -54,13 +54,24 @@ public class StoredLovService
 	@Autowired
 	private CacheFactory cacheFactory;
 
-	private ICache<String, List<LovOption>> lovCache;
+	private ICache<String, List<LovOption>> lovOptionsCache;
+	
+	private ICache<String, StoredLovEntity> lovCache;
 
 	@PostConstruct
 	private void init()
 	{
-		lovCache = cacheFactory.getCache("lov", new CacheConfig<String, List<LovOption>>("storedLovService.basicLov")
+		lovOptionsCache = cacheFactory.getCache("storedLovService.lovOptions", new CacheConfig<String, List<LovOption>>()
 			.maxSize(50));
+
+		lovCache = cacheFactory.getCache("storedLovService.lov", new CacheConfig<String, StoredLovEntity>());
+		
+		List<StoredLovEntity> lovEntities = lovRepository.fetchAll();
+
+		for(StoredLovEntity lovEntity : lovEntities)
+		{
+			lovCache.set(lovEntity.getName(), lovEntity);
+		}
 	}
 
 	private List<LovOption> fetchLovOptionsFromDb(String lovName)
@@ -73,7 +84,7 @@ public class StoredLovService
 
 	public List<LovOption> getLovOptions(String lovName)
 	{
-		return lovCache.computeIfAbsent(lovName, () -> fetchLovOptionsFromDb(lovName));
+		return lovOptionsCache.computeIfAbsent(lovName, () -> fetchLovOptionsFromDb(lovName));
 	}
 
 	private List<LovOption> fetchChildLovOptionsFromDb(String parentLovName, String parentLovOptionLabel, String childLov)
@@ -85,12 +96,32 @@ public class StoredLovService
 			.collect(Collectors.toList());
 	}
 
-	public List<LovOption> getChildLovOptions(String parentLovName, String parentLovOptionLabel, String childLov)
+	public List<LovOption> getChildLovOptions(String childLov, String parentLovOptionLabel)
 	{
-		return lovCache.computeIfAbsent(
-			parentLovName + "/" + parentLovOptionLabel + "/" + childLov, 
+		StoredLovEntity lovEntity = lovCache.get(childLov);
+
+		if(lovEntity == null || lovEntity.getParent() == null)
+		{
+			throw new InvalidStateException("No lov found with name: {} or it does not have a parent", childLov);
+		}
+
+		String parentLovName = lovEntity.getParent().getName();
+		return lovOptionsCache.computeIfAbsent(
+			parentLovOptionLabel + "/" + childLov, 
 			() -> fetchChildLovOptionsFromDb(parentLovName, parentLovOptionLabel, childLov)
 		);
+	}
+	
+	public String checkAndSaveLovOption(LovConfig lovConfig, String lovName, String optionLabel)
+	{
+		Set<String> resSet = checkAndSaveLovOption(lovConfig, lovName, Set.of(optionLabel));
+		
+		if(resSet == null || resSet.isEmpty())
+		{
+			return null;
+		}
+		
+		return resSet.iterator().next();
 	}
 
 	public Set<String> checkAndSaveLovOption(LovConfig lovConfig, String lovName, Set<String> optionLabels)

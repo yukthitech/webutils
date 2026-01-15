@@ -14,11 +14,6 @@ public class CacheConfig<K,V>
     private TimeUnit expiryTimeUnit;
     private int maxSize;
 
-    public CacheConfig(String name)
-    {
-        this.name = name;
-    }
-
     public CacheConfig<K,V> expireAfterAccess(long expiryTime, TimeUnit expiryTimeUnit)
     {
         this.expiryTime = expiryTime;

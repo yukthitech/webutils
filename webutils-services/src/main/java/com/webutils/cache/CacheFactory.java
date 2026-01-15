@@ -13,6 +13,6 @@ public class CacheFactory
 	@SuppressWarnings({ "unchecked", "unused" })
 	public <K,V> ICache<K,V> getCache(String name, CacheConfig<K,V> config)
 	{
-		return (ICache<K,V>) cacheMap.computeIfAbsent(name, key -> new LocalCache<>(config));
+		return (ICache<K,V>) cacheMap.computeIfAbsent(name, key -> new LocalCache<>(config.setName(name)));
 	}
 }

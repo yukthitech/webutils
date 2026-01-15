@@ -23,6 +23,8 @@
 
 package com.webutils.services.lov.stored;
 
+import java.util.List;
+
 import com.yukthitech.persistence.ICrudRepository;
 import com.yukthitech.persistence.repository.annotations.AggregateFunction;
 import com.yukthitech.persistence.repository.annotations.AggregateFunctionType;
@@ -34,6 +36,8 @@ import com.yukthitech.persistence.repository.annotations.Condition;
  */
 public interface IStoredLovRepository extends ICrudRepository<StoredLovEntity>
 {
+	public List<StoredLovEntity> fetchAll();
+	
 	public StoredLovEntity fetchByName(@Condition("name") String name);
 	
 	@AggregateFunction(type = AggregateFunctionType.COUNT)
