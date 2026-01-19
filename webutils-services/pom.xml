@@ -80,6 +80,11 @@
         </dependency>
 
 		<dependency>
+			<groupId>org.eclipse.angus</groupId>
+			<artifactId>jakarta.mail</artifactId>
+		</dependency>
+
+		<dependency>
 			<groupId>com.yukthitech</groupId>
 			<artifactId>webutils-common</artifactId>
 			<version>1.0.0-SNAPSHOT</version>

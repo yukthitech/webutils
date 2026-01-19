@@ -1,5 +1,7 @@
 package com.webutils.common;
 
+import java.util.Set;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,7 +20,9 @@ public class UserDetails
 	
 	private String mailId;
 	
-	private String role;
+	private String customSpace;
 	
 	private String authToken;
+	
+	private Set<String> roles;
 }

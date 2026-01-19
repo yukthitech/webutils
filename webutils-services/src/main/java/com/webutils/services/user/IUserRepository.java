@@ -15,5 +15,5 @@ public interface IUserRepository extends ICrudRepository<UserEntity>
     @DefaultCondition(field = "active", value = "true", op = Operator.EQ)
     UserEntity fetchUserByEmail(
     		@Condition(value = "email") String email,
-    		@Condition(value = "role") String role);
+    		@Condition(value = "customSpace") String customSpace);
 }

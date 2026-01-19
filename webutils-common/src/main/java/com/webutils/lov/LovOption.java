@@ -9,6 +9,6 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class LovOption 
 {
-    private Long id;
+    private String id;
     private String label;
 }

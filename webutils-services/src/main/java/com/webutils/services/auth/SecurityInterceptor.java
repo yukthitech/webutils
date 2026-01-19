@@ -13,6 +13,7 @@ import com.webutils.common.IWebUtilsConstants;
 import com.webutils.common.UserDetails;
 import com.webutils.services.common.Authorization;
 import com.webutils.services.common.NoAuthentication;
+import com.webutils.services.common.SecurityService;
 import com.webutils.services.common.UnauthenticatedRequestException;
 import com.webutils.services.common.UnauthorizedRequestException;
 import com.webutils.services.token.AuthTokenService;
@@ -28,17 +29,25 @@ public class SecurityInterceptor implements HandlerInterceptor
     @Autowired
     private AuthTokenService authTokenService;
     
+    @Autowired
+    private SecurityService securityService;
+    
     @Value("${app.login.uri}")
     private String loginUri;
     
-	private String getSessionToken(HttpServletRequest request)
+	private String getSessionToken(HttpServletRequest request, boolean isAuthRequired)
     {
         // Check if valid header token is present
         String sessionToken = request.getHeader(IWebUtilsConstants.SESSION_TOKEN_HEADER);
 
         if(sessionToken == null)
         {
-            throw new UnauthenticatedRequestException("Invalid/no session token");
+        	if(!isAuthRequired)
+        	{
+        		return null;
+        	}
+        	
+            throw new UnauthenticatedRequestException("No session token");
         }
 
         if(sessionToken.startsWith(IWebUtilsConstants.SESSION_BEARER_PREFIX))
@@ -53,29 +62,10 @@ public class SecurityInterceptor implements HandlerInterceptor
         return sessionToken;
     }
 	
-	private void checkAuthorization(HandlerMethod handlerMethod, UserDetails userDetails)
+	private void checkAuthorization(HandlerMethod handlerMethod)
 	{
         Authorization authorization = handlerMethod.getMethodAnnotation(Authorization.class);
-        
-        // if auth annotation is not present, invoke the method
-        if(authorization == null)
-        {
-        	return;
-        }
-        
-        // if annotation is present, invoked if at least any one role is present
-        
-        String userRole = userDetails.getRole();
-        
-        for(String role : authorization.value())
-        {
-        	if(role.equals(userRole))
-        	{
-        		return;
-        	}
-        }
-        
-        throw new UnauthorizedRequestException("User is not having required access");
+        securityService.checkAuthorization(authorization);
 	}
 
 	/**
@@ -104,9 +94,18 @@ public class SecurityInterceptor implements HandlerInterceptor
     		return true;
     	}
 
+		// Check if handler is a HandlerMethod (controller method)
+		// Static resources use ResourceHttpRequestHandler, which should be skipped
+		if(!(handler instanceof HandlerMethod))
+		{
+			logger.trace("Skipping security check for non-HandlerMethod handler: {}", handler.getClass().getName());
+			return true;
+		}
+
 		HandlerMethod handlerMethod = (HandlerMethod) handler;
 		
 		NoAuthentication noAuth = handlerMethod.getMethodAnnotation(NoAuthentication.class);
+		boolean isAuthRequired = (noAuth == null);
 		
 		if(noAuth != null)
 		{
@@ -119,15 +118,18 @@ public class SecurityInterceptor implements HandlerInterceptor
             UserContext.clear();
             
             // Validate session and get user details
-            String sessionToken = getSessionToken(request);
-            UserDetails userDetails = authTokenService.getUserDetails(sessionToken);
+            String sessionToken = getSessionToken(request, isAuthRequired);
+            
+            // if auth is required or auth-token is present, validate and extract user details
+            //  Event when auth is not required, if token is present, extract user details
+            UserDetails userDetails = (isAuthRequired || sessionToken != null) ? authTokenService.getUserDetails(sessionToken) : null;
             logger.trace("Got the token details using SERVER token: {}", userDetails);
             
             // Set current user context
             UserContext.setCurrentUser(userDetails);
             
             // Continue with the request
-            checkAuthorization(handlerMethod, userDetails);
+            checkAuthorization(handlerMethod);
             return true;
         } catch (UnauthenticatedRequestException e) 
         {

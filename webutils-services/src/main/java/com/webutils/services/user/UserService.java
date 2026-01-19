@@ -11,7 +11,6 @@ import com.webutils.services.auth.UserContext;
 import com.webutils.services.common.IWebutilsService;
 import com.webutils.services.common.InvalidRequestException;
 import com.yukthitech.persistence.utils.PasswordEncryptor;
-import com.yukthitech.utils.exceptions.InvalidArgumentException;
 
 @Service
 public class UserService
@@ -35,20 +34,15 @@ public class UserService
 
     public long createUser(UserEntity user)
     {
-    	if(!webutilsService.isValidRole(user.getRole()))
-    	{
-    		throw new InvalidArgumentException("Invalid role specified: {}", user.getRole());
-    	}
-    	
         userRepository.save(user);
         return user.getId();
     }
     
-    public UserDetails validate(String email, String password, String role)
+    public UserDetails validate(String email, String password, String customSpace)
     {
-        logger.debug("Authenticating user [Email: {}, Role: {}]", email, role);
+        logger.debug("Authenticating user [Email: {}, Custom Space: {}]", email, customSpace);
         
-        UserEntity user = userRepository.fetchUserByEmail(email, role);
+        UserEntity user = userRepository.fetchUserByEmail(email, customSpace);
 
         if(user == null)
         {
@@ -68,13 +62,7 @@ public class UserService
     public UserDetails getUserDetails(UserEntity user)
     {
         logger.debug("Getting user details [User: {}]", user.getId());
-        
-        String role = user.getRole();
-        UserDetails userDetails = new UserDetails(user.getId(), user.getName(),
-            user.getEmail(), role, null
-            );
-
-        return userDetails;
+        return webutilsService.getUserDetails(user);
     }
 
     public Object getUserPreference(Long userId, String key)

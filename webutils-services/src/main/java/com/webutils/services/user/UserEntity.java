@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 /**
- * User entity representing a user in the Acharya educational platform
+ * User entity representing a user
  * 
  * Contains user information including name, email, roles, and audit fields
  */
@@ -40,13 +40,13 @@ public class UserEntity
     @UniqueConstraint(name = "UQ_IDX_USER_EMAIL")
     private String email;
 
-    @DataTypeMapping(converterType = PasswordEncryptionConverter.class)
+	@Column(name = "CUSTOM_SPACE", length = 100, nullable = false)
+	private String customSpace = "";
+
+	@DataTypeMapping(converterType = PasswordEncryptionConverter.class)
     @Column(name = "PASSWORD")
     private String password;
 
-    @Column(name = "ROLE")
-    private String role;
-    
     @Column(name = "IS_ACTIVE")
     private boolean active;
 
