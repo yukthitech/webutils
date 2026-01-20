@@ -35,7 +35,7 @@ public class AuthTokenService
 
 		private Date authTokenExpiresAt;
 
-		private String role;
+		private String customSpace;
 		
 		private UserDetails userDetails;
 		
@@ -69,20 +69,20 @@ public class AuthTokenService
         		this::cleanupExpiredTokens, cleanupIntervalSec, TimeUnit.SECONDS);
     }
     
-    public UserDetails authenticate(String email, String password, String role)
+    public UserDetails authenticate(String email, String password, String customSpace)
     {
-        logger.debug("Authenticating user [Email: {}, Role: {}]", email, role);
+        logger.debug("Authenticating user [Email: {}, Custom Space: {}]", email, customSpace);
         
-        UserDetails userDetails = userService.validate(email, password, role);
+        UserDetails userDetails = userService.validate(email, password, customSpace);
         
-        generateToken(userDetails, role);
+        generateToken(userDetails, customSpace);
         
         return userDetails;
     }
     
-    private String generateToken(UserDetails userDetails, String role)
+    private String generateToken(UserDetails userDetails, String customSpace)
     {
-        logger.debug("Generating token [User: {}, Role: {}]", userDetails.getId(), role);
+        logger.debug("Generating token [User: {}, Custom Space: {}]", userDetails.getId(), customSpace);
         
         String token = UUID.randomUUID().toString();
         long timeoutSec = sessionTimeoutSec;
@@ -96,7 +96,7 @@ public class AuthTokenService
         authToken.setUser(new UserEntity(userDetails.getId()));
         authToken.setCreatedOn(now);
         authToken.setLastUpdatedOn(now);
-        authToken.setRole(role);
+        authToken.setCustomSpace(customSpace);
         authTokenRepository.save(authToken);
         
         userDetails.setAuthToken(token);
@@ -105,7 +105,7 @@ public class AuthTokenService
         TokenDetails tokenDetails = new TokenDetails()
         		.setAuthToken(token)
         		.setAuthTokenExpiresAt(expiresAt)
-        		.setRole(role)
+        		.setCustomSpace(customSpace)
         		.setUserDetails(userDetails)
         		.setLastUpdatedOn(now);
         
@@ -147,7 +147,7 @@ public class AuthTokenService
         TokenDetails tokenDetails = new TokenDetails()
         		.setAuthToken(token)
         		.setAuthTokenExpiresAt(authToken.getExpiresAt())
-        		.setRole(authToken.getRole())
+        		.setCustomSpace(authToken.getCustomSpace())
         		.setUserDetails(userDetails)
                 .setLastUpdatedOn(authToken.getLastUpdatedOn());
         
@@ -183,7 +183,7 @@ public class AuthTokenService
             TokenDetails newTokenDetails = new TokenDetails()
                 .setAuthToken(token)
                 .setAuthTokenExpiresAt(authTokenFromDb.getExpiresAt())
-                .setRole(authTokenFromDb.getRole())
+                .setCustomSpace(authTokenFromDb.getCustomSpace())
                 .setUserDetails(tokenDetails.getUserDetails())
                 .setLastUpdatedOn(authTokenFromDb.getLastUpdatedOn());
             tokenCache.put(token, newTokenDetails);

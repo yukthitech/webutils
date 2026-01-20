@@ -11,6 +11,7 @@ import javax.persistence.Table;
 
 import com.yukthitech.persistence.annotations.DataTypeMapping;
 import com.yukthitech.persistence.annotations.UniqueConstraint;
+import com.yukthitech.persistence.annotations.UniqueConstraints;
 import com.yukthitech.persistence.conversion.impl.PasswordEncryptionConverter;
 
 import lombok.Data;
@@ -26,6 +27,9 @@ import lombok.experimental.Accessors;
 @NoArgsConstructor
 @Accessors(chain = true)
 @Table(name = "USER")
+@UniqueConstraints(value = {
+    @UniqueConstraint(name = "UQ_IDX_USER_EMAIL_CUSTOM_SPACE", fields = { "email", "customSpace" })
+})
 public class UserEntity 
 {
     @Id

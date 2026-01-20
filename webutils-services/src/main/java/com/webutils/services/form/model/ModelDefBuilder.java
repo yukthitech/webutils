@@ -48,12 +48,6 @@ import com.yukthitech.utils.exceptions.InvalidStateException;
 public class ModelDefBuilder
 {
 	/**
-	 * Common def utils
-	 */
-	@Autowired
-	private DefUtils defUtils;
-	
-	/**
 	 * Field def builder
 	 */
 	@Autowired
@@ -97,7 +91,9 @@ public class ModelDefBuilder
 		//create model def instance and set basic properties
 		ModelDef modelDef = new ModelDef(modelType);
 		modelDef.setName(modelName);
-		modelDef.setLabel(defUtils.getLabel(modelType, modelType.getSimpleName(), modelType.getName()));
+		
+		
+		modelDef.setLabel(DefUtils.getLabel(modelType, modelType.getSimpleName()));
 		
 		//fetch field definitions and set it on model type def
 		List<FieldDef> fieldDefLst = new ArrayList<>();

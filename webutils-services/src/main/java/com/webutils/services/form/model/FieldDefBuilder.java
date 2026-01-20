@@ -36,8 +36,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
 import com.webutils.common.ValueWithToken;
@@ -75,24 +73,11 @@ import com.yukthitech.utils.rest.FileInfo;
 public class FieldDefBuilder
 {
 	/**
-	 * Common def utils.
-	 */
-	@Autowired
-	private DefUtils defUtils;
-	
-	/**
 	 * Builder to build field validations.
 	 */
 	@Autowired
 	private ValidationDefBuilder validationDefBuilder;
 	
-	/**
-	 * Used to fetch default values for fields.
-	 */
-	@Autowired
-	@Qualifier("defaultValuesMessageSource")
-	private MessageSource defaultValuesMessageSource;
-
 	/**
 	 * Used to LOV details on field-def, whose type is an enum.
 	 * @param fieldDef Field def being built
@@ -245,8 +230,9 @@ public class FieldDefBuilder
 		FieldDef fieldDef = new FieldDef(field);
 		
 		fieldDef.setName(field.getName());
-		fieldDef.setLabel(defUtils.getLabel(field, field.getName(), fqn));
-		fieldDef.setDescription(defUtils.getDescription(field, field.getName(), fqn));
+		
+		fieldDef.setLabel(DefUtils.getLabel(field, field.getName()));
+		fieldDef.setDescription(DefUtils.getDescription(field));
 		
 		//fetch and set the default value if any
 		DefaultValue defaultValue = field.getAnnotation(DefaultValue.class);
@@ -256,15 +242,6 @@ public class FieldDefBuilder
 			if(StringUtils.isNotBlank(defaultValue.value()))
 			{
 				fieldDef.setDefaultValue(defaultValue.value());
-			}
-			else if(StringUtils.isNotBlank(defaultValue.property()))
-			{
-				String value = defaultValuesMessageSource.getMessage(defaultValue.property(), null, "", null);
-				
-				if(StringUtils.isNotBlank(value))
-				{
-					fieldDef.setDefaultValue(value);
-				}
 			}
 			else if(StringUtils.isNotBlank(defaultValue.resource()))
 			{

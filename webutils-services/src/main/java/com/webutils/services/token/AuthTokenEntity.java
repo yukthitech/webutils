@@ -31,8 +31,8 @@ public class AuthTokenEntity
     @Column(name = "USER_ID", nullable = false)
     private UserEntity user;
 
-    @Column(name = "ROLE", nullable = false)
-    private String role;
+    @Column(name = "CUSTOM_SPACE", nullable = false)
+    private String customSpace;
 
     @Column(name = "EXPIRES_AT", nullable = false)
     private Date expiresAt;
