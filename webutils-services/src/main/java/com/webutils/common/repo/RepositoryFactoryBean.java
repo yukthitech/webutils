@@ -1,5 +1,9 @@
 package com.webutils.common.repo;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.FactoryBean;
@@ -23,6 +27,26 @@ public class RepositoryFactoryBean<T extends ICrudRepository<?>> implements Fact
 	{
 		this.repositoryInterface = repositoryInterface;
 	}
+	
+	@SuppressWarnings("unchecked")
+	private T getMissingRepoInstance(String missingTable)
+	{
+		return (T) Proxy.newProxyInstance(repositoryInterface.getClassLoader(), 
+				new Class<?>[] {repositoryInterface, IMissingTableRepository.class}, 
+				new InvocationHandler()
+		{
+			@Override
+			public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
+			{
+				if(Object.class.equals(method.getDeclaringClass()) && "toString".equals(method.getName()))
+				{
+					return String.format("%s [Missing: %s]", repositoryInterface.getName(), missingTable);
+				}
+				
+				return new NoTableExistsException(repositoryInterface, missingTable);
+			}
+		});
+	}
 
 	@Override
 	public T getObject()
@@ -37,7 +61,7 @@ public class RepositoryFactoryBean<T extends ICrudRepository<?>> implements Fact
 			if(optional != null)
 			{
 				logger.warn("Skipping optional repository {} as corresponding table is not found in the db", repositoryFactory.getName());
-				return null;
+				return getMissingRepoInstance(ex.getTableName());
 			}
 			
 			throw ex;

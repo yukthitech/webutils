@@ -20,12 +20,6 @@ public @interface DefaultValue
 	public String value() default "";
 	
 	/**
-	 * If specified, default value will be picked from default-values message resource.
-	 * @return property name to be used from default-values
-	 */
-	public String property() default "";
-	
-	/**
 	 * Resource text file from which default value should be fetched for this field.
 	 * @return resource path.
 	 */

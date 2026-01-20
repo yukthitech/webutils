@@ -73,7 +73,7 @@ public class ValidationDefBuilder
 	@PostConstruct
 	private void init()
 	{
-		XMLBeanParser.parse(ValidationDefBuilder.class.getResourceAsStream("validation-mapping.xml"), this);
+		XMLBeanParser.parse(ValidationDefBuilder.class.getResourceAsStream("/validations/validation-mapping.xml"), this);
 	}
 	
 	/**
