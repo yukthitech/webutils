@@ -23,6 +23,7 @@
 
 package com.webutils.services.form.lov.stored;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -41,7 +42,7 @@ public interface IStoredLovOptionRepository extends ICrudRepository<StoredLovOpt
 	@Field("label")
 	public Set<String> fetchLovOptionLabels(
 		@Condition("lov.name") String lovName, 
-		@Condition(value = "label", ignoreCase = true, op = Operator.IN) Set<String> optionLabels);
+		@Condition(value = "label", ignoreCase = true, op = Operator.IN) Collection<String> optionLabels);
 
 	@OrderBy(value = "label")
 	public List<StoredLovOptionEntity> fetchLovOptions(

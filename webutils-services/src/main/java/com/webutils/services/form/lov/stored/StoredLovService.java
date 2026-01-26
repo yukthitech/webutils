@@ -15,6 +15,7 @@
  */
 package com.webutils.services.form.lov.stored;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -139,7 +140,7 @@ public class StoredLovService
 		return resSet.iterator().next();
 	}
 
-	public Set<String> checkAndSaveLovOption(LovConfig lovConfig, String lovName, Set<String> optionLabels)
+	public Set<String> checkAndSaveLovOption(LovConfig lovConfig, String lovName, Collection<String> optionLabels)
 	{
 		Set<String> existingLabels = lovOptionRepository.fetchLovOptionLabels(lovName, optionLabels);
 
@@ -155,6 +156,16 @@ public class StoredLovService
 
 		if(!lovConfig.isSaveMissingOptions())
 		{
+			TreeSet<String> extraLabels = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+			extraLabels.addAll(newExistingLabels);
+
+			extraLabels.removeAll(optionLabels);
+
+			if(!extraLabels.isEmpty())
+			{
+				throw new InvalidStateException("Following lov options are not present [Under Lov: {}]: {}", lovName, extraLabels);
+			}
+
 			return existingLabels;
 		}
 

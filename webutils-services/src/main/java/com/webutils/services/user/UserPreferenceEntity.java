@@ -1,5 +1,7 @@
 package com.webutils.services.user;
 
+import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -39,4 +41,7 @@ public class UserPreferenceEntity
     @Column(name = "PREF_VALUE")
     @DataTypeMapping(type = DataType.STRING, converterType = JsonConverter.class)
     private Object value;
+
+    @Column(name = "LAST_UPDATED_TIME")
+    private Date lastUpdatedTime = new Date();
 }

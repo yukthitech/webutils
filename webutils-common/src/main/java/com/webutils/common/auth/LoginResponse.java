@@ -1,5 +1,7 @@
 package com.webutils.common.auth;
 
+import java.util.Set;
+
 import com.webutils.common.response.BaseResponse;
 
 import lombok.AllArgsConstructor;
@@ -15,5 +17,5 @@ public class LoginResponse extends BaseResponse
 {
     private long userId;
     private String authToken;
-    private String role;
+    private Set<String> roles;
 }

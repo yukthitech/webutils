@@ -255,4 +255,14 @@ public class LovService
 	{
 		return nameToLovMet.containsKey(name);
 	}
+
+	public boolean isValidStaticLovValue(String name, String value)
+	{
+		return getEnumLovValues(name).stream().anyMatch(lov -> lov.getId().equals(value));
+	}
+
+	public boolean isValidDynamicLovValue(String name, String value)
+	{
+		return getDynamicLovValues(name).stream().anyMatch(lov -> lov.getId().equals(value));
+	}
 }

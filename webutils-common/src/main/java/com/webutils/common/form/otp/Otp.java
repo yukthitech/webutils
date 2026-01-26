@@ -5,6 +5,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
 /**
@@ -12,6 +13,7 @@ import jakarta.validation.Payload;
  * 
  * @author Kranthi
  */
+@Constraint(validatedBy = OtpValidator.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface Otp 

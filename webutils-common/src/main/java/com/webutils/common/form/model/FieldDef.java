@@ -125,6 +125,11 @@ public class FieldDef
 	 * Type of verification needed by field.
 	 */
 	private VerificationType verificationType;
+
+	/**
+	 * Group name for file field.
+	 */
+	private String groupName;
 	
 	/**
 	 * Instantiates a new field def.

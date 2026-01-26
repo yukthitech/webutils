@@ -43,6 +43,7 @@ import com.webutils.common.form.annotations.Color;
 import com.webutils.common.form.annotations.CustomType;
 import com.webutils.common.form.annotations.DateTime;
 import com.webutils.common.form.annotations.DefaultValue;
+import com.webutils.common.form.annotations.File;
 import com.webutils.common.form.annotations.Format;
 import com.webutils.common.form.annotations.FullWidth;
 import com.webutils.common.form.annotations.Html;
@@ -60,10 +61,10 @@ import com.webutils.common.form.model.LovDetails;
 import com.webutils.common.form.model.LovType;
 import com.webutils.common.form.model.ValidationDef;
 import com.webutils.common.form.otp.Otp;
+import com.webutils.common.form.otp.OtpVerification;
 import com.webutils.services.form.lov.LovRef;
 import com.yukthitech.utils.exceptions.InvalidConfigurationException;
 import com.yukthitech.utils.exceptions.InvalidStateException;
-import com.yukthitech.utils.rest.FileInfo;
 
 /**
  * Builder for field definitions.
@@ -170,7 +171,7 @@ public class FieldDefBuilder
 			}
 			
 			
-			lovDetails.setEditableLov(true);
+			lovDetails.setEditableLov(lovAnnotation.persist());
 		}
 		else
 		{
@@ -295,14 +296,37 @@ public class FieldDefBuilder
 		{
 			fieldDef.setFieldType(FieldType.DATE_TIME);
 		}
+		else if(field.getAnnotation(File.class) != null)
+		{
+			if(!String.class.isAssignableFrom(fieldType))
+			{
+				throw new InvalidStateException("Non String type is used for file field - {}", fqn);
+			}
+			
+			fieldDef.setFieldType(FieldType.FILE);
+
+			String groupName = field.getAnnotation(File.class).groupName();
+
+			if(StringUtils.isNotBlank(groupName))
+			{
+				fieldDef.setGroupName(groupName);
+			}
+		}
 		else if(field.getAnnotation(Image.class) != null)
 		{
-			if(!FileInfo.class.isAssignableFrom(fieldType))
+			if(!String.class.isAssignableFrom(fieldType))
 			{
-				throw new InvalidStateException("Non {} type is used for image field - {}", FileInfo.class.getName(), fqn);
+				throw new InvalidStateException("Non String type is used for image field - {}", fqn);
 			}
 			
 			fieldDef.setFieldType(FieldType.IMAGE);
+
+			String groupName = field.getAnnotation(Image.class).groupName();
+
+			if(StringUtils.isNotBlank(groupName))
+			{
+				fieldDef.setGroupName(groupName);
+			}
 		}
 		else if(field.getAnnotation(Captcha.class) != null)
 		{
@@ -315,9 +339,9 @@ public class FieldDefBuilder
 		}
 		else if(field.getAnnotation(Otp.class) != null)
 		{
-			if(!ValueWithToken.class.isAssignableFrom(fieldType))
+			if(!OtpVerification.class.isAssignableFrom(fieldType))
 			{
-				throw new InvalidStateException("Non {} type is used for field with verification - {}", ValueWithToken.class.getName(), fqn);
+				throw new InvalidStateException("Non {} type is used for field with OTP verification - {}", OtpVerification.class.getName(), fqn);
 			}
 			
 			Otp needVerification = field.getAnnotation(Otp.class);

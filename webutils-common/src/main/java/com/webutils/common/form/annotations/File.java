@@ -6,12 +6,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Used to mark a field as image field.
+ * Used to mark a field as file field.
  * @author akiran
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-public @interface Image
+public @interface File
 {
     public String groupName() default "";
 }

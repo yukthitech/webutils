@@ -1,5 +1,8 @@
 package com.webutils.services.user;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +18,7 @@ import com.webutils.common.response.BaseResponse;
 import com.webutils.common.response.BasicReadResponse;
 import com.webutils.common.user.UserPreference;
 import com.webutils.services.auth.UserContext;
+import com.webutils.services.common.InvalidRequestException;
 
 import jakarta.validation.Valid;
 
@@ -28,6 +32,8 @@ import jakarta.validation.Valid;
 public class UserController 
 {
     private static Logger logger = LogManager.getLogger(UserController.class);
+    
+    private static final Pattern KEY_PATTERN = Pattern.compile("\\w+");
     
     @Autowired
     private UserService userService;
@@ -46,10 +52,21 @@ public class UserController
         return new BasicReadResponse<UserDetails>(currentUser);
     }
 
+    private void validateKey(String key)
+    {
+        Matcher matcher = KEY_PATTERN.matcher(key);
+        if(!matcher.matches())
+        {
+            throw new InvalidRequestException("Invalid key: " + key);
+        }
+    }
+
     @PostMapping("/preference")
     public BaseResponse setPreference(@RequestBody @Valid UserPreference preference)
     {
         logger.debug("Setting preference [Key: {}, Value: {}]", preference.getKey(), preference.getValue());
+
+        validateKey(preference.getKey());
         
         userService.setUserPreference(preference.getKey(), preference.getValue());
         return new BaseResponse();
@@ -60,6 +77,8 @@ public class UserController
     {
         logger.debug("Getting preference [Key: {}]", key);
         
+        validateKey(key);
+
         Object value = userService.getUserPreference(UserContext.getCurrentUser().getId(), key);
         return new BasicReadResponse<>(value);
     }

@@ -73,6 +73,8 @@ public class AuthTokenService
     {
         logger.debug("Authenticating user [Email: {}, Custom Space: {}]", email, customSpace);
         
+        customSpace = (customSpace == null) ? "" : customSpace;
+        
         UserDetails userDetails = userService.validate(email, password, customSpace);
         
         generateToken(userDetails, customSpace);

@@ -77,4 +77,12 @@ public class ModelDef
 	{
 		this.clazz = clazz;
 	}
+	
+	public FieldDef getFieldDef(String name)
+	{
+		return fields.stream()
+				.filter(field -> field.getName().equals(name))
+				.findFirst()
+				.orElse(null);
+	}
 }

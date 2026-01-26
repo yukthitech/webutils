@@ -8,7 +8,7 @@ import com.yukthitech.utils.PropertyAccessor;
 import com.yukthitech.utils.PropertyAccessor.Property;
 import com.yukthitech.utils.exceptions.InvalidStateException;
 
-public class CommonUtils
+public class CopyUtils
 {
     public static <E, M> M entityToModel(E entity, Class<M> modelType)
     {

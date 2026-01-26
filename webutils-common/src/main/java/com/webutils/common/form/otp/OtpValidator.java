@@ -1,22 +1,18 @@
 package com.webutils.common.form.otp;
 
-import java.util.function.BiFunction;
-
-import com.webutils.common.ValueWithToken;
-
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
 /**
  * Validator for {@link Otp} annotation.
  */
-public class OtpValidator implements ConstraintValidator<Otp, ValueWithToken>
+public class OtpValidator implements ConstraintValidator<Otp, OtpVerification>
 {
-	private static BiFunction<VerificationType, ValueWithToken, Boolean> validatorFunction;
+	private static IOtpValidationFunction validatorFunction;
 	
 	private Otp needVerification;
 	
-	public static void setValidatorFunction(BiFunction<VerificationType, ValueWithToken, Boolean> validatorFunction)
+	public static void setValidatorFunction(IOtpValidationFunction validatorFunction)
 	{
 		OtpValidator.validatorFunction = validatorFunction;
 	}
@@ -34,9 +30,19 @@ public class OtpValidator implements ConstraintValidator<Otp, ValueWithToken>
 	 * @see javax.validation.ConstraintValidator#isValid(java.lang.Object, javax.validation.ConstraintValidatorContext)
 	 */
 	@Override
-	public boolean isValid(ValueWithToken valueWithToken, ConstraintValidatorContext context)
+	public boolean isValid(OtpVerification valueWithToken, ConstraintValidatorContext context)
 	{
-		return validatorFunction.apply(needVerification.type(), valueWithToken);
+		try
+		{
+			validatorFunction.validate(needVerification.type(), valueWithToken);
+			return true;
+		}catch(Exception ex)
+		{
+			context.buildConstraintViolationWithTemplate(ex.getMessage())
+				.addConstraintViolation();
+			
+			return false;
+		}
 	}
 }
 

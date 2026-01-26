@@ -1,5 +1,7 @@
 package com.webutils.services.user;
 
+import java.util.Date;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,6 +75,15 @@ public class UserService
         return userPreference == null ? null : userPreference.getValue();
     }
 
+    /**
+     * Sets the user preference for the current user.
+     * 
+     * Note: Preferences key coming from client is always alpha-numeric. And internal keys will start with $.
+     * This is made so that internal keys are not exposed to client.
+     * 
+     * @param key
+     * @param value
+     */
     public void setUserPreference(String key, Object value)
     {
         logger.debug("Setting user preference [Key: {}, Value: {}]", key, value);
@@ -97,8 +108,17 @@ public class UserService
         }
         else
         {
+            userPreference.setLastUpdatedTime(new Date());
             userPreferenceRepository.update(userPreference);
         }
 
+    }
+
+    public void cleanUpOldPreferences(String key, Date beforeDate)
+    {
+        logger.debug("Cleaning up old preferences [Key: {}, Before Date: {}]", key, beforeDate);
+
+        long deletedCount = userPreferenceRepository.deletePreferences(key, beforeDate);
+        logger.debug("Deleted {} old preferences [Key: {}]", deletedCount, key);
     }
 }

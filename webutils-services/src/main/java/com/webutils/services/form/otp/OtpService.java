@@ -15,8 +15,10 @@
  */
 package com.webutils.services.form.otp;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -28,14 +30,19 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import com.webutils.common.form.otp.OtpValidator;
-import com.webutils.common.form.otp.OtpVerificationRequest;
+import com.webutils.common.form.otp.OtpVerification;
 import com.webutils.common.form.otp.VerificationType;
+import com.webutils.services.auth.UserContext;
+import com.webutils.services.common.ExecutionService;
 import com.webutils.services.common.InvalidRequestException;
+import com.webutils.services.user.UserService;
 import com.yukthitech.utils.Encryptor;
 import com.yukthitech.utils.exceptions.InvalidArgumentException;
 import com.yukthitech.utils.exceptions.InvalidStateException;
 
 import jakarta.annotation.PostConstruct;
+import lombok.Data;
+import lombok.experimental.Accessors;
 
 @Service
 public class OtpService
@@ -43,8 +50,26 @@ public class OtpService
 	private static Logger logger = LogManager.getLogger(OtpService.class);
 	
 	private static Pattern TOKEN_PATTERN = Pattern.compile("otp\\:(\\w+)\\;(.+?);(\\w+);(\\d+)");
-	
-	private static Pattern VERIFICATION_PATTERN = Pattern.compile("verified\\:(\\w+)\\;(.+?);(\\w+);(\\d+)");
+
+	private static String OTP_PREF_PREFIX = "$otpDetails-";
+
+	@Data
+	@Accessors(chain = true)
+	public static class UserOtpDetails
+	{
+		private Date lastGeneratedTime;
+		private int attempts;
+
+		public boolean isLessThan(long durationMillis)
+		{
+			return lastGeneratedTime != null && System.currentTimeMillis() - lastGeneratedTime.getTime() < durationMillis;
+		}
+
+		public boolean isGreaterThan(long durationMillis)
+		{
+			return lastGeneratedTime != null && System.currentTimeMillis() - lastGeneratedTime.getTime() > durationMillis;
+		}
+	}
 	
 	/**
 	 * Context to fetch services supporting verification.
@@ -57,7 +82,13 @@ public class OtpService
 	 */
 	@Autowired(required = false)
 	private Encryptor encryptor;
+
+	@Autowired
+	private UserService userService;
 	
+    @Autowired
+    private ExecutionService executionService;
+
 	/**
 	 * Max otp token time for which it will be treated as valid. Default: 180 sec (3 min).
 	 */
@@ -69,6 +100,15 @@ public class OtpService
 	 */
 	@Value("${webutils.verification.verificationTokenTimeSec:600}")
 	private long maxVerTokenTimeSec;
+
+	@Value("${webutils.verification.otp.maxAttempts:3}")
+	private int maxOtpAttempts;
+
+	@Value("${webutils.verification.otp.minRetryDurationSec:30}")
+	private long minRetryDurationSec;
+
+	@Value("${webutils.verification.otp.maxAttemptsDurationHours:24}")
+	private long maxAttemptsDurationHour;
 
 	/**
 	 * List of verification supports.
@@ -97,17 +137,9 @@ public class OtpService
 			logger.debug("Adding verification support for type {} using class: {}", supporter.getVerificationType(), supporter.getClass().getName());
 		}
 		
-		OtpValidator.setValidatorFunction((verificationType, valueWithToken) -> 
-		{
-			try
-			{
-				validateVerification(verificationType, valueWithToken.getValue(), valueWithToken.getToken());
-				return true;
-			}catch(InvalidRequestException ex)
-			{
-				return false;
-			}
-		});
+		OtpValidator.setValidatorFunction(this::verify);
+
+		executionService.scheduleRepeatedTask("OtpService.cleanUpOtpDetails", this::cleanUpOtpDetails, 1, TimeUnit.DAYS);
 	}
 
 	/**
@@ -121,6 +153,34 @@ public class OtpService
 		if(encryptor == null)
 		{
 			throw new InvalidStateException("No encryptor is configured, which is needed by this service");
+		}
+
+		String otpPrefKey = OTP_PREF_PREFIX + type.name();
+		UserOtpDetails userOtpDetails = (UserOtpDetails) userService.getUserPreference(UserContext.getCurrentUser().getId(), otpPrefKey);
+
+		if(userOtpDetails == null)
+		{
+			userOtpDetails = new UserOtpDetails();
+		}
+
+		// check if last generated time is within min retry duration
+		if(userOtpDetails.isLessThan(minRetryDurationSec * 1000))
+		{
+			long diffSec = minRetryDurationSec - (long) Math.floor((System.currentTimeMillis() - userOtpDetails.getLastGeneratedTime().getTime()) / 1000);
+			throw new InvalidRequestException("Minimum retry duration not met. Please retry after {} seconds.", diffSec);
+		}
+
+		// if max attempts duration is reached, set the attempts to 0
+		if(userOtpDetails.isGreaterThan(maxAttemptsDurationHour * 3600 * 1000))
+		{
+			userOtpDetails.setAttempts(0);
+		}
+
+		// check if max attempts are reached
+		if(userOtpDetails.getAttempts() >= maxOtpAttempts)
+		{
+			long diffHours = maxAttemptsDurationHour - (long) Math.floor((System.currentTimeMillis() - userOtpDetails.getLastGeneratedTime().getTime()) / 1000 / 3600);
+			throw new InvalidRequestException("Maximum attempts reached. Please try again after {} hours.", diffHours);
 		}
 		
 		IOtpSupport support = verificationSupportes.get(type);
@@ -136,10 +196,18 @@ public class OtpService
 		support.sendCode(value, code);
 		
 		String encodedString = String.format("otp:%s;%s;%s;%s", type, value, code, System.currentTimeMillis());
-		return encryptor.encrypt(encodedString);
+		String res = encryptor.encrypt(encodedString);
+
+		// set updated user otp details
+		userOtpDetails
+			.setLastGeneratedTime(new Date())
+			.setAttempts(userOtpDetails.getAttempts() + 1);
+		userService.setUserPreference(otpPrefKey, userOtpDetails);
+
+		return res;
 	}
 	
-	private void verify(String token, VerificationType type, String value, String otp, Pattern pattern, long maxTime)
+	private void verify(VerificationType verificationType, OtpVerification otp)
 	{
 		if(encryptor == null)
 		{
@@ -150,13 +218,13 @@ public class OtpService
 		
 		try
 		{
-			encodedString = encryptor.decrypt(token);
+			encodedString = encryptor.decrypt(otp.getToken());
 		}catch(Exception ex)
 		{
 			throw new InvalidRequestException("Invalid token specified");
 		}
 		
-		Matcher matcher = pattern.matcher(encodedString);
+		Matcher matcher = TOKEN_PATTERN.matcher(encodedString);
 		
 		if(!matcher.matches())
 		{
@@ -166,9 +234,9 @@ public class OtpService
 		/*
 		 * Fail the verification if type, value or generate code is not matching.
 		 */
-		if(!matcher.group(1).equals(type.name()) ||
-				!matcher.group(2).equals(value) ||
-				(otp != null && !matcher.group(3).equals(otp))
+		if(!matcher.group(1).equals(verificationType.name()) ||
+				!matcher.group(2).equals(otp.getValueToVerify()) ||
+				(otp != null && !matcher.group(3).equals(otp.getValue()))
 				)
 		{
 			throw new InvalidRequestException("Specified OTP code is not valid.");
@@ -179,29 +247,15 @@ public class OtpService
 		
 		long diffSec = (curTime - tokenTime) / 1000;
 		
-		if(diffSec < 0 || diffSec > maxTime)
+		if(diffSec < 0 || diffSec > maxVerTokenTimeSec)
 		{
 			throw new InvalidRequestException("Token expired.");
 		}
 	}
-	
-	/**
-	 * Verifies if specified verification request is valid.
-	 * @param request request to be validated.
-	 * @return token for successful verification.
-	 */
-	public String validateOtp(OtpVerificationRequest request)
-	{
-		verify(request.getToken(), request.getType(), request.getValue(), 
-				request.getOtp(), TOKEN_PATTERN, maxOtpTokenTimeSec);
 
-		String verEncodedString = String.format("verified:%s;%s;%s;%s", request.getType(), request.getValue(), request.getOtp(), System.currentTimeMillis());
-		return encryptor.encrypt(verEncodedString);
-	}
-	
-	private void validateVerification(VerificationType type, String value, String verificationToken)
+	private void cleanUpOtpDetails()
 	{
-		verify(verificationToken, type, value, 
-				null, VERIFICATION_PATTERN, maxVerTokenTimeSec);
+		userService.cleanUpOldPreferences(OTP_PREF_PREFIX + VerificationType.MOBILE.name(), new Date(System.currentTimeMillis() - maxAttemptsDurationHour * 3600 * 1000));
+		userService.cleanUpOldPreferences(OTP_PREF_PREFIX + VerificationType.EMAIL.name(), new Date(System.currentTimeMillis() - maxAttemptsDurationHour * 3600 * 1000));
 	}
 }

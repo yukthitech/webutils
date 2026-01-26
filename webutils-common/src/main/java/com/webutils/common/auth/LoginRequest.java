@@ -18,4 +18,6 @@ public class LoginRequest
 	@MinLen(8)
 	@MaxLen(100)
 	private String password;
+	
+	private String userSpace;
 }
