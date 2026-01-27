@@ -26,6 +26,7 @@ package com.webutils.common.form.model;
 import java.lang.reflect.Field;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.webutils.common.form.otp.VerificationType;
 
 import lombok.Data;
@@ -104,11 +105,13 @@ public class FieldDef
 	/**
 	 * Compatible collection type that can be used for field value population.
 	 */
+	@JsonIgnore
 	private Class<?> compatibleCollectionType;
 	
 	/**
 	 * Java fields, which can be used to get further annotation on field.
 	 */
+	@JsonIgnore
 	private Field field;
 	
 	/**

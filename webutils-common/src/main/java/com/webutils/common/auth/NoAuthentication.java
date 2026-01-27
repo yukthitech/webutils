@@ -21,7 +21,7 @@
  * SOFTWARE.
  */
 
-package com.webutils.services.common;
+package com.webutils.common.auth;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -36,7 +36,7 @@ import java.lang.annotation.Target;
  * @author akiran
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
+@Target({ElementType.METHOD, ElementType.TYPE})
 @Documented
 public @interface NoAuthentication
 {

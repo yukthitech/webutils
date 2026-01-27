@@ -29,18 +29,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.webutils.common.auth.Authorization;
+import com.webutils.common.auth.NoAuthentication;
 import com.webutils.common.form.model.ModelDef;
 import com.webutils.common.response.BasicReadResponse;
-import com.webutils.services.common.Authorization;
 import com.webutils.services.common.InvalidRequestException;
-import com.webutils.services.common.NoAuthentication;
 
 /**
  * Controller for fetching LOV values.
  * @author akiran
  */
 @RestController
-@RequestMapping("/models")
+@RequestMapping("/api/model")
 public class ModelController
 {
 	@Autowired

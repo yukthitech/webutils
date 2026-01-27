@@ -1,5 +1,6 @@
 package com.webutils.services.form.captcha;
 
+import java.awt.Color;
 import java.io.ByteArrayOutputStream;
 import java.util.Base64;
 import java.util.Random;
@@ -21,7 +22,7 @@ import jakarta.annotation.PostConstruct;
 import nl.captcha.Captcha;
 import nl.captcha.backgrounds.GradiatedBackgroundProducer;
 import nl.captcha.gimpy.FishEyeGimpyRenderer;
-import nl.captcha.noise.StraightLineNoiseProducer;
+import nl.captcha.text.renderer.DefaultWordRenderer;
 
 @Service
 public class CaptchaService
@@ -29,6 +30,39 @@ public class CaptchaService
 	private static Logger logger = LogManager.getLogger(CaptchaService.class);
 	
 	private static Random random = new Random(System.currentTimeMillis());
+	
+	private static GradiatedBackgroundProducer[] BG_PRODUCERS = new GradiatedBackgroundProducer[3];
+	
+	private static FishEyeGimpyRenderer[] GIMPS = {
+		new FishEyeGimpyRenderer(new Color(130, 130, 200), new Color(130, 130, 200)),
+		new FishEyeGimpyRenderer(new Color(130, 130, 130), new Color(130, 130, 130)),
+		new FishEyeGimpyRenderer(new Color(200, 130, 130), new Color(200, 130, 130))
+	};
+	
+	private static DefaultWordRenderer[] WORD_RENDERERS = {
+		new DefaultWordRenderer(Color.RED, null),
+		new DefaultWordRenderer(Color.BLUE, null),
+		new DefaultWordRenderer(Color.BLACK, null),
+		new DefaultWordRenderer(new Color(0, 150, 0), null)
+	};
+	
+	static
+	{
+		Color[] bgColors = {
+			new Color(170, 170, 170),
+			new Color(170, 220, 170),
+			new Color(170, 170, 220),
+		};
+		
+		for(int i = 0 ; i < bgColors.length; i++)
+		{
+			BG_PRODUCERS[i] = new GradiatedBackgroundProducer();
+			BG_PRODUCERS[i].setFromColor(bgColors[i]);
+			BG_PRODUCERS[i].setToColor(Color.WHITE);
+		}
+		
+		
+	}
 	
 	@Autowired(required = false)
 	private Encryptor encryptor;
@@ -57,19 +91,11 @@ public class CaptchaService
 		CaptchaValue captchaValue = CaptchaValueFactory.generate();
 		
 		Captcha.Builder builder = new Captcha.Builder(200, 50)
-				.addText(captchaValue)
-				.addBackground(new GradiatedBackgroundProducer())
-				.addBorder();
+				.addBackground(BG_PRODUCERS[random.nextInt(BG_PRODUCERS.length)])
+				.addBorder()
+				.gimp(GIMPS[random.nextInt(GIMPS.length)])
+				.addText(captchaValue, WORD_RENDERERS[random.nextInt(WORD_RENDERERS.length)]);
 		
-		if(random.nextBoolean())
-		{
-			builder.addNoise(new StraightLineNoiseProducer());
-		}
-		else
-		{
-			builder.gimp(new FishEyeGimpyRenderer());
-		}
-
 		Captcha captcha = builder.build();
 		
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();

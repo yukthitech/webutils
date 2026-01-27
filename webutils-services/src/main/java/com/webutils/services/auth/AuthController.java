@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.webutils.common.UserDetails;
 import com.webutils.common.auth.LoginRequest;
 import com.webutils.common.auth.LoginResponse;
+import com.webutils.common.auth.NoAuthentication;
 import com.webutils.common.response.BaseResponse;
 import com.webutils.services.common.InvalidRequestException;
-import com.webutils.services.common.NoAuthentication;
 import com.webutils.services.token.AuthTokenService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,7 +28,7 @@ import jakarta.validation.Valid;
  * Handles login, logout, and token management for the Acharya application
  */
 @RestController
-@RequestMapping("/api/v1/auth")
+@RequestMapping("/api/auth")
 public class AuthController
 {
 	@Autowired

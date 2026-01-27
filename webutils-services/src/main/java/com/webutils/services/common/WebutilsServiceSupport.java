@@ -232,7 +232,7 @@ public class WebutilsServiceSupport
 		{
 			lovValues = (Collection<Object>) value;
 		}
-		else if(value instanceof String)
+		else
 		{
 			lovValues = Arrays.asList(value);
 		}

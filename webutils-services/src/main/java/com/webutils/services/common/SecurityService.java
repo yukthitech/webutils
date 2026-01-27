@@ -8,6 +8,8 @@ import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 
 import com.webutils.common.UserDetails;
+import com.webutils.common.auth.Authorization;
+import com.webutils.common.auth.NoAuthentication;
 import com.webutils.services.auth.UserContext;
 
 @Service

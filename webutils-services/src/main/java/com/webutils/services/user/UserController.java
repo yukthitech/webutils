@@ -28,7 +28,7 @@ import jakarta.validation.Valid;
  * Shows how any controller can easily get current user details using the session-based authorization
  */
 @RestController
-@RequestMapping("/api/v1/user")
+@RequestMapping("/api/user")
 public class UserController 
 {
     private static Logger logger = LogManager.getLogger(UserController.class);

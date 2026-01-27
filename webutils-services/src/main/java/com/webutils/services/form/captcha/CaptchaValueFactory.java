@@ -60,7 +60,8 @@ public class CaptchaValueFactory
         {
             int num1 = 1 + random.nextInt(10);
             int num2 = 1 + random.nextInt(10);
-            return new CaptchaValue(num1 + " + " + num2, String.valueOf(num1 + num2));
+            CaptchaValue res = new CaptchaValue(num1 + " + " + num2, String.valueOf(num1 + num2));
+            return res;
         }
     }
 
@@ -71,7 +72,8 @@ public class CaptchaValueFactory
         {
             int num1 = 8 + random.nextInt(13);
             int num2 = 1 + random.nextInt(7);
-            return new CaptchaValue(num1 + " - " + num2, String.valueOf(num1 - num2));
+            CaptchaValue res = new CaptchaValue(num1 + " - " + num2, String.valueOf(num1 - num2));
+            return res;
         }
     }
 

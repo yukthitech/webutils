@@ -201,9 +201,10 @@ public class LovService
 				}
 				
 				//Fetch the label for current enum field
+				label = null;
 				
 				//if not found and @Label is defined on enum field
-				if(label == null && (labelAnnot = field.getAnnotation(Label.class)) != null)
+				if((labelAnnot = field.getAnnotation(Label.class)) != null)
 				{
 					//get @Label value
 					label = labelAnnot.value();

@@ -30,12 +30,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.webutils.common.auth.Authorization;
+import com.webutils.common.auth.NoAuthentication;
 import com.webutils.common.form.model.LovType;
 import com.webutils.common.response.BasicListResponse;
 import com.webutils.lov.LovOption;
-import com.webutils.services.common.Authorization;
-import com.webutils.services.common.InvalidRequestException;
-import com.webutils.services.common.NoAuthentication;
 import com.webutils.services.form.lov.stored.StoredLovService;
 /**
  * Controller for fetching LOV values.
@@ -64,15 +63,8 @@ public class LovController
 	@NoAuthentication
 	@ResponseBody
 	@RequestMapping(value = "/fetch/{type}/{name}", method = RequestMethod.GET)
-	public BasicListResponse<LovOption> fetchLov(@PathVariable("type") String type, @PathVariable("name") String lovName)
+	public BasicListResponse<LovOption> fetchLov(@PathVariable("type") LovType lovType, @PathVariable("name") String lovName)
 	{
-		LovType lovType = LovType.getLovType(type);
-		
-		if(lovType == null)
-		{
-			throw new InvalidRequestException("Invalid lov type specified: {}", type);
-		}
-		
 		if(lovType == LovType.STATIC_TYPE)
 		{
 			return new BasicListResponse<LovOption>( lovService.getEnumLovValues(lovName) );

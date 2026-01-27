@@ -11,8 +11,8 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.webutils.common.IWebUtilsConstants;
 import com.webutils.common.UserDetails;
-import com.webutils.services.common.Authorization;
-import com.webutils.services.common.NoAuthentication;
+import com.webutils.common.auth.Authorization;
+import com.webutils.common.auth.NoAuthentication;
 import com.webutils.services.common.SecurityService;
 import com.webutils.services.common.UnauthenticatedRequestException;
 import com.webutils.services.common.UnauthorizedRequestException;

@@ -53,7 +53,7 @@ public class ClassScannerService
 {
 	private static Logger logger = LogManager.getLogger(ClassScannerService.class);
 	
-	@Value("${app.packagesToScan:''}")
+	@Value("${app.classScanner.packagesToScan:''}")
 	private String packagesToScan;
 	
 	/**

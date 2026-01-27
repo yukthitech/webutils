@@ -1,8 +1,11 @@
 package com.webutils.common;
 
+import com.webutils.common.auth.NoAuthentication;
+
+@NoAuthentication
 public enum Gender 
 {
-    MALE,
     FEMALE,
+    MALE,
     OTHER
 }

@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.webutils.common.auth.NoAuthentication;
 import com.webutils.common.form.captcha.CaptchaResponse;
-import com.webutils.services.common.NoAuthentication;
 
 /**
  * Controller to managing captcha.
@@ -15,7 +15,7 @@ import com.webutils.services.common.NoAuthentication;
  * @author akiran
  */
 @RestController
-@RequestMapping("/api/v1/captcha")
+@RequestMapping("/api/captcha")
 public class CaptchaController
 {
 	@Autowired
