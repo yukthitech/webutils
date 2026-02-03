@@ -1,5 +1,7 @@
 package com.webutils.services.auth;
 
+import java.util.List;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +37,12 @@ public class SecurityInterceptor implements HandlerInterceptor
     @Value("${app.login.uri}")
     private String loginUri;
     
+	/**
+	 * Application specific custom authorization handlers.
+	 */
+	@Autowired(required = false)
+	private List<IAuthorizationHandler> authorizationHandlers;
+    
 	private String getSessionToken(HttpServletRequest request, boolean isAuthRequired)
     {
         // Check if valid header token is present
@@ -66,6 +74,16 @@ public class SecurityInterceptor implements HandlerInterceptor
 	{
         Authorization authorization = handlerMethod.getMethodAnnotation(Authorization.class);
         securityService.checkAuthorization(authorization);
+        
+        if(authorizationHandlers == null)
+        {
+        	return;
+        }
+        
+        for(IAuthorizationHandler handler : authorizationHandlers)
+        {
+        	handler.checkAuthorization(handlerMethod);
+        }
 	}
 
 	/**

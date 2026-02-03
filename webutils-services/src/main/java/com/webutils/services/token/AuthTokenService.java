@@ -10,10 +10,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.webutils.cache.CacheConfig;
+import com.webutils.cache.CacheFactory;
+import com.webutils.cache.ICache;
 import com.webutils.common.UserDetails;
 import com.webutils.services.auth.UserContext;
 import com.webutils.services.common.ExecutionService;
-import com.webutils.services.common.LruMap;
 import com.webutils.services.common.UnauthenticatedRequestException;
 import com.webutils.services.user.UserEntity;
 import com.webutils.services.user.UserService;
@@ -50,6 +52,9 @@ public class AuthTokenService
 
     @Autowired
     private ExecutionService executionService;
+    
+    @Autowired
+    private CacheFactory cacheFactory;
 
     @Value("${session.timeout.seconds:1800}") // 30 minutes
     private long sessionTimeoutSec;
@@ -59,12 +64,15 @@ public class AuthTokenService
 
     @Value("${session.cleanup.interval.seconds:3600}") // 1 hour
     private long cleanupIntervalSec;
-
-    private LruMap<String, TokenDetails> tokenCache = new LruMap<>(1000);
+    
+    private ICache<String, TokenDetails> tokenCache;
 
     @PostConstruct
     private void init()
     {
+    	tokenCache = cacheFactory.getCache("AuthTokenService.tokenCache", 
+    			new CacheConfig<String, TokenDetails>().maxSize(1000));
+    	
         executionService.scheduleRepeatedTask("AuthTokenService.cleanupExpiredTokens", 
         		this::cleanupExpiredTokens, cleanupIntervalSec, TimeUnit.SECONDS);
     }
@@ -111,7 +119,7 @@ public class AuthTokenService
         		.setUserDetails(userDetails)
         		.setLastUpdatedOn(now);
         
-        tokenCache.put(token, tokenDetails);
+        tokenCache.set(token, tokenDetails);
         return token;
     }
 
@@ -153,7 +161,7 @@ public class AuthTokenService
         		.setUserDetails(userDetails)
                 .setLastUpdatedOn(authToken.getLastUpdatedOn());
         
-        tokenCache.put(token, tokenDetails);
+        tokenCache.set(token, tokenDetails);
         return userDetails;
     }
 
@@ -188,7 +196,7 @@ public class AuthTokenService
                 .setCustomSpace(authTokenFromDb.getCustomSpace())
                 .setUserDetails(tokenDetails.getUserDetails())
                 .setLastUpdatedOn(authTokenFromDb.getLastUpdatedOn());
-            tokenCache.put(token, newTokenDetails);
+            tokenCache.set(token, newTokenDetails);
             return;
         }
 
@@ -205,7 +213,7 @@ public class AuthTokenService
 
         tokenDetails.setAuthTokenExpiresAt(newExpiresAt);
         tokenDetails.setLastUpdatedOn(now);
-        tokenCache.put(token, tokenDetails);
+        tokenCache.set(token, tokenDetails);
     }
 
     public void revokeToken()

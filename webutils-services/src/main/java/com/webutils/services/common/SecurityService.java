@@ -47,9 +47,12 @@ public class SecurityService
         
         throw new UnauthorizedRequestException("User does not have required access");
 		
-		
 	}
 	
+	/**
+	 * Invoked by intercepter before calling api methods.
+	 * @param authorization
+	 */
 	public void checkAuthorization(Authorization authorization)
 	{
         // if auth annotation is not present, invoke the method
@@ -61,6 +64,11 @@ public class SecurityService
         checkAuthorization(true, Set.of(authorization.value()));
 	}
 	
+	/**
+	 * Invoked by other services like LovService to check entity/service level
+	 * authorization.
+	 * @param annotatedElement
+	 */
 	public void checkAuthorization(AnnotatedElement annotatedElement)
 	{
 		Authorization authorization = annotatedElement.getAnnotation(Authorization.class);
