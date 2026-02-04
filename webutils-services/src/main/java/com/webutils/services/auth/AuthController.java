@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.webutils.common.IWebUtilsConstants;
 import com.webutils.common.UserDetails;
 import com.webutils.common.auth.LoginRequest;
 import com.webutils.common.auth.LoginResponse;
@@ -18,6 +19,7 @@ import com.webutils.common.response.BaseResponse;
 import com.webutils.services.common.InvalidRequestException;
 import com.webutils.services.token.AuthTokenService;
 
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -39,7 +41,7 @@ public class AuthController
 
 	@NoAuthentication
 	@PostMapping("/login")
-	public LoginResponse login(@RequestBody @Valid LoginRequest loginRequest)
+	public LoginResponse login(@RequestBody @Valid LoginRequest loginRequest, HttpServletResponse response)
 	{
 		if(userSpaceEnabled)
 		{
@@ -53,6 +55,12 @@ public class AuthController
 			loginRequest.getMailId(), 
 			loginRequest.getPassword(),
 			loginRequest.getUserSpace());
+		
+		Cookie authCookie = new Cookie(IWebUtilsConstants.SESSION_TOKEN_HEADER, userDetails.getAuthToken());
+		authCookie.setHttpOnly(true);
+		authCookie.setSecure(true);
+		authCookie.setPath("/");
+		response.addCookie(authCookie);
 
 		return new LoginResponse(userDetails.getId(), userDetails.getAuthToken(), userDetails.getRoles());
 	}

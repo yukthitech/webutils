@@ -2,6 +2,7 @@ package com.webutils.services.auth;
 
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,7 @@ import com.webutils.services.common.UnauthenticatedRequestException;
 import com.webutils.services.common.UnauthorizedRequestException;
 import com.webutils.services.token.AuthTokenService;
 
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -42,31 +44,46 @@ public class SecurityInterceptor implements HandlerInterceptor
 	 */
 	@Autowired(required = false)
 	private List<IAuthorizationHandler> authorizationHandlers;
-    
+	
 	private String getSessionToken(HttpServletRequest request, boolean isAuthRequired)
     {
         // Check if valid header token is present
         String sessionToken = request.getHeader(IWebUtilsConstants.SESSION_TOKEN_HEADER);
 
-        if(sessionToken == null)
+        if(StringUtils.isNotBlank(sessionToken))
+        {
+            if(sessionToken.startsWith(IWebUtilsConstants.SESSION_BEARER_PREFIX))
+            {
+                return sessionToken.substring(IWebUtilsConstants.SESSION_BEARER_PREFIX.length());
+            }
+            
+            throw new UnauthenticatedRequestException("Invalid/no session token");
+        }
+
+    	Cookie[] cookies = request.getCookies();
+    	
+    	if(cookies != null)
+    	{
+        	for(Cookie cookie : cookies)
+        	{
+        		if(IWebUtilsConstants.SESSION_TOKEN_HEADER.equals(cookie.getName()))
+        		{
+        			sessionToken = cookie.getValue();
+        			break;
+        		}
+        	}
+    	}
+
+    	if(StringUtils.isBlank(sessionToken))
         {
         	if(!isAuthRequired)
         	{
         		return null;
         	}
         	
-            throw new UnauthenticatedRequestException("No session token");
-        }
-
-        if(sessionToken.startsWith(IWebUtilsConstants.SESSION_BEARER_PREFIX))
-        {
-            sessionToken = sessionToken.substring(IWebUtilsConstants.SESSION_BEARER_PREFIX.length());
-        }
-        else
-        {
             throw new UnauthenticatedRequestException("Invalid/no session token");
         }
-
+        
         return sessionToken;
     }
 	
