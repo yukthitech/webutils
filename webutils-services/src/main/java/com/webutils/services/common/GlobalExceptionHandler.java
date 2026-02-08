@@ -59,6 +59,7 @@ public class GlobalExceptionHandler
 	{
 		HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
 		String message = "An unexpected error occurred";
+		Map<String, Object> errorParameters = null;
 		
 		if((ex instanceof UnauthenticatedRequestException) || (ex instanceof BadCredentialsException))
 		{
@@ -72,7 +73,14 @@ public class GlobalExceptionHandler
 			status = HttpStatus.FORBIDDEN;
 			message = "Insufficient permissions. " + ex.getMessage();
 		}
-		else if((ex instanceof InvalidRequestException) || (ex instanceof HttpMessageNotReadableException))
+		else if(ex instanceof InvalidRequestException)
+		{
+			logger.debug("Invalid request: {}", ex.getMessage());
+			status = HttpStatus.BAD_REQUEST;
+			message = ex.getMessage();
+			errorParameters = ((InvalidRequestException) ex).getParameters();
+		}
+		else if(ex instanceof HttpMessageNotReadableException)
 		{
 			logger.debug("Invalid request: {}", ex.getMessage());
 			status = HttpStatus.BAD_REQUEST;
@@ -97,7 +105,8 @@ public class GlobalExceptionHandler
 		
 		BaseResponse response = new BaseResponse()
 			.setSuccess(false)
-			.setMessage(message);
+			.setMessage(message)
+			.setErrorParameters(errorParameters);
 
 		return ResponseEntity.status(status).body(response);
 	}

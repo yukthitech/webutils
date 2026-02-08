@@ -15,6 +15,7 @@ public class BaseResponse
     private boolean success = true;
     private String message;
     private Map<String, String> errors;
+    private Map<String, Object> errorParameters;
     
     public BaseResponse(boolean success, String message)
     {

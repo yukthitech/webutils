@@ -167,7 +167,9 @@ public class OtpService
 		if(userOtpDetails.isLessThan(minRetryDurationSec * 1000))
 		{
 			long diffSec = minRetryDurationSec - (long) Math.floor((System.currentTimeMillis() - userOtpDetails.getLastGeneratedTime().getTime()) / 1000);
-			throw new InvalidRequestException("Minimum retry duration not met. Please retry after {} seconds.", diffSec);
+			throw new InvalidRequestException("Minimum retry duration not met. Please retry after {} seconds.", diffSec)
+				.addParameter("errorType", "quickRetryAttempt")
+				.addParameter("retryAfterSec", diffSec);
 		}
 
 		// if max attempts duration is reached, set the attempts to 0
@@ -180,7 +182,9 @@ public class OtpService
 		if(userOtpDetails.getAttempts() >= maxOtpAttempts)
 		{
 			long diffHours = maxAttemptsDurationHour - (long) Math.floor((System.currentTimeMillis() - userOtpDetails.getLastGeneratedTime().getTime()) / 1000 / 3600);
-			throw new InvalidRequestException("Maximum attempts reached. Please try again after {} hours.", diffHours);
+			throw new InvalidRequestException("Maximum attempts reached. Please try again after {} hours.", diffHours)
+				.addParameter("errorType", "maxAttemptsExpired")
+				.addParameter("retryAfterHour", diffHours);
 		}
 		
 		IOtpSupport support = verificationSupportes.get(type);
