@@ -122,7 +122,7 @@ public class ModelDefBuilder
 					continue;
 				}
 				
-				fieldDefLst.add(fieldDefBuilder.getFieldDef(modelType, field, requiredLovs));
+				fieldDefLst.add(fieldDefBuilder.getFieldDef(modelDef, field, requiredLovs));
 			}
 			
 			curCls = curCls.getSuperclass();

@@ -59,6 +59,7 @@ import com.webutils.common.form.model.FieldDef;
 import com.webutils.common.form.model.FieldType;
 import com.webutils.common.form.model.LovDetails;
 import com.webutils.common.form.model.LovType;
+import com.webutils.common.form.model.ModelDef;
 import com.webutils.common.form.model.ValidationDef;
 import com.webutils.common.form.otp.Otp;
 import com.webutils.common.form.otp.OtpVerification;
@@ -224,11 +225,12 @@ public class FieldDefBuilder
 				type, field.getDeclaringClass().getName(), field.getName());
 	}
 	
-	public FieldDef getFieldDef(Class<?> modelType, Field field, Set<LovRef> requiredLovs)
+	public FieldDef getFieldDef(ModelDef modelDef, Field field, Set<LovRef> requiredLovs)
 	{
+		Class<?> modelType = modelDef.getClazz();
 		String fqn = modelType.getName() + "." + field.getName();
 		
-		FieldDef fieldDef = new FieldDef(field);
+		FieldDef fieldDef = new FieldDef(modelDef.getName() + "." + field.getName(), field);
 		
 		fieldDef.setName(field.getName());
 		

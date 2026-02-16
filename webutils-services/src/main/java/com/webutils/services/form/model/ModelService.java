@@ -36,6 +36,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 import com.webutils.common.form.annotations.Model;
+import com.webutils.common.form.model.FieldDef;
 import com.webutils.common.form.model.LovType;
 import com.webutils.common.form.model.ModelDef;
 import com.webutils.services.common.ClassScannerService;
@@ -87,6 +88,8 @@ public class ModelService
 	 */
 	private Map<Class<?>, ModelDef> typeToModel = new HashMap<>();
 	
+	private Map<String, FieldDef> idToField = new HashMap<String, FieldDef>();
+	
 	/**
 	 * scans for models and loads their definitions into map.
 	 * Post init app is used, to ensure all repositories are loaded before this method.
@@ -121,6 +124,8 @@ public class ModelService
 			
 			nameToModel.put(modelDef.getName(), modelDef); 
 			typeToModel.put(type, modelDef);
+			
+			modelDef.getFields().forEach(field -> idToField.put(field.getId(), field));
 		}
 		
 		for(LovRef lov : requiredLovs)
@@ -165,5 +170,10 @@ public class ModelService
 	public ModelDef getModelDef(Class<?> type)
 	{
 		return typeToModel.get(type);
+	}
+	
+	public FieldDef getFieldDef(String id)
+	{
+		return idToField.get(id);
 	}
 }
