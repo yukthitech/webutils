@@ -1,37 +1,25 @@
 package com.webutils.services.mail;
 
-import java.awt.Image;
-import java.awt.image.BufferedImage;
-import java.awt.image.RenderedImage;
-import java.awt.image.renderable.RenderableImage;
-import java.io.File;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
+import java.io.InputStream;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.UUID;
 
-import javax.imageio.ImageIO;
-
-import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.webutils.common.mail.EmailServerSettings;
 import com.webutils.common.mail.IMailCustomizer;
-import com.webutils.common.mail.template.MailTemplateConfiguration;
 import com.webutils.services.common.FreeMarkerService;
-import com.webutils.services.mail.template.MailTemplateConfigService;
 import com.webutils.services.mail.template.MailTemplateEntity;
 import com.webutils.services.mail.template.MailTemplateService;
-import com.yukthitech.utils.ReflectionUtils;
+import com.yukthitech.ccg.xml.DefaultParserHandler;
+import com.yukthitech.ccg.xml.XMLBeanParser;
 import com.yukthitech.utils.exceptions.InvalidArgumentException;
 import com.yukthitech.utils.exceptions.InvalidStateException;
 
@@ -62,15 +50,9 @@ public class EmailService
 	private static Logger logger = LogManager.getLogger(EmailService.class);
 	
 	/**
-	 * Mail template configuration service, used to fetch meta information from
-	 * context.	 */
-	@Autowired
-	private MailTemplateConfigService mailTemplateConfigService;
-	
-	/**
 	 * Default email server settings to be used.
 	 */
-	@Autowired(required = false)
+	@Autowired
 	private EmailServerSettings emailServerSettings;
 	
 	/**
@@ -98,9 +80,9 @@ public class EmailService
 	 *            Settings to create session.
 	 * @return newly created session.
 	 */
-	private Session newSession(EmailServerSettings settings, boolean forImap)
+	private Session newSession(EmailServerSettings settings)
 	{
-		String key = settings.getSmtpHost() + ":" + settings.getSmtpPort() + "@" + settings.getUserName() + "$" + forImap;
+		String key = settings.getSmtpHost() + ":" + settings.getSmtpPort() + "@" + settings.getUserName();
 		Session mailSession = sessionCache.get(key);
 		
 		if(mailSession != null)
@@ -108,7 +90,7 @@ public class EmailService
 			return mailSession;
 		}
 		
-		Properties configProperties = settings.toProperties(forImap);
+		Properties configProperties = settings.toProperties();
 
 		// if authentication needs to be done provide user name and password
 		if(settings.isUseAuthentication())
@@ -178,25 +160,9 @@ public class EmailService
 	 * @param context
 	 *            Context to be used which is expected have attachments.
 	 */
-	@SuppressWarnings("unchecked")
-	private void addAttachments(Multipart multiPart, Object context, List<File> tempFiles) throws Exception
+	private void addAttachments(Multipart multiPart, List<MailAttachment> attachments) throws Exception
 	{
-		if(context == null)
-		{
-			return;
-		}
-
-		MailTemplateConfiguration mailTemplateConfiguration = mailTemplateConfigService.getMailTemplateConfiguration(context.getClass());
-
-		if(mailTemplateConfiguration == null)
-		{
-			logger.warn("As specified context is not defined as mail template configuration, no attachments will be added. Context type: " + context.getClass().getName());
-			return;
-		}
-
-		Set<MailTemplateConfiguration.Attachment> attachmentConfigs = mailTemplateConfiguration.getAttachments();
-
-		if(attachmentConfigs == null || attachmentConfigs.isEmpty())
+		if(attachments == null)
 		{
 			return;
 		}
@@ -204,91 +170,16 @@ public class EmailService
 		FileDataSource fileSource = null;
 		MimeBodyPart fileBodyPart = null;
 
-		Object value = null;
-		String attachmentName = null;
-
-		for(MailTemplateConfiguration.Attachment attachment : attachmentConfigs)
+		for(MailAttachment fileAttachment : attachments)
 		{
-			value = ReflectionUtils.getNestedFieldValue(context, attachment.getField());
+			fileBodyPart = new MimeBodyPart();
+			fileSource = new FileDataSource(fileAttachment.getFileContent());
 
-			if(value == null)
-			{
-				continue;
-			}
+			fileBodyPart.setDataHandler(new DataHandler(fileSource));
+			fileBodyPart.setFileName(fileAttachment.getFileName());
+			fileBodyPart.setHeader("Content-ID", "<" + fileAttachment.getContentId() + ">");
 
-			logger.debug("Adding attachment from field - " + attachment.getField());
-			
-			Collection<FileAttachment> fileAttachments = null;
-			
-			if(value instanceof File)
-			{
-				fileAttachments = Arrays.asList( new FileAttachment((File) value, attachment.getName()) );
-			}
-			else if(value instanceof Collection)
-			{
-				fileAttachments = (Collection<FileAttachment>) value;
-			}
-			else if(value instanceof FileAttachment)
-			{
-				fileAttachments = Arrays.asList((FileAttachment) value);
-			}
-			else if(value instanceof String)
-			{
-				File fieldFile = File.createTempFile(attachment.getName(), ".tmp");
-				FileUtils.write(fieldFile, (String) value, Charset.defaultCharset());
-				
-				fileAttachments = Arrays.asList( new FileAttachment(fieldFile, attachment.getName()) );
-				tempFiles.add(fieldFile);
-			}
-			else if(value instanceof byte[])
-			{
-				File fieldFile = File.createTempFile(attachment.getName(), ".tmp");
-				FileUtils.writeByteArrayToFile(fieldFile, (byte[]) value);
-				
-				fileAttachments = Arrays.asList( new FileAttachment(fieldFile, attachment.getName()) );
-				tempFiles.add(fieldFile);
-			}
-			else if(value instanceof Image)
-			{
-				attachmentName = attachment.getName();
-
-				File fieldFile = File.createTempFile(attachment.getName(), ".tmp");
-				String imgType = attachmentName.substring(attachmentName.lastIndexOf('.') + 1, attachmentName.length());
-
-				if(!(value instanceof RenderableImage))
-				{
-					Image img = (Image) value;
-					BufferedImage bimg = new BufferedImage(img.getWidth(null), img.getHeight(null), BufferedImage.TYPE_4BYTE_ABGR);
-					bimg.getGraphics().drawImage(img, 0, 0, null);
-
-					value = bimg;
-				}
-
-				ImageIO.write((RenderedImage) value, imgType.toLowerCase(), fieldFile);
-				
-				fileAttachments = Arrays.asList( new FileAttachment(fieldFile, attachment.getName()) );
-				tempFiles.add(fieldFile);
-			}
-			else
-			{
-				throw new InvalidStateException("Field {}.{} is marked as attachment with unsupported type", context.getClass().getName(), attachment.getField());
-			}
-			
-			int index = 0;
-
-			for(FileAttachment fileAttachment : fileAttachments)
-			{
-				index++;
-				
-				fileBodyPart = new MimeBodyPart();
-				fileSource = new FileDataSource(fileAttachment.getFile());
-	
-				fileBodyPart.setDataHandler(new DataHandler(fileSource));
-				fileBodyPart.setFileName(fileAttachment.getFileName());
-				fileBodyPart.setHeader("Content-ID", "<" + attachment.getContentId() + "-" + index + ">");
-	
-				multiPart.addBodyPart(fileBodyPart);
-			}
+			multiPart.addBodyPart(fileBodyPart);
 		}
 	}
 
@@ -340,7 +231,7 @@ public class EmailService
 	 *            Context to be used for freemarker expressions parsing.
 	 * @return Converted message.
 	 */
-	private Message buildMessage(EmailServerSettings settings, MailTemplateEntity emailTemplate, Object context, List<File> tempFiles) throws AddressException, MessagingException
+	private Message buildMessage(EmailServerSettings settings, MailTemplateEntity emailTemplate, Object context, List<MailAttachment> attachments) throws AddressException, MessagingException
 	{
 		// get the list of mail recipients
 		String toStr = processTemplate(emailTemplate.getTemplateName() + ".to", emailTemplate.getToListTemplate(), context);
@@ -377,7 +268,7 @@ public class EmailService
 		}
 
 		// start new session
-		Session mailSession = newSession(settings, false);
+		Session mailSession = newSession(settings);
 
 		// build the mail message
 		Message message = new MimeMessage(mailSession);
@@ -431,7 +322,7 @@ public class EmailService
 		// add files if any
 		try
 		{
-			addAttachments(multiPart, context, tempFiles);
+			addAttachments(multiPart, attachments);
 		} catch(Exception ex)
 		{
 			throw new InvalidStateException("An error occurred while setting attachments", ex);
@@ -485,7 +376,7 @@ public class EmailService
 	}
 	*/
 	
-	public void sendEmail(String templateName, Object context)
+	public void sendEmail(String templateName, Object context, List<MailAttachment> attachments)
 	{
 		MailTemplateEntity mailTemplateEntity = mailTemplateService.fetchByName(templateName);
 		
@@ -494,7 +385,24 @@ public class EmailService
 			throw new InvalidArgumentException("Non existing mail template specified: {}", templateName);
 		}
 		
-		sendEmail(emailServerSettings, mailTemplateEntity, context);
+		sendEmail(emailServerSettings, mailTemplateEntity, context, attachments);
+	}
+
+	public void sendEmailUsingRes(String resFile, Object context, List<MailAttachment> attachments)
+	{
+		try(InputStream inputStream = EmailService.class.getResourceAsStream(resFile))
+		{
+			DefaultParserHandler handler = new DefaultParserHandler();
+			handler.setExpressionEnabled(false);
+			
+			MailTemplateEntity mailTemplateEntity = new MailTemplateEntity();
+			XMLBeanParser.parse(inputStream, mailTemplateEntity, handler);
+
+			sendEmail(emailServerSettings, mailTemplateEntity, context, attachments);
+		} catch(Exception ex)
+		{
+			throw new InvalidStateException("An error occurred while sending email using resource file", ex);
+		}
 	}
 
 	/**
@@ -507,23 +415,22 @@ public class EmailService
 	 * @param context
 	 *            Context to be used for processing.
 	 */
-	public void sendEmail(EmailServerSettings settings, MailTemplateEntity email, Object context)
+	public void sendEmail(EmailServerSettings settings, MailTemplateEntity email, Object context, List<MailAttachment> attachments)
 	{
 		Message message = null;
 		
 		try
 		{
-			// Used to collect the temp files generated by this class alone (not externally sent)
-			List<File> tempFiles = new ArrayList<>();
-			
 			// Build mail message object
-			message = buildMessage(settings, email, context, tempFiles);
+			message = buildMessage(settings, email, context, attachments);
 			
 			// send the message
 			Transport.send(message);
-			
-			// Delete temp files generated by this class (not externally attached files)
-			tempFiles.forEach(file -> file.delete());
+
+			if(attachments != null)
+			{
+				attachments.forEach(attachment -> attachment.getFileContent().delete());
+			}
 		} catch(Exception ex)
 		{
 			throw new InvalidStateException("An error occurred while sending email - {}", email, ex);

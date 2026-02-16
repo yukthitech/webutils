@@ -23,13 +23,9 @@
 
 package com.webutils.common.mail;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
-
-import com.yukthitech.validation.annotations.NotEmpty;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.validation.constraints.NotNull;
@@ -119,25 +115,9 @@ public class EmailServerSettings
 	private boolean enableSsl = false;
 	
 	/**
-	 * Host address from where mail can be read or deleted.
-	 */
-	@NotNull
-	@Size(min = 3)
-	private String imapHost;
-	
-	@NotNull
-	private Integer imapPort;
-	
-	/**
 	 * Flag indicating if TLS v2 related config has to be enabled.
 	 */
 	private boolean enableTlsV2;
-	
-	/**
-	 * Folders from which mails needs to be accessed.
-	 */
-	@NotEmpty
-	private List<String> folderNames = Arrays.asList("INBOX");
 	
 	/**
 	 * Sent folder to which mails being sent should be copied.
@@ -169,16 +149,16 @@ public class EmailServerSettings
 	*
 	* @return Java mail compatible properties.
 	*/
-	public Properties toProperties(boolean forImap)
+	public Properties toProperties()
 	{
 		Properties props = new Properties();
+		
+		props.put(PROP_SMTP_HOST, smtpHost);
+		props.put(PROP_SMTP_PORT, smtpPort);
 		
 		props.put(PROP_USE_AUTH, "" + useAuthentication);
 		props.put(PROP_ENABLE_TTLS, "" + enableTtls);
 		props.put("mail.smtp.ssl.enable", "" + enableSsl);
-		
-		props.put(PROP_SMTP_HOST, forImap ? imapHost : smtpHost);
-		props.put(PROP_SMTP_PORT, forImap ? "" + imapPort : "" + smtpPort);
 		
 		if(smtpLocalHost != null && smtpLocalHost.trim().length() > 0)
 		{
