@@ -139,8 +139,9 @@ public class FieldDef
 	 *
 	 * @param field the field
 	 */
-	public FieldDef(Field field)
+	public FieldDef(String id, Field field)
 	{
+		this.id = id;
 		this.field = field;
 	}
 }

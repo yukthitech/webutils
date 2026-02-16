@@ -28,7 +28,7 @@ public class MobileOtpSupport extends AbstractOtpSupport
 	}
 
 	@Override
-	public void sendCode(String value, String code) throws CodeDeliveryException
+	public void sendCode(OtpDetails otpDetails) throws CodeDeliveryException
 	{
 		//TODO: Yet to be done
 	}

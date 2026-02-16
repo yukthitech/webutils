@@ -22,7 +22,6 @@ import org.springframework.stereotype.Service;
 
 import com.webutils.common.form.otp.VerificationType;
 import com.webutils.services.mail.EmailService;
-import com.yukthitech.utils.CommonUtils;
 import com.yukthitech.utils.exceptions.InvalidStateException;
 
 @Service
@@ -43,7 +42,7 @@ public class EmailOtpSupport extends AbstractOtpSupport
 	}
 
 	@Override
-	public void sendCode(String emailId, String code) throws CodeDeliveryException
+	public void sendCode(OtpDetails otpDetails) throws CodeDeliveryException
 	{
 		if(emailService == null)
 		{
@@ -55,6 +54,6 @@ public class EmailOtpSupport extends AbstractOtpSupport
 			throw new InvalidStateException("No email-template is configured for sending verification code.");
 		}
 		
-		emailService.sendEmail(emailVerificationTemplateName, CommonUtils.toMap("mailId", emailId, "otp", code));
+		//emailService.sendEmailUsingRes(emailVerificationTemplateName, otpDetails, null);
 	}
 }

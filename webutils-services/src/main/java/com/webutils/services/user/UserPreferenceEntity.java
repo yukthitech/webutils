@@ -11,7 +11,7 @@ import javax.persistence.Table;
 
 import com.yukthitech.persistence.annotations.DataType;
 import com.yukthitech.persistence.annotations.DataTypeMapping;
-import com.yukthitech.persistence.conversion.impl.JsonConverter;
+import com.yukthitech.persistence.conversion.impl.JsonWithTypeConverter;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -39,7 +39,7 @@ public class UserPreferenceEntity
     private String key;
 
     @Column(name = "PREF_VALUE")
-    @DataTypeMapping(type = DataType.STRING, converterType = JsonConverter.class)
+    @DataTypeMapping(type = DataType.STRING, converterType = JsonWithTypeConverter.class)
     private Object value;
 
     @Column(name = "LAST_UPDATED_TIME")

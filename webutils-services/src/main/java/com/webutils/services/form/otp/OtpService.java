@@ -29,8 +29,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
+import com.webutils.common.UserDetails;
 import com.webutils.common.form.otp.OtpValidator;
 import com.webutils.common.form.otp.OtpVerification;
+import com.webutils.common.form.otp.SendOtpResponse;
 import com.webutils.common.form.otp.VerificationType;
 import com.webutils.services.auth.UserContext;
 import com.webutils.services.common.ExecutionService;
@@ -90,25 +92,19 @@ public class OtpService
     private ExecutionService executionService;
 
 	/**
-	 * Max otp token time for which it will be treated as valid. Default: 180 sec (3 min).
+	 * Max time for which verification-token (otp) will be treated as valid. Default: 600 sec (10 min).
 	 */
-	@Value("${webutils.verification.otpTokenTimeSec:180}")
-	private long maxOtpTokenTimeSec;
-	
-	/**
-	 * Max verification token time for which it will be treated as valid. Default: 600 sec (10 min).
-	 */
-	@Value("${webutils.verification.verificationTokenTimeSec:600}")
-	private long maxVerTokenTimeSec;
+	@Value("${webutils.verification.otpExpiryTimeSec:600}")
+	private int otpExpiryTimeSec;
 
-	@Value("${webutils.verification.otp.maxAttempts:3}")
+	@Value("${webutils.verification.otp.maxAttempts:6}")
 	private int maxOtpAttempts;
 
 	@Value("${webutils.verification.otp.minRetryDurationSec:30}")
-	private long minRetryDurationSec;
+	private int minRetryDurationSec;
 
 	@Value("${webutils.verification.otp.maxAttemptsDurationHours:24}")
-	private long maxAttemptsDurationHour;
+	private int maxAttemptsDurationHour;
 
 	/**
 	 * List of verification supports.
@@ -148,7 +144,7 @@ public class OtpService
 	 * @param value Value to be verified. Eg: phone number, email id, etc.
 	 * @return
 	 */
-	public String sendOtp(VerificationType type, String value) throws CodeDeliveryException
+	public SendOtpResponse sendOtp(VerificationType type, String value) throws CodeDeliveryException
 	{
 		if(encryptor == null)
 		{
@@ -197,9 +193,17 @@ public class OtpService
 		// TODO: Generate random code.
 		String code = "4444";
 		
-		support.sendCode(value, code);
+		UserDetails userDetails = UserContext.getCurrentUser();
 		
-		String encodedString = String.format("otp:%s;%s;%s;%s", type, value, code, System.currentTimeMillis());
+		support.sendCode(
+			new OtpDetails()
+				.setTarget(value)
+				.setOtp(code)
+				.setUserDetails(userDetails)
+			);
+		
+		long curTime = System.currentTimeMillis();
+		String encodedString = String.format("otp:%s;%s;%s;%s", type, value, code, curTime);
 		String res = encryptor.encrypt(encodedString);
 
 		// set updated user otp details
@@ -208,7 +212,14 @@ public class OtpService
 			.setAttempts(userOtpDetails.getAttempts() + 1);
 		userService.setUserPreference(otpPrefKey, userOtpDetails);
 
-		return res;
+		return new SendOtpResponse()
+				.setType(type)
+				.setValue(value)
+				.setToken(res)
+				.setAttemptsRemaining(maxOtpAttempts - userOtpDetails.attempts)
+				.setRetryAfterSec(minRetryDurationSec)
+				.setExpiresOn(curTime + otpExpiryTimeSec * 1000)
+				;
 	}
 	
 	private void verify(VerificationType verificationType, OtpVerification otp)
@@ -251,7 +262,7 @@ public class OtpService
 		
 		long diffSec = (curTime - tokenTime) / 1000;
 		
-		if(diffSec < 0 || diffSec > maxVerTokenTimeSec)
+		if(diffSec < 0 || diffSec > otpExpiryTimeSec)
 		{
 			throw new InvalidRequestException("Token expired.");
 		}

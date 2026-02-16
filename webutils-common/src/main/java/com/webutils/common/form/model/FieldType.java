@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.webutils.common.ValueWithToken;
+import com.webutils.common.form.otp.OtpVerification;
 import com.yukthitech.utils.rest.FileInfo;
 
 /**
@@ -58,7 +59,7 @@ public enum FieldType
 	/**
 	 * A field which in turns requires verification.
 	 */
-	VERIFICATION("verification", String.class),
+	VERIFICATION("verification", OtpVerification.class),
 	
 	/**
 	 * Captcha field to avoid robots.

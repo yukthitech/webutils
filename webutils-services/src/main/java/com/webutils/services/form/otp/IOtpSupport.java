@@ -30,8 +30,7 @@ public interface IOtpSupport
 	
 	/**
 	 * Should send specified code to the specified type with specified value.
-	 * @param value Value to be verified. Eg: phone number, email id, etc.
-	 * @param code Code to be sent.
+	 * @param otpDetails Code to be sent Value to be verified (Eg: phone number, email id, etc.) along with other details.
 	 */
-	public void sendCode(String value, String code) throws CodeDeliveryException;
+	public void sendCode(OtpDetails otpDetails) throws CodeDeliveryException;
 }

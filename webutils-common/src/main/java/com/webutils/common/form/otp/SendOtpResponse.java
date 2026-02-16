@@ -27,6 +27,7 @@ import com.webutils.common.response.BaseResponse;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 
 /**
  * Response for sending otp request.
@@ -34,10 +35,36 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
+@Accessors(chain = true)
 public class SendOtpResponse extends BaseResponse
 {
+	/**
+	 * Type of verification performed.
+	 */
+	private VerificationType type;
+	
+	/**
+	 * Valued being verified.
+	 */
+	private String value;
+	
+	/**
+	 * Time in millis when the current token will expire.
+	 */
+	private long expiresOn;
+	
 	/**
 	 * Token generated during sending OTP.
 	 */
 	private String token;
+	
+	/**
+	 * Time after which otp generation can be retried.
+	 */
+	private int retryAfterSec;
+	
+	/**
+	 * Number of times this user can retry sending otp.
+	 */
+	private int attemptsRemaining;
 }

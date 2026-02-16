@@ -142,11 +142,6 @@ public class SecurityInterceptor implements HandlerInterceptor
 		NoAuthentication noAuth = handlerMethod.getMethodAnnotation(NoAuthentication.class);
 		boolean isAuthRequired = (noAuth == null);
 		
-		if(noAuth != null)
-		{
-			return true;
-		}
-		
 		try 
         {
             // Clear any existing user context
@@ -164,10 +159,21 @@ public class SecurityInterceptor implements HandlerInterceptor
             UserContext.setCurrentUser(userDetails);
             
             // Continue with the request
-            checkAuthorization(handlerMethod);
+            if(isAuthRequired)
+            {
+            	checkAuthorization(handlerMethod);
+            }
+            
             return true;
         } catch (UnauthenticatedRequestException e) 
         {
+        	// if auth is not required
+        	//   this exception would come when token is present but not valid anymore 
+        	if(!isAuthRequired)
+        	{
+        		return true;
+        	}
+        	
         	logger.info("Rejecting resource because of session unavailability: {}. Error: {}", request.getRequestURI(), e.getMessage());
         	logger.debug("Sending {} status response in json format", HttpServletResponse.SC_UNAUTHORIZED);
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
