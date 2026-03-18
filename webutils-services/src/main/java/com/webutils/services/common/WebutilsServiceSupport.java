@@ -13,8 +13,6 @@ import java.util.stream.Collectors;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.webutils.common.form.model.FieldDef;
 import com.webutils.common.form.model.FieldType;
@@ -30,6 +28,7 @@ import com.yukthitech.utils.exceptions.InvalidStateException;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Part;
 
 @Service
 public class WebutilsServiceSupport
@@ -89,54 +88,65 @@ public class WebutilsServiceSupport
 
 		return model;
 	}
-
+	
 	private void populateFileInfos(Object model, Object entityFromDb, ModelDef modelDef, FieldDef fieldDef)
 	{
-		if(!(request instanceof MultipartHttpServletRequest))
+		if(request.getContentType() == null || !request.getContentType().toLowerCase().startsWith("multipart/"))
 		{
-			throw new InvalidStateException("Multipart request is required for file field: {}.{}", 
-				modelDef.getName(), fieldDef.getName());
+			throw new InvalidRequestException("No attachment found for field (Non multi part request): {}", 
+					fieldDef.getName());
 		}
 
-		MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
-
-		List<MultipartFile> multipartFiles = multipartRequest.getFiles(fieldDef.getName());
-
-		if(multipartFiles == null || multipartFiles.isEmpty())
+		try
 		{
-			return;
-		}
+			Collection<Part> partLst = request.getParts();
+			
+			if(partLst == null || partLst.isEmpty())
+			{
+				return;
+			}
 
-		boolean isMultiValued = fieldDef.isMultiValued();
+			boolean isMultiValued = fieldDef.isMultiValued();
+			int partCount = 0;
 
-		if(!isMultiValued && multipartFiles.size() > 1)
+			String filePrefix = String.format("%s-%s-%s", modelDef.getName(), fieldDef.getName(), UUID.randomUUID().toString());
+
+			// Save new files and populate file info
+			List<String> fileNames = new ArrayList<>();
+
+			for(Part part : request.getParts())
+			{
+				if(!fieldDef.getName().equals(part.getName()))
+				{
+					continue;
+				}
+				
+				if(!isMultiValued && partCount > 1)
+				{
+					throw new InvalidRequestException("Multiple files found single value field: {}", 
+						fieldDef.getName());
+				}
+
+				String finalName = fileService.save(fieldDef.getGroupName(), filePrefix, part);
+				fileNames.add(finalName);
+			}
+
+			if(isMultiValued)
+			{
+				PropertyAccessor.setProperty(model, fieldDef.getName(), convertToCollection(fileNames, fieldDef));
+			}
+			else
+			{
+				PropertyAccessor.setProperty(model, fieldDef.getName(), fileNames.get(0));
+			}
+
+		} catch(Exception e)
 		{
-			throw new InvalidRequestException("Multiple files are not allowed for single value field: {}.{}", 
-				modelDef.getName(), fieldDef.getName());
+			throw new RuntimeException("Failed to extract multipart files", e);
 		}
 		
 		// Remove old files mentioned in entity, only when new files are specified on request
 		removeOldFiles(entityFromDb, modelDef, fieldDef);
-
-		String filePrefix = String.format("%s-%s-%s", modelDef.getName(), fieldDef.getName(), UUID.randomUUID().toString());
-
-		// Save new files and populate file info
-		List<String> fileNames = new ArrayList<>();
-
-		for(MultipartFile multipartFile : multipartFiles)
-		{
-			String finalName = fileService.save(fieldDef.getGroupName(), filePrefix, multipartFile);
-			fileNames.add(finalName);
-		}
-
-		if(isMultiValued)
-		{
-			PropertyAccessor.setProperty(model, fieldDef.getName(), convertToCollection(fileNames, fieldDef));
-		}
-		else
-		{
-			PropertyAccessor.setProperty(model, fieldDef.getName(), fileNames.get(0));
-		}
 	}
 
 	@SuppressWarnings("unchecked")

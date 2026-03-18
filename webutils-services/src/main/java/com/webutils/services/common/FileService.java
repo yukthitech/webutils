@@ -9,12 +9,12 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.yukthitech.utils.exceptions.InvalidStateException;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Part;
 
 @Service
 public class FileService
@@ -35,9 +35,9 @@ public class FileService
 		}
 	}
 	
-	public String save(String groupName, String filePrefix, MultipartFile multipartFile)
+	public String save(String groupName, String filePrefix, Part part)
 	{
-		String fullFileName = filePrefix+ "#"  + multipartFile.getOriginalFilename();
+		String fullFileName = filePrefix+ "#"  + part.getSubmittedFileName();
 
 		try
 		{
@@ -55,7 +55,7 @@ public class FileService
 				rooDir = groupDir;
 			}
 
-			FileUtils.copyInputStreamToFile(multipartFile.getInputStream(), new File(rooDir, fullFileName));
+			FileUtils.copyInputStreamToFile(part.getInputStream(), new File(rooDir, fullFileName));
 		}catch(Exception ex)
 		{
 			throw new InvalidStateException("Error in saving file", ex);
