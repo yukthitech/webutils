@@ -5,8 +5,10 @@ import java.util.Collections;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.webutils.common.FileInfo;
 import com.webutils.common.UserDetails;
 import com.webutils.common.auth.Authorization;
 import com.webutils.common.auth.NoAuthentication;
@@ -15,6 +17,9 @@ import com.webutils.services.auth.UserContext;
 @Service
 public class SecurityService
 {
+	@Autowired
+	private IWebutilsService webutilsService;
+
 	public void checkAuthorization(boolean isAuthRequired, Set<String> supportedRoles)
 	{
 		UserDetails userDetails = UserContext.getCurrentUser();
@@ -46,7 +51,6 @@ public class SecurityService
         }
         
         throw new UnauthorizedRequestException("User does not have required access");
-		
 	}
 	
 	/**
@@ -78,5 +82,12 @@ public class SecurityService
 				authorization == null ? null : Set.of(authorization.value())
 				);
 	}
-
+	
+	public void checkFileAuthorization(FileInfo fileInfo)
+	{
+		if(!webutilsService.isFileAccessible(fileInfo))
+		{
+			throw new UnauthorizedRequestException("User does not have required access");
+		}
+	}
 }

@@ -31,6 +31,7 @@ import org.springframework.stereotype.Service;
 import com.webutils.cache.CacheConfig;
 import com.webutils.cache.CacheFactory;
 import com.webutils.cache.ICache;
+import com.webutils.common.repo.IMissingTableRepository;
 import com.webutils.lov.LovOption;
 import com.webutils.services.auth.UserContext;
 import com.webutils.services.common.SecurityService;
@@ -67,6 +68,12 @@ public class StoredLovService
 	@PostConstruct
 	private void init()
 	{
+		if(lovRepository instanceof IMissingTableRepository)
+		{
+			logger.warn("Stored lov repository is not enabled");
+			return;
+		}
+		
 		lovOptionsCache = cacheFactory.getCache("storedLovService.lovOptions", new CacheConfig<String, List<LovOption>>()
 			.maxSize(50));
 

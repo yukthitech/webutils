@@ -7,9 +7,14 @@ import java.util.Collection;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.webutils.common.FileInfo;
+import com.webutils.common.UserDetails;
+import com.webutils.services.auth.UserContext;
 import com.yukthitech.utils.exceptions.InvalidStateException;
 
 import jakarta.annotation.PostConstruct;
@@ -19,7 +24,12 @@ import jakarta.servlet.http.Part;
 @Service
 public class FileService
 {
-	@Value("${app.webutils.filesRoot:'./data'}")
+	private static ObjectMapper objectMapper = new ObjectMapper();
+
+	@Autowired
+	private SecurityService securityService;
+
+	@Value("${app.webutils.filesRoot:./data}")
 	private String filesRoot;
 
 	private File filesRootDir;
@@ -56,6 +66,16 @@ public class FileService
 			}
 
 			FileUtils.copyInputStreamToFile(part.getInputStream(), new File(rooDir, fullFileName));
+
+			UserDetails userDetails = UserContext.getCurrentUser();
+			FileInfo fileInfo = new FileInfo()
+				.setOwnerId(userDetails == null ? null : userDetails.getId())
+				.setFileName(fullFileName)
+				.setGroupName(groupName)
+				;
+
+			File infoFile = new File(rooDir, fullFileName + ".info");
+			objectMapper.writeValue(infoFile, fileInfo);
 		}catch(Exception ex)
 		{
 			throw new InvalidStateException("Error in saving file", ex);
@@ -64,7 +84,7 @@ public class FileService
 		return fullFileName;
 	}
 
-	public void writeTo(String groupName, String fullFileName, HttpServletResponse response)
+	public void writeTo(String groupName, String fullFileName, boolean inline, HttpServletResponse response)
 	{
 		try
 		{
@@ -74,21 +94,29 @@ public class FileService
 			{
 				rooDir = new File(rooDir, groupName);
 			}
-
+			
+			File infoFile = new File(rooDir, fullFileName + ".info");
 			File file = new File(rooDir, fullFileName);
+
+			if(!infoFile.exists())
+			{
+				throw new InvalidStateException("File info not found: {} [Group: {}]", fullFileName, groupName);
+			}
 
 			if(!file.exists())
 			{
 				throw new InvalidStateException("File not found: {} [Group: {}]", fullFileName, groupName);
 			}
-			
+
+			FileInfo fileInfo = objectMapper.readValue(infoFile, FileInfo.class);
+			securityService.checkFileAuthorization(fileInfo);
+
 			int idx = fullFileName.indexOf('#');
 			String fileName = fullFileName.substring(idx + 1);
 
-			response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
+			response.setHeader("Content-Disposition", (inline ? "inline" : "attachment") + "; filename=\"" + fileName + "\"");
 			response.setContentType(URLConnection.guessContentTypeFromName(fileName));
 			response.setContentLength((int) file.length());
-			
 
 			FileUtils.copyFile(file, response.getOutputStream());
 		}catch(Exception ex)
@@ -114,6 +142,7 @@ public class FileService
 		for(String fileName : fileNames)
 		{
 			new File(rooDir, fileName).delete();
+			new File(rooDir, fileName + ".info").delete();
 		}
 	}
 }

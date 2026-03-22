@@ -27,7 +27,6 @@ import com.yukthitech.utils.PropertyAccessor;
 import com.yukthitech.utils.exceptions.InvalidStateException;
 
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Part;
 
 @Service
@@ -312,13 +311,5 @@ public class WebutilsServiceSupport
 				throw new InvalidStateException("Error in setting lov value(s) for field: {}.{}", modelDef.getName(), fieldDef.getName(), ex);
 			}
 		}
-	}
-	
-	public void writeFileTo(long entityId, Class<?> modelType, String field, String fileName, HttpServletResponse response)
-	{
-		ModelDef modelDef = modelService.getModelDef(modelType);
-		FieldDef fieldDef = modelDef.getFieldDef(field);
-		
-		fileService.writeTo(fieldDef.getGroupName(), fileName, response);
 	}
 }

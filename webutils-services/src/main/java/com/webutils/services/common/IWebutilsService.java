@@ -1,6 +1,8 @@
 package com.webutils.services.common;
 
+import com.webutils.common.FileInfo;
 import com.webutils.common.UserDetails;
+import com.webutils.services.auth.UserContext;
 import com.webutils.services.user.UserEntity;
 
 /**
@@ -16,5 +18,11 @@ public interface IWebutilsService
             );
 
         return userDetails;
+	}
+	
+	public default boolean isFileAccessible(FileInfo fileInfo)
+	{
+		UserDetails userDetails = UserContext.getCurrentUser();
+		return (userDetails.getId() == fileInfo.getOwnerId());
 	}
 }

@@ -125,7 +125,7 @@ public class AuthTokenService
 
     public UserDetails getUserDetails(String token)
     {
-        logger.debug("Getting user details [Token: {}]", token);
+        logger.trace("Getting user details [Token: {}]", token);
         
     	TokenDetails cachedTokenDetails = tokenCache.get(token);
 
@@ -167,7 +167,7 @@ public class AuthTokenService
 
     private void checkAndRenewToken(TokenDetails tokenDetails)
     {
-        logger.debug("Checking and renewing token [Token: {}]", tokenDetails.getAuthToken());
+        logger.trace("Checking and renewing token [Token: {}]", tokenDetails.getAuthToken());
         
         String token = tokenDetails.getAuthToken();
         long currentTime = System.currentTimeMillis();
