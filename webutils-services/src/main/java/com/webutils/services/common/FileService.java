@@ -44,6 +44,19 @@ public class FileService
 			FileUtils.forceMkdir(filesRootDir);
 		}
 	}
+
+	public boolean isExistingFile(String groupName, String fileName)
+	{
+		File rooDir = this.filesRootDir;
+
+		if(StringUtils.isNotBlank(groupName))
+		{
+			rooDir = new File(rooDir, groupName);
+		}
+
+		File file = new File(rooDir, fileName);
+		return file.exists();
+	}
 	
 	public String save(String groupName, String filePrefix, Part part)
 	{

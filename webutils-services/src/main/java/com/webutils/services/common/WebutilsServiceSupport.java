@@ -1,6 +1,7 @@
 package com.webutils.services.common;
 
 import java.lang.reflect.Field;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -11,6 +12,8 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -96,6 +99,9 @@ public class WebutilsServiceSupport
 					fieldDef.getName());
 		}
 
+		// Save new files and populate file info
+		List<String> fileNames = new ArrayList<>();
+		
 		try
 		{
 			Collection<Part> partLst = request.getParts();
@@ -110,9 +116,6 @@ public class WebutilsServiceSupport
 
 			String filePrefix = String.format("%s-%s-%s", modelDef.getName(), fieldDef.getName(), UUID.randomUUID().toString());
 
-			// Save new files and populate file info
-			List<String> fileNames = new ArrayList<>();
-
 			for(Part part : request.getParts())
 			{
 				if(!fieldDef.getName().equals(part.getName()))
@@ -126,10 +129,35 @@ public class WebutilsServiceSupport
 						fieldDef.getName());
 				}
 
+				// If file name is blank, then it indicates existing file is retained
+				if(StringUtils.isBlank(part.getSubmittedFileName()))
+				{
+					// get part content as string, which should be existing file name
+					String fileName = IOUtils.toString(part.getInputStream(), StandardCharsets.UTF_8);
+					fileName = StringUtils.isNotBlank(fileName) ? fileName.trim() : null;
+
+					// if file exists, then add to file names
+					if(fileName != null && fileService.isExistingFile(fieldDef.getGroupName(), fileName))
+					{
+						fileNames.add(fileName);
+					}
+
+					// if file does not exist, then skip the part
+					continue;
+				}
+
 				String finalName = fileService.save(fieldDef.getGroupName(), filePrefix, part);
 				fileNames.add(finalName);
 			}
 
+			// If no files are uploaded, then set the field to null
+			if(fileNames.isEmpty())
+			{
+				PropertyAccessor.setProperty(model, fieldDef.getName(), null);
+				removeOldFiles(entityFromDb, modelDef, fieldDef, fileNames);
+				return;
+			}
+			
 			if(isMultiValued)
 			{
 				PropertyAccessor.setProperty(model, fieldDef.getName(), convertToCollection(fileNames, fieldDef));
@@ -138,18 +166,17 @@ public class WebutilsServiceSupport
 			{
 				PropertyAccessor.setProperty(model, fieldDef.getName(), fileNames.get(0));
 			}
-
 		} catch(Exception e)
 		{
 			throw new RuntimeException("Failed to extract multipart files", e);
 		}
 		
-		// Remove old files mentioned in entity, only when new files are specified on request
-		removeOldFiles(entityFromDb, modelDef, fieldDef);
+		// Remove old files mentioned in entity, which are not used in the request
+		removeOldFiles(entityFromDb, modelDef, fieldDef, fileNames);
 	}
 
 	@SuppressWarnings("unchecked")
-	private void removeOldFiles(Object entityFromDb, ModelDef modelDef, FieldDef fieldDef)
+	private void removeOldFiles(Object entityFromDb, ModelDef modelDef, FieldDef fieldDef, List<String> usedFileNames)
 	{
 		if(entityFromDb == null)
 		{
@@ -184,7 +211,14 @@ public class WebutilsServiceSupport
 
 		if(oldFileNames != null)
 		{
-			fileService.delete(fieldDef.getGroupName(), oldFileNames);
+			Set<String> fileNamesToDelete = new HashSet<>(oldFileNames);
+			fileNamesToDelete.removeAll(usedFileNames);
+
+			// Delete files that are not used
+			if(!fileNamesToDelete.isEmpty())
+			{
+				fileService.delete(fieldDef.getGroupName(), fileNamesToDelete);
+			}
 		}
 	}
 
