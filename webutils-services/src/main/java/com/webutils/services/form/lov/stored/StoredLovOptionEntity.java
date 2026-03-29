@@ -71,6 +71,7 @@ public class StoredLovOptionEntity
 	private boolean approved;
 
 	@Column(name = "CREATED_BY_ID", nullable = false)
+	@ManyToOne
 	private UserEntity createdBy;
 
 	@Column(name = "CREATED_ON", nullable = false)

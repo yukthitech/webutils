@@ -63,7 +63,7 @@ public class StoredLovEntity
 	 */
 	@Column(name = "NAME", length = 100, nullable = false)
 	private String name;
-
+	
 	/**
 	 * Flag indicating if authentication is required to access this lov.
 	 */
@@ -84,4 +84,10 @@ public class StoredLovEntity
 	@Column(name = "PARENT_LOV_ID", nullable = true)
 	@ManyToOne
 	private StoredLovEntity parent;
+
+	/**
+	 * Name of the provider method which will be used to fetch parent lov value.
+	 */
+	@Column(name = "PARENT_PROVIDER_NAME", length = 100, nullable = true)
+	private String parentProviderName;
 }

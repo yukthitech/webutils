@@ -161,8 +161,18 @@ public class ValidationDefBuilder
 	 */
 	public Collection<ValidationDef> getValidations(Field field)
 	{
-		Annotation annotations[] = field.getAnnotations();
-		
+		logger.trace("Loading validations of field {}.{}", field.getDeclaringClass().getName(), field.getName());
+		return getValidations(field.getAnnotations(), field.getType());
+	}
+
+	/**
+	 * Get validations for specified annotations and target type.
+	 * @param annotations annotations to process
+	 * @param fieldType target type for validation resolution
+	 * @return validations built out of specified annotations
+	 */
+	public Collection<ValidationDef> getValidations(Annotation[] annotations, Class<?> fieldType)
+	{
 		//if no annotations are defined, return empty list
 		if(annotations == null || annotations.length == 0)
 		{
@@ -176,18 +186,15 @@ public class ValidationDefBuilder
 		ValidationDef validationDef = null;
 		Object value = null;
 		Map<String, Object> valueMap = new HashMap<>();
-		Class<?> fieldType = field.getType();
 		
-		logger.trace("Loading validations of field {}.{}", field.getDeclaringClass().getName(), field.getName());
-		
-		//if field type id primitive, convert type to corresponding wrapper type
+		//if field type is primitive, convert type to corresponding wrapper type
 		if(fieldType.isPrimitive())
 		{
 			fieldType = CommonUtils.getWrapperType(fieldType);
 			
 			if(fieldType == null)
 			{
-				throw new IllegalStateException("Failed to find wrapper of primitive type - " + field.getType().getName());
+				throw new IllegalStateException("Failed to find wrapper of primitive type");
 			}
 		}
 		

@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,7 @@ import com.webutils.common.repo.IMissingTableRepository;
 import com.webutils.lov.LovOption;
 import com.webutils.services.auth.UserContext;
 import com.webutils.services.common.SecurityService;
+import com.webutils.services.form.lov.LovService;
 import com.webutils.services.user.UserEntity;
 import com.yukthitech.utils.exceptions.InvalidArgumentException;
 import com.yukthitech.utils.exceptions.InvalidStateException;
@@ -60,6 +62,9 @@ public class StoredLovService
 	
 	@Autowired
 	private SecurityService securityService;
+
+	@Autowired
+	private LovService lovService;
 
 	private ICache<String, List<LovOption>> lovOptionsCache;
 	
@@ -105,6 +110,13 @@ public class StoredLovService
 		}
 		
 		securityService.checkAuthorization(lovEntity.isAuthRequired(), lovEntity.getAuthorizedRoles());
+
+		if(StringUtils.isNotBlank(lovEntity.getParentProviderName()))
+		{
+			String parentValue = lovService.getParentValue(lovEntity.getParentProviderName());
+			return fetchChildLovOptionsFromDb(lovEntity.getParent().getName(), parentValue, lovName);
+		}
+
 		return lovOptionsCache.computeIfAbsent(lovName, () -> fetchLovOptionsFromDb(lovName));
 	}
 
@@ -183,6 +195,12 @@ public class StoredLovService
 			throw new InvalidStateException("No lov found with name: {}", lovName);
 		}
 
+		if(StringUtils.isNotBlank(lovEntity.getParentProviderName()))
+		{
+			String parentValue = lovService.getParentValue(lovEntity.getParentProviderName());
+			lovConfig.setParentOptionLabel(parentValue);
+		}
+		
 		StoredLovOptionEntity parentOption = null;
 
 		if(lovEntity.getParent() != null)

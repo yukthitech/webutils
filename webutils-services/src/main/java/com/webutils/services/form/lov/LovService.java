@@ -46,6 +46,7 @@ import org.springframework.stereotype.Service;
 
 import com.webutils.common.ServiceMethod;
 import com.webutils.common.form.annotations.Label;
+import com.webutils.common.form.annotations.LovParentProvider;
 import com.webutils.lov.LovOption;
 import com.webutils.services.common.ClassScannerService;
 import com.webutils.services.common.ConfgurationException;
@@ -75,6 +76,11 @@ public class LovService
 	 * LOV method details cache.
 	 */
 	private Map<String, ServiceMethod> nameToLovMet = new HashMap<>();
+
+	/**
+	 * Map of parent provider name to service method.
+	 */
+	private Map<String, ServiceMethod> nameToParentProvider = new HashMap<>();
 	
 	private boolean initialized = false;
 	
@@ -92,15 +98,17 @@ public class LovService
 		
 		initialized = true;
 		
-		loadLovMethods(LovMethod.class);
-		loadLovMethods(LovQuery.class);
+		loadLovMethods(LovMethod.class, nameToLovMet);
+		loadLovMethods(LovQuery.class, nameToLovMet);
+
+		loadLovMethods(LovParentProvider.class, nameToParentProvider);
 	}
 
 	@SuppressWarnings("rawtypes")
-	private void loadLovMethods(Class<? extends Annotation> annotType)
+	private <A extends Annotation> void loadLovMethods(Class<A> annotType, Map<String, ServiceMethod> nameToLovMet)
 	{
 		Set<Method> lovMethods = classScannerService.getMethodsAnnotatedWith(annotType);
-		LovMethod lovMethod = null;
+		A annot = null;
 		String name = null;
 		Object springComponent = null;
 		
@@ -121,32 +129,42 @@ public class LovService
 			}
 			
 			Type returnType = method.getGenericReturnType();
-			
-			if(!(returnType instanceof ParameterizedType))
+
+			if(LovParentProvider.class.equals(annotType))
 			{
-				throw new ConfgurationException("Lov-method {}.{}() is not having parameterized collection return type", method.getDeclaringClass().getName(), method.getName());
+				if(!String.class.equals(returnType))
+				{
+					throw new ConfgurationException("Lov-parent-provider {}.{}() is not having string return type", method.getDeclaringClass().getName(), method.getName());
+				}
+			}
+			else
+			{
+				if(!(returnType instanceof ParameterizedType))
+				{
+					throw new ConfgurationException("Lov-method {}.{}() is not having parameterized collection return type", method.getDeclaringClass().getName(), method.getName());
+				}
+				
+				ParameterizedType parameterizedReturnType = (ParameterizedType) returnType;
+				
+				if(!List.class.isAssignableFrom((Class) parameterizedReturnType.getRawType()))
+				{
+					throw new ConfgurationException("Lov-method {}.{}() is not having list return type", method.getDeclaringClass().getName(), method.getName());
+				}
+				
+				if(!LovOption.class.isAssignableFrom((Class) parameterizedReturnType.getActualTypeArguments()[0]))
+				{
+					throw new ConfgurationException("Lov-method {}.{}() is not returning collection of LovOption.", method.getDeclaringClass().getName(), method.getName());
+				}
 			}
 			
-			ParameterizedType parameterizedReturnType = (ParameterizedType) returnType;
-			
-			if(List.class.isAssignableFrom((Class) parameterizedReturnType.getRawType()))
-			{
-				throw new ConfgurationException("Lov-method {}.{}() is not having collection return type", method.getDeclaringClass().getName(), method.getName());
-			}
-			
-			if(LovOption.class.isAssignableFrom((Class) parameterizedReturnType.getActualTypeArguments()[0]))
-			{
-				throw new ConfgurationException("Lov-method {}.{}() is not returning collection of LovOption.", method.getDeclaringClass().getName(), method.getName());
-			}
-			
-			lovMethod = method.getAnnotation(LovMethod.class);
-			name = lovMethod.name();
+			annot = method.getAnnotation(annotType);
+			name = getName(annot);
 			
 			ServiceMethod serviceMethod = new ServiceMethod(springComponent, method);
 			
 			if(nameToLovMet.containsKey(name))
 			{
-				throw new InvalidConfigurationException("Duplicate lov found with same name - {} [{}.{}(), {}.{}()]", 
+				throw new InvalidConfigurationException("Duplicate lov-based-method found with same name - {} [{}.{}(), {}.{}()]", 
 						name,
 						method.getDeclaringClass().getName(), method.getName(),
 						serviceMethod.getMethod().getDeclaringClass().getName(), serviceMethod.getMethod().getName() 
@@ -155,6 +173,23 @@ public class LovService
 			
 			nameToLovMet.put(name, serviceMethod);
 		}
+	}
+
+	private String getName(Annotation annot)
+	{
+		if(annot instanceof LovMethod)
+		{
+			return ((LovMethod)annot).name();
+		}
+		if(annot instanceof LovQuery)
+		{
+			return ((LovQuery)annot).name();
+		}
+		if(annot instanceof LovParentProvider)
+		{
+			return ((LovParentProvider)annot).name();
+		}
+		return null;
 	}
 
 	/**
@@ -245,6 +280,24 @@ public class LovService
 		securityService.checkAuthorization(serviceMethod.getMethod());
 		
 		return (List<LovOption>) serviceMethod.invoke();
+	}
+
+	/**
+	 * Fetches the value from the parent provider.
+	 * @param parentProviderName Name of the parent provider
+	 * @return Value from the parent provider
+	 */
+	public String getParentValue(String parentProviderName)
+	{
+		ServiceMethod serviceMethod = nameToParentProvider.get(parentProviderName);
+		
+		if(serviceMethod == null)
+		{
+			throw new InvalidParameterException("Invalid parent provider name specified - " + parentProviderName);
+		}
+
+		securityService.checkAuthorization(serviceMethod.getMethod());
+		return (String) serviceMethod.invoke();
 	}
 	
 	/**

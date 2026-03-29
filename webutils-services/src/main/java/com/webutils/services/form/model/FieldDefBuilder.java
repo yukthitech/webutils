@@ -23,6 +23,9 @@
 
 package com.webutils.services.form.model;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedParameterizedType;
+import java.lang.reflect.AnnotatedType;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -161,17 +164,28 @@ public class FieldDefBuilder
 			}
 			
 			lovFieldType = (Class<?>) paramType;
+
+			AnnotatedType annotatedType = field.getAnnotatedType();
+			
+			if(annotatedType instanceof AnnotatedParameterizedType)
+			{
+				AnnotatedType[] actualTypeArguments = ((AnnotatedParameterizedType)annotatedType).getAnnotatedActualTypeArguments();
+				
+				if(actualTypeArguments != null && actualTypeArguments.length == 1)
+				{
+					Annotation[] valueAnnotations = actualTypeArguments[0].getAnnotations();
+					Collection<ValidationDef> valueValidations = validationDefBuilder.getValidations(valueAnnotations, lovFieldType);
+					
+					if(CollectionUtils.isNotEmpty(valueValidations))
+					{
+						fieldDef.setValueValidations(new ArrayList<>(valueValidations));
+					}
+				}
+			}
 		}
 		
 		if(String.class.equals(lovFieldType))
 		{
-			if(lovType != LovType.STORED_TYPE)
-			{
-				throw new InvalidConfigurationException("For non-stored-type marked as editable (Field type used is: {}). Field: {}.{}", String.class.getName(),
-						modelType.getName(), field.getName());
-			}
-			
-			
 			lovDetails.setEditableLov(lovAnnotation.persist());
 		}
 		else

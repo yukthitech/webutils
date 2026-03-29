@@ -73,6 +73,11 @@ public class FieldDef
 	private List<ValidationDef> validations;
 
 	/**
+	 * In case of multi string value field, this will hold the validations for each value.
+	 */
+	private List<ValidationDef> valueValidations;
+
+	/**
 	 * Lov details, if this field type is LOV.
 	 */
 	private LovDetails lovDetails;
