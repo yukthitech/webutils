@@ -33,7 +33,7 @@ public class UserController
 {
     private static Logger logger = LogManager.getLogger(UserController.class);
     
-    private static final Pattern KEY_PATTERN = Pattern.compile("\\w+");
+    private static final Pattern KEY_PATTERN = Pattern.compile("\\w[\\w\\.\\-]*\\w");
     
     @Autowired
     private UserService userService;

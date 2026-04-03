@@ -279,6 +279,11 @@ public class WebutilsServiceSupport
 		{
 			lovValues = Arrays.asList(value);
 		}
+		
+		if(lovValues.isEmpty())
+		{
+			return;
+		}
 
 		if(lovDetails.getLovType() == LovType.STATIC_TYPE)
 		{
