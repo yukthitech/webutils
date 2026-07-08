@@ -6,6 +6,7 @@ import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
@@ -30,6 +31,25 @@ public class GlobalExceptionHandler
 {
 	private static Logger logger = LogManager.getLogger(GlobalExceptionHandler.class);
 
+	@ExceptionHandler(BeanValidationException.class)
+	public ResponseEntity<BaseResponse> handleBeanValidationException(BeanValidationException ex)
+	{
+		Map<String, String> errors = new HashMap<>();
+		for(BeanValidationException.PropertyError error : ex.getErrors())
+		{
+			errors.put(error.getField(), error.getMessage());
+		}
+
+		BaseResponse response = new BaseResponse()
+			.setSuccess(false)
+			.setErrors(errors)
+			.setMessage("Validation errors");
+
+		return ResponseEntity.badRequest()
+			.contentType(MediaType.APPLICATION_JSON)
+			.body(response);
+	}
+
 	/**
 	 * Handle validation errors
 	 */
@@ -49,7 +69,16 @@ public class GlobalExceptionHandler
 			.setErrors(errors)
 			.setMessage("Validation errors");
 
-		return ResponseEntity.badRequest().body(response);
+		return ResponseEntity.badRequest()
+			.contentType(MediaType.APPLICATION_JSON)
+			.body(response);
+	}
+
+	@ExceptionHandler(NoResourceFoundException.class)
+	public ResponseEntity<Void> handleNoResourceFound(NoResourceFoundException ex)
+	{
+		logger.debug("Resource not found: {}", ex.getMessage());
+		return ResponseEntity.notFound().build();
 	}
 
 	/**
@@ -74,6 +103,12 @@ public class GlobalExceptionHandler
 			status = HttpStatus.FORBIDDEN;
 			message = "Insufficient permissions. " + ex.getMessage();
 		}
+		else if(ex instanceof UnauthorizedRequestException)
+		{
+			logger.debug("Authorization failed: {}", ex.getMessage());
+			status = HttpStatus.FORBIDDEN;
+			message = ex.getMessage();
+		}
 		else if(ex instanceof InvalidRequestException)
 		{
 			logger.debug("Invalid request: {}", ex.getMessage());
@@ -85,12 +120,6 @@ public class GlobalExceptionHandler
 		{
 			logger.debug("Invalid request: {}", ex.getMessage());
 			status = HttpStatus.BAD_REQUEST;
-			message = ex.getMessage();
-		}
-		else if(ex instanceof NoResourceFoundException)
-		{
-			logger.debug("Resource not found: {}", ex.getMessage());
-			status = HttpStatus.NOT_FOUND;
 			message = ex.getMessage();
 		}
 		else if(ex instanceof MissingServletRequestParameterException)
@@ -109,6 +138,8 @@ public class GlobalExceptionHandler
 			.setMessage(message)
 			.setErrorParameters(errorParameters);
 
-		return ResponseEntity.status(status).body(response);
+		return ResponseEntity.status(status)
+			.contentType(MediaType.APPLICATION_JSON)
+			.body(response);
 	}
 }

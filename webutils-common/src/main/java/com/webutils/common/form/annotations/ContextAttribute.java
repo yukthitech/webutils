@@ -6,17 +6,15 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * For dynamic methods used to fetch attribute from WebutilsContext object.
- * @author akiran
+ * For search query fields used to fetch a value from the search execution context.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.PARAMETER, ElementType.FIELD})
 public @interface ContextAttribute
 {
 	/**
-	 * Property expression that can be executed on WebutilsContext.attributeMap.
-	 * Eg: currentUser.userId
-	 * @return Name of the context attribute
+	 * FreeMarker expression executed on the search execution context.
+	 * Eg: currentUser.id
 	 */
 	public String value();
 }

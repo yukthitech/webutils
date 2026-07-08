@@ -10,12 +10,13 @@ import javax.imageio.ImageIO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.webutils.common.form.captcha.CaptchaResponse;
 import com.webutils.common.form.captcha.CaptchaValidator;
 import com.webutils.services.form.captcha.CaptchaValueFactory.CaptchaValue;
-import com.yukthitech.utils.Encryptor;
+import com.webutils.services.form.token.TokenManager;
 import com.yukthitech.utils.exceptions.InvalidStateException;
 
 import jakarta.annotation.PostConstruct;
@@ -64,12 +65,21 @@ public class CaptchaService
 		
 	}
 	
-	@Autowired(required = false)
-	private Encryptor encryptor;
+	@Autowired
+	private TokenManager tokenManager;
+
+	@Value("${webutils.form.captcha.expiryTimeSec:600}")
+	private int captchaExpiryTimeSec;
 	
 	@PostConstruct
 	private void init()
 	{
+		if(tokenManager.isDisabled())
+		{
+			logger.info("CaptchaService is disabled as token manager is disabled");
+			return;
+		}
+
 		CaptchaValidator.setValidatorFunction(valueWithToken -> 
 		{
 			if(valueWithToken == null)
@@ -83,9 +93,9 @@ public class CaptchaService
 
 	public CaptchaResponse generate() throws Exception
 	{
-		if(encryptor == null)
+		if(tokenManager.isDisabled())
 		{
-			throw new InvalidStateException("No encryptor is configured, which is needed by this service");
+			throw new InvalidStateException("Captcha service is disabled");
 		}
 
 		CaptchaValue captchaValue = CaptchaValueFactory.generate();
@@ -103,7 +113,8 @@ public class CaptchaService
 		bos.flush();
 		
 		String base64Img = Base64.getEncoder().encodeToString(bos.toByteArray());
-		return new CaptchaResponse(base64Img, encryptor.encrypt(captchaValue.getAnswer()));
+		String token = tokenManager.saveToken(captchaValue.getAnswer(), captchaExpiryTimeSec);
+		return new CaptchaResponse(base64Img, token);
 	}
 	
 	/**
@@ -113,23 +124,20 @@ public class CaptchaService
 	 */
 	public boolean validate(String token, String userAns)
 	{
-		if(encryptor == null)
+		if(tokenManager.isDisabled())
 		{
-			throw new InvalidStateException("No encryptor is configured, which is needed by this service");
+			throw new InvalidStateException("Captcha service is disabled");
 		}
-		
-		String decryptedAns = null;
-		
-		try
+
+		String expectedAns = tokenManager.fetchToken(token);
+
+		if(expectedAns == null)
 		{
-			decryptedAns = encryptor.decrypt(token);
-		}catch(Exception ex)
-		{
-			logger.trace("User specified invalid token (which cannot be decrypted): {}", token);
+			logger.trace("User specified invalid or expired token: {}", token);
 			return false;
 		}
 		
-		if(!decryptedAns.equals(userAns))
+		if(!expectedAns.equals(userAns))
 		{
 			return false;
 		}

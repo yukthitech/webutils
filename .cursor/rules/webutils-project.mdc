@@ -1,0 +1,31 @@
+---
+description: WebUtils framework project structure and module guidance
+alwaysApply: true
+---
+
+# WebUtils Project
+
+WebUtils is a multi-tier framework built on Spring that provides common functionality for REST-based web applications. Consuming apps must maintain framework default tables (via Liquibase) in their database schema.
+
+## Module Layout
+
+### New modules (use for new projects)
+
+- **webutils-common** — Shared POJOs, form/model annotations, validators, response types. Package: `com.webutils.common`.
+- **webutils-services** — Backend services, controllers, repositories, entities, auth, search, mail, LOV. Package: `com.webutils.services`. Depends on `webutils-common`.
+
+These modules intentionally exclude legacy functionality and follow updated patterns. Target Java 25 and Spring Boot 4.x.
+
+### Legacy modules (old framework version)
+
+- **Commons** — Client/server contract POJOs (`com.yukthitech.webutils.common`)
+- **Services** — Backend services, CRUD, auth, search (`com.yukthitech.webutils`)
+- **Client** — Java client library for calling WebUtils APIs
+- **WebUtils** — Parent POM; includes `dbschema` (Liquibase) and `vue-based` UI assets
+- **TestWebApp** — Sample application demonstrating the legacy framework
+
+## Guidance
+
+- For new work, prefer **webutils-common** and **webutils-services** over legacy modules.
+- Reference legacy modules when porting features, comparing behavior, or maintaining existing apps.
+- Detailed legacy documentation: `WebUtils/README.MD`.

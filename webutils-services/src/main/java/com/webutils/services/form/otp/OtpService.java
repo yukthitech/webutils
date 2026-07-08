@@ -37,8 +37,8 @@ import com.webutils.common.form.otp.VerificationType;
 import com.webutils.services.auth.UserContext;
 import com.webutils.services.common.ExecutionService;
 import com.webutils.services.common.InvalidRequestException;
+import com.webutils.services.form.token.TokenManager;
 import com.webutils.services.user.UserService;
-import com.yukthitech.utils.Encryptor;
 import com.yukthitech.utils.exceptions.InvalidArgumentException;
 import com.yukthitech.utils.exceptions.InvalidStateException;
 
@@ -51,7 +51,7 @@ public class OtpService
 {
 	private static Logger logger = LogManager.getLogger(OtpService.class);
 	
-	private static Pattern TOKEN_PATTERN = Pattern.compile("otp\\:(\\w+)\\;(.+?);(\\w+);(\\d+)");
+	private static Pattern TOKEN_PATTERN = Pattern.compile("otp\\:(\\w+)\\;(.+?);(\\w+)");
 
 	private static String OTP_PREF_PREFIX = "$otpDetails-";
 
@@ -78,12 +78,9 @@ public class OtpService
 	 */
 	@Autowired
 	private ApplicationContext applicationContext;
-	
-	/**
-	 * Used to encrypted message string.
-	 */
-	@Autowired(required = false)
-	private Encryptor encryptor;
+
+	@Autowired
+	private TokenManager tokenManager;
 
 	@Autowired
 	private UserService userService;
@@ -114,12 +111,12 @@ public class OtpService
 	@PostConstruct
 	private void init()
 	{
-		if(encryptor == null)
+		if(tokenManager.isDisabled())
 		{
-			logger.warn("As no encryptor is configured, skipping initialization of this service");
+			logger.info("OtpService is disabled as token manager is disabled");
 			return;
 		}
-		
+
 		Map<String, IOtpSupport> supporters = applicationContext.getBeansOfType(IOtpSupport.class);
 		
 		if(supporters == null)
@@ -146,9 +143,9 @@ public class OtpService
 	 */
 	public SendOtpResponse sendOtp(VerificationType type, String value) throws CodeDeliveryException
 	{
-		if(encryptor == null)
+		if(tokenManager.isDisabled())
 		{
-			throw new InvalidStateException("No encryptor is configured, which is needed by this service");
+			throw new InvalidStateException("Otp service is disabled");
 		}
 
 		String otpPrefKey = OTP_PREF_PREFIX + type.name();
@@ -203,8 +200,8 @@ public class OtpService
 			);
 		
 		long curTime = System.currentTimeMillis();
-		String encodedString = String.format("otp:%s;%s;%s;%s", type, value, code, curTime);
-		String res = encryptor.encrypt(encodedString);
+		String tokenValue = String.format("otp:%s;%s;%s", type, value, code);
+		String token = tokenManager.saveToken(tokenValue, otpExpiryTimeSec);
 
 		// set updated user otp details
 		userOtpDetails
@@ -215,7 +212,7 @@ public class OtpService
 		return new SendOtpResponse()
 				.setType(type)
 				.setValue(value)
-				.setToken(res)
+				.setToken(token)
 				.setAttemptsRemaining(maxOtpAttempts - userOtpDetails.attempts)
 				.setRetryAfterSec(minRetryDurationSec)
 				.setExpiresOn(curTime + otpExpiryTimeSec * 1000)
@@ -224,19 +221,16 @@ public class OtpService
 	
 	private void verify(VerificationType verificationType, OtpVerification otp)
 	{
-		if(encryptor == null)
+		if(tokenManager.isDisabled())
 		{
-			throw new InvalidStateException("No encryptor is configured, which is needed by this service");
+			throw new InvalidStateException("Otp service is disabled");
 		}
 
-		String encodedString = null;
-		
-		try
+		String encodedString = tokenManager.fetchToken(otp.getToken());
+
+		if(encodedString == null)
 		{
-			encodedString = encryptor.decrypt(otp.getToken());
-		}catch(Exception ex)
-		{
-			throw new InvalidRequestException("Invalid token specified");
+			throw new InvalidRequestException("Invalid or expired token specified");
 		}
 		
 		Matcher matcher = TOKEN_PATTERN.matcher(encodedString);
@@ -246,25 +240,11 @@ public class OtpService
 			throw new InvalidRequestException("Invalid token specified");
 		}
 		
-		/*
-		 * Fail the verification if type, value or generate code is not matching.
-		 */
 		if(!matcher.group(1).equals(verificationType.name()) ||
 				!matcher.group(2).equals(otp.getValueToVerify()) ||
-				(otp != null && !matcher.group(3).equals(otp.getValue()))
-				)
+				!matcher.group(3).equals(otp.getValue()))
 		{
 			throw new InvalidRequestException("Specified OTP code is not valid.");
-		}
-		
-		long tokenTime = Long.parseLong(matcher.group(4));
-		long curTime = System.currentTimeMillis();
-		
-		long diffSec = (curTime - tokenTime) / 1000;
-		
-		if(diffSec < 0 || diffSec > otpExpiryTimeSec)
-		{
-			throw new InvalidRequestException("Token expired.");
 		}
 	}
 
