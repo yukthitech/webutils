@@ -187,17 +187,27 @@ public class OtpService
 			throw new InvalidArgumentException("Specified verification type is not supported: {}", type);
 		}
 		
-		// TODO: Generate random code.
+		// TODO: Generate random code (Step 1).
 		String code = "4444";
 		
 		UserDetails userDetails = UserContext.getCurrentUser();
-		
-		support.sendCode(
-			new OtpDetails()
-				.setTarget(value)
-				.setOtp(code)
-				.setUserDetails(userDetails)
-			);
+		boolean deliveryDisabled = Boolean.parseBoolean(
+				System.getProperty("sethu4u.otp.deliveryDisabled", "false"));
+
+		if(deliveryDisabled)
+		{
+			logger.info("OTP delivery disabled via -Dsethu4u.otp.deliveryDisabled; skipping send for type={}, target={}",
+					type, value);
+		}
+		else
+		{
+			support.sendCode(
+				new OtpDetails()
+					.setTarget(value)
+					.setOtp(code)
+					.setUserDetails(userDetails)
+				);
+		}
 		
 		long curTime = System.currentTimeMillis();
 		String tokenValue = String.format("otp:%s;%s;%s", type, value, code);

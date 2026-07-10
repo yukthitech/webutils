@@ -40,25 +40,37 @@ public class UserService
         return user.getId();
     }
     
-    public UserDetails validate(String email, String password, String customSpace)
+    public UserDetails validate(String username, String password, String customSpace)
     {
-        logger.debug("Authenticating user [Email: {}, Custom Space: {}]", email, customSpace);
+        logger.debug("Authenticating user [Username: {}, Custom Space: {}]", username, customSpace);
         
-        UserEntity user = userRepository.fetchUserByEmail(email, customSpace);
+        UserEntity user = findByUsername(username, customSpace);
 
         if(user == null)
         {
-            logger.debug("Authentication failed for user. No user exists with email: {}", email);
-            throw new InvalidRequestException("Authentication failed for user: {}", email);
+            logger.debug("Authentication failed for user. No user exists with username: {}", username);
+            throw new InvalidRequestException("Authentication failed for user: {}", username);
         }
 
         if(!PasswordEncryptor.isSamePassword(user.getPassword(), password))
         {
-            logger.debug("Authentication failed for user. Invalid password for user: {}", email);
-            throw new InvalidRequestException("Authentication failed for user: {}", email);
+            logger.debug("Authentication failed for user. Invalid password for user: {}", username);
+            throw new InvalidRequestException("Authentication failed for user: {}", username);
         }
         
         return getUserDetails(user);
+    }
+
+    /**
+     * Resolves a user by email or mobile based on username pattern (email if contains '@', else mobile).
+     */
+    public UserEntity findByUsername(String username, String customSpace)
+    {
+        if(username != null && username.contains("@"))
+        {
+            return userRepository.fetchUserByEmail(username, customSpace);
+        }
+        return userRepository.fetchUserByMobile(username, customSpace);
     }
 
     public UserDetails getUserDetails(UserEntity user)

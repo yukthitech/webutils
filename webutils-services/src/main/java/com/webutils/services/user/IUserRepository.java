@@ -18,6 +18,11 @@ public interface IUserRepository extends ICrudRepository<UserEntity>
     UserEntity fetchUserByEmail(
     		@Condition(value = "email") String email,
     		@Condition(value = "customSpace") String customSpace);
+
+    @DefaultCondition(field = "active", value = "true", op = Operator.EQ)
+    UserEntity fetchUserByMobile(
+    		@Condition(value = "mobile") String mobile,
+    		@Condition(value = "customSpace") String customSpace);
     
     /**
      * Update email address for a user.
@@ -28,4 +33,14 @@ public interface IUserRepository extends ICrudRepository<UserEntity>
      */
     @UpdateFunction
     boolean updateEmail(@Field("email") String email, @Condition("id") Long id);
+
+    /**
+     * Update mobile number for a user.
+     * 
+     * @param mobile Mobile number to set
+     * @param id User ID
+     * @return true if update was successful
+     */
+    @UpdateFunction
+    boolean updateMobile(@Field("mobile") String mobile, @Condition("id") Long id);
 }

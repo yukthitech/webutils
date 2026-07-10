@@ -28,7 +28,8 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 @Table(name = "USER")
 @UniqueConstraints(value = {
-    @UniqueConstraint(name = "UQ_IDX_USER_EMAIL_CUSTOM_SPACE", fields = { "email", "customSpace" })
+    @UniqueConstraint(name = "UQ_IDX_USER_EMAIL_CUSTOM_SPACE", fields = { "email", "customSpace" }),
+    @UniqueConstraint(name = "UQ_IDX_USER_MOBILE_CUSTOM_SPACE", fields = { "mobile", "customSpace" })
 })
 public class UserEntity 
 {
@@ -41,11 +42,13 @@ public class UserEntity
     private String name;
 
     @Column(name = "EMAIL")
-    @UniqueConstraint(name = "UQ_IDX_USER_EMAIL")
     private String email;
 
+    @Column(name = "MOBILE", length = 15)
+    private String mobile;
+
 	@Column(name = "CUSTOM_SPACE", length = 100, nullable = false)
-	private String customSpace = "";
+	private String customSpace;
 
 	@DataTypeMapping(converterType = PasswordEncryptionConverter.class)
     @Column(name = "PASSWORD")
@@ -53,6 +56,19 @@ public class UserEntity
 
     @Column(name = "IS_ACTIVE")
     private boolean active;
+
+    @Column(name = "DISABLED_REASON", length = 1000)
+    private String disabledReason;
+
+    @ManyToOne
+    @Column(name = "DISABLED_BY_USER_ID")
+    private UserEntity disabledBy;
+
+    @Column(name = "DISABLED_ON")
+    private Date disabledOn;
+
+    @Column(name = "OTP_BLOCKED_UNTIL")
+    private Date otpBlockedUntil;
 
     @Column(name = "CREATED_ON")
     private Date createdOn = new Date();
