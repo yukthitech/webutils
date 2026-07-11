@@ -89,6 +89,15 @@ public class AuthTokenService
         
         return userDetails;
     }
+
+    /**
+     * Creates a session for an already-validated user (e.g. after OTP login).
+     */
+    public String createSession(UserDetails userDetails, String customSpace)
+    {
+        customSpace = (customSpace == null) ? "" : customSpace;
+        return generateToken(userDetails, customSpace);
+    }
     
     private String generateToken(UserDetails userDetails, String customSpace)
     {

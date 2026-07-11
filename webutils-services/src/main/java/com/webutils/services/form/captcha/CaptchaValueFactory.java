@@ -49,7 +49,8 @@ public class CaptchaValueFactory
         @Override
         public CaptchaValue generate()
         {
-            return new CaptchaValue(TEXT_PRODUCER.getText(), TEXT_PRODUCER.getText());
+        	String value = TEXT_PRODUCER.getText();
+            return new CaptchaValue(value, value);
         }
     }
 

@@ -27,6 +27,20 @@ public class TokenEntity
 	@Column(name = "VALUE", nullable = false)
 	private String value;
 
+	/**
+	 * Server-side purpose (e.g. LOGIN, RESET, VERIFICATION). Not exposed to the client;
+	 * verified when the token is consumed. Nullable for non-OTP tokens such as captcha.
+	 */
+	@Column(name = "PURPOSE", length = 50)
+	private String purpose;
+
+	/**
+	 * User the token was issued for. Verified on consume so a token cannot be reused
+	 * across users. Nullable for non-OTP tokens such as captcha.
+	 */
+	@Column(name = "USER_ID")
+	private Long userId;
+
 	@Column(name = "EXPIRES_AT", nullable = false)
 	private Date expiresAt;
 

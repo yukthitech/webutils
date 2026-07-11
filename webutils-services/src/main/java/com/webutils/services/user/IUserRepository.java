@@ -1,5 +1,7 @@
 package com.webutils.services.user;
 
+import java.util.Date;
+
 import com.yukthitech.persistence.ICrudRepository;
 import com.yukthitech.persistence.repository.annotations.Condition;
 import com.yukthitech.persistence.repository.annotations.DefaultCondition;
@@ -43,4 +45,10 @@ public interface IUserRepository extends ICrudRepository<UserEntity>
      */
     @UpdateFunction
     boolean updateMobile(@Field("mobile") String mobile, @Condition("id") Long id);
+
+    @UpdateFunction
+    boolean updatePassword(@Field("password") String password, @Condition("id") Long id);
+
+    @UpdateFunction
+    boolean updateOtpBlockedUntil(@Field("otpBlockedUntil") Date otpBlockedUntil, @Condition("id") Long id);
 }

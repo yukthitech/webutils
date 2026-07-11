@@ -37,8 +37,9 @@ import com.webutils.common.response.BasicReadResponse;
 import com.webutils.services.common.InvalidRequestException;
 import com.webutils.services.common.SecurityService;
 import com.webutils.services.form.model.ModelService;
+
 /**
- * Controller for fetching LOV values.
+ * Controller for sending OTPs.
  * @author akiran
  */
 @RestController

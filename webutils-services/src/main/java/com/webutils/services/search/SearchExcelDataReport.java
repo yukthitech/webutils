@@ -19,6 +19,7 @@ public class SearchExcelDataReport implements IExcelDataReport
 	private final List<String> headings;
 	private final List<List<Cell>> rows;
 
+	@SuppressWarnings("unused")
 	public SearchExcelDataReport(String name, ExecuteSearchResponse response)
 	{
 		this.name = name;

@@ -1,9 +1,11 @@
 package com.webutils.services.form.token;
 
 import java.util.Date;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +14,8 @@ import org.springframework.stereotype.Service;
 
 import com.webutils.common.repo.IMissingTableRepository;
 import com.webutils.services.common.ExecutionService;
+import com.webutils.services.common.InvalidRequestException;
+import com.yukthitech.utils.exceptions.InvalidArgumentException;
 import com.yukthitech.utils.exceptions.InvalidStateException;
 
 import jakarta.annotation.PostConstruct;
@@ -53,11 +57,18 @@ public class TokenManager
 	}
 
 	/**
-	 * Generates a random token, persists the value with expiry, and returns the token.
-	 * @param value value to associate with the token
-	 * @param expirySec time-to-live in seconds from now
+	 * Generates a random token without purpose or user (e.g. captcha).
 	 */
 	public String saveToken(String value, long expirySec)
+	{
+		return saveToken(value, expirySec, null, null);
+	}
+
+	/**
+	 * Generates a random token, persists value + optional purpose/userId with expiry, and returns the token id.
+	 * Purpose and userId are stored server-side only and are not part of the client-facing token string.
+	 */
+	public String saveToken(String value, long expirySec, String purpose, Long userId)
 	{
 		if(disabled)
 		{
@@ -71,6 +82,8 @@ public class TokenManager
 		TokenEntity entity = new TokenEntity();
 		entity.setToken(token);
 		entity.setValue(value);
+		entity.setPurpose(purpose);
+		entity.setUserId(userId);
 		entity.setExpiresAt(expiresAt);
 		entity.setCreatedOn(now);
 		tokenRepository.save(entity);
@@ -80,8 +93,58 @@ public class TokenManager
 
 	/**
 	 * Returns the value for the given token if it exists and has not expired.
+	 * Does not check purpose or user (for captcha and other unbound tokens).
 	 */
 	public String fetchToken(String token)
+	{
+		TokenEntity entity = fetchValidEntity(token);
+		return entity == null ? null : entity.getValue();
+	}
+
+	/**
+	 * Returns the value for the given token only if it exists, is unexpired,
+	 * and both purpose and userId match the stored values.
+	 */
+	public TokenEntity fetchTokenEntity(String token, String purpose, Long userId)
+	{
+		if(StringUtils.isBlank(purpose))
+		{
+			throw new InvalidArgumentException("Purpose is required for token fetch");
+		}
+
+		if(userId == null)
+		{
+			throw new InvalidArgumentException("User id is required for token fetch");
+		}
+
+		TokenEntity entity = fetchValidEntity(token);
+
+		if(entity == null)
+		{
+			return null;
+		}
+
+		if(!purpose.equals(entity.getPurpose()))
+		{
+			logger.debug("Token purpose mismatch for token={}, Entity Token Purpose={}, Requested Token Purpose={}", token, entity.getPurpose(), purpose);
+			throw new InvalidRequestException("Token mismatch");
+		}
+
+		if(!Objects.equals(userId, entity.getUserId()))
+		{
+			logger.debug("Token user mismatch for token={}, Entity User ID={}, Requested User ID={}", token, entity.getUserId(), userId);
+			throw new InvalidRequestException("Token mismatch");
+		}
+
+		return entity;
+	}
+
+	public void deleteToken(long tokenId)
+	{
+		tokenRepository.deleteById(tokenId);
+	}
+
+	private TokenEntity fetchValidEntity(String token)
 	{
 		if(disabled)
 		{
@@ -95,7 +158,7 @@ public class TokenManager
 			return null;
 		}
 
-		return entity.getValue();
+		return entity;
 	}
 
 	private void cleanupTokens()

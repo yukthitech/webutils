@@ -1,16 +1,15 @@
 package com.webutils.common.auth;
 
 import com.yukthitech.validation.annotations.MaxLen;
-import com.yukthitech.validation.annotations.MinLen;
 import com.yukthitech.validation.annotations.NotEmpty;
 
 import lombok.Data;
 
 /**
- * Password login request. {@code username} is the username: email or mobile.
+ * Request carrying username (email or mobile) and optional user space. {@code username} is the username: email or mobile.
  */
 @Data
-public class LoginRequest
+public class UsernameRequest
 {
 	/**
 	 * Username — email (contains {@code @}) or mobile number.
@@ -19,10 +18,5 @@ public class LoginRequest
 	@MaxLen(255)
 	private String username;
 
-	@NotEmpty
-	@MinLen(8)
-	@MaxLen(100)
-	private String password;
-	
 	private String userSpace;
 }

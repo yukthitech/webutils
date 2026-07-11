@@ -7,22 +7,18 @@ import com.yukthitech.validation.annotations.NotEmpty;
 import lombok.Data;
 
 /**
- * Password login request. {@code username} is the username: email or mobile.
+ * Change password while authenticated.
  */
 @Data
-public class LoginRequest
+public class ChangePasswordRequest
 {
-	/**
-	 * Username — email (contains {@code @}) or mobile number.
-	 */
 	@NotEmpty
-	@MaxLen(255)
-	private String username;
+	@MinLen(8)
+	@MaxLen(100)
+	private String currentPassword;
 
 	@NotEmpty
 	@MinLen(8)
 	@MaxLen(100)
-	private String password;
-	
-	private String userSpace;
+	private String newPassword;
 }
