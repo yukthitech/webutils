@@ -195,7 +195,8 @@ public class StoredLovService
 			throw new InvalidStateException("No lov found with name: {}", lovName);
 		}
 
-		if(StringUtils.isNotBlank(lovEntity.getParentProviderName()))
+		if(StringUtils.isNotBlank(lovEntity.getParentProviderName())
+			&& StringUtils.isBlank(lovConfig.getParentOptionLabel()))
 		{
 			String parentValue = lovService.getParentValue(lovEntity.getParentProviderName());
 			lovConfig.setParentOptionLabel(parentValue);

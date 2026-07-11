@@ -76,4 +76,36 @@ public class LovController
 		
 		return new BasicListResponse<LovOption>( storedLovService.getLovOptions(lovName) );
 	}
+
+	/**
+	 * Fetches child LOV options for a given parent option label (form parentField value).
+	 * @param lovName child LOV name
+	 * @param lovType LOV type (must be STORED_TYPE for parent-dependent stored LOVs)
+	 * @param parentValue selected parent option label
+	 * @return child options under the parent
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/fetchDependentLov/{name}/{type}/{parentValue}", method = RequestMethod.GET)
+	public BasicListResponse<LovOption> fetchDependentLov(@PathVariable("name") String lovName,
+			@PathVariable("type") LovType lovType, @PathVariable("parentValue") String parentValue)
+	{
+		if(lovType != LovType.STORED_TYPE)
+		{
+			return new BasicListResponse<LovOption>( lovService.getDynamicLovValues(lovName) );
+		}
+
+		return new BasicListResponse<LovOption>( storedLovService.getChildLovOptions(lovName, parentValue) );
+	}
+
+	/**
+	 * No-auth variant of {@link #fetchDependentLov}.
+	 */
+	@NoAuthentication
+	@ResponseBody
+	@RequestMapping(value = "/noAuth/fetchDependentLov/{name}/{type}/{parentValue}", method = RequestMethod.GET)
+	public BasicListResponse<LovOption> fetchNoAuthDependentLov(@PathVariable("name") String lovName,
+			@PathVariable("type") LovType lovType, @PathVariable("parentValue") String parentValue)
+	{
+		return fetchDependentLov(lovName, lovType, parentValue);
+	}
 }

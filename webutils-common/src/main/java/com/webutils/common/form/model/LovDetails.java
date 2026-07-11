@@ -57,5 +57,11 @@ public class LovDetails
 	 * Flag indicating this LOV field accepts new values also. 
 	 */
 	private boolean editableLov;
+
+	/**
+	 * When {@code editableLov} is true, whether newly typed options should be persisted
+	 * as stored LOV options. Defaults to true; set via {@code @LOV(persist = false)}.
+	 */
+	private boolean persist = true;
 	
 }

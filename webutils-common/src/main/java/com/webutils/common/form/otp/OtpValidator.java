@@ -1,5 +1,7 @@
 package com.webutils.common.form.otp;
 
+import org.apache.commons.lang3.StringUtils;
+
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
@@ -27,22 +29,33 @@ public class OtpValidator implements ConstraintValidator<Otp, OtpVerification>
 	}
 	
 	/* (non-Javadoc)
-	 * @see javax.validation.ConstraintValidator#isValid(java.lang.Object, javax.validation.ConstraintValidatorContext)
+	 * @see javax.validation.ConstraintValidator#isValid(java.lang.Object, jakarta.validation.ConstraintValidatorContext)
 	 */
 	@Override
 	public boolean isValid(OtpVerification valueWithToken, ConstraintValidatorContext context)
 	{
+		// Optional OTP fields (e.g. email OR mobile) may be null or blank when unused
+		if(valueWithToken == null || isBlankOtp(valueWithToken))
+		{
+			return true;
+		}
+
 		try
 		{
 			validatorFunction.validate(needVerification.type(), valueWithToken);
 			return true;
 		}catch(Exception ex)
 		{
-			context.buildConstraintViolationWithTemplate(ex.getMessage())
+			context.disableDefaultConstraintViolation();
+			context.buildConstraintViolationWithTemplate(ex.getMessage() != null ? ex.getMessage() : needVerification.message())
 				.addConstraintViolation();
 			
 			return false;
 		}
 	}
-}
 
+	private static boolean isBlankOtp(OtpVerification otp)
+	{
+		return StringUtils.isBlank(otp.getToken()) && StringUtils.isBlank(otp.getValue());
+	}
+}

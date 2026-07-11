@@ -186,7 +186,11 @@ public class FieldDefBuilder
 		
 		if(String.class.equals(lovFieldType))
 		{
-			lovDetails.setEditableLov(lovAnnotation.persist());
+			// String LOVs are always editable in the UI (values are labels). Annotation persist()
+			// only controls whether newly typed options are saved server-side — it must not
+			// flip editableLov off (that forces id-based yk-lov and breaks String models).
+			lovDetails.setEditableLov(true);
+			lovDetails.setPersist(lovAnnotation.persist());
 		}
 		else
 		{
