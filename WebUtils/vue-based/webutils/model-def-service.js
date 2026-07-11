@@ -37,7 +37,8 @@ export var $modelDefService = {
 			typeMapping = $dataTypeMapping[dataType];
 		}
 
-		if(dataType == "LIST_OF_VALUES" && fieldDef.lovDetails.editableLov)
+		if(dataType == "LIST_OF_VALUES" && fieldDef.lovDetails &&
+			(fieldDef.lovDetails.editableLov || fieldDef.lovDetails.actualType === "STRING"))
 		{
 			if(fieldDef.multiValued) {
 				typeMapping = $dataTypeMapping["MULTI_EDITABLE_LIST_OF_VALUES"];

@@ -1154,6 +1154,19 @@ let editableLovBase = {
 		selectHighlighted: function() {
 			if(this.highlightedIndex >= 0 && this.highlightedIndex < this.filteredOptions.length) {
 				this.selectOption(this.filteredOptions[this.highlightedIndex]);
+				return;
+			}
+
+			// Enter with no highlight: take first match, else accept typed value (multi / new option)
+			if(this.filteredOptions.length > 0) {
+				this.selectOption(this.filteredOptions[0]);
+				return;
+			}
+
+			if(this.searchTerm && this.optionSelected) {
+				this.optionSelected(this.searchTerm);
+			} else if(this.searchTerm) {
+				this.selectOption(this.searchTerm);
 			}
 		},
 		

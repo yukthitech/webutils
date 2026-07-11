@@ -248,7 +248,7 @@ export var $restService = {
 	{
 		var cacheKey = name;
 		
-		if(!parentValue)
+		if(parentValue)
 		{
 			cacheKey += "-" + parentValue;
 		}
