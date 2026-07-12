@@ -330,7 +330,8 @@ public class SearchService
 		}
 
 		UserDetails userDetails = UserContext.getCurrentUser();
-		if(userDetails != null && StringUtils.isNotBlank(userDetails.getCustomSpace()))
+		if(userDetails != null && StringUtils.isNotBlank(userDetails.getCustomSpace())
+				&& searchQueryDetails.repository.getEntityDetails().hasField("spaceIdentity"))
 		{
 			repoSearchQuery.addCondition(new SearchCondition("spaceIdentity", Operator.EQ, userDetails.getCustomSpace()));
 		}
