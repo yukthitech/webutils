@@ -397,8 +397,19 @@ button.webutils-info-close-button:hover
 	border-bottom: 2px ridge; 
 	padding-top: 2px;
 	position: fixed;
+	top: 0;
+	left: 0;
 	width: 100%;
 	z-index: 1000;
+}
+
+/*
+ * Fixed navbar is out of document flow — reserve space so page content
+ * is not drawn underneath it. Applies to any #ykApp that hosts .yk-navbar.
+ */
+#ykApp:has(.yk-navbar)
+{
+	padding-top: 3.5rem;
 }
 
 .yk-subnavbar
