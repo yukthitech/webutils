@@ -1,0 +1,7 @@
+/target/
+**/target/
+/logs/
+**/logs/
+**/test-reports/
+.idea/
+*.iml

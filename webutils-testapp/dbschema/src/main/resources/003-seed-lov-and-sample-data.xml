@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+	<!-- Legacy seed (already applied on some DBs) — leave body unchanged for Liquibase checksum. -->
+	<changeSet id="seed-testapp-user" author="webutils-testapp">
+		<preConditions onFail="MARK_RAN">
+			<sqlCheck expectedResult="0">
+				SELECT COUNT(*) FROM USER
+				WHERE EMAIL = 'widget.test@yukthitech.org' AND CUSTOM_SPACE = 'test'
+			</sqlCheck>
+		</preConditions>
+		<insert tableName="USER">
+			<column name="NAME" value="Widget Tester"/>
+			<column name="EMAIL" value="widget.test@yukthitech.org"/>
+			<column name="MOBILE" value="9000000001"/>
+			<column name="PASSWORD" value="hsMPM5Iu1uzRXMwuBwh8bJR8LRHSS2FOeE9g+bhRQw8pnMKehvbiDicL+MhhOQsv"/>
+			<column name="CUSTOM_SPACE" value="test"/>
+			<column name="IS_ACTIVE" valueBoolean="true"/>
+			<column name="CREATED_ON" valueComputed="CURRENT_TIMESTAMP"/>
+			<column name="UPDATED_ON" valueComputed="CURRENT_TIMESTAMP"/>
+		</insert>
+	</changeSet>
+
+	<!--
+		Default testapp login user.
+		Username: test@test.com / Password: test / CUSTOM_SPACE: test
+	-->
+	<changeSet id="seed-testapp-login-user" author="webutils-testapp">
+		<preConditions onFail="MARK_RAN">
+			<sqlCheck expectedResult="0">
+				SELECT COUNT(*) FROM USER
+				WHERE EMAIL = 'test@test.com' AND CUSTOM_SPACE = 'test'
+			</sqlCheck>
+		</preConditions>
+		<sql>
+			DELETE FROM USER WHERE EMAIL = 'widget.test@yukthitech.org' AND CUSTOM_SPACE = 'test';
+		</sql>
+		<insert tableName="USER">
+			<column name="NAME" value="Test User"/>
+			<column name="EMAIL" value="test@test.com"/>
+			<column name="MOBILE" value="9000000001"/>
+			<column name="PASSWORD" value="H/w9evq0hWi1c1EV+uDieNHqYYIeFdKmra5TU/8I8xdpCFXR8tgDu9+GX6bNpvqU"/>
+			<column name="CUSTOM_SPACE" value="test"/>
+			<column name="IS_ACTIVE" valueBoolean="true"/>
+			<column name="CREATED_ON" valueComputed="CURRENT_TIMESTAMP"/>
+			<column name="UPDATED_ON" valueComputed="CURRENT_TIMESTAMP"/>
+		</insert>
+	</changeSet>
+
+	<changeSet id="seed-category-and-tag-lovs" author="webutils-testapp">
+		<insert tableName="STORED_LOV">
+			<column name="NAME" value="CATEGORY"/>
+			<column name="DESCRIPTION" value="Sample categories for editable-lov demos"/>
+			<column name="AUTH_REQUIRED" valueBoolean="false"/>
+		</insert>
+		<sql>
+			SELECT @categoryLovId:=ID FROM STORED_LOV WHERE NAME = 'CATEGORY';
+			INSERT INTO STORED_LOV (NAME, DESCRIPTION, AUTH_REQUIRED, PARENT_LOV_ID)
+			VALUES ('TAG', 'Tags under a category for multi-editable-lov', 0, @categoryLovId);
+		</sql>
+	</changeSet>
+
+	<changeSet id="seed-category-options" author="webutils-testapp">
+		<sql>
+			SELECT @categoryLovId:=ID FROM STORED_LOV WHERE NAME = 'CATEGORY';
+			INSERT INTO STORED_LOV_OPTION (LOV_ID, LABEL, PARENT_OPTION, IS_APPROVED) VALUES
+				(@categoryLovId, 'Electronics', 0, 1),
+				(@categoryLovId, 'Books', 0, 1),
+				(@categoryLovId, 'Clothing', 0, 1),
+				(@categoryLovId, 'Home', 0, 1);
+		</sql>
+	</changeSet>
+
+	<changeSet id="seed-tag-options" author="webutils-testapp">
+		<sql>
+			SELECT @tagLovId:=ID FROM STORED_LOV WHERE NAME = 'TAG';
+			SELECT @electronicsId:=ID FROM STORED_LOV_OPTION WHERE LABEL = 'Electronics' AND LOV_ID = (SELECT ID FROM STORED_LOV WHERE NAME = 'CATEGORY');
+			SELECT @booksId:=ID FROM STORED_LOV_OPTION WHERE LABEL = 'Books' AND LOV_ID = (SELECT ID FROM STORED_LOV WHERE NAME = 'CATEGORY');
+			SELECT @clothingId:=ID FROM STORED_LOV_OPTION WHERE LABEL = 'Clothing' AND LOV_ID = (SELECT ID FROM STORED_LOV WHERE NAME = 'CATEGORY');
+			SELECT @homeId:=ID FROM STORED_LOV_OPTION WHERE LABEL = 'Home' AND LOV_ID = (SELECT ID FROM STORED_LOV WHERE NAME = 'CATEGORY');
+
+			INSERT INTO STORED_LOV_OPTION (LOV_ID, LABEL, PARENT_OPTION, IS_APPROVED) VALUES
+				(@tagLovId, 'Phones', @electronicsId, 1),
+				(@tagLovId, 'Laptops', @electronicsId, 1),
+				(@tagLovId, 'Audio', @electronicsId, 1),
+				(@tagLovId, 'Fiction', @booksId, 1),
+				(@tagLovId, 'Non-fiction', @booksId, 1),
+				(@tagLovId, 'Technical', @booksId, 1),
+				(@tagLovId, 'Men', @clothingId, 1),
+				(@tagLovId, 'Women', @clothingId, 1),
+				(@tagLovId, 'Kids', @clothingId, 1),
+				(@tagLovId, 'Kitchen', @homeId, 1),
+				(@tagLovId, 'Furniture', @homeId, 1),
+				(@tagLovId, 'Decor', @homeId, 1);
+		</sql>
+	</changeSet>
+
+	<changeSet id="seed-sample-items" author="webutils-testapp">
+		<insert tableName="SAMPLE_ITEM">
+			<column name="NAME" value="Wireless Headphones"/>
+			<column name="CATEGORY" value="Electronics"/>
+			<column name="STATUS" value="ACTIVE"/>
+			<column name="DESCRIPTION" value="Noise-cancelling over-ear headphones"/>
+		</insert>
+		<insert tableName="SAMPLE_ITEM">
+			<column name="NAME" value="USB-C Hub"/>
+			<column name="CATEGORY" value="Electronics"/>
+			<column name="STATUS" value="ACTIVE"/>
+			<column name="DESCRIPTION" value="7-in-1 multiport adapter"/>
+		</insert>
+		<insert tableName="SAMPLE_ITEM">
+			<column name="NAME" value="Gaming Laptop"/>
+			<column name="CATEGORY" value="Electronics"/>
+			<column name="STATUS" value="DRAFT"/>
+			<column name="DESCRIPTION" value="15-inch high-performance laptop"/>
+		</insert>
+		<insert tableName="SAMPLE_ITEM">
+			<column name="NAME" value="Clean Code"/>
+			<column name="CATEGORY" value="Books"/>
+			<column name="STATUS" value="ACTIVE"/>
+			<column name="DESCRIPTION" value="Software craftsmanship classic"/>
+		</insert>
+		<insert tableName="SAMPLE_ITEM">
+			<column name="NAME" value="Design Patterns"/>
+			<column name="CATEGORY" value="Books"/>
+			<column name="STATUS" value="ACTIVE"/>
+			<column name="DESCRIPTION" value="Gang of Four patterns"/>
+		</insert>
+		<insert tableName="SAMPLE_ITEM">
+			<column name="NAME" value="Mystery Novel"/>
+			<column name="CATEGORY" value="Books"/>
+			<column name="STATUS" value="INACTIVE"/>
+			<column name="DESCRIPTION" value="Out of print fiction title"/>
+		</insert>
+		<insert tableName="SAMPLE_ITEM">
+			<column name="NAME" value="Winter Jacket"/>
+			<column name="CATEGORY" value="Clothing"/>
+			<column name="STATUS" value="ACTIVE"/>
+			<column name="DESCRIPTION" value="Waterproof outdoor jacket"/>
+		</insert>
+		<insert tableName="SAMPLE_ITEM">
+			<column name="NAME" value="Running Shoes"/>
+			<column name="CATEGORY" value="Clothing"/>
+			<column name="STATUS" value="ACTIVE"/>
+			<column name="DESCRIPTION" value="Lightweight trail runners"/>
+		</insert>
+		<insert tableName="SAMPLE_ITEM">
+			<column name="NAME" value="Kids Cap"/>
+			<column name="CATEGORY" value="Clothing"/>
+			<column name="STATUS" value="DRAFT"/>
+			<column name="DESCRIPTION" value="Sun protection cap"/>
+		</insert>
+		<insert tableName="SAMPLE_ITEM">
+			<column name="NAME" value="Coffee Maker"/>
+			<column name="CATEGORY" value="Home"/>
+			<column name="STATUS" value="ACTIVE"/>
+			<column name="DESCRIPTION" value="Drip coffee machine"/>
+		</insert>
+		<insert tableName="SAMPLE_ITEM">
+			<column name="NAME" value="Office Chair"/>
+			<column name="CATEGORY" value="Home"/>
+			<column name="STATUS" value="ACTIVE"/>
+			<column name="DESCRIPTION" value="Ergonomic desk chair"/>
+		</insert>
+		<insert tableName="SAMPLE_ITEM">
+			<column name="NAME" value="Wall Art Set"/>
+			<column name="CATEGORY" value="Home"/>
+			<column name="STATUS" value="INACTIVE"/>
+			<column name="DESCRIPTION" value="Set of three framed prints"/>
+		</insert>
+		<insert tableName="SAMPLE_ITEM">
+			<column name="NAME" value="Bluetooth Speaker"/>
+			<column name="CATEGORY" value="Electronics"/>
+			<column name="STATUS" value="ACTIVE"/>
+			<column name="DESCRIPTION" value="Portable waterproof speaker"/>
+		</insert>
+		<insert tableName="SAMPLE_ITEM">
+			<column name="NAME" value="Cookbook"/>
+			<column name="CATEGORY" value="Books"/>
+			<column name="STATUS" value="ACTIVE"/>
+			<column name="DESCRIPTION" value="Regional recipes collection"/>
+		</insert>
+		<insert tableName="SAMPLE_ITEM">
+			<column name="NAME" value="Desk Lamp"/>
+			<column name="CATEGORY" value="Home"/>
+			<column name="STATUS" value="DRAFT"/>
+			<column name="DESCRIPTION" value="LED adjustable lamp"/>
+		</insert>
+	</changeSet>
+</databaseChangeLog>

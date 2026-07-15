@@ -1,0 +1,393 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+	<changeSet id="Creating user table" author="kranthi">
+		<comment>Create User and UserSession tables for authentication and session management</comment>
+
+		<!-- User Table — uniqueness is (EMAIL, CUSTOM_SPACE) only; CUSTOM_SPACE is mandatory -->
+		<createTable tableName="USER">
+			<column name="ID" type="BIGINT" autoIncrement="true">
+				<constraints primaryKey="true" nullable="false" />
+			</column>
+			<column name="NAME" type="VARCHAR(255)">
+				<constraints nullable="false" />
+			</column>
+			<column name="EMAIL" type="VARCHAR(255)">
+				<constraints nullable="false" />
+			</column>
+			<column name="MOBILE" type="VARCHAR(15)">
+				<constraints nullable="false" />
+			</column>
+			<column name="PASSWORD" type="VARCHAR(500)">
+				<constraints nullable="false" />
+			</column>
+			<column name="CUSTOM_SPACE" type="VARCHAR(100)">
+				<constraints nullable="false" />
+			</column>
+			<column name="IS_ACTIVE" type="BOOLEAN" defaultValueBoolean="true">
+				<constraints nullable="false"/>
+			</column>
+			<column name="DISABLED_REASON" type="VARCHAR(1000)"/>
+			<column name="DISABLED_BY_USER_ID" type="BIGINT"/>
+			<column name="DISABLED_ON" type="TIMESTAMP"/>
+			<column name="OTP_BLOCKED_UNTIL" type="TIMESTAMP"/>
+			<column name="CREATED_ON" type="TIMESTAMP">
+				<constraints nullable="true" />
+			</column>
+			<column name="UPDATED_ON" type="TIMESTAMP">
+				<constraints nullable="true" />
+			</column>
+			<column name="CREATED_BY_ID" type="BIGINT">
+				<constraints nullable="true" />
+			</column>
+			<column name="UPDATED_BY_ID" type="BIGINT">
+				<constraints nullable="true" />
+			</column>
+		</createTable>
+
+		<addUniqueConstraint constraintName="UQ_IDX_USER_EMAIL_CUSTOM_SPACE"
+			tableName="USER"
+			columnNames="EMAIL,CUSTOM_SPACE" />
+		<addUniqueConstraint constraintName="UQ_IDX_USER_MOBILE_CUSTOM_SPACE"
+			tableName="USER"
+			columnNames="MOBILE,CUSTOM_SPACE" />
+
+		<addForeignKeyConstraint
+			baseTableName="USER" baseColumnNames="CREATED_BY_ID"
+			constraintName="FK_USER_CREATED_BY_ID" referencedTableName="USER"
+			referencedColumnNames="ID" onDelete="SET NULL" />
+		<addForeignKeyConstraint
+			baseTableName="USER" baseColumnNames="UPDATED_BY_ID"
+			constraintName="FK_USER_UPDATED_BY_ID" referencedTableName="USER"
+			referencedColumnNames="ID" onDelete="SET NULL" />
+		<addForeignKeyConstraint
+			baseTableName="USER" baseColumnNames="DISABLED_BY_USER_ID"
+			constraintName="FK_USER_DISABLED_BY_USER_ID" referencedTableName="USER"
+			referencedColumnNames="ID" onDelete="SET NULL" />
+	</changeSet>
+
+	<changeSet id="Creating user preference table" author="kranthi">
+		<comment>Create user preferences table</comment>
+		<createTable tableName="USER_PREFERENCES">
+			<column name="ID" type="BIGINT" autoIncrement="true">
+				<constraints primaryKey="true" nullable="false" />
+			</column>
+			<column name="USER_ID" type="BIGINT">
+				<constraints nullable="false" />
+			</column>
+			<column name="PREF_KEY" type="VARCHAR(255)">
+				<constraints nullable="false" />
+			</column>
+			<column name="PREF_VALUE" type="VARCHAR(2000)">
+				<constraints nullable="false" />
+			</column>
+			<column name="LAST_UPDATED_TIME" type="TIMESTAMP">
+				<constraints nullable="false" />
+			</column>
+		</createTable>
+		<addUniqueConstraint constraintName="UQ_IDX_USER_PREFERENCES_USER_ID_KEY"
+			tableName="USER_PREFERENCES"
+			columnNames="USER_ID, PREF_KEY" />
+
+		<createIndex indexName="IDX_USER_PREFERENCES_KEY_LAST_UPDATED_TIME"
+                     tableName="USER_PREFERENCES"
+                     unique="false">
+            <column name="PREF_KEY"/>
+            <column name="LAST_UPDATED_TIME"/>
+        </createIndex>
+
+		<addForeignKeyConstraint
+			baseTableName="USER_PREFERENCES" baseColumnNames="USER_ID"
+			constraintName="FK_USER_PREFERENCES_USER_ID" referencedTableName="USER"
+			referencedColumnNames="ID" onDelete="CASCADE" />
+	</changeSet>
+
+
+	<changeSet id="Creating token table" author="kranthi">
+		<comment>Create tokens table for storing user tokens</comment>
+		<createTable tableName="AUTH_TOKEN">
+			<column name="ID" type="BIGINT" autoIncrement="true">
+				<constraints primaryKey="true" nullable="false" />
+			</column>
+			<column name="TOKEN" type="VARCHAR(255)">
+				<constraints nullable="false"/>
+			</column>
+			<column name="EXPIRES_AT" type="TIMESTAMP">
+				<constraints nullable="false" />
+			</column>
+			<column name="USER_ID" type="BIGINT">
+				<constraints nullable="false" />
+			</column>
+			<column name="CUSTOM_SPACE" type="VARCHAR(100)" defaultValue="''">
+				<constraints nullable="false"/>
+			</column>
+			<column name="CREATED_ON" type="TIMESTAMP">
+				<constraints nullable="false" />
+			</column>
+			<column name="LAST_UPDATED_ON" type="TIMESTAMP">
+				<constraints nullable="false" />
+			</column>
+		</createTable>
+
+		<addForeignKeyConstraint
+			baseTableName="AUTH_TOKEN" baseColumnNames="USER_ID"
+			constraintName="FK_AUTH_TOKEN_USER_ID" referencedTableName="USER"
+			referencedColumnNames="ID" onDelete="CASCADE" />
+
+		<addUniqueConstraint constraintName="UQ_IDX_AUTH_TOKEN_TOKEN"
+			tableName="AUTH_TOKEN"
+			columnNames="TOKEN" />
+	</changeSet>
+
+    <changeSet id="Creating LOV table" author="kranthi">
+        <createTable tableName="STORED_LOV">
+            <column autoIncrement="true" name="ID" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="NAME" type="VARCHAR(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="DESCRIPTION" type="VARCHAR(500)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="PARENT_LOV_ID" type="BIGINT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="PARENT_PROVIDER_NAME" type="VARCHAR(100)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="AUTH_REQUIRED" type="BOOLEAN" defaultValue="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="AUTH_ROLES" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+        
+        <addUniqueConstraint columnNames="NAME" constraintName="UQ_STORED_LOV_NAME" tableName="STORED_LOV"/>
+
+        <addForeignKeyConstraint baseColumnNames="PARENT_LOV_ID" baseTableName="STORED_LOV" constraintName="FK_STORED_LOV_PARENT_LOV_ID" 
+        	deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" 
+            referencedColumnNames="ID" referencedTableName="STORED_LOV"/>
+    </changeSet>
+
+	<changeSet id="Creating form token table" author="kranthi">
+		<comment>Create form token table for captcha, OTP and other short-lived form tokens</comment>
+		<createTable tableName="FORM_TOKEN">
+			<column name="ID" type="BIGINT" autoIncrement="true">
+				<constraints primaryKey="true" nullable="false" />
+			</column>
+			<column name="TOKEN" type="VARCHAR(255)">
+				<constraints nullable="false"/>
+			</column>
+			<column name="VALUE" type="VARCHAR(2000)">
+				<constraints nullable="false" />
+			</column>
+			<column name="PURPOSE" type="VARCHAR(50)"/>
+			<column name="USER_ID" type="BIGINT"/>
+			<column name="EXPIRES_AT" type="TIMESTAMP">
+				<constraints nullable="false" />
+			</column>
+			<column name="CREATED_ON" type="TIMESTAMP">
+				<constraints nullable="false" />
+			</column>
+		</createTable>
+
+		<addUniqueConstraint constraintName="UQ_IDX_FORM_TOKEN_TOKEN"
+			tableName="FORM_TOKEN"
+			columnNames="TOKEN" />
+	</changeSet>
+
+    <changeSet author="akiran" id="Creating strored lov value table">
+        <createTable tableName="STORED_LOV_OPTION">
+            <column autoIncrement="true" name="ID" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="LOV_ID" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="LABEL" type="VARCHAR(500)">
+                <constraints nullable="false"/>
+            </column>
+            <!--
+            	Though  PARENT_OPTION is Parent option id, it is not foreign key. 
+            	Which means it can hold non-id values like 0 for non-child options which
+            	helps in maintaining uniqueness.
+             -->
+            <column name="PARENT_OPTION" type="BIGINT" defaultValue="0">
+                <constraints nullable="true"/>
+            </column>
+            <column name="IS_APPROVED" type="BOOLEAN" defaultValue="true">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="CREATED_BY_ID" type="BIGINT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="CREATED_ON" type="datetime(6)">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+        
+        <addUniqueConstraint columnNames="LOV_ID, LABEL, PARENT_OPTION" constraintName="UQ_STORED_LOV_OPTION_LBL" tableName="STORED_LOV_OPTION"/>
+
+        <addForeignKeyConstraint baseColumnNames="LOV_ID" baseTableName="STORED_LOV_OPTION" constraintName="FK_STORED_LOV_OPTION_LOV_ID" 
+        	deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" 
+            referencedColumnNames="ID" referencedTableName="STORED_LOV"/>
+
+        <addForeignKeyConstraint baseColumnNames="CREATED_BY_ID" baseTableName="STORED_LOV_OPTION" constraintName="FK_STORED_LOV_OPTION_CREATED_BY_ID" 
+        	deferrable="false" initiallyDeferred="false" onDelete="SET NULL" onUpdate="NO ACTION" 
+            referencedColumnNames="ID" referencedTableName="USER"/>
+    </changeSet>
+
+	<changeSet id="Creating WEBUTILS_SEARCH_SETTINGS" author="webutils-testapp">
+		<createTable tableName="WEBUTILS_SEARCH_SETTINGS">
+			<column autoIncrement="true" name="ID" type="BIGINT">
+				<constraints primaryKey="true"/>
+			</column>
+			<column name="VERSION" type="INT">
+				<constraints nullable="false"/>
+			</column>
+			<column name="USER_ID" type="BIGINT">
+				<constraints nullable="false"/>
+			</column>
+			<column name="SEARCH_QUERY_NAME" type="VARCHAR(100)">
+				<constraints nullable="false"/>
+			</column>
+			<column name="SEARCH_COLUMNS" type="LONGTEXT">
+				<constraints nullable="false"/>
+			</column>
+			<column name="PAGE_SIZE" type="INT">
+				<constraints nullable="false"/>
+			</column>
+			<column name="CREATED_ON" type="datetime(6)">
+				<constraints nullable="false"/>
+			</column>
+			<column name="UPDATED_ON" type="datetime(6)">
+				<constraints nullable="false"/>
+			</column>
+			<column name="CREATED_BY_ID" type="BIGINT"/>
+			<column name="UPDATED_BY_ID" type="BIGINT"/>
+		</createTable>
+
+		<addUniqueConstraint columnNames="USER_ID, SEARCH_QUERY_NAME"
+			constraintName="UQ_SRCH_SET_USER_QUERY_NAME" tableName="WEBUTILS_SEARCH_SETTINGS"/>
+
+		<addForeignKeyConstraint baseColumnNames="USER_ID" baseTableName="WEBUTILS_SEARCH_SETTINGS"
+			constraintName="FK_SRCH_SET_USER_ID" referencedColumnNames="ID" referencedTableName="USER"
+			onDelete="CASCADE" onUpdate="NO ACTION"/>
+		<addForeignKeyConstraint baseColumnNames="CREATED_BY_ID" baseTableName="WEBUTILS_SEARCH_SETTINGS"
+			constraintName="FK_SRCH_SET_CREATED_BY_ID" referencedColumnNames="ID" referencedTableName="USER"
+			onDelete="SET NULL" onUpdate="NO ACTION"/>
+		<addForeignKeyConstraint baseColumnNames="UPDATED_BY_ID" baseTableName="WEBUTILS_SEARCH_SETTINGS"
+			constraintName="FK_SRCH_SET_UPDATED_BY_ID" referencedColumnNames="ID" referencedTableName="USER"
+			onDelete="SET NULL" onUpdate="NO ACTION"/>
+	</changeSet>
+
+	<!-- WebUtils payment module tables (required at startup when payment repos are scanned). -->
+	<changeSet author="webutils-testapp" id="create-payment-order-table">
+		<createTable tableName="PAYMENT_ORDER">
+			<column autoIncrement="true" name="ID" type="BIGINT">
+				<constraints nullable="false" primaryKey="true"/>
+			</column>
+			<column name="GATEWAY_ORDER_ID" type="VARCHAR(100)">
+				<constraints nullable="false"/>
+			</column>
+			<column name="GATEWAY_PAYMENT_ID" type="VARCHAR(100)"/>
+			<column name="AMOUNT" type="BIGINT">
+				<constraints nullable="false"/>
+			</column>
+			<column name="CURRENCY" type="VARCHAR(10)">
+				<constraints nullable="false"/>
+			</column>
+			<column name="STATUS" type="VARCHAR(20)">
+				<constraints nullable="false"/>
+			</column>
+			<column name="RECEIPT" type="VARCHAR(100)"/>
+			<column name="METADATA" type="TEXT"/>
+			<column name="USER_ID" type="BIGINT"/>
+			<column name="CREATED_ON" type="TIMESTAMP">
+				<constraints nullable="false"/>
+			</column>
+			<column name="UPDATED_ON" type="TIMESTAMP"/>
+			<column name="PAID_ON" type="TIMESTAMP"/>
+		</createTable>
+
+		<addUniqueConstraint constraintName="UQ_PAYMENT_ORDER_GATEWAY_ORDER_ID"
+			tableName="PAYMENT_ORDER" columnNames="GATEWAY_ORDER_ID"/>
+
+		<createIndex indexName="IDX_PAYMENT_ORDER_USER" tableName="PAYMENT_ORDER">
+			<column name="USER_ID"/>
+		</createIndex>
+		<createIndex indexName="IDX_PAYMENT_ORDER_STATUS" tableName="PAYMENT_ORDER">
+			<column name="STATUS"/>
+		</createIndex>
+
+		<addForeignKeyConstraint
+			baseTableName="PAYMENT_ORDER" baseColumnNames="USER_ID"
+			constraintName="FK_PAYMENT_ORDER_USER_ID"
+			referencedTableName="USER" referencedColumnNames="ID"
+			onDelete="SET NULL" onUpdate="NO ACTION"/>
+	</changeSet>
+
+	<changeSet author="webutils-testapp" id="create-payment-webhook-log-table">
+		<createTable tableName="PAYMENT_WEBHOOK_LOG">
+			<column autoIncrement="true" name="ID" type="BIGINT">
+				<constraints nullable="false" primaryKey="true"/>
+			</column>
+			<column name="PAYMENT_ORDER_ID" type="BIGINT"/>
+			<column name="EVENT_TYPE" type="VARCHAR(100)"/>
+			<column name="PAYLOAD" type="LONGTEXT">
+				<constraints nullable="false"/>
+			</column>
+			<column name="SIGNATURE" type="VARCHAR(500)"/>
+			<column name="SIGNATURE_VALID" type="BOOLEAN"/>
+			<column name="PROCESSED" type="BOOLEAN" defaultValueBoolean="false"/>
+			<column name="CREATED_ON" type="TIMESTAMP">
+				<constraints nullable="false"/>
+			</column>
+		</createTable>
+
+		<createIndex indexName="IDX_PAYMENT_WEBHOOK_LOG_ORDER" tableName="PAYMENT_WEBHOOK_LOG">
+			<column name="PAYMENT_ORDER_ID"/>
+		</createIndex>
+
+		<addForeignKeyConstraint
+			baseTableName="PAYMENT_WEBHOOK_LOG" baseColumnNames="PAYMENT_ORDER_ID"
+			constraintName="FK_PAYMENT_WEBHOOK_LOG_ORDER"
+			referencedTableName="PAYMENT_ORDER" referencedColumnNames="ID"
+			onDelete="CASCADE" onUpdate="NO ACTION"/>
+	</changeSet>
+
+	<changeSet author="webutils-testapp" id="create-webutils-mail-template-table">
+		<createTable tableName="WEBUTILS_MAIL_TEMPLATE">
+			<column autoIncrement="true" name="ID" type="BIGINT">
+				<constraints primaryKey="true" nullable="false"/>
+			</column>
+			<column name="NAME" type="VARCHAR(100)">
+				<constraints nullable="false"/>
+			</column>
+			<column name="CUSTOM_SPACE" type="VARCHAR(100)">
+				<constraints nullable="false"/>
+			</column>
+			<column name="TO_TEMPLATE" type="VARCHAR(1000)"/>
+			<column name="CC_TEMPLATE" type="VARCHAR(1000)"/>
+			<column name="BCC_TEMPLATE" type="VARCHAR(1000)"/>
+			<column name="SUBJECT_TEMPLATE" type="VARCHAR(2000)">
+				<constraints nullable="false"/>
+			</column>
+			<column name="CONTENT_TEMPLATE" type="LONGTEXT">
+				<constraints nullable="false"/>
+			</column>
+			<column name="CUSTOMIZATION" type="LONGTEXT"/>
+		</createTable>
+
+		<addUniqueConstraint tableName="WEBUTILS_MAIL_TEMPLATE"
+			columnNames="NAME, CUSTOM_SPACE"
+			constraintName="UQ_WEBUTILS_MAIL_TEMPLATE_NAME_SPACE"/>
+	</changeSet>
+</databaseChangeLog>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.yukthitech</groupId>
+        <artifactId>webutils-testapp-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>webutils-testapp-automation</artifactId>
+    <name>webutils-testapp-automation</name>
+    <description>AutoX scaffold for WebUtils widget testing (suites added later)</description>
+    <packaging>jar</packaging>
+
+    <properties>
+        <autox.version>3.0.0-SNAPSHOT</autox.version>
+    </properties>
+
+    <repositories>
+        <repository>
+            <id>yukthitech</id>
+            <name>yukthitech</name>
+            <url>https://oss.sonatype.org/content/groups/public</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.yukthitech</groupId>
+            <artifactId>yukthi-automation</artifactId>
+            <version>${autox.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.5.0</version>
+                <configuration>
+                    <mainClass>com.yukthitech.autox.AutomationLauncher</mainClass>
+                    <arguments>
+                        <argument>${project.basedir}/src/main/config/app-configuration.xml</argument>
+                        <argument>-rf</argument>
+                        <argument>${project.basedir}/test-reports</argument>
+                        <argument>-prop</argument>
+                        <argument>${project.basedir}/src/main/config/app.properties</argument>
+                    </arguments>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

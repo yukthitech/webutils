@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+	<changeSet id="Creating SAMPLE_ITEM table" author="webutils-testapp">
+		<createTable tableName="SAMPLE_ITEM">
+			<column autoIncrement="true" name="ID" type="BIGINT">
+				<constraints primaryKey="true"/>
+			</column>
+			<column name="NAME" type="VARCHAR(200)">
+				<constraints nullable="false"/>
+			</column>
+			<column name="CATEGORY" type="VARCHAR(100)">
+				<constraints nullable="false"/>
+			</column>
+			<column name="STATUS" type="VARCHAR(50)">
+				<constraints nullable="false"/>
+			</column>
+			<column name="DESCRIPTION" type="VARCHAR(1000)"/>
+		</createTable>
+		<createIndex indexName="IDX_SAMPLE_ITEM_CATEGORY" tableName="SAMPLE_ITEM">
+			<column name="CATEGORY"/>
+		</createIndex>
+		<createIndex indexName="IDX_SAMPLE_ITEM_STATUS" tableName="SAMPLE_ITEM">
+			<column name="STATUS"/>
+		</createIndex>
+	</changeSet>
+</databaseChangeLog>

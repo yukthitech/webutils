@@ -1,0 +1,3 @@
+# Placeholder — AutoX REST suites for WebUtils widgets go here.
+# Naming: rest-{module}-{functionality}.xml
+# Select with: mvn exec:java -Dts=... or -Dexec.args="-ts suiteName"

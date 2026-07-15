@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>OTP Widget Demo</title>
+	<link href="/lib/bootstrap-5.1.0/css/bootstrap.min.css" rel="stylesheet">
+	<link href="/lib/bootstrap-select-1.14.0/bootstrap-select.min.css" rel="stylesheet">
+	<link href="/lib/bootstrap-icons-1.3.0/bootstrap-icons.css" rel="stylesheet">
+	<link href="/lib/webutils/webutils.css" rel="stylesheet">
+	<link href="/common/app.css" rel="stylesheet">
+	<script src="/lib/jquery-3.6.0/jquery.min.js"></script>
+	<script src="/lib/popper-2.9.3/popper.min.js"></script>
+	<script src="/lib/bootstrap-5.1.0/js/bootstrap.min.js"></script>
+	<script src="/lib/bootstrap-select-1.14.0/bootstrap-select.min.js"></script>
+	<script type="module" src="/common/app-config.js"></script>
+</head>
+<body>
+	<div id="webutilsPageLoading" class="p-3">Loading…</div>
+	<div id="ykApp" class="container" style="display:none;">
+		<header class="testapp-header">
+			<h1 id="otp-demo-title">OTP Widget Demo</h1>
+			<p>yk-ver-input-field via OtpDemoModel (@Otp). Requires a logged-in session.</p>
+		</header>
+
+		<nav class="testapp-nav">
+			<a href="/index.html">Home</a>
+			<a href="/login/login.html">Login</a>
+			<a href="/widgets/lov-demo.html">LOV</a>
+			<a class="active" href="/widgets/otp-demo.html">OTP</a>
+			<a href="/widgets/search-demo.html">Search</a>
+		</nav>
+
+		<div class="testapp-hint" v-if="!loggedIn">
+			Not logged in. <a href="/login/login.html">Login</a> as
+			<code>test@test.com</code> / <code>test</code> (space <code>test</code>) first.
+		</div>
+
+		<section class="testapp-panel">
+			<h2>Verification form</h2>
+			<yk-model-form id="otp-demo-form" ref="otpForm" model-name="OtpDemoModel" :column-count="1"
+				v-model="formData" :enable-error="submitTried" :server-errors="fieldErrors">
+				<template #footer>
+					<div style="float: right;">
+						<div id="otp-demo-error" class="webutils-error">{{ error }}</div>
+						<button id="otp-demo-submit-btn" type="button" class="webutils-btn-primary"
+							@click.prevent="submitForm">Submit</button>
+					</div>
+				</template>
+			</yk-model-form>
+		</section>
+
+		<yk-dialogs ref="ykDialogs"></yk-dialogs>
+	</div>
+
+	<script type="module" src="/widgets/otp-demo.js"></script>
+</body>
+</html>

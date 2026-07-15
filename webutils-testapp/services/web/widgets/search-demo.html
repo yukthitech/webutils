@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Search Widget Demo</title>
+	<link href="/lib/bootstrap-5.1.0/css/bootstrap.min.css" rel="stylesheet">
+	<link href="/lib/bootstrap-select-1.14.0/bootstrap-select.min.css" rel="stylesheet">
+	<link href="/lib/bootstrap-icons-1.3.0/bootstrap-icons.css" rel="stylesheet">
+	<link href="/lib/webutils/webutils.css" rel="stylesheet">
+	<link href="/common/app.css" rel="stylesheet">
+	<script src="/lib/jquery-3.6.0/jquery.min.js"></script>
+	<script src="/lib/popper-2.9.3/popper.min.js"></script>
+	<script src="/lib/bootstrap-5.1.0/js/bootstrap.min.js"></script>
+	<script src="/lib/bootstrap-select-1.14.0/bootstrap-select.min.js"></script>
+	<script type="module" src="/common/app-config.js"></script>
+</head>
+<body>
+	<div id="webutilsPageLoading" class="p-3">Loading…</div>
+	<div id="ykApp" class="container" style="display:none;">
+		<header class="testapp-header">
+			<h1 id="search-demo-title">Search Widget Demo</h1>
+			<p>yk-search-form and yk-search-results for query <code>sampleItemSearch</code>.</p>
+		</header>
+
+		<nav class="testapp-nav">
+			<a href="/index.html">Home</a>
+			<a href="/login/login.html">Login</a>
+			<a href="/widgets/lov-demo.html">LOV</a>
+			<a href="/widgets/otp-demo.html">OTP</a>
+			<a class="active" href="/widgets/search-demo.html">Search</a>
+		</nav>
+
+		<div class="testapp-hint">
+			Seeded SAMPLE_ITEM rows cover categories Electronics, Books, Clothing, and Home.
+		</div>
+
+		<section class="testapp-panel">
+			<div id="search-demo-search">
+				<yk-search-form
+					id="sample-item-search-form"
+					ref="searchForm"
+					query-name="sampleItemSearch"
+					:column-count="2"
+					@search="onSearch">
+				</yk-search-form>
+			</div>
+		</section>
+
+		<section class="testapp-panel">
+			<div id="search-demo-results">
+				<yk-search-results
+					id="sample-item-results-table"
+					ref="results"
+					@select="onSelectRow">
+				</yk-search-results>
+			</div>
+			<div id="search-demo-selected" class="mt-2" v-if="selectedRow">
+				Selected: <code>{{ JSON.stringify(selectedRow) }}</code>
+			</div>
+		</section>
+
+		<yk-dialogs ref="ykDialogs"></yk-dialogs>
+	</div>
+
+	<script type="module" src="/widgets/search-demo.js"></script>
+</body>
+</html>

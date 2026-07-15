@@ -1,5 +1,5 @@
 ---
-description: WebUtils framework project structure and module guidance
+description: WebUtils project module layout and guidance (new vs legacy)
 alwaysApply: true
 ---
 
@@ -12,20 +12,26 @@ WebUtils is a multi-tier framework built on Spring that provides common function
 ### New modules (use for new projects)
 
 - **webutils-common** — Shared POJOs, form/model annotations, validators, response types. Package: `com.webutils.common`.
-- **webutils-services** — Backend services, controllers, repositories, entities, auth, search, mail, LOV. Package: `com.webutils.services`. Depends on `webutils-common`.
+- **webutils-services** — Backend services, controllers, repositories, entities, auth, search, mail, LOV. Package: `com.webutils.services`. Depends on `webutils-common`. Centralized UI libs: `webutils-services/web/lib` (consumers symlink/junction as `web/lib`).
+- **webutils-testapp** — Isolated widget harness (multi-module: common, services, dbschema, automation) for testing editable-lov, multi-editable-lov, OTP, and search. Login: `/login/login.html` with `test@test.com` / `test` (space `test`). Not a product app; not the same as legacy `TestWebApp`.
 
-These modules intentionally exclude legacy functionality and follow updated patterns. Target Java 25 and Spring Boot 4.x.
+These modules intentionally exclude legacy functionality and follow updated patterns. Target Java 25 and Spring Boot 4.x. New modules do **not** share the legacy `WebUtils` parent POM.
 
 ### Legacy modules (old framework version)
 
 - **Commons** — Client/server contract POJOs (`com.yukthitech.webutils.common`)
 - **Services** — Backend services, CRUD, auth, search (`com.yukthitech.webutils`)
 - **Client** — Java client library for calling WebUtils APIs
-- **WebUtils** — Parent POM; includes `dbschema` (Liquibase) and `vue-based` UI assets
-- **TestWebApp** — Sample application demonstrating the legacy framework
+- **WebUtils** — Parent POM; includes `dbschema` (legacy `WEBUTILS_*` Liquibase) and `vue-based` UI assets
+- **TestWebApp** — Sample application demonstrating the **legacy** framework
+
+## Schema note
+
+New-stack tables (`USER`, `STORED_LOV`, `FORM_TOKEN`, `WEBUTILS_SEARCH_SETTINGS`, …) are defined in each consuming app’s `dbschema` (Sethu4U, webutils-testapp). Do not assume `WebUtils/dbschema` matches new entity names.
 
 ## Guidance
 
 - For new work, prefer **webutils-common** and **webutils-services** over legacy modules.
+- Use **webutils-testapp** to exercise UI widgets and (later) AutoX suites in isolation.
 - Reference legacy modules when porting features, comparing behavior, or maintaining existing apps.
 - Detailed legacy documentation: `WebUtils/README.MD`.

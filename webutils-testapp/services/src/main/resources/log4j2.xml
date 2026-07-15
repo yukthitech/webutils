@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+
+	<Properties>
+		<Property name="LOG_PATTERN">%d{yyyy-MM-dd HH:mm:ss.SSS} %5p [%t] (%F:%L) - %m%n</Property>
+		<Property name="LOG_FILE_PATH">logs/webutils-testapp.log</Property>
+	</Properties>
+
+	<Appenders>
+		<Console name="STDOUT" target="SYSTEM_OUT">
+			<PatternLayout pattern="${LOG_PATTERN}" />
+		</Console>
+		<RollingFile name="FILE" fileName="${LOG_FILE_PATH}"
+			filePattern="logs/webutils-testapp-%d{yyyy-MM-dd}-%i.log.gz">
+			<PatternLayout pattern="${LOG_PATTERN}" />
+			<Policies>
+				<TimeBasedTriggeringPolicy />
+				<SizeBasedTriggeringPolicy size="10MB" />
+			</Policies>
+			<DefaultRolloverStrategy max="10" />
+		</RollingFile>
+		<RollingFile name="ERROR_FILE" fileName="logs/webutils-testapp-error.log"
+			filePattern="logs/webutils-testapp-error-%d{yyyy-MM-dd}-%i.log.gz">
+			<PatternLayout pattern="${LOG_PATTERN}" />
+			<ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY" />
+			<Policies>
+				<TimeBasedTriggeringPolicy />
+				<SizeBasedTriggeringPolicy size="5MB" />
+			</Policies>
+			<DefaultRolloverStrategy max="5" />
+		</RollingFile>
+	</Appenders>
+
+	<Loggers>
+		<Logger name="com.webutils" level="DEBUG" additivity="false">
+			<AppenderRef ref="STDOUT" />
+			<AppenderRef ref="FILE" />
+			<AppenderRef ref="ERROR_FILE" />
+		</Logger>
+		<Logger name="com.yukthitech" level="INFO" additivity="false">
+			<AppenderRef ref="STDOUT" />
+			<AppenderRef ref="FILE" />
+		</Logger>
+		<Root level="INFO">
+			<AppenderRef ref="STDOUT" />
+			<AppenderRef ref="FILE" />
+			<AppenderRef ref="ERROR_FILE" />
+		</Root>
+	</Loggers>
+</Configuration>

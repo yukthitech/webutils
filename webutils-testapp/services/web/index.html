@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>WebUtils Widget Testapp</title>
+	<link href="/lib/bootstrap-5.1.0/css/bootstrap.min.css" rel="stylesheet">
+	<link href="/lib/webutils/webutils.css" rel="stylesheet">
+	<link href="/common/app.css" rel="stylesheet">
+	<script src="/lib/jquery-3.6.0/jquery.min.js"></script>
+	<script src="/lib/popper-2.9.3/popper.min.js"></script>
+	<script src="/lib/bootstrap-5.1.0/js/bootstrap.min.js"></script>
+	<script type="module" src="/common/app-config.js"></script>
+</head>
+<body>
+	<div id="webutilsPageLoading" class="p-3">Loading…</div>
+	<div id="ykApp" class="container" style="display:none;">
+		<header class="testapp-header">
+			<h1 id="testapp-home-title">WebUtils Widget Testapp</h1>
+			<p>Isolated harness for editable LOV, multi-editable LOV, OTP, and search widgets.</p>
+		</header>
+
+		<nav class="testapp-nav" aria-label="Widget demos">
+			<a id="nav-login" href="/login/login.html">Login</a>
+			<a id="nav-lov" href="/widgets/lov-demo.html">LOV widgets</a>
+			<a id="nav-otp" href="/widgets/otp-demo.html">OTP widget</a>
+			<a id="nav-search" href="/widgets/search-demo.html">Search widgets</a>
+		</nav>
+
+		<section class="testapp-panel">
+			<h2>Session</h2>
+			<p id="session-status" class="mb-2">{{ sessionStatus }}</p>
+			<button id="logout-btn" type="button" class="webutils-btn-secondary" v-if="loggedIn" @click.prevent="logout">Logout</button>
+			<a id="go-login-btn" class="webutils-btn-primary" href="/login/login.html" v-else>Go to login</a>
+		</section>
+
+		<section class="testapp-panel">
+			<h2>Quick notes</h2>
+			<ul>
+				<li>Login first at <code>/login/login.html</code> — default user <code>test@test.com</code> / <code>test</code> (space <code>test</code>).</li>
+				<li>Framework UI assets are junctioned from <code>webutils-services/web/lib</code>.</li>
+				<li>Run Liquibase from <code>dbschema/</code> against the DB configured in <code>liquibase.properties</code>.</li>
+				<li>With <code>app.devEnvironment=true</code>, OTP codes are not emailed; read them from <code>FORM_TOKEN</code>.</li>
+			</ul>
+		</section>
+
+		<yk-dialogs ref="ykDialogs"></yk-dialogs>
+	</div>
+
+	<script type="module">
+		import * as Webutils from "/lib/webutils/webutils-app.js";
+		import {$restService} from "/lib/webutils/rest-service.js";
+
+		Webutils.newVueApp({
+			data: function() {
+				var hasToken = !!sessionStorage.getItem("authToken");
+				return {
+					loggedIn: hasToken,
+					sessionStatus: hasToken
+						? "Logged in (authToken present in sessionStorage)."
+						: "Not logged in — open Login before using widgets."
+				};
+			},
+			methods: {
+				logout: function() {
+					var self = this;
+					$restService.invokePost("/api/auth/logout", {}, {
+						context: this,
+						onSuccess: function() {
+							sessionStorage.removeItem("authToken");
+							sessionStorage.removeItem("userDetails");
+							window.location.href = "/login/login.html";
+						},
+						onError: function() {
+							sessionStorage.removeItem("authToken");
+							sessionStorage.removeItem("userDetails");
+							window.location.href = "/login/login.html";
+						}
+					});
+				}
+			}
+		}).mount("#ykApp");
+	</script>
+</body>
+</html>

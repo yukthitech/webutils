@@ -1,0 +1,39 @@
+<app xmlns:ccg="http://xmlbeanparser.yukthitech.com/reserved"
+     xmlns:wrap="http://xmlbeanparser.yukthitech.com/wrap">
+
+    <report-name>WebUtils Testapp Automation</report-name>
+    <dateFomat>dd-MMM-yyyy</dateFomat>
+    <testSuiteFolder>./src/main/test-suites</testSuiteFolder>
+
+    <wrap:plugins>
+        <rest-plugin>
+            <baseUrl>#{api.base.url}</baseUrl>
+
+            <connection name="sessionBased">
+                <baseUrl>#{api.base.url}</baseUrl>
+                <default-header name="Authorization">Bearer ${(getPluginAttr('sessionBased').authToken)!''}</default-header>
+            </connection>
+        </rest-plugin>
+
+        <selenium-plugin maxSessions="3">
+            <base-url>#{base.url}</base-url>
+            <wrap:drivers>
+                <driver name="autoxChrome" class-name="com.yukthitech.autox.config.selenium.AutoxChromeDriver">
+					<!-- Place Chrome/chromedriver under ./drivers/ when adding UI suites -->
+					<system-property name="webdriver.chrome.driver">./drivers/chromedriver.exe</system-property>
+					<extraArguments>--remote-allow-origins=*</extraArguments>
+                </driver>
+            </wrap:drivers>
+        </selenium-plugin>
+
+        <db-plugin defaultDataSource="testapp">
+            <dataSource name="testapp" ccg:beanType="org.apache.commons.dbcp2.BasicDataSource">
+                <driverClassName>com.mysql.cj.jdbc.Driver</driverClassName>
+                <url>#{db.url}</url>
+                <username>#{db.user}</username>
+                <password>#{db.password}</password>
+                <defaultAutoCommit>true</defaultAutoCommit>
+            </dataSource>
+        </db-plugin>
+    </wrap:plugins>
+</app>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.yukthitech</groupId>
+        <artifactId>webutils-testapp-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>webutils-testapp-dbschema</artifactId>
+    <name>webutils-testapp-dbschema</name>
+    <description>Liquibase schema for WebUtils testapp (MySQL test/test)</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+        </dependency>
+    </dependencies>
+
+    <properties>
+        <liquibase.prop.file>src/main/resources/liquibase.properties</liquibase.prop.file>
+        <liquibase.changelog>src/main/resources/db.changelog-master.xml</liquibase.changelog>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.liquibase</groupId>
+                <artifactId>liquibase-maven-plugin</artifactId>
+                <configuration>
+                    <propertyFile>${liquibase.prop.file}</propertyFile>
+                    <changeLogFile>${liquibase.changelog}</changeLogFile>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
