@@ -18,7 +18,9 @@ package com.webutils.services.form.lov.stored;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
@@ -161,31 +163,56 @@ public class StoredLovService
 
 	public Set<String> checkAndSaveLovOption(LovConfig lovConfig, String lovName, Collection<String> optionLabels)
 	{
-		Set<String> existingLabels = lovOptionRepository.fetchLovOptionLabels(lovName, optionLabels);
-
-		if(existingLabels == null)
+		if(optionLabels == null || optionLabels.isEmpty())
 		{
-			existingLabels = Collections.emptySet();
+			return Collections.emptySet();
 		}
 
-		Set<String> newExistingLabels = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
-		newExistingLabels.addAll(existingLabels);
+		// Resolve against all options so case variants (ELECTRONICS vs Electronics) match
+		// even when the filtered IN query does not honor ignoreCase.
+		List<StoredLovOptionEntity> allOptions = lovOptionRepository.fetchLovOptions(lovName);
+		Map<String, String> canonicalByLower = new HashMap<>();
 
-		existingLabels = newExistingLabels;
+		if(allOptions != null)
+		{
+			for(StoredLovOptionEntity opt : allOptions)
+			{
+				if(opt.getLabel() != null)
+				{
+					canonicalByLower.put(opt.getLabel().toLowerCase(), opt.getLabel());
+				}
+			}
+		}
+
+		Set<String> resolvedLabels = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+
+		for(String optionLabel : optionLabels)
+		{
+			if(StringUtils.isBlank(optionLabel))
+			{
+				continue;
+			}
+
+			String canonical = canonicalByLower.get(optionLabel.toLowerCase());
+
+			if(canonical != null)
+			{
+				resolvedLabels.add(canonical);
+			}
+		}
 
 		if(!lovConfig.isSaveMissingOptions())
 		{
-			TreeSet<String> extraLabels = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
-			extraLabels.addAll(newExistingLabels);
+			TreeSet<String> missing = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+			missing.addAll(optionLabels);
+			missing.removeAll(resolvedLabels);
 
-			extraLabels.removeAll(optionLabels);
-
-			if(!extraLabels.isEmpty())
+			if(!missing.isEmpty())
 			{
-				throw new InvalidStateException("Following lov options are not present [Under Lov: {}]: {}", lovName, extraLabels);
+				throw new InvalidStateException("Following lov options are not present [Under Lov: {}]: {}", lovName, missing);
 			}
 
-			return existingLabels;
+			return resolvedLabels;
 		}
 
 		StoredLovEntity lovEntity = lovRepository.fetchByName(lovName);
@@ -221,9 +248,16 @@ public class StoredLovService
 			parentOption = new StoredLovOptionEntity(parentOptionId);
 		}
 
+		boolean anyNewOption = false;
+
 		for(String optionLabel : optionLabels)
 		{
-			if(existingLabels.contains(optionLabel))
+			if(StringUtils.isBlank(optionLabel))
+			{
+				continue;
+			}
+
+			if(canonicalByLower.containsKey(optionLabel.toLowerCase()))
 			{
 				continue;
 			}
@@ -243,10 +277,22 @@ public class StoredLovService
 			);
 			
 			lovOptionRepository.save(option);
-			existingLabels.add(optionLabel);
+			canonicalByLower.put(optionLabel.toLowerCase(), optionLabel);
+			resolvedLabels.add(optionLabel);
+			anyNewOption = true;
 		}
 
-		return existingLabels;
+		if(anyNewOption && lovOptionsCache != null)
+		{
+			lovOptionsCache.remove(lovName);
+
+			if(lovConfig.getParentOptionLabel() != null)
+			{
+				lovOptionsCache.remove(lovConfig.getParentOptionLabel() + "/" + lovName);
+			}
+		}
+
+		return resolvedLabels;
 	}
 
 	public boolean isValidLov(String lovName)
