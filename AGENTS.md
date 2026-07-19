@@ -43,6 +43,12 @@ New entities use tables such as `USER`, `STORED_LOV`, `STORED_LOV_OPTION`, `FORM
 - **Legacy behavior reference or migration** → `Commons` / `Services` / `Client` / `WebUtils` / `TestWebApp`
 - **Package namespace**: new code uses `com.webutils.*`; legacy uses `com.yukthitech.webutils.*`
 
+### Entity Lombok annotations
+
+Do **not** use Lombok `@Data` on persistence entities (or embedded subentities). `@Data` generates `equals`/`hashCode`/`toString` that can recurse through bidirectional associations and cause stack overflows.
+
+Use `@Getter` and `@Setter` instead (optionally with `@NoArgsConstructor` / `@Accessors` as needed). `@Data` remains fine for DTOs, models, and other non-entity POJOs.
+
 ### webutils-testapp login
 
 APIs require a session. Open `/login/login.html` and sign in as:

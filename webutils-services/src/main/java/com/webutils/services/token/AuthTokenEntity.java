@@ -11,10 +11,12 @@ import javax.persistence.Table;
 
 import com.webutils.services.user.UserEntity;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.NoArgsConstructor;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @Table(name = "AUTH_TOKEN")
 public class AuthTokenEntity 

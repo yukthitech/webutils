@@ -38,13 +38,15 @@ import com.yukthitech.persistence.annotations.UniqueConstraint;
 import com.yukthitech.persistence.annotations.UniqueConstraints;
 import com.yukthitech.persistence.conversion.impl.JsonConverter;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Represents store LOV entry.
  * @author akiran
  */
-@Data
+@Getter
+@Setter
 @UniqueConstraints({
 	@UniqueConstraint(name = "UQ_ST_LOV_NAME", fields = {"name"}, finalName = true)
 	})

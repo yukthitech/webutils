@@ -14,7 +14,8 @@ import com.yukthitech.persistence.annotations.UniqueConstraint;
 import com.yukthitech.persistence.annotations.UniqueConstraints;
 import com.yukthitech.persistence.conversion.impl.PasswordEncryptionConverter;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
@@ -23,7 +24,8 @@ import lombok.experimental.Accessors;
  * 
  * Contains user information including name, email, roles, and audit fields
  */
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @Accessors(chain = true)
 @Table(name = "USER")

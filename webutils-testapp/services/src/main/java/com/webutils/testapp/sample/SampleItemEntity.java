@@ -6,13 +6,15 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.NoArgsConstructor;
 
 /**
  * Generic sample rows for search widget testing.
  */
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @Table(name = "SAMPLE_ITEM")
 public class SampleItemEntity

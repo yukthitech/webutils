@@ -15,11 +15,13 @@ import com.yukthitech.persistence.annotations.DataType;
 import com.yukthitech.persistence.annotations.DataTypeMapping;
 import com.yukthitech.persistence.conversion.impl.JsonConverter;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @Accessors(chain = true)
 @Table(name = "PAYMENT_ORDER")

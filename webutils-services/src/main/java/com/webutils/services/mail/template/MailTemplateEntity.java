@@ -35,7 +35,8 @@ import com.yukthitech.persistence.annotations.UniqueConstraint;
 import com.yukthitech.persistence.annotations.UniqueConstraints;
 import com.yukthitech.persistence.conversion.impl.JsonWithTypeConverter;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
@@ -44,7 +45,8 @@ import lombok.experimental.Accessors;
  * 
  * @author akiran
  */
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @Accessors(chain = true)
 @UniqueConstraints({

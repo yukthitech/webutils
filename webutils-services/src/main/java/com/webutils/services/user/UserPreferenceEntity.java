@@ -13,7 +13,8 @@ import com.yukthitech.persistence.annotations.DataType;
 import com.yukthitech.persistence.annotations.DataTypeMapping;
 import com.yukthitech.persistence.conversion.impl.JsonWithTypeConverter;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.NoArgsConstructor;
 
 /**
@@ -21,7 +22,8 @@ import lombok.NoArgsConstructor;
  * 
  * Contains user preference information including key, value, and audit fields
  */
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @Table(name = "USER_PREFERENCES")
 public class UserPreferenceEntity 

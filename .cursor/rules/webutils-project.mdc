@@ -35,3 +35,9 @@ New-stack tables (`USER`, `STORED_LOV`, `FORM_TOKEN`, `WEBUTILS_SEARCH_SETTINGS`
 - Use **webutils-testapp** to exercise UI widgets and (later) AutoX suites in isolation.
 - Reference legacy modules when porting features, comparing behavior, or maintaining existing apps.
 - Detailed legacy documentation: `WebUtils/README.MD`.
+
+## Entity Lombok
+
+- Do **not** use Lombok `@Data` on persistence entities or embedded subentities — it generates `equals`/`hashCode`/`toString` that can recurse through bidirectional associations.
+- Use `@Getter` and `@Setter` on entities instead (plus `@NoArgsConstructor` / `@Accessors` when needed).
+- `@Data` is fine for DTOs, models, and other non-entity POJOs.

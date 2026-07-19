@@ -36,7 +36,8 @@ import com.webutils.services.user.UserEntity;
 import com.yukthitech.persistence.annotations.UniqueConstraint;
 import com.yukthitech.persistence.annotations.UniqueConstraints;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
@@ -44,7 +45,8 @@ import lombok.experimental.Accessors;
  * Represents store LOV entry.
  * @author akiran
  */
-@Data
+@Getter
+@Setter
 @Accessors(chain = true)
 @NoArgsConstructor
 @UniqueConstraints({
