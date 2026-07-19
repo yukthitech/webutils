@@ -7,6 +7,57 @@ import {$logger, $utils, $appConfiguration} from "./common.js";
 export var $restService = {
 	"lovCache": {},
 	"modelDefCache": {},
+
+	/**
+	 * When true, invokeRestApi records method/url/params for automation.
+	 * Restored from sessionStorage so tracking can survive page reloads in AutoX.
+	 */
+	"trackApiCalls": (typeof sessionStorage !== "undefined"
+		&& sessionStorage.getItem("webutils.trackApiCalls") === "true"),
+
+	/**
+	 * Buffer of tracked API calls: { method, url, params }.
+	 */
+	"trackedApiCalls": [],
+
+	/**
+	 * Enables or disables API call tracking.
+	 * Persists the flag in sessionStorage so it survives navigation/reload.
+	 * @param {boolean} enabled
+	 */
+	"setTrackApiCalls": function(enabled)
+	{
+		this.trackApiCalls = !!enabled;
+
+		if(typeof sessionStorage !== "undefined")
+		{
+			if(this.trackApiCalls)
+			{
+				sessionStorage.setItem("webutils.trackApiCalls", "true");
+			}
+			else
+			{
+				sessionStorage.removeItem("webutils.trackApiCalls");
+			}
+		}
+	},
+
+	/**
+	 * Returns a shallow copy of tracked API calls so far.
+	 * @returns {Array<{method: string, url: string, params: object|null}>}
+	 */
+	"getTrackedApiCalls": function()
+	{
+		return this.trackedApiCalls.slice();
+	},
+
+	/**
+	 * Clears all tracked API calls collected so far.
+	 */
+	"clearTrackedApiCalls": function()
+	{
+		this.trackedApiCalls = [];
+	},
 	
 	"dummy": function()
 	{
@@ -329,6 +380,15 @@ export var $restService = {
 			}
 		}
 
+		if(this.trackApiCalls)
+		{
+			this.trackedApiCalls.push({
+				"method": settings.method,
+				"url": url,
+				"params": params || null
+			});
+		}
+
 		$.ajax({
 			"url": url,
 			"method": settings.method,
@@ -560,3 +620,9 @@ export var $restService = {
 		return await response.text();
 	}	
 };
+
+// Expose for AutoX ui-execute-js (ES modules are not otherwise global)
+if(typeof window !== "undefined")
+{
+	window.$restService = $restService;
+}

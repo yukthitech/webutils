@@ -1,0 +1,38 @@
+<testData 
+	xmlns:s="http://autox.yukthitech.com/steps" 
+	xmlns:wrap="http://xmlbeanparser.yukthitech.com/wrap" 
+	xmlns:f="http://autox.yukthitech.com/functions">
+
+	<!--
+		Global setup — runs once before any test suite.
+		Only one global <setup> is allowed across the entire testSuiteFolder.
+	-->
+	<setup>
+		<s:log level="INFO" message="Global setup: login and enable API call tracking"/>
+
+		<s:ui-goto-page uri="/login/login.html"/>
+		<s:ui-execute-js>
+			<script><![CDATA[
+				sessionStorage.clear();
+				return true;
+			]]></script>
+		</s:ui-execute-js>
+		<s:ui-goto-page uri="/login/login.html"/>
+		<s:ui-wait-for retry-count="20" retry-time-gap-millis="500">
+			<locator>id: login-username</locator>
+		</s:ui-wait-for>
+		<s:ui-set-value locator="id: login-username" value="string: test@test.com"/>
+		<s:ui-set-value locator="id: login-password" value="string: test"/>
+		<s:ui-set-value locator="id: login-space" value="string: test"/>
+		<s:ui-click locator="id: login-submit-btn" post-visibility-locator="id: testapp-home-title" retry-count="20" retry-time-gap-millis="500"/>
+		<s:ui-log-screen-shot name="global-login-home"/>
+
+		<s:log level="INFO" message="Enable $restService API call tracking for the full automation run"/>
+		<f:enableTrackedApiCalls/>
+	</setup>
+
+	<cleanup>
+		<s:ui-quit-session/>
+	</cleanup>
+
+</testData>

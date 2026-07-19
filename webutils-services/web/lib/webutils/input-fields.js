@@ -1445,7 +1445,10 @@ newVueUiComponent('yk-lov-field', {
 		"filteredOptions": [],
 		"highlightedIndex": -1,
 		"dropdownStyle": "",
-		"dropdownVisible": false
+		"dropdownVisible": false,
+		"parentValue": null,
+		"lastFetchedParentValue": undefined,
+		"pendingParentFetch": undefined
 	},
 	
 	"props": {
@@ -1473,13 +1476,10 @@ newVueUiComponent('yk-lov-field', {
 				this.fieldInfo.lovDetails = {"lovType": "STORED_TYPE", "lovName": this.storedLovName};
 			}
 			
+			// No-parent LOVs load on create; parent-dependent LOVs load on first dropdown open
 			if(!this.fieldInfo.lovDetails.parentField)
 			{
 				$restService.fetchLovValues(this.fieldInfo.lovDetails.lovName, this.fieldInfo.lovDetails.lovType, this.setLovValues, null, this.noAuth);
-			}
-			else
-			{
-				// With parent dependency, values will be loaded when parent changes
 			}
 		},
 		
@@ -1499,11 +1499,64 @@ newVueUiComponent('yk-lov-field', {
 				"callback": $.proxy(this.onParentFieldChange, this)
 			};
 		},
+
+		"clearLovOptions": function() {
+			if(this.lovOptions.length > 0)
+			{
+				this.lovOptions.splice(0, this.lovOptions.length);
+			}
+			this.filteredOptions = [];
+		},
 		
 		"onParentFieldChange": function(newParentVal)
 		{
-			$restService.fetchLovValues(this.fieldInfo.lovDetails.lovName, this.fieldInfo.lovDetails.lovType, this.setLovValues, newParentVal, this.noAuth);
-			this.validateAndSetValue(this.formData.data[this.fieldInfo.name]);
+			this.parentValue = newParentVal;
+
+			if(this.lastFetchedParentValue !== newParentVal)
+			{
+				this.lastFetchedParentValue = undefined;
+				this.pendingParentFetch = undefined;
+				this.clearLovOptions();
+			}
+		},
+
+		"ensureDependentLovLoaded": function() {
+			if(!this.fieldInfo.lovDetails || !this.fieldInfo.lovDetails.parentField)
+			{
+				return;
+			}
+
+			if(!this.parentValue)
+			{
+				this.clearLovOptions();
+				return;
+			}
+
+			if(this.lastFetchedParentValue === this.parentValue || this.pendingParentFetch === this.parentValue)
+			{
+				return;
+			}
+
+			var parentForFetch = this.parentValue;
+			this.pendingParentFetch = parentForFetch;
+			$restService.fetchLovValues(
+				this.fieldInfo.lovDetails.lovName,
+				this.fieldInfo.lovDetails.lovType,
+				$.proxy(function(lovList) {
+					if(this.pendingParentFetch === parentForFetch)
+					{
+						this.pendingParentFetch = undefined;
+					}
+					if(this.parentValue !== parentForFetch)
+					{
+						return;
+					}
+					this.lastFetchedParentValue = parentForFetch;
+					this.setLovValues(lovList);
+				}, this),
+				parentForFetch,
+				this.noAuth
+			);
 		},
 		
 		"reset": function(val) {
@@ -1542,6 +1595,7 @@ newVueUiComponent('yk-lov-field', {
 
 		"openDropdown": function() {
 			this.dropdownVisible = true;
+			this.ensureDependentLovLoaded();
 			this.filteredOptions = this.fetchOptions(this.searchTerm);
 			this.highlightedIndex = -1;
 			
@@ -1811,6 +1865,9 @@ let editableLovBase = {
 		dropdownStyle: "",
 		selectingOption: false,
 		blurHideTimeout: null,
+		parentValue: null,
+		lastFetchedParentValue: undefined,
+		pendingParentFetch: undefined,
 	},
 	
 	"updated": function() {
@@ -1845,7 +1902,7 @@ let editableLovBase = {
 				this.fieldInfo.lovDetails.lovName = this.storedLovName;
 			}
 
-			// Dependent LOVs load when the parent field changes (see getParentDetails / onParentFieldChange)
+			// No-parent LOVs load on create; parent-dependent LOVs load on first dropdown open
 			if(!this.fieldInfo.lovDetails.parentField)
 			{
 				$restService.fetchLovValues(this.fieldInfo.lovDetails.lovName, this.fieldInfo.lovDetails.lovType, this.setLovValues, null, this.noAuth);
@@ -1869,19 +1926,63 @@ let editableLovBase = {
 				"callback": $.proxy(this.onParentFieldChange, this)
 			};
 		},
+
+		"clearLovOptions": function() {
+			if(this.lovOptions.length > 0) {
+				this.lovOptions.splice(0, this.lovOptions.length);
+			}
+			this.filteredOptions = [];
+		},
 		
 		"onParentFieldChange": function(newParentVal)
 		{
-			if(!newParentVal)
+			this.parentValue = newParentVal;
+
+			if(this.lastFetchedParentValue !== newParentVal)
 			{
-				if(this.lovOptions.length > 0) {
-					this.lovOptions.splice(0, this.lovOptions.length);
-				}
-				this.filteredOptions = [];
+				this.lastFetchedParentValue = undefined;
+				this.pendingParentFetch = undefined;
+				this.clearLovOptions();
+			}
+		},
+
+		"ensureDependentLovLoaded": function() {
+			if(!this.fieldInfo.lovDetails || !this.fieldInfo.lovDetails.parentField)
+			{
 				return;
 			}
 
-			$restService.fetchLovValues(this.fieldInfo.lovDetails.lovName, this.fieldInfo.lovDetails.lovType, this.setLovValues, newParentVal, this.noAuth);
+			if(!this.parentValue)
+			{
+				this.clearLovOptions();
+				return;
+			}
+
+			if(this.lastFetchedParentValue === this.parentValue || this.pendingParentFetch === this.parentValue)
+			{
+				return;
+			}
+
+			var parentForFetch = this.parentValue;
+			this.pendingParentFetch = parentForFetch;
+			$restService.fetchLovValues(
+				this.fieldInfo.lovDetails.lovName,
+				this.fieldInfo.lovDetails.lovType,
+				$.proxy(function(lovList) {
+					if(this.pendingParentFetch === parentForFetch)
+					{
+						this.pendingParentFetch = undefined;
+					}
+					if(this.parentValue !== parentForFetch)
+					{
+						return;
+					}
+					this.lastFetchedParentValue = parentForFetch;
+					this.setLovValues(lovList);
+				}, this),
+				parentForFetch,
+				this.noAuth
+			);
 		},
 
 		"setLovValues": function(lovList) {
@@ -1892,6 +1993,8 @@ let editableLovBase = {
 			for(var lov of lovList) {
 				this.lovOptions.push(lov);
 			}
+
+			this.filteredOptions = this.fetchOptions(this.searchTerm);
 			
 			// If there's a pending model value, process it now that LOV options are loaded
 			if(this.fieldValue && this.onModelValueChanged) {
@@ -1906,6 +2009,7 @@ let editableLovBase = {
 		},
 		
 		"onInput": function(){
+			this.ensureDependentLovLoaded();
 			clearTimeout(this.debounceTimeout);
 			this.debounceTimeout = setTimeout($.proxy(function(){
 				this.filteredOptions = this.fetchOptions(this.searchTerm);
@@ -2004,21 +2108,42 @@ let editableLovBase = {
 		},
 		
 		selectHighlighted: function() {
+			// Sync filter immediately — debounced onInput may still have a stale full list
+			this.filteredOptions = this.fetchOptions(this.searchTerm);
+
 			if(this.highlightedIndex >= 0 && this.highlightedIndex < this.filteredOptions.length) {
 				this.selectOption(this.filteredOptions[this.highlightedIndex]);
 				return;
 			}
 
-			// Enter with no highlight: take first match, else accept typed value (multi / new option)
-			if(this.filteredOptions.length > 0) {
+			let term = this.searchTerm ? ("" + this.searchTerm).trim() : "";
+			if(!term) {
+				return;
+			}
+
+			// Prefer exact match (case-insensitive) so ELECTRONICS → Electronics
+			let termLower = term.toLowerCase();
+			for(let opt of this.filteredOptions) {
+				if(("" + opt).toLowerCase() === termLower) {
+					this.selectOption(opt);
+					return;
+				}
+			}
+
+			// Single substring match: accept it (e.g. "Ele" → Electronics)
+			if(this.filteredOptions.length === 1) {
 				this.selectOption(this.filteredOptions[0]);
 				return;
 			}
 
-			if(this.searchTerm && this.optionSelected) {
-				this.optionSelected(this.searchTerm);
-			} else if(this.searchTerm) {
-				this.selectOption(this.searchTerm);
+			// No unique match: accept typed value (new option / multi). Do not steal
+			// the first stale/partial suggestion (that used to turn AutoxLovGadgets into Books).
+			if(this.optionSelected) {
+				this.optionSelected(term);
+				this.filteredOptions = [];
+				this.highlightedIndex = -1;
+			} else {
+				this.selectOption(term);
 			}
 		},
 		
@@ -2069,6 +2194,14 @@ let editableLovBase = {
 				}
 			}
 
+			// Case-insensitive match so ELECTRONICS maps to existing Electronics
+			let labelLower = ("" + label).toLowerCase();
+			for(let opt of this.lovOptions) {
+				if(("" + opt.label).toLowerCase() === labelLower) {
+					return opt;
+				}
+			}
+
 			return {"label": label, "isNew": true};
 		}
 		
@@ -2090,10 +2223,16 @@ newVueUiComponent('yk-editable-lov-field', {
 			
 			if(this.selectedOption == null) {
 				this.fieldValue = "";
-				return;
+			}
+			else {
+				this.fieldValue = this.selectedOption.label;
 			}
 
-			this.fieldValue = this.selectedOption.label;
+			// Keep suggestions in sync when value is set without a native @input
+			// (Selenium/Autox often updates v-model without re-firing filter debounce).
+			this.ensureDependentLovLoaded();
+			this.filteredOptions = this.fetchOptions(newVal);
+			this.highlightedIndex = -1;
 		},
 	},
 	"methods": {
@@ -2352,6 +2491,7 @@ newVueUiComponent('yk-multi-editable-lov-field', {
 				    v-model="searchTerm"
 				    @input="onInput"
 					@focus="onInput"
+					@click="onInput"
 					@blur="onBlur"
 				    @keydown.down="highlightNext"
 				    @keydown.up="highlightPrev"

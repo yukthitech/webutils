@@ -20,11 +20,14 @@
             <wrap:drivers>
                 <driver name="autoxChrome" class-name="com.yukthitech.autox.config.selenium.AutoxChromeDriver">
 					<!-- Place Chrome/chromedriver under ./drivers/ when adding UI suites -->
-					<system-property name="webdriver.chrome.driver">./drivers/chromedriver.exe</system-property>
+					<system-property name="webdriver.chrome.driver">./drivers/149.0.7827.53/chromedriver-win64/chromedriver.exe</system-property>
+					<profile-option name="chrome.binary">./drivers/149.0.7827.53/chrome-win64/chrome.exe</profile-option>
 					<extraArguments>--remote-allow-origins=*</extraArguments>
                 </driver>
             </wrap:drivers>
         </selenium-plugin>
+
+        <browser-log-monitor name="browser-console"/>
 
         <db-plugin defaultDataSource="testapp">
             <dataSource name="testapp" ccg:beanType="org.apache.commons.dbcp2.BasicDataSource">

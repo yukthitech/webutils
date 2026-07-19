@@ -8,5 +8,6 @@
     <include file="001-create-webutils-common-tables.xml"/>
     <include file="002-create-sample-item.xml"/>
     <include file="003-seed-lov-and-sample-data.xml"/>
+    <include file="004-create-temp-table.xml"/>
 
 </databaseChangeLog>

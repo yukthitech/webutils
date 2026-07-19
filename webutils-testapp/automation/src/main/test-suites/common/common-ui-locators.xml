@@ -1,0 +1,40 @@
+<testData 
+	xmlns:s="http://autox.yukthitech.com/steps" 
+	xmlns:wrap="http://xmlbeanparser.yukthitech.com/wrap"
+	xmlns:f="http://autox.yukthitech.com/functions">
+
+	<!-- Readonly yk-lov-field: open dropdown and select by exact label -->
+	<custom-ui-locator name="ykLov">
+		<set-function>
+			<s:ui-click locator="id: ${param.context.effectiveExpression}" retry-count="10" retry-time-gap-millis="300"/>
+			<s:ui-click locator="xpath: //input[@id='${param.context.effectiveExpression}']/ancestor::div[contains(@class,'yuk-autocomplete')]//li[not(.//input) and normalize-space(.)='${param.context.value}']" retry-count="10" retry-time-gap-millis="300"/>
+		</set-function>
+		<get-function>
+			<s:return value="uiVal: id: ${param.context.effectiveExpression}"/>
+		</get-function>
+	</custom-ui-locator>
+
+	<!-- Editable yk-editable-lov-field: type value and click matching suggestion -->
+	<custom-ui-locator name="ykEditableLov">
+		<set-function>
+			<s:ui-click locator="id: ${param.context.effectiveExpression}" retry-count="10" retry-time-gap-millis="300"/>
+			<s:ui-set-value locator="id: ${param.context.effectiveExpression}" value="prop: param.context.value" press-enter-at-end="false"/>
+
+			<s:set expression="valueLocator" value="//input[@id='${param.context.effectiveExpression}']/ancestor::div[contains(@class,'yuk-autocomplete')]//ul//li[contains(normalize-space(.),'${param.context.value}')]"/>
+
+			<s:sleep time="1000"/>
+			<s:if condition="uiIsVisible(attr.valueLocator)">
+				<s:ui-click 
+					locator="xpath: //input[@id='${param.context.effectiveExpression}']/ancestor::div[contains(@class,'yuk-autocomplete')]//ul//li[contains(normalize-space(.),'${param.context.value}')]" 
+					retry-count="5" retry-time-gap-millis="500"/>
+			</s:if>
+			<s:else>
+				<s:ui-set-value locator="id: ${param.context.effectiveExpression}" value="prop: param.context.value" press-enter-at-end="true"/>
+			</s:else>
+		</set-function>
+		<get-function>
+			<s:return value="uiVal: id: ${param.context.effectiveExpression}"/>
+		</get-function>
+	</custom-ui-locator>
+
+</testData>

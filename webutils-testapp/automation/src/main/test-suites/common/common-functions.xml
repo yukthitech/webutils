@@ -1,0 +1,69 @@
+<testData 
+	xmlns:s="http://autox.yukthitech.com/steps" 
+	xmlns:wrap="http://xmlbeanparser.yukthitech.com/wrap" 
+	xmlns:f="http://autox.yukthitech.com/functions">
+
+	<!--
+		Enables $restService API call tracking and clears any prior buffer.
+		Must be invoked on a page that has loaded rest-service.js (window.$restService).
+		Usage:
+		  <f:enableTrackedApiCalls/>
+	-->
+	<function name="enableTrackedApiCalls">
+		<s:ui-execute-js>
+			<script><![CDATA[
+				if(!window.$restService) {
+					throw new Error('$restService not exposed on window');
+				}
+				window.$restService.setTrackApiCalls(true);
+				window.$restService.clearTrackedApiCalls();
+				return true;
+			]]></script>
+		</s:ui-execute-js>
+	</function>
+
+	<!--
+		Fetches tracked browser API calls accumulated since the last clear (or since tracking started).
+		Optional param:
+		  uri — if set, only calls whose url contains this substring are returned
+		Usage:
+		  <f:fetchTrackedApiCalls return-attr="allCalls"/>
+		  <f:fetchTrackedApiCalls uri="string: /api/lov/" return-attr="lovCalls"/>
+	-->
+	<function name="fetchTrackedApiCalls">
+		<s:ui-execute-js result-attribute="_fetchedApiCalls">
+			<script><![CDATA[
+				if(!window.$restService) {
+					throw new Error('$restService not exposed on window');
+				}
+				var calls = window.$restService.getTrackedApiCalls() || [];
+				var uriFilter = '${(param.uri)!""}';
+				if(uriFilter) {
+					calls = calls.filter(function(c) {
+						return (c.url || '').indexOf(uriFilter) >= 0;
+					});
+				}
+				return calls;
+			]]></script>
+		</s:ui-execute-js>
+		<s:return value="attr: _fetchedApiCalls"/>
+	</function>
+
+	<!--
+		Clears all tracked API calls accumulated so far (does not disable tracking).
+		Usage:
+		  <f:clearTrackedApiCalls/>
+	-->
+	<function name="clearTrackedApiCalls">
+		<s:ui-execute-js>
+			<script><![CDATA[
+				if(!window.$restService) {
+					throw new Error('$restService not exposed on window');
+				}
+				window.$restService.clearTrackedApiCalls();
+				return true;
+			]]></script>
+		</s:ui-execute-js>
+	</function>
+
+</testData>

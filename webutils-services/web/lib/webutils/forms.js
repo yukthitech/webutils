@@ -431,7 +431,9 @@ formComponents['yk-model-form'] = {
 	},
 	
 	"updated": function() {
-		//for cross dependent fields, populate watchers
+		// Rebuild parent watchers each update (avoid accumulating duplicate listeners)
+		this.fieldChangeListeners = {};
+
 		for(let group of this.modelFieldGroups)
 		{
 			for(let row of group.rows)
@@ -563,6 +565,23 @@ formComponents['yk-model-form'] = {
 				}
 			}
 			return true;
+		},
+
+		/**
+		 * Validates all fields. Preferred entry point for page submit handlers
+		 * (e.g. this.$refs.form.validate()).
+		 * @returns {boolean} true if all fields are valid
+		 */
+		"validate": function() {
+			return this.validateAllFields();
+		},
+
+		/**
+		 * Returns the current form model (field name → value).
+		 * @returns {object}
+		 */
+		"getModel": function() {
+			return this.formData;
 		},
 		
 		/**

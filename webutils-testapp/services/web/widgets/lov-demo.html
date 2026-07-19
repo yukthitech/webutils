@@ -20,7 +20,7 @@
 	<div id="ykApp" class="container" style="display:none;">
 		<header class="testapp-header">
 			<h1 id="lov-demo-title">LOV Widget Demo</h1>
-			<p>editable-lov (CATEGORY) and multi-editable-lov (TAG with parent category).</p>
+			<p>Single editable-lov field (CATEGORY). Submit persists remapped value into TEMP_TABLE.</p>
 		</header>
 
 		<nav class="testapp-nav">
@@ -32,7 +32,8 @@
 		</nav>
 
 		<div class="testapp-hint">
-			Uses stored LOVs seeded by Liquibase. Submit posts to <code>/api/testapp/lov-demo/submit</code>.
+			Uses stored LOV <code>CATEGORY</code> seeded by Liquibase. Submit calls
+			<code>/api/testapp/lov-demo/submit</code>, maps/creates LOV options, and inserts into <code>TEMP_TABLE</code>.
 		</div>
 
 		<section class="testapp-panel">

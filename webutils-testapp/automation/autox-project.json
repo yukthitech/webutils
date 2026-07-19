@@ -1,0 +1,9 @@
+{
+  "name" : "Webutils Automation",
+  "appConfigFilePath" : "src/main/config/app-configuration.xml",
+  "appPropertyFilePath" : "src/main/config/app.properties",
+  "testSuitesFoldersList" : [ "src/main/test-suites" ],
+  "resourceFoldersList" : [ "src/main/resources" ],
+  "ignoreFoldersList" : [ "target" ],
+  "classPathEntries" : null
+}

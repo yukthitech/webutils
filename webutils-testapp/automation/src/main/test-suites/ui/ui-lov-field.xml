@@ -1,0 +1,246 @@
+<testData 
+	xmlns:s="http://autox.yukthitech.com/steps" 
+	xmlns:wrap="http://xmlbeanparser.yukthitech.com/wrap" 
+	xmlns:f="http://autox.yukthitech.com/functions">
+
+	<testSuite name="webutils-ui-lov-field" author="webutils"
+		description="CATEGORY editable LOV — client filter, API calls, and TEMP_TABLE persistence">
+
+		<setup>
+			<s:log level="INFO" message="Suite setup: clear TEMP_TABLE and Autox LOV option rows"/>
+			<s:sql-multi-dml-query>
+				<query>
+					DELETE FROM TEMP_TABLE
+				</query>
+				<query>
+					DELETE FROM STORED_LOV_OPTION
+					WHERE LABEL = 'AutoxLovGadgets'
+						AND LOV_ID = (SELECT ID FROM STORED_LOV WHERE NAME = 'CATEGORY')
+				</query>
+				<query>
+					DELETE FROM STORED_LOV_OPTION
+					WHERE LABEL = 'ELECTRONICS' COLLATE utf8mb4_bin
+						AND LOV_ID = (SELECT ID FROM STORED_LOV WHERE NAME = 'CATEGORY')
+				</query>
+			</s:sql-multi-dml-query>
+		</setup>
+
+		<testCase name="lovCategoryNoParentClientFilter">
+			<description>
+				CATEGORY (editable LOV, no parent) loads once on init; typing filters client-side
+				with no additional /api/lov/ calls. Also verifies init fetch URL when tracking is on during reload.
+			</description>
+
+			<s:log level="INFO" message="Opening LOV demo page"/>
+			<s:ui-goto-page uri="/widgets/lov-demo.html"/>
+			<s:ui-wait-for retry-count="30" retry-time-gap-millis="500">
+				<locator>id: category</locator>
+			</s:ui-wait-for>
+			<s:ui-log-screen-shot name="lov-demo-loaded"/>
+
+			<!-- wait for 2 sec to ensure lov data is loaded -->
+			<s:sleep time="2000"/>
+
+			<s:log level="INFO" message="Clear tracked calls after init; typing must not hit LOV APIs"/>
+			<f:clearTrackedApiCalls/>
+
+			<s:log level="INFO" message="Type filter fragment in Category; expect client-side suggestions only"/>
+			<s:ui-click locator="id: category" retry-count="10" retry-time-gap-millis="300"/>
+			<s:ui-set-value locator="id: category" value="string: Ele" press-enter-at-end="false"/>
+			<!-- Re-focus so suggestions reopen if setValue blurred the input -->
+			<s:ui-click locator="id: category" retry-count="5" retry-time-gap-millis="200"/>
+			<s:ui-wait-for retry-count="20" retry-time-gap-millis="300">
+				<locator>xpath: //input[@id='category']/ancestor::div[contains(@class,'yuk-autocomplete')]//ul//li[contains(normalize-space(.),'Electronics')]</locator>
+			</s:ui-wait-for>
+			<s:ui-log-screen-shot name="lov-category-filtered"/>
+
+			<s:log level="INFO" message="Assert no LOV API calls during typing/filter"/>
+			<f:fetchTrackedApiCalls uri="string: /api/lov/" return-attr="lovCallsDuringType"/>
+			<s:assert-equals actual="expr: sizeOf(attr.lovCallsDuringType)" expected="int: 0"/>
+
+			<s:log level="INFO" message="Select Electronics from suggestions"/>
+			<s:ui-click
+				locator="xpath: //input[@id='category']/ancestor::div[contains(@class,'yuk-autocomplete')]//ul//li[contains(normalize-space(.),'Electronics')]"
+				retry-count="10" retry-time-gap-millis="300"/>
+			<s:assert-equals actual="uiVal: id: category" expected="string: Electronics"/>
+			<s:ui-log-screen-shot name="lov-category-selected"/>
+
+			<s:log level="INFO" message="Assert still no LOV API calls after select"/>
+			<f:fetchTrackedApiCalls uri="string: /api/lov/" return-attr="lovCallsAfterSelect"/>
+			<s:assert-equals actual="expr: sizeOf(attr.lovCallsAfterSelect)" expected="int: 0"/>
+
+			<s:log level="INFO" message="Reload with tracking on to verify single CATEGORY init fetch"/>
+			<f:clearTrackedApiCalls/>
+			<s:ui-goto-page uri="/widgets/lov-demo.html"/>
+			<s:ui-wait-for retry-count="30" retry-time-gap-millis="500">
+				<locator>id: category</locator>
+			</s:ui-wait-for>
+			<s:sleep time="1500"/>
+
+			<f:fetchTrackedApiCalls uri="string: /api/lov/fetch/STORED_TYPE/CATEGORY" return-attr="categoryFetches"/>
+			<s:assert-equals actual="expr: sizeOf(attr.categoryFetches)" expected="int: 1"/>
+
+			<f:fetchTrackedApiCalls uri="string: /api/lov/fetchDependentLov/" return-attr="dependentLovFetches"/>
+			<s:assert-equals actual="expr: sizeOf(attr.dependentLovFetches)" expected="int: 0"/>
+
+			<s:ui-log-screen-shot name="lov-demo-reload-verified"/>
+		</testCase>
+
+		<testCase name="lovCategorySelectClickPersist">
+			<description>
+				Selecting Electronics by click and submitting persists CATEGORY=Electronics into TEMP_TABLE.
+			</description>
+
+			<s:log level="INFO" message="Open LOV demo and select Electronics by click"/>
+			<s:ui-goto-page uri="/widgets/lov-demo.html"/>
+			<s:ui-wait-for retry-count="6" retry-time-gap-millis="500">
+				<locator>id: category</locator>
+			</s:ui-wait-for>
+
+			<s:ui-fill-form>
+				<data>json: {
+					"c:ykEditableLov:category": "Electronics"
+				}</data>
+			</s:ui-fill-form>
+			<s:assert-equals actual="uiVal: id: category" expected="string: Electronics"/>
+			<s:ui-log-screen-shot name="lov-click-electronics-filled"/>
+
+			<s:log level="INFO" message="Submit form and dismiss success alert"/>
+			<s:ui-click locator="id: lov-demo-submit-btn"
+				post-visibility-locator="id: webutils-alert-ok-btn"
+				retry-count="6" retry-time-gap-millis="500"/>
+			<s:ui-click locator="id: webutils-alert-ok-btn"
+				post-visibility-locator="id: lov-demo-response"
+				retry-count="6" retry-time-gap-millis="500"/>
+			<s:ui-log-screen-shot name="lov-click-electronics-submitted"/>
+
+			<s:sql-load-query-row-map contextAttribute="tempRow" processAllRows="false">
+				<query><![CDATA[
+					SELECT CATEGORY
+					FROM TEMP_TABLE
+					ORDER BY ID DESC
+					LIMIT 1
+				]]></query>
+			</s:sql-load-query-row-map>
+			<s:assert-equals actual="prop: attr.tempRow.CATEGORY" expected="string: Electronics"/>
+		</testCase>
+
+		<testCase name="lovCategoryCaseInsensitivePersist">
+			<description>
+				Typing ELECTRONICS (different case) maps to existing Electronics option and persists
+				canonical label into TEMP_TABLE; does not create a new STORED_LOV_OPTION for ELECTRONICS.
+			</description>
+
+			<s:log level="INFO" message="Open LOV demo and type ELECTRONICS as new/accepted value"/>
+			<s:ui-goto-page uri="/widgets/lov-demo.html"/>
+			<s:ui-wait-for retry-count="30" retry-time-gap-millis="500">
+				<locator>id: category</locator>
+			</s:ui-wait-for>
+
+			<s:ui-click locator="id: category" retry-count="10" retry-time-gap-millis="300"/>
+			<s:ui-set-value locator="id: category" value="string: ELECTRONICS" press-enter-at-end="true"/>
+			<s:ui-log-screen-shot name="lov-case-electronics-typed"/>
+
+			<s:log level="INFO" message="Submit and dismiss success alert"/>
+			<s:ui-click locator="id: lov-demo-submit-btn"
+				post-visibility-locator="id: webutils-alert-ok-btn"
+				retry-count="20" retry-time-gap-millis="500"/>
+			<s:ui-click locator="id: webutils-alert-ok-btn"
+				post-visibility-locator="id: lov-demo-response"
+				retry-count="15" retry-time-gap-millis="500"/>
+			<s:ui-log-screen-shot name="lov-case-electronics-submitted"/>
+
+			<s:sql-load-query-row-map contextAttribute="tempRow" processAllRows="false">
+				<query><![CDATA[
+					SELECT CATEGORY
+					FROM TEMP_TABLE
+					ORDER BY ID DESC
+					LIMIT 1
+				]]></query>
+			</s:sql-load-query-row-map>
+			<s:assert-equals actual="prop: attr.tempRow.CATEGORY" expected="string: Electronics"/>
+
+			<s:sql-fetch-value-query context-attribute="electronicsExactCount">
+				<query><![CDATA[
+					SELECT COUNT(*)
+					FROM STORED_LOV_OPTION
+					WHERE LABEL = 'ELECTRONICS' COLLATE utf8mb4_bin
+						AND LOV_ID = (SELECT ID FROM STORED_LOV WHERE NAME = 'CATEGORY')
+				]]></query>
+			</s:sql-fetch-value-query>
+			<s:assert-equals actual="attr: electronicsExactCount" expected="int: 0"/>
+		</testCase>
+
+		<testCase name="lovCategoryNewOptionPersist">
+			<description>
+				Typing a non-matching value creates a new STORED_LOV_OPTION and persists that
+				label into TEMP_TABLE.
+			</description>
+
+			<s:log level="INFO" message="Open LOV demo and enter new AutoxLovGadgets option"/>
+			<s:ui-goto-page uri="/widgets/lov-demo.html"/>
+			<s:ui-wait-for retry-count="30" retry-time-gap-millis="500">
+				<locator>id: category</locator>
+			</s:ui-wait-for>
+
+			<s:ui-click locator="id: category" retry-count="10" retry-time-gap-millis="300"/>
+			<s:ui-set-value locator="id: category" value="string: AutoxLovGadgets" press-enter-at-end="true"/>
+			<s:ui-log-screen-shot name="lov-new-option-typed"/>
+
+			<s:log level="INFO" message="Submit and dismiss success alert"/>
+			<s:ui-click locator="id: lov-demo-submit-btn"
+				post-visibility-locator="id: webutils-alert-ok-btn"
+				retry-count="20" retry-time-gap-millis="500"/>
+			<s:ui-click locator="id: webutils-alert-ok-btn"
+				post-visibility-locator="id: lov-demo-response"
+				retry-count="15" retry-time-gap-millis="500"/>
+			<s:ui-log-screen-shot name="lov-new-option-submitted"/>
+
+			<s:sql-load-query-row-map contextAttribute="tempRow" processAllRows="false">
+				<query><![CDATA[
+					SELECT CATEGORY
+					FROM TEMP_TABLE
+					ORDER BY ID DESC
+					LIMIT 1
+				]]></query>
+			</s:sql-load-query-row-map>
+			<s:assert-equals actual="prop: attr.tempRow.CATEGORY" expected="string: AutoxLovGadgets"/>
+
+			<s:sql-fetch-value-query context-attribute="newOptionCount">
+				<query><![CDATA[
+					SELECT COUNT(*)
+					FROM STORED_LOV_OPTION
+					WHERE LABEL = 'AutoxLovGadgets'
+						AND LOV_ID = (SELECT ID FROM STORED_LOV WHERE NAME = 'CATEGORY')
+				]]></query>
+			</s:sql-fetch-value-query>
+			<s:assert-equals actual="attr: newOptionCount" expected="int: 1"/>
+		</testCase>
+
+		<testCase name="lovCategoryNewOptionAvailableOnReload" dependencies="lovCategoryNewOptionPersist">
+			<description>
+				After a new option was persisted, reopening the LOV demo shows AutoxLovGadgets
+				in the CATEGORY suggestion list.
+			</description>
+
+			<s:log level="INFO" message="Reload LOV demo and assert AutoxLovGadgets is available"/>
+			<s:ui-goto-page uri="/widgets/lov-demo.html"/>
+			<s:ui-wait-for retry-count="30" retry-time-gap-millis="500">
+				<locator>id: category</locator>
+			</s:ui-wait-for>
+			<!-- Allow CATEGORY LOV fetch (including new option) to complete -->
+			<s:sleep time="1500"/>
+
+			<s:ui-click locator="id: category" retry-count="10" retry-time-gap-millis="300"/>
+			<s:ui-set-value locator="id: category" value="string: Autox" press-enter-at-end="false"/>
+			<s:ui-wait-for retry-count="20" retry-time-gap-millis="300">
+				<locator>xpath: //input[@id='category']/ancestor::div[contains(@class,'yuk-autocomplete')]//ul//li[contains(normalize-space(.),'AutoxLovGadgets')]</locator>
+			</s:ui-wait-for>
+			<s:ui-assert-visibility
+				locator="xpath: //input[@id='category']/ancestor::div[contains(@class,'yuk-autocomplete')]//ul//li[contains(normalize-space(.),'AutoxLovGadgets')]"/>
+			<s:ui-log-screen-shot name="lov-new-option-available"/>
+		</testCase>
+
+	</testSuite>
+
+</testData>
