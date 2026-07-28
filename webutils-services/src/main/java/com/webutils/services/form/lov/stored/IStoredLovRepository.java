@@ -25,6 +25,7 @@ package com.webutils.services.form.lov.stored;
 
 import java.util.List;
 
+import com.webutils.common.Optional;
 import com.yukthitech.persistence.ICrudRepository;
 import com.yukthitech.persistence.repository.annotations.AggregateFunction;
 import com.yukthitech.persistence.repository.annotations.AggregateFunctionType;
@@ -34,6 +35,7 @@ import com.yukthitech.persistence.repository.annotations.Condition;
  * Repository for managing stored LOV.
  * @author akiran
  */
+@Optional
 public interface IStoredLovRepository extends ICrudRepository<StoredLovEntity>
 {
 	public List<StoredLovEntity> fetchAll();

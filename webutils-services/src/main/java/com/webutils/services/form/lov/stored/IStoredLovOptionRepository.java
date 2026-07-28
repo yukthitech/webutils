@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import com.webutils.common.Optional;
 import com.yukthitech.persistence.ICrudRepository;
 import com.yukthitech.persistence.repository.annotations.Condition;
 import com.yukthitech.persistence.repository.annotations.Field;
@@ -37,6 +38,7 @@ import com.yukthitech.persistence.repository.annotations.OrderBy;
  * Repository for managing stored LOV values.
  * @author akiran
  */
+@Optional
 public interface IStoredLovOptionRepository extends ICrudRepository<StoredLovOptionEntity>
 {
 	@Field("label")

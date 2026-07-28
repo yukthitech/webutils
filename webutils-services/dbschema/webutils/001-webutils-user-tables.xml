@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+	<changeSet id="Creating user table" author="kranthi">
+		<comment>Create User and UserSession tables for authentication and session management</comment>
+
+		<!-- User Table — uniqueness is (EMAIL, CUSTOM_SPACE) only; CUSTOM_SPACE is mandatory -->
+		<createTable tableName="USER">
+			<column name="ID" type="BIGINT" autoIncrement="true">
+				<constraints primaryKey="true" nullable="false" />
+			</column>
+			<column name="NAME" type="VARCHAR(255)">
+				<constraints nullable="false" />
+			</column>
+			<column name="EMAIL" type="VARCHAR(255)">
+				<constraints nullable="false" />
+			</column>
+			<column name="MOBILE" type="VARCHAR(15)">
+				<constraints nullable="false" />
+			</column>
+			<column name="PASSWORD" type="VARCHAR(500)">
+				<constraints nullable="false" />
+			</column>
+			<column name="CUSTOM_SPACE" type="VARCHAR(100)">
+				<constraints nullable="false" />
+			</column>
+			<column name="IS_ACTIVE" type="BOOLEAN" defaultValueBoolean="true">
+				<constraints nullable="false"/>
+			</column>
+			<column name="DISABLED_REASON" type="VARCHAR(1000)"/>
+			<column name="DISABLED_BY_USER_ID" type="BIGINT"/>
+			<column name="DISABLED_ON" type="TIMESTAMP"/>
+			<column name="OTP_BLOCKED_UNTIL" type="TIMESTAMP"/>
+			<column name="CREATED_ON" type="TIMESTAMP">
+				<constraints nullable="true" />
+			</column>
+			<column name="UPDATED_ON" type="TIMESTAMP">
+				<constraints nullable="true" />
+			</column>
+			<column name="CREATED_BY_ID" type="BIGINT">
+				<constraints nullable="true" />
+			</column>
+			<column name="UPDATED_BY_ID" type="BIGINT">
+				<constraints nullable="true" />
+			</column>
+		</createTable>
+
+		<addUniqueConstraint constraintName="UQ_IDX_USER_EMAIL_CUSTOM_SPACE"
+			tableName="USER"
+			columnNames="EMAIL,CUSTOM_SPACE" />
+		<addUniqueConstraint constraintName="UQ_IDX_USER_MOBILE_CUSTOM_SPACE"
+			tableName="USER"
+			columnNames="MOBILE,CUSTOM_SPACE" />
+
+		<addForeignKeyConstraint
+			baseTableName="USER" baseColumnNames="CREATED_BY_ID"
+			constraintName="FK_USER_CREATED_BY_ID" referencedTableName="USER"
+			referencedColumnNames="ID" onDelete="SET NULL" />
+		<addForeignKeyConstraint
+			baseTableName="USER" baseColumnNames="UPDATED_BY_ID"
+			constraintName="FK_USER_UPDATED_BY_ID" referencedTableName="USER"
+			referencedColumnNames="ID" onDelete="SET NULL" />
+		<addForeignKeyConstraint
+			baseTableName="USER" baseColumnNames="DISABLED_BY_USER_ID"
+			constraintName="FK_USER_DISABLED_BY_USER_ID" referencedTableName="USER"
+			referencedColumnNames="ID" onDelete="SET NULL" />
+	</changeSet>
+
+	<changeSet id="Creating user preference table" author="kranthi">
+		<comment>Create user preferences table</comment>
+		<createTable tableName="USER_PREFERENCES">
+			<column name="ID" type="BIGINT" autoIncrement="true">
+				<constraints primaryKey="true" nullable="false" />
+			</column>
+			<column name="USER_ID" type="BIGINT">
+				<constraints nullable="false" />
+			</column>
+			<column name="PREF_KEY" type="VARCHAR(255)">
+				<constraints nullable="false" />
+			</column>
+			<column name="PREF_VALUE" type="VARCHAR(2000)">
+				<constraints nullable="false" />
+			</column>
+			<column name="LAST_UPDATED_TIME" type="TIMESTAMP">
+				<constraints nullable="false" />
+			</column>
+		</createTable>
+		<addUniqueConstraint constraintName="UQ_IDX_USER_PREFERENCES_USER_ID_KEY"
+			tableName="USER_PREFERENCES"
+			columnNames="USER_ID, PREF_KEY" />
+
+		<createIndex indexName="IDX_USER_PREFERENCES_KEY_LAST_UPDATED_TIME"
+                     tableName="USER_PREFERENCES"
+                     unique="false">
+            <column name="PREF_KEY"/>
+            <column name="LAST_UPDATED_TIME"/>
+        </createIndex>
+
+		<addForeignKeyConstraint
+			baseTableName="USER_PREFERENCES" baseColumnNames="USER_ID"
+			constraintName="FK_USER_PREFERENCES_USER_ID" referencedTableName="USER"
+			referencedColumnNames="ID" onDelete="CASCADE" />
+	</changeSet>
+
+
+	<changeSet id="Creating token table" author="kranthi">
+		<comment>Create tokens table for storing user tokens</comment>
+		<createTable tableName="AUTH_TOKEN">
+			<column name="ID" type="BIGINT" autoIncrement="true">
+				<constraints primaryKey="true" nullable="false" />
+			</column>
+			<column name="TOKEN" type="VARCHAR(255)">
+				<constraints nullable="false"/>
+			</column>
+			<column name="EXPIRES_AT" type="TIMESTAMP">
+				<constraints nullable="false" />
+			</column>
+			<column name="USER_ID" type="BIGINT">
+				<constraints nullable="false" />
+			</column>
+			<column name="CUSTOM_SPACE" type="VARCHAR(100)" defaultValue="''">
+				<constraints nullable="false"/>
+			</column>
+			<column name="CREATED_ON" type="TIMESTAMP">
+				<constraints nullable="false" />
+			</column>
+			<column name="LAST_UPDATED_ON" type="TIMESTAMP">
+				<constraints nullable="false" />
+			</column>
+		</createTable>
+
+		<addForeignKeyConstraint
+			baseTableName="AUTH_TOKEN" baseColumnNames="USER_ID"
+			constraintName="FK_AUTH_TOKEN_USER_ID" referencedTableName="USER"
+			referencedColumnNames="ID" onDelete="CASCADE" />
+
+		<addUniqueConstraint constraintName="UQ_IDX_AUTH_TOKEN_TOKEN"
+			tableName="AUTH_TOKEN"
+			columnNames="TOKEN" />
+	</changeSet>
+</databaseChangeLog>

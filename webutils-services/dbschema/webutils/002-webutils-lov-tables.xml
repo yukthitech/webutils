@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="Creating LOV table" author="kranthi">
+        <createTable tableName="STORED_LOV">
+            <column autoIncrement="true" name="ID" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="NAME" type="VARCHAR(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="DESCRIPTION" type="VARCHAR(500)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="PARENT_LOV_ID" type="BIGINT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="PARENT_PROVIDER_NAME" type="VARCHAR(100)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="AUTH_REQUIRED" type="BOOLEAN" defaultValue="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="AUTH_ROLES" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+        
+        <addUniqueConstraint columnNames="NAME" constraintName="UQ_STORED_LOV_NAME" tableName="STORED_LOV"/>
+
+        <addForeignKeyConstraint baseColumnNames="PARENT_LOV_ID" baseTableName="STORED_LOV" constraintName="FK_STORED_LOV_PARENT_LOV_ID" 
+        	deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" 
+            referencedColumnNames="ID" referencedTableName="STORED_LOV"/>
+    </changeSet>
+
+    <changeSet author="akiran" id="Creating strored lov value table">
+        <createTable tableName="STORED_LOV_OPTION">
+            <column autoIncrement="true" name="ID" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="LOV_ID" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="LABEL" type="VARCHAR(500)">
+                <constraints nullable="false"/>
+            </column>
+            <!--
+            	Though  PARENT_OPTION is Parent option id, it is not foreign key. 
+            	Which means it can hold non-id values like 0 for non-child options which
+            	helps in maintaining uniqueness.
+             -->
+            <column name="PARENT_OPTION" type="BIGINT" defaultValue="0">
+                <constraints nullable="true"/>
+            </column>
+            <column name="IS_APPROVED" type="BOOLEAN" defaultValue="true">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="CREATED_BY_ID" type="BIGINT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="CREATED_ON" type="datetime(6)">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+        
+        <addUniqueConstraint columnNames="LOV_ID, LABEL, PARENT_OPTION" constraintName="UQ_STORED_LOV_OPTION_LBL" tableName="STORED_LOV_OPTION"/>
+
+        <addForeignKeyConstraint baseColumnNames="LOV_ID" baseTableName="STORED_LOV_OPTION" constraintName="FK_STORED_LOV_OPTION_LOV_ID" 
+        	deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" 
+            referencedColumnNames="ID" referencedTableName="STORED_LOV"/>
+
+        <addForeignKeyConstraint baseColumnNames="CREATED_BY_ID" baseTableName="STORED_LOV_OPTION" constraintName="FK_STORED_LOV_OPTION_CREATED_BY_ID" 
+        	deferrable="false" initiallyDeferred="false" onDelete="SET NULL" onUpdate="NO ACTION" 
+            referencedColumnNames="ID" referencedTableName="USER"/>
+    </changeSet>
+</databaseChangeLog>
