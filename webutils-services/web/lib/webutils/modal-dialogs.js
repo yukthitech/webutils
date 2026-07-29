@@ -6,16 +6,26 @@ export var dialogComponents = {};
 
 var $modalManager = {
 	"modalStack": [],
-		
-	"openModal": function(id, config) {
-		var dlg = $("#" + id);
-		
-		if(dlg.length < 0)
+
+	"getElement": function(id) {
+		var el = document.getElementById(id);
+
+		if(!el)
 		{
 			throw "No modal found with specified id - " + id;
 		}
+
+		return el;
+	},
+
+	"getInstance": function(id) {
+		return bootstrap.Modal.getOrCreateInstance(this.getElement(id));
+	},
 		
-		$('#' + id).off('shown.bs.modal').on('shown.bs.modal', $.proxy(function (e) {
+	"openModal": function(id, config) {
+		var el = this.getElement(id);
+		
+		$(el).off('shown.bs.modal').on('shown.bs.modal', $.proxy(function (e) {
 			this.modalStack.push(this.id);
 			
 			var zIndex = 1040 + (10 * $('.modal:visible').length);
@@ -41,7 +51,7 @@ var $modalManager = {
 			
 		}, {"modalStack": this.modalStack, "config": config, "id": id}));
 
-		$('#' + id).off('hidden.bs.modal').on('hidden.bs.modal', $.proxy(function (e) {
+		$(el).off('hidden.bs.modal').on('hidden.bs.modal', $.proxy(function (e) {
 			var idx = this.modalStack.indexOf(this.id);
 			
 			if(idx < 0)
@@ -74,12 +84,28 @@ var $modalManager = {
 			}
 		}, {"modalStack": this.modalStack, "config": config, "id": id}));
 		
-		$('#' + id).modal('show');
+		bootstrap.Modal.getOrCreateInstance(el).show();
 	},
 	
 	"closeModal": function(id)
 	{
-		$('#' + id).modal('hide');
+		var el = document.getElementById(id);
+
+		if(!el)
+		{
+			return;
+		}
+
+		var instance = bootstrap.Modal.getInstance(el);
+
+		if(instance)
+		{
+			instance.hide();
+		}
+		else
+		{
+			bootstrap.Modal.getOrCreateInstance(el).hide();
+		}
 	}
 };
 
@@ -140,7 +166,7 @@ dialogComponents['yk-modal-dialog'] = {
 		
 		"close": function() 
 		{
-			$('#' + this.id).modal('hide');
+			$modalManager.closeModal(this.id);
 		}
 	},
 	
@@ -217,7 +243,7 @@ dialogComponents['yk-model-form-dialog'] = {
 		{
 			for(var fld of row.fields)
 			{
-				if(!fld.lovDetails && !!fld.lovDetails.parentField)
+				if(!fld.lovDetails || !fld.lovDetails.parentField)
 				{
 					continue;
 				}
@@ -245,7 +271,7 @@ dialogComponents['yk-model-form-dialog'] = {
 	{
 		"onFieldValueChange": function(newVal, fieldInfo)
 		{
-			if(!this.fieldChangeListeners[fieldInfo.name])
+			if(!fieldInfo || !this.fieldChangeListeners[fieldInfo.name])
 			{
 				return;
 			}
@@ -294,7 +320,7 @@ dialogComponents['yk-model-form-dialog'] = {
 		
 		"close": function() 
 		{
-			$('#' + this.id).modal('hide');
+			$modalManager.closeModal(this.id);
 		},
 
 		"setFormData": function(modelDef) {
@@ -318,18 +344,28 @@ dialogComponents['yk-model-form-dialog'] = {
 				this.formSubmitted = false;
 				return;
 			}
+
+			this.formSubmitted = true;
+			this.formData.displayErrors = true;
+
+			var settings = {
+				"context": this,
+				"onSuccess": this.submitSuccess,
+				"onError": this.submitFailed
+			};
 			
 			if(this.method == "POST")
 			{
-				$restService.invokePost(
-						this.url, 
-						this.formData.data,
-						{
-							"context": this, 
-							"onSuccess": this.submitSuccess, 
-							"onError": this.submitFailed
-						}
-					);
+				$restService.invokePost(this.url, this.formData.data, settings);
+			}
+			else if(this.method == "PUT")
+			{
+				$restService.invokePut(this.url, this.formData.data, settings);
+			}
+			else
+			{
+				this.formSubmitted = false;
+				this.$emit('submit', false);
 			}
 		},
 	
@@ -377,16 +413,18 @@ dialogComponents['yk-model-form-dialog'] = {
 					
 					<div class="modal-body">
 						<div :key="row.index" class="row" v-for="row in modelFieldRows">
-				 			<component
-				 				:ref="'field_' + field.index"
-				 				:key="field.index"
-				 				:is="field.componentType"
-				 				:formData.sync="formData"
-				 				:field="field"
-								@input="onFieldValueChange"
-				 				
-				 				v-for="field in row.fields"
-				 				/>
+				 			<div :class="field.fullWidth ? 'col-md-12' : columnClass" v-for="field in row.fields" :key="field.index">
+					 			<component
+					 				:ref="'field_' + field.index"
+					 				:key="field.index"
+					 				:is="field.componentType"
+					 				:field="field"
+									v-model="formData.data[field.name]"
+									:enable-error="formData.displayErrors"
+									:empty-option="'Select ' + field.label"
+									@value-changed="onFieldValueChange"
+					 				/>
+				 			</div>
 						</div>
 					</div>
 					
@@ -449,7 +487,7 @@ dialogComponents['yk-dialogs'] = {
 		},
 		
 		"closeAlert": function() {
-			$('#webutilsAlertDialog').modal('hide');
+			$modalManager.closeModal("webutilsAlertDialog");
 		},
 		
 		"displayInput": function(message, initialValue, callback) {
@@ -481,7 +519,7 @@ dialogComponents['yk-dialogs'] = {
 				this.inputValue = null;
 			}
 			
-			$('#webutilsInputDialog').modal('hide');
+			$modalManager.closeModal("webutilsInputDialog");
 		},
 		
 		"displayInfo": function(message) {
@@ -530,7 +568,7 @@ dialogComponents['yk-dialogs'] = {
 		"closeConfirm": function(res)
 		{
 			this.confirmResult = res;
-			$('#webutilsConfirmDialog').modal('hide');
+			$modalManager.closeModal("webutilsConfirmDialog");
 		},
 		
 		"executeWithInProgress": function(func) {
@@ -546,7 +584,7 @@ dialogComponents['yk-dialogs'] = {
 				}
 				
 				if(this.$this.inProgressFunctions.length == 0) {
-					$('#webutilsInProgressDialog').modal('hide');
+					$modalManager.closeModal("webutilsInProgressDialog");
 				}
 			}, {"func": func, "$this": this});
 			
