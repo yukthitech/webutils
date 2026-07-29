@@ -36,6 +36,16 @@ Framework static libraries (Vue, Bootstrap, `webutils/*.js`) live in **`webutils
 
 New entities use tables such as `USER`, `STORED_LOV`, `STORED_LOV_OPTION`, `FORM_TOKEN`, `AUTH_TOKEN`, `WEBUTILS_SEARCH_SETTINGS` — **not** the legacy `WEBUTILS_USERS` / `WEBUTILS_STORED_LOV*` names in `WebUtils/dbschema`. Each consuming app owns Liquibase under its own `dbschema/` module (see Sethu4U and `webutils-testapp/dbschema`).
 
+## Agent docs (new stack)
+
+Cross-project guides under [`docs/`](./docs/README.md) (prefer these over inferring from legacy READMEs):
+
+| Doc | Topic |
+|-----|--------|
+| [docs/setup-and-configuration.md](./docs/setup-and-configuration.md) | Maven, Spring Boot, Liquibase, `web/lib`, auth, properties |
+| [docs/services.md](./docs/services.md) | Controllers, entities, repos, search, LOV, OTP, responses |
+| [docs/ui-widgets.md](./docs/ui-widgets.md) | Vue bootstrap, form/search/LOV widgets, SPA patterns |
+
 ## Working in this repo
 
 - **New features and refactors** → `webutils-common` / `webutils-services`
