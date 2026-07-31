@@ -207,15 +207,73 @@ Always log in before exercising authenticated widget demos.
 
 ## 9. SPA / shell patterns (product apps)
 
-Preferred Sethu4U-style shell:
+### HTML / JS separation (required for standard pages)
 
-1. Role home page: `{role}/home/home.html` + `home.js`.
-2. `Webutils.newVueApp` then **app** widget registration (e.g. `registerS4uWidgets(app)`).
-3. **Static imports** of subpage components; register under `components`.
-4. `yk-route-nav-bar` items use `componentName` + `componentDef` (not dynamic `uri`/`script` for new work).
-5. On `@nav-changed`, set `activeComponent` to the item’s `componentName`.
-6. Nested sections: `yk-route-side-bar` inside a tab when needed.
-7. Hash routing owned by nav bar — do not navigate to separate `.html` files for in-app sections.
+Keep Vue markup and logic in separate files. Do **not** embed feature/page markup as `template: \`...\`` in JS.
+
+| File | Role |
+|------|------|
+| `{feature}.html` | Markup only — full page shell **or** a Vue fragment (root element(s), no `<html>`/`<head>`) |
+| `{feature}.js` | Logic only — `data`, `methods`, `components`, lifecycle; **no** `template` property for standard pages |
+
+### Top-level nav tabs (`yk-route-nav-bar`)
+
+Preferred pattern (Sethu4U admin / Twister dashboard):
+
+1. Shell page: `{shell}.html` + `{shell}.js` mounts `Webutils.newVueApp`.
+2. Nav items declare `componentName`, `uri` (HTML fragment), `script` (JS module), `route`, `label` — **not** preloaded `componentDef`.
+3. `yk-route-nav-bar` lazy-loads on first click: `import(script)` + `fetch(uri)`, then sets `componentDef.template`.
+4. Shell content: `<component :is="activeComponent"></component>`.
+5. On `@nav-changed`, set `activeComponent = navItem.componentDef` (the loaded component **object**).
+6. Hash routing owned by nav bar — do not navigate to separate `.html` files for in-app sections.
+
+```js
+// shell.js — nav items
+{
+  id: "navAgents",
+  label: "Agents",
+  route: "agents",
+  componentName: "agents-content",
+  uri: "/agents/agents.html",
+  script: "/agents/agents.js"
+}
+
+// shell onNavChange
+onNavChange: function(navItem) {
+  this.activeComponent = navItem.componentDef;
+}
+```
+
+```html
+<!-- shell.html content area -->
+<component :is="activeComponent"></component>
+```
+
+```js
+// agents.js — logic only; template comes from agents.html via the nav bar
+export default {
+  data: function() { return { /* … */ }; },
+  methods: { /* … */ }
+};
+```
+
+### Nested side-bar children
+
+`yk-route-side-bar` does **not** lazy-load `uri`/`script`. When a parent must statically import children, attach HTML with `$restService.fetchHtml`:
+
+```js
+import {$restService} from "/lib/webutils/rest-service.js";
+
+const ProvidersContent = {
+  data: function() { return { /* … */ }; },
+  methods: { /* … */ }
+};
+
+ProvidersContent.template = await $restService.fetchHtml("/llm/providers.html");
+export default ProvidersContent;
+```
+
+Parent registers imported children under `components` and swaps them with `v-if` or `<component :is>`. Nested layout markup still lives in the parent’s sibling `.html` (loaded by top-level nav when applicable).
 
 ### App vs framework widgets
 
@@ -224,6 +282,7 @@ Preferred Sethu4U-style shell:
 | Put product widgets under `web/common/widgets/` | Register product widgets inside framework `addDefaultComponents` |
 | Export `registerXWidgets(app)` and call after `newVueApp` | Fork/copy `web/lib/webutils` into the app |
 | Keep theme in `web/common/app.css` | Duplicate framework styles in every module CSS |
+| Keep feature markup in `.html` | Inline `template:` strings for standard SPA panels |
 
 ---
 
@@ -260,6 +319,8 @@ If a style is used in 2+ modules, move it to `app.css`.
 | `Long` + `@LOV` → simple LOV | `SimpleLovDemoModel` |
 | `$restService` for API calls | Demo submit handlers |
 | Stable automation ids | `id="…"` on controls |
+| Markup in `.html`, logic in `.js` | Top-level `uri`/`script` nav; nested `fetchHtml` |
+| Shell `<component :is="activeComponent">` | After `yk-route-nav-bar` loads `componentDef` |
 
 ### DON'T
 
@@ -270,18 +331,20 @@ If a style is used in 2+ modules, move it to `app.css`.
 | Skip login before authenticated demos | 401 / interceptor failures |
 | Put Sethu4U (or any product) widgets into WebUtils defaults | Coupling |
 | Invent new field widgets without checking `input-fields.js` / `model-def-service.js` | Duplicate framework capability |
+| Inline `template: \`...\`` for standard SPA feature panels | Keep HTML/JS separate; use `uri`/`script` or `fetchHtml` |
 
 ---
 
 ## 13. Agent page recipe
 
 1. Ensure `web/lib` junction exists and CSS/JS libs load.
-2. Add HTML skeleton with loading + `#ykApp` + `yk-dialogs`.
-3. For forms: prefer `yk-model-form` bound to an existing `@Model`, or compose field components.
-4. For tables: add `@SearchQueryMethod` backend first, then `yk-search-form` / `yk-search-results` with matching `query-name`.
-5. Use `$restService.invokePost` / `invokeGet` with `context: this` and field-error mapping.
-6. Confirm login + token before testing.
-7. Use testapp demos as templates when unsure:
+2. Add HTML skeleton with loading + `#ykApp` + `yk-dialogs` (page shell) **or** an HTML fragment + logic-only JS for SPA panels.
+3. Keep markup in `.html` and logic in `.js` — top-level tabs via `uri`/`script`; nested children via `fetchHtml`.
+4. For forms: prefer `yk-model-form` bound to an existing `@Model`, or compose field components.
+5. For tables: add `@SearchQueryMethod` backend first, then `yk-search-form` / `yk-search-results` with matching `query-name`.
+6. Use `$restService.invokePost` / `invokeGet` with `context: this` and field-error mapping.
+7. Confirm login + token before testing.
+8. Use testapp demos as templates when unsure:
 
 | Demo URL | Covers |
 |----------|--------|

@@ -60,6 +60,8 @@ Place app-shared types that UI and services both need here (or in `{app}-common`
 | **`@Data` OK on models** | DTOs / `@Model` classes may use `@Data`. |
 | **Never return raw entities as public API contract without care** | Prefer `BasicReadResponse<T>`, dedicated `*Response` / `*Model`. |
 | **UI listings = search** | `@SearchQueryMethod` + query/result models. Do **not** add custom “list all” REST for page tables. |
+| **Search column order = declaration order** | Do **not** add `@SearchFieldInfo(order = …)` just to order columns. Use `@SearchFieldInfo` only for non-default metadata (e.g. `resultType`). |
+| **DTO ↔ entity via `CopyUtils`** | Use `CopyUtils.modelToEntity` / `CopyUtils.entityToModel` instead of hand-written property setters. Name FK model fields `{association}Id` (e.g. `llmModelId` ↔ `llmModel`). |
 | **Editable LOV before persist** | Call `webutilsServiceSupport.processModel(model, null)` so options map/create correctly. |
 | **Repository naming** | `I{Name}Repository extends ICrudRepository<Entity>`. |
 | **Tables/columns** | UPPER_CASE via `@Table` / `@Column`. |
@@ -128,16 +130,75 @@ Password fields: use Yukthi `@DataTypeMapping(converterType = PasswordEncryption
 
 ---
 
-## 5. Repository + search pattern
+## 5. DTO ↔ entity conversion (`CopyUtils`)
+
+Prefer `com.webutils.services.common.CopyUtils` over hand-mapping matching fields.
+
+```java
+AgentEntity entity = CopyUtils.modelToEntity(model, AgentEntity.class);
+AgentModel model = CopyUtils.entityToModel(entity, AgentModel.class);
+```
+
+### Same-name properties
+
+Copied automatically (with type conversion via `ConvertUtils` when needed).
+
+### Association ↔ id fields
+
+Beyond same-name copy, `CopyUtils` maps FK ids and `@Table` associations by naming convention:
+
+| Direction | Model | Entity |
+|-----------|--------|--------|
+| Entity → model | `Long llmModelId` | `LlmModelEntity llmModel` → copies `llmModel.id` into `llmModelId` |
+| Model → entity | `Long llmModelId` | Creates `llmModel` instance and sets its `id` |
+
+Rule: name the model FK field `{associationProperty}Id` so it matches the entity association property plus `Id` (e.g. entity `llmProvider` ↔ model `llmProviderId`, not `providerId`).
+
+### What to still set manually
+
+- Audit / ownership not on the form model (`owner`, `createdOn`, `updatedOn`, `createdBy`, `updatedBy`)
+- Fields needing normalization or validation beyond copy (defaults, maps that need defensive copies, etc.)
+- On update: preserve `id` and create-audit from the existing row after `modelToEntity` (which builds a new instance)
+
+```java
+public void update(long id, AgentModel model) {
+    AgentEntity existing = requireOwnedAgent(id, userId);
+    AgentEntity entity = CopyUtils.modelToEntity(model, AgentEntity.class);
+    entity.setId(id);
+    entity.setOwner(existing.getOwner());
+    entity.setCreatedOn(existing.getCreatedOn());
+    entity.setCreatedBy(existing.getCreatedBy());
+    entity.setUpdatedOn(new Date());
+    entity.setUpdatedBy(new UserEntity(userId));
+    agentRepository.update(entity);
+}
+```
+
+---
+
+## 6. Repository + search pattern
 
 ### End-to-end listing (required for UI tables)
 
 1. **Query model** in `{app}-common` — `@Model` + `@Condition` (+ optional `@LOV` filters).
-2. **Result model** in `{app}-common` — `@Model` + `@Field` + `@SearchFieldInfo` for columns.
+2. **Result model** in `{app}-common` — `@Model` + `@Field` (+ `@Label`) for columns. Column order follows **field declaration order**; do **not** add `@SearchFieldInfo(order = …)` just to order columns.
 3. **Repository method** with `@SearchQueryMethod(name, queryModel)`.
 4. **UI** — `yk-search-form` `query-name` matching that name + `yk-search-results`.
 
 ```java
+// common — SampleItemSearchResult (order = declaration order)
+@Data
+@Model(name = "SampleItemSearchResult")
+public class SampleItemSearchResult {
+    @Field("id")
+    @Label("Id")
+    private Long id;
+
+    @Field("name")
+    @Label("Name")
+    private String name;
+}
+
 // common — SampleItemSearchQuery
 @Data
 @Model(name = "SampleItemSearchQuery")
@@ -160,6 +221,12 @@ public interface ISampleItemRepository extends ICrudRepository<SampleItemEntity>
 }
 ```
 
+### Search result column order
+
+Search result columns are shown in the order fields are declared on the result model. Prefer declaring fields in the desired display order.
+
+Use `@SearchFieldInfo` only when you need non-default column metadata (e.g. `resultType`). Do **not** use `@SearchFieldInfo(order = …)` solely to control column order.
+
 ### Context filters
 
 - **Dynamic** (from session): `@ContextAttribute("currentUser.employerId")` on the query field.
@@ -176,7 +243,7 @@ Ensure `app.classScanner.packagesToScan` includes packages that contain `@Search
 
 ---
 
-## 6. Model / form annotations
+## 7. Model / form annotations
 
 Annotate DTOs with `@Model(name = "…")`. Scanned by `ModelService` → served as `/api/model/{name}` for `yk-model-form`.
 
@@ -192,14 +259,14 @@ Common annotations (`com.webutils.common.form.annotations`):
 | `@ReadOnly` / `@NonDisplayable` / `@IgnoreField` | Visibility |
 | `@DefaultValue` / `@Conditional` / `@FullWidth` / `@Format` | Layout / defaults |
 | `@Otp` | OTP verification field (`OtpVerification` type) |
-| `@SearchFieldInfo` | Search result column metadata |
+| `@SearchFieldInfo` | Optional search result column metadata (e.g. `resultType`). **Not** needed for column order — declaration order is used |
 | `@ContextAttribute` | Inject search context values |
 
 Validation: Yukthi (`@Required`, `@MaxLen`, …) and/or Jakarta (`@Valid` on controllers).
 
 ---
 
-## 7. LOV patterns
+## 8. LOV patterns
 
 | Java field | `@LOV` | UI widget | Behavior |
 |------------|--------|-----------|----------|
@@ -231,7 +298,7 @@ References: `EditableLovDemoModel` (`String`), `SimpleLovDemoModel` (`Long`).
 
 ---
 
-## 8. OTP
+## 9. OTP
 
 - Model field: `OtpVerification` + `@Otp(type = EMAIL | MOBILE)`.
 - Send API: `POST /api/otp/send/{fieldId}/{value}`.
@@ -240,7 +307,7 @@ References: `EditableLovDemoModel` (`String`), `SimpleLovDemoModel` (`Long`).
 
 ---
 
-## 9. Auth / user integration
+## 10. Auth / user integration
 
 Implement `IWebutilsService` in the app:
 
@@ -257,7 +324,7 @@ Session storage: `AUTH_TOKEN` via `AuthTokenService`. Product login: `/api/auth/
 
 ---
 
-## 10. Responses and errors
+## 11. Responses and errors
 
 | Type | Use |
 |------|-----|
@@ -278,7 +345,7 @@ Response shape includes `success`, `message`, `errors` / field errors as applica
 
 ---
 
-## 11. Mail (optional)
+## 12. Mail (optional)
 
 - Configure `webutils.email.*` → `EmailServerSettings` + `EmailService`.
 - Optional DB templates: `WEBUTILS_MAIL_TEMPLATE`.
@@ -286,7 +353,7 @@ Response shape includes `success`, `message`, `errors` / field errors as applica
 
 ---
 
-## 12. Coding DO / DON'T
+## 13. Coding DO / DON'T
 
 ### DO
 
@@ -294,6 +361,7 @@ Response shape includes `success`, `message`, `errors` / field errors as applica
 |----------|---------|
 | `@Getter`/`@Setter` on entities | `UserEntity`, `SampleItemEntity` |
 | `@Data` + `@Model` on DTOs | `EditableLovDemoModel` |
+| `CopyUtils` for model ↔ entity | `AgentService`, `LlmModelService` — FK fields named `{association}Id` |
 | Search for listings | `sampleItemSearch`, employer application searches |
 | `processModel` before LOV persist | `EditableLovDemoService` |
 | Implement `IWebutilsService` | `TestAppWebutilsService`, Sethu4U `WebutilsService` |
@@ -304,6 +372,7 @@ Response shape includes `success`, `message`, `errors` / field errors as applica
 
 | Anti-pattern | Why |
 |--------------|-----|
+| Hand-map every DTO ↔ entity field | Use `CopyUtils`; keep only audit / special-case logic manual |
 | `@Data` on entities / embedded subentities | Association recursion |
 | Custom list REST for UI grids | Breaks search widgets / settings |
 | Enable Spring Liquibase in services | Schema owned by `dbschema` module |
@@ -314,7 +383,7 @@ Response shape includes `success`, `message`, `errors` / field errors as applica
 
 ---
 
-## 13. Agent implementation recipe
+## 14. Agent implementation recipe
 
 When adding a new searchable listing feature:
 

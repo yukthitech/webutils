@@ -1426,6 +1426,44 @@ newVueUiComponent('yk-html-editor', {
 });
 
 newVueUiComponent('yk-switch', {
+	"methods": {
+		/**
+		 * Coerce any value to a real boolean so the model never holds "" / null
+		 * (which breaks JSON deserialization into primitive boolean).
+		 */
+		"toBoolean": function(val) {
+			return val === true || val === "true" || val === 1 || val === "1";
+		},
+
+		"onCreate": function() {
+			var initial = this.modelValue;
+			if(initial === undefined || initial === null || initial === "") {
+				initial = this.fieldInfo.defaultValue;
+			}
+			this.fieldValue = this.toBoolean(initial);
+		},
+
+		"onModelValueChanged": function(newVal) {
+			var boolVal = this.toBoolean(newVal);
+			if(this.fieldValue !== boolVal) {
+				this.fieldValue = boolVal;
+			}
+		},
+
+		/**
+		 * Override base reset (which maps falsy values to "") so unchecked
+		 * switches always persist as false, not "".
+		 */
+		"reset": function(val) {
+			if(val === undefined || val === null || val === "") {
+				val = this.fieldInfo.defaultValue;
+			}
+			var boolVal = this.toBoolean(val);
+			this.fieldValue = boolVal;
+			// Ensure parent model is updated even when value was already boolean false
+			this.$emit('update:modelValue', boolVal);
+		}
+	},
 	"template": `
 		<div class="form-group">
 			<label v-if="!hideLabel" class="webutil-field-label form-label">{{fieldInfo.label}}:</label>
