@@ -151,6 +151,38 @@ On error, map `err.response.fieldErrors` into `fieldErrors` for field highlighti
 
 ---
 
+## 5.1 Dynamic layout (`yk-model-field`)
+
+Use when **standard auto-layout is not enough** — sections, tabs, mixed custom widgets, or large full-width content panes that should not share a row with other fields.
+
+Do **not** fork `yk-model-form` / `yk-model-form-dialog` for this. Own the page or modal shell and compose fields explicitly.
+
+**Recipe:**
+
+1. `$restService.fetchModelDef("YourModel", …)` then `$modelDefService.populateFieldDetails(modelDef)` (required before `yk-model-field`).
+2. Place fields with `yk-model-field`:
+
+```html
+<div v-if="modelDef">
+  <div class="row">
+    <yk-model-field ref="name" :model-def="modelDef" field-name="name"
+      v-model="formData.name" :column-count="6"
+      :enable-error="formSubmitTried" :server-error="fieldErrors.name">
+    </yk-model-field>
+  </div>
+  <!-- tabs / sections / custom widgets as needed -->
+</div>
+```
+
+3. Validate by calling `this.$refs[<fieldName>].validate()` on each displayable field.
+4. Submit with `$restService.invokePost` / `invokePut`; map `response.errors` (or `fieldErrors`) into `fieldErrors`.
+
+**Examples:** Sethu4U employer registration (`employer/registration/`); Twister agents create/edit modal (`services/web/agents/`) — tabbed layout with one large template/schema field per tab.
+
+Prefer `yk-model-form` / `yk-model-form-dialog` when a simple column grid is sufficient.
+
+---
+
 ## 6. Search listings (mandatory for tables)
 
 **Rule:** UI multi-row listings use WebUtils search — not custom list endpoints + hand-rolled tables.
@@ -340,7 +372,7 @@ If a style is used in 2+ modules, move it to `app.css`.
 1. Ensure `web/lib` junction exists and CSS/JS libs load.
 2. Add HTML skeleton with loading + `#ykApp` + `yk-dialogs` (page shell) **or** an HTML fragment + logic-only JS for SPA panels.
 3. Keep markup in `.html` and logic in `.js` — top-level tabs via `uri`/`script`; nested children via `fetchHtml`.
-4. For forms: prefer `yk-model-form` bound to an existing `@Model`, or compose field components.
+4. For forms: prefer `yk-model-form` / `yk-model-form-dialog` when a simple grid is enough; use dynamic layout (`yk-model-field`, §5.1) for tabs, sections, or large single-field panes.
 5. For tables: add `@SearchQueryMethod` backend first, then `yk-search-form` / `yk-search-results` with matching `query-name`.
 6. Use `$restService.invokePost` / `invokeGet` with `context: this` and field-error mapping.
 7. Confirm login + token before testing.
