@@ -8,13 +8,13 @@ import org.springframework.stereotype.Service;
 import com.webutils.services.common.WebutilsServiceSupport;
 
 /**
- * Persists LovDemoModel into TEMP_TABLE after framework LOV processing
+ * Persists EditableLovDemoModel into TEMP_TABLE after framework LOV processing
  * (case-insensitive map to existing option or create new STORED_LOV_OPTION).
  */
 @Service
-public class LovDemoService
+public class EditableLovDemoService
 {
-	private static final Logger logger = LogManager.getLogger(LovDemoService.class);
+	private static final Logger logger = LogManager.getLogger(EditableLovDemoService.class);
 
 	@Autowired
 	private WebutilsServiceSupport webutilsServiceSupport;
@@ -28,7 +28,7 @@ public class LovDemoService
 	 * @param model submitted demo model
 	 * @return persisted entity with generated id and remapped category
 	 */
-	public TempTableEntity submit(LovDemoModel model)
+	public TempTableEntity submit(EditableLovDemoModel model)
 	{
 		webutilsServiceSupport.processModel(model, null);
 
@@ -37,7 +37,7 @@ public class LovDemoService
 
 		tempTableRepository.save(entity);
 
-		logger.info("LOV demo persisted TEMP_TABLE id={}, category={}", entity.getId(), entity.getCategory());
+		logger.info("Editable LOV demo persisted TEMP_TABLE id={}, category={}", entity.getId(), entity.getCategory());
 		return entity;
 	}
 }

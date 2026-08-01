@@ -1,0 +1,117 @@
+<testData 
+	xmlns:s="http://autox.yukthitech.com/steps" 
+	xmlns:wrap="http://xmlbeanparser.yukthitech.com/wrap" 
+	xmlns:f="http://autox.yukthitech.com/functions">
+
+	<testSuite name="webutils-ui-simple-lov-field" author="webutils"
+		description="CATEGORY simple LOV — dropdown search/filter, item selection, TEMP_TABLE persistence">
+
+		<setup>
+			<s:log level="INFO" message="Suite setup: clear TEMP_TABLE"/>
+			<s:sql-multi-dml-query>
+				<query>
+					DELETE FROM TEMP_TABLE
+				</query>
+			</s:sql-multi-dml-query>
+		</setup>
+
+		<testCase name="simpleLovCategorySearchAndSelect">
+			<description>
+				Open simple LOV dropdown, type filter fragment, select matching option, submit.
+				Persists CATEGORY=Electronics into TEMP_TABLE.
+			</description>
+
+			<s:log level="INFO" message="Opening simple LOV demo page"/>
+			<s:ui-goto-page uri="/widgets/simple-lov-demo.html"/>
+			<s:ui-wait-for retry-count="30" retry-time-gap-millis="500">
+				<locator>id: categoryId</locator>
+			</s:ui-wait-for>
+			<s:ui-log-screen-shot name="simple-lov-demo-loaded"/>
+
+			<!-- Allow CATEGORY LOV fetch to complete -->
+			<s:sleep time="2000"/>
+
+			<s:log level="INFO" message="Open dropdown and type filter fragment Ele"/>
+			<s:ui-click locator="id: categoryId" retry-count="10" retry-time-gap-millis="300"/>
+			<s:ui-wait-for retry-count="20" retry-time-gap-millis="300">
+				<locator>xpath: //input[@id='categoryId']/ancestor::div[contains(@class,'yuk-autocomplete')]//ul//li//input</locator>
+			</s:ui-wait-for>
+			<s:ui-set-value
+				locator="xpath: //input[@id='categoryId']/ancestor::div[contains(@class,'yuk-autocomplete')]//ul//li//input"
+				value="string: Ele"
+				press-enter-at-end="false"/>
+			<s:ui-wait-for retry-count="20" retry-time-gap-millis="300">
+				<locator>xpath: //input[@id='categoryId']/ancestor::div[contains(@class,'yuk-autocomplete')]//ul//li[not(.//input) and normalize-space(.)='Electronics']</locator>
+			</s:ui-wait-for>
+			<s:ui-log-screen-shot name="simple-lov-category-filtered"/>
+
+			<s:log level="INFO" message="Select Electronics from filtered suggestions"/>
+			<s:ui-click
+				locator="xpath: //input[@id='categoryId']/ancestor::div[contains(@class,'yuk-autocomplete')]//ul//li[not(.//input) and normalize-space(.)='Electronics']"
+				retry-count="10" retry-time-gap-millis="300"/>
+			<s:assert-equals actual="uiVal: id: categoryId" expected="string: Electronics"/>
+			<s:ui-log-screen-shot name="simple-lov-category-selected"/>
+
+			<s:log level="INFO" message="Submit form and dismiss success alert"/>
+			<s:ui-click locator="id: simple-lov-demo-submit-btn"
+				post-visibility-locator="id: webutils-alert-ok-btn"
+				retry-count="6" retry-time-gap-millis="500"/>
+			<s:ui-click locator="id: webutils-alert-ok-btn"
+				post-visibility-locator="id: simple-lov-demo-response"
+				retry-count="6" retry-time-gap-millis="500"/>
+			<s:ui-log-screen-shot name="simple-lov-search-select-submitted"/>
+
+			<s:sql-load-query-row-map contextAttribute="tempRow" processAllRows="false">
+				<query><![CDATA[
+					SELECT CATEGORY
+					FROM TEMP_TABLE
+					ORDER BY ID DESC
+					LIMIT 1
+				]]></query>
+			</s:sql-load-query-row-map>
+			<s:assert-equals actual="prop: attr.tempRow.CATEGORY" expected="string: Electronics"/>
+		</testCase>
+
+		<testCase name="simpleLovCategorySelectViaLocator">
+			<description>
+				Select Books via c:ykLov custom locator and submit; persists CATEGORY=Books into TEMP_TABLE.
+			</description>
+
+			<s:log level="INFO" message="Open simple LOV demo and select Books via ykLov locator"/>
+			<s:ui-goto-page uri="/widgets/simple-lov-demo.html"/>
+			<s:ui-wait-for retry-count="30" retry-time-gap-millis="500">
+				<locator>id: categoryId</locator>
+			</s:ui-wait-for>
+			<s:sleep time="1500"/>
+
+			<s:ui-fill-form>
+				<data>json: {
+					"c:ykLov:categoryId": "Books"
+				}</data>
+			</s:ui-fill-form>
+			<s:assert-equals actual="uiVal: id: categoryId" expected="string: Books"/>
+			<s:ui-log-screen-shot name="simple-lov-books-filled"/>
+
+			<s:log level="INFO" message="Submit form and dismiss success alert"/>
+			<s:ui-click locator="id: simple-lov-demo-submit-btn"
+				post-visibility-locator="id: webutils-alert-ok-btn"
+				retry-count="6" retry-time-gap-millis="500"/>
+			<s:ui-click locator="id: webutils-alert-ok-btn"
+				post-visibility-locator="id: simple-lov-demo-response"
+				retry-count="6" retry-time-gap-millis="500"/>
+			<s:ui-log-screen-shot name="simple-lov-books-submitted"/>
+
+			<s:sql-load-query-row-map contextAttribute="tempRow" processAllRows="false">
+				<query><![CDATA[
+					SELECT CATEGORY
+					FROM TEMP_TABLE
+					ORDER BY ID DESC
+					LIMIT 1
+				]]></query>
+			</s:sql-load-query-row-map>
+			<s:assert-equals actual="prop: attr.tempRow.CATEGORY" expected="string: Books"/>
+		</testCase>
+
+	</testSuite>
+
+</testData>

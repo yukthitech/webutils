@@ -55,6 +55,11 @@ public enum FieldType
 	 * Type to be used when formatted html text is expected.
 	 */
 	HTML("html", String.class),
+
+	/**
+	 * Type to be used when markdown text is expected (edit + live preview).
+	 */
+	MARKDOWN("markdown", String.class),
 	
 	/**
 	 * A field which in turns requires verification.

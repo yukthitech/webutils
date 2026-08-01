@@ -1,6 +1,7 @@
 import { createApp } from '/lib/vue-3.4.31/vue.esm-browser.js';
 import { $mergeObjProperty, $utils } from './common.js';
 import { inputFieldComponents } from './input-fields.js';
+import './markdown-editor.js';
 import { formComponents } from './forms.js';
 import { dialogComponents } from './modal-dialogs.js';
 import { navBarComponents } from './nav-bar.js';

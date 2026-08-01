@@ -89,6 +89,7 @@ Webutils.newVueApp({
 | `common.js` | `$utils`, `$appConfiguration`, merge helpers |
 | `model-def-service.js` | FieldType → Vue component mapping |
 | `input-fields.js` | Input / LOV / OTP / captcha / file / html / switch |
+| `markdown-editor.js` | `yk-markdown-editor` (split edit / live preview) |
 | `forms.js` | `yk-form`, `yk-model-form`, `yk-search-form`, `yk-search-results`, multi-row forms |
 | `modal-dialogs.js` | `yk-dialogs`, modal / model-form dialogs |
 | `nav-bar.js` | `yk-route-nav-bar`, `yk-route-side-bar` |
@@ -115,6 +116,7 @@ Backend `@Model` fields drive `yk-model-form` via `/api/model/{name}`. Mapping l
 | CAPTCHA | `yk-captcha-field` |
 | FILE / IMAGE | `yk-input-file` / `yk-input-image` |
 | HTML (`@Html`) | `yk-html-editor` |
+| MARKDOWN (`@Markdown`) | `yk-markdown-editor` |
 
 ### LOV choice (agents)
 
@@ -125,7 +127,7 @@ Backend `@Model` fields drive `yk-model-form` via `/api/model/{name}`. Mapping l
 | Multi labels | `List<String>` + `@LOV` | `yk-multi-editable-lov-field` |
 | Search filter only | `@LOV(…, persist = false)` | same widgets; no option create |
 
-Demos: `webutils-testapp/services/web/widgets/editable-lov-demo.*`, `simple-lov-demo.*`.
+Demos: `webutils-testapp/services/web/widgets/editable-lov-demo.*`, `simple-lov-demo.*`, `markdown-demo.*`.
 
 ---
 
@@ -384,5 +386,6 @@ If a style is used in 2+ modules, move it to `app.css`.
 | `/widgets/simple-lov-demo.html` | Id LOV |
 | `/widgets/otp-demo.html` | OTP fields |
 | `/widgets/search-demo.html` | Search form + results |
+| `/widgets/markdown-demo.html` | Markdown edit / live preview |
 
 Login first: `/login/login.html`.

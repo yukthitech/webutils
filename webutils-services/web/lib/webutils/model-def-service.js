@@ -18,8 +18,9 @@ var $dataTypeMapping = {
 	"FILE": {"componentType": "yk-input-file", "inputType": "text"},	
 	"IMAGE": {"componentType": "yk-input-image", "inputType": "text"},	
 	
-	"HTML": {"componentType": "yk-html-editor", "inputType": "text"},	
-	
+	"HTML": {"componentType": "yk-html-editor", "inputType": "text"},
+	"MARKDOWN": {"componentType": "yk-markdown-editor", "inputType": "text"},
+
 };
 
 export var $modelDefService = {

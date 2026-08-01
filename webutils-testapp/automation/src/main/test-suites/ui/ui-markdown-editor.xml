@@ -1,0 +1,107 @@
+<testData 
+	xmlns:s="http://autox.yukthitech.com/steps" 
+	xmlns:wrap="http://xmlbeanparser.yukthitech.com/wrap" 
+	xmlns:f="http://autox.yukthitech.com/functions">
+
+	<testSuite name="webutils-ui-markdown-editor" author="webutils"
+		description="MarkdownDemoModel (@Markdown) — live preview, view modes, and submit echo">
+
+		<testCase name="markdownLivePreviewAndSubmit">
+			<description>
+				Open markdown demo form, set CodeMirror markdown via JS, assert live preview,
+				submit, and verify echoed content in the response panel.
+			</description>
+
+			<s:log level="INFO" message="Opening markdown demo page"/>
+			<s:ui-goto-page uri="/widgets/markdown-demo.html"/>
+			<s:ui-wait-for retry-count="40" retry-time-gap-millis="500">
+				<locator>id: content</locator>
+			</s:ui-wait-for>
+			<s:ui-wait-for retry-count="40" retry-time-gap-millis="500">
+				<locator>css: #content-md-editor .CodeMirror</locator>
+			</s:ui-wait-for>
+			<s:ui-log-screen-shot name="markdown-demo-loaded"/>
+
+			<s:log level="INFO" message="Set markdown content via CodeMirror API"/>
+			<s:ui-execute-js>
+				<script><![CDATA[
+					var host = document.getElementById('content-md-editor');
+					if(!host) {
+						throw new Error('content-md-editor not found');
+					}
+					var cmEl = host.querySelector('.CodeMirror');
+					if(!cmEl || !cmEl.CodeMirror) {
+						throw new Error('CodeMirror instance not ready');
+					}
+					cmEl.CodeMirror.setValue('# AutoxMd\n\nThis is **bold** text.');
+					return true;
+				]]></script>
+			</s:ui-execute-js>
+
+			<s:ui-wait-for retry-count="20" retry-time-gap-millis="300">
+				<locator>xpath: //*[@id='content-md-preview']//*[contains(@class,'yk-md-preview-body')]//h1[contains(normalize-space(.),'AutoxMd')]</locator>
+			</s:ui-wait-for>
+			<s:ui-assert-visibility
+				locator="xpath: //*[@id='content-md-preview']//strong[contains(normalize-space(.),'bold')]"/>
+			<s:ui-log-screen-shot name="markdown-demo-preview"/>
+
+			<s:log level="INFO" message="Submit form and dismiss success alert"/>
+			<s:ui-click locator="id: markdown-demo-submit-btn"
+				post-visibility-locator="id: webutils-alert-ok-btn"
+				retry-count="10" retry-time-gap-millis="500"/>
+			<s:ui-click locator="id: webutils-alert-ok-btn"
+				post-visibility-locator="id: markdown-demo-response"
+				retry-count="10" retry-time-gap-millis="500"/>
+			<s:ui-log-screen-shot name="markdown-demo-submitted"/>
+
+			<s:ui-assert-visibility
+				locator="xpath: //*[@id='markdown-demo-response'][contains(.,'AutoxMd')]"/>
+			<s:ui-assert-visibility
+				locator="xpath: //*[@id='markdown-demo-response'][contains(.,'bold')]"/>
+		</testCase>
+
+		<testCase name="markdownViewModes">
+			<description>
+				Verify Edit / Preview / Split mode toggles: pane visibility and resize handle in split.
+			</description>
+
+			<s:log level="INFO" message="Opening markdown demo for view-mode checks"/>
+			<s:ui-goto-page uri="/widgets/markdown-demo.html"/>
+			<s:ui-wait-for retry-count="40" retry-time-gap-millis="500">
+				<locator>id: content-md-mode-split</locator>
+			</s:ui-wait-for>
+			<s:ui-wait-for retry-count="40" retry-time-gap-millis="500">
+				<locator>css: #content-md-editor .CodeMirror</locator>
+			</s:ui-wait-for>
+
+			<s:log level="INFO" message="Default split: editor, preview, and handle visible"/>
+			<s:ui-assert-visibility locator="id: content-md-editor"/>
+			<s:ui-assert-visibility locator="id: content-md-preview"/>
+			<s:ui-assert-visibility locator="id: content-md-handle"/>
+			<s:ui-log-screen-shot name="markdown-mode-split"/>
+
+			<s:log level="INFO" message="Edit mode: editor visible, preview and handle hidden"/>
+			<s:ui-click locator="id: content-md-mode-edit" retry-count="10" retry-time-gap-millis="300"/>
+			<s:ui-assert-visibility locator="id: content-md-editor"/>
+			<s:ui-assert-visibility locator="id: content-md-preview" visible="false"/>
+			<s:ui-assert-visibility locator="id: content-md-handle" visible="false"/>
+			<s:ui-log-screen-shot name="markdown-mode-edit"/>
+
+			<s:log level="INFO" message="Preview mode: preview visible, editor and handle hidden"/>
+			<s:ui-click locator="id: content-md-mode-preview" retry-count="10" retry-time-gap-millis="300"/>
+			<s:ui-assert-visibility locator="id: content-md-preview"/>
+			<s:ui-assert-visibility locator="id: content-md-editor" visible="false"/>
+			<s:ui-assert-visibility locator="id: content-md-handle" visible="false"/>
+			<s:ui-log-screen-shot name="markdown-mode-preview"/>
+
+			<s:log level="INFO" message="Back to Split: both panes and handle visible"/>
+			<s:ui-click locator="id: content-md-mode-split" retry-count="10" retry-time-gap-millis="300"/>
+			<s:ui-assert-visibility locator="id: content-md-editor"/>
+			<s:ui-assert-visibility locator="id: content-md-preview"/>
+			<s:ui-assert-visibility locator="id: content-md-handle"/>
+			<s:ui-log-screen-shot name="markdown-mode-split-restored"/>
+		</testCase>
+
+	</testSuite>
+
+</testData>

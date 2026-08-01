@@ -3,7 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>LOV Widget Demo</title>
+	<title>Simple LOV Demo</title>
 	<link href="/lib/bootstrap-5.1.0/css/bootstrap.min.css" rel="stylesheet">
 	<link href="/lib/bootstrap-select-1.14.0/bootstrap-select.min.css" rel="stylesheet">
 	<link href="/lib/bootstrap-icons-1.3.0/bootstrap-icons.css" rel="stylesheet">
@@ -19,31 +19,33 @@
 	<div id="webutilsPageLoading" class="p-3">Loading…</div>
 	<div id="ykApp" class="container" style="display:none;">
 		<header class="testapp-header">
-			<h1 id="lov-demo-title">LOV Widget Demo</h1>
-			<p>Single editable-lov field (CATEGORY). Submit persists remapped value into TEMP_TABLE.</p>
+			<h1 id="simple-lov-demo-title">Simple LOV Demo</h1>
+			<p>Single simple lov field (CATEGORY option id). Submit resolves label into TEMP_TABLE.</p>
 		</header>
 
 		<nav class="testapp-nav">
 			<a href="/index.html">Home</a>
 			<a href="/login/login.html">Login</a>
-			<a class="active" href="/widgets/lov-demo.html">LOV</a>
+			<a href="/widgets/editable-lov-demo.html">Editable LOV</a>
+			<a class="active" href="/widgets/simple-lov-demo.html">Simple LOV</a>
 			<a href="/widgets/otp-demo.html">OTP</a>
 			<a href="/widgets/search-demo.html">Search</a>
 		</nav>
 
 		<div class="testapp-hint">
 			Uses stored LOV <code>CATEGORY</code> seeded by Liquibase. Submit calls
-			<code>/api/testapp/lov-demo/submit</code>, maps/creates LOV options, and inserts into <code>TEMP_TABLE</code>.
+			<code>/api/testapp/simple-lov-demo/submit</code>, resolves the selected option id to its label,
+			and inserts into <code>TEMP_TABLE</code>.
 		</div>
 
 		<section class="testapp-panel">
 			<h2>Model form</h2>
-			<yk-model-form id="lov-demo-form" ref="lovForm" model-name="LovDemoModel" :column-count="1"
+			<yk-model-form id="simple-lov-demo-form" ref="lovForm" model-name="SimpleLovDemoModel" :column-count="1"
 				v-model="formData" :enable-error="submitTried" :server-errors="fieldErrors">
 				<template #footer>
 					<div style="float: right;">
-						<div id="lov-demo-error" class="webutils-error">{{ error }}</div>
-						<button id="lov-demo-submit-btn" type="button" class="webutils-btn-primary"
+						<div id="simple-lov-demo-error" class="webutils-error">{{ error }}</div>
+						<button id="simple-lov-demo-submit-btn" type="button" class="webutils-btn-primary"
 							@click.prevent="submitForm">Submit</button>
 					</div>
 				</template>
@@ -52,12 +54,12 @@
 
 		<section class="testapp-panel" v-if="lastResponse">
 			<h2>Last response</h2>
-			<pre id="lov-demo-response">{{ JSON.stringify(lastResponse, null, 2) }}</pre>
+			<pre id="simple-lov-demo-response">{{ JSON.stringify(lastResponse, null, 2) }}</pre>
 		</section>
 
 		<yk-dialogs ref="ykDialogs"></yk-dialogs>
 	</div>
 
-	<script type="module" src="/widgets/lov-demo.js"></script>
+	<script type="module" src="/widgets/simple-lov-demo.js"></script>
 </body>
 </html>

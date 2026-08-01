@@ -25,11 +25,11 @@ Webutils.newVueApp({
 			}
 
 			var payload = this.$refs.lovForm.getModel();
-			$restService.invokePost("/api/testapp/lov-demo/submit", payload, {
+			$restService.invokePost("/api/testapp/editable-lov-demo/submit", payload, {
 				context: this,
 				onSuccess: function(result) {
 					this.lastResponse = result.response;
-					$utils.alert("LOV demo submit succeeded.");
+					$utils.alert("Editable LOV demo submit succeeded.");
 				},
 				onError: function(err) {
 					this.error = (err && err.response && err.response.message) ? err.response.message : "Submit failed";

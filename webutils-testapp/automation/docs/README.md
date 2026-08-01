@@ -8,7 +8,7 @@ REST and UI automation against the WebUtils widget harness.
 |------|---------|
 | `src/main/config/` | `app-configuration.xml`, `app.properties` |
 | `src/main/test-suites/rest/` | REST suites |
-| `src/main/test-suites/ui/` | UI suites (e.g. `ui-lov-field.xml`) |
+| `src/main/test-suites/ui/` | UI suites (e.g. `ui-editable-lov-field.xml`, `ui-simple-lov-field.xml`) |
 | `src/main/test-suites/common/` | Shared locators, functions, global setup |
 | `src/main/resources/data/` | Data providers |
 
@@ -20,9 +20,9 @@ REST and UI automation against the WebUtils widget harness.
 | `common/common-functions.xml` | `enableTrackedApiCalls` / `fetchTrackedApiCalls` / `clearTrackedApiCalls` |
 | `common/common-ui-locators.xml` | `ykLov` / `ykEditableLov` custom locators |
 
-## Suite: `webutils-ui-lov-field`
+## Suite: `webutils-ui-editable-lov-field`
 
-File: `ui/ui-lov-field.xml`. Exercises single-field CATEGORY editable LOV on `/widgets/lov-demo.html`.
+File: `ui/ui-editable-lov-field.xml`. Exercises single-field CATEGORY editable LOV on `/widgets/editable-lov-demo.html`.
 
 | Test case | What it covers |
 |-----------|----------------|
@@ -36,6 +36,26 @@ Suite setup deletes `TEMP_TABLE` rows and any prior `AutoxLovGadgets` option und
 
 When selecting with `-tc lovCategoryNewOptionAvailableOnReload`, also include `lovCategoryNewOptionPersist` (AutoX skips dependents if the dependency is not run / failed).
 
+## Suite: `webutils-ui-simple-lov-field`
+
+File: `ui/ui-simple-lov-field.xml`. Exercises simple (id-based) CATEGORY LOV on `/widgets/simple-lov-demo.html`.
+
+| Test case | What it covers |
+|-----------|----------------|
+| `simpleLovCategorySearchAndSelect` | Open dropdown → filter `Ele` → select Electronics → submit → `TEMP_TABLE.CATEGORY = Electronics` |
+| `simpleLovCategorySelectViaLocator` | `c:ykLov:categoryId` = Books → submit → `TEMP_TABLE.CATEGORY = Books` |
+
+Suite setup deletes `TEMP_TABLE` rows.
+
+## Suite: `webutils-ui-markdown-editor`
+
+File: `ui/ui-markdown-editor.xml`. Exercises `@Markdown` / `yk-markdown-editor` on `/widgets/markdown-demo.html` via `MarkdownDemoModel`.
+
+| Test case | What it covers |
+|-----------|----------------|
+| `markdownLivePreviewAndSubmit` | Set CodeMirror markdown via JS → live preview → submit → echoed content in response panel |
+| `markdownViewModes` | Edit / Preview / Split toggles pane and resize-handle visibility |
+
 ## Run
 
 From `automation/`:
@@ -44,7 +64,13 @@ From `automation/`:
 mvn exec:java
 ```
 
-Filter by suite / test case with AutoX `-ts` / `-tc` (do not use test-case `groups`).
+Filter by suite / test case with AutoX `-ts` / `-tc` (do not use test-case `groups`):
+
+```bash
+mvn exec:java "-Dexec.args=... -ts webutils-ui-editable-lov-field"
+mvn exec:java "-Dexec.args=... -ts webutils-ui-simple-lov-field"
+mvn exec:java "-Dexec.args=... -ts webutils-ui-markdown-editor"
+```
 
 ## Environment
 
@@ -66,4 +92,4 @@ Tracking is enabled once in global setup. In suites:
 
 ## Conventions
 
-Follow the same AutoX patterns as Sethu4U (`automation/docs/sethu4u-automation-conventions.md` in that project): dynamic data providers, `ykEditableLov` locators, browser QA before UI automation.
+Follow the same AutoX patterns as Sethu4U (`automation/docs/sethu4u-automation-conventions.md` in that project): dynamic data providers, `ykEditableLov` / `ykLov` locators, browser QA before UI automation.

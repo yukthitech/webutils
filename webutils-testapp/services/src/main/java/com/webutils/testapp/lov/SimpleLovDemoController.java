@@ -13,22 +13,22 @@ import com.webutils.common.response.BasicReadResponse;
 import jakarta.validation.Valid;
 
 /**
- * Accepts LOV demo form posts and persists remapped category into TEMP_TABLE.
+ * Accepts simple LOV demo form posts and persists selected category label into TEMP_TABLE.
  */
 @RestController
-@RequestMapping("/api/testapp/lov-demo")
-public class LovDemoController
+@RequestMapping("/api/testapp/simple-lov-demo")
+public class SimpleLovDemoController
 {
-	private static final Logger logger = LogManager.getLogger(LovDemoController.class);
+	private static final Logger logger = LogManager.getLogger(SimpleLovDemoController.class);
 
 	@Autowired
-	private LovDemoService lovDemoService;
+	private SimpleLovDemoService simpleLovDemoService;
 
 	@PostMapping("/submit")
-	public BasicReadResponse<TempTableEntity> submit(@RequestBody @Valid LovDemoModel model)
+	public BasicReadResponse<TempTableEntity> submit(@RequestBody @Valid SimpleLovDemoModel model)
 	{
-		logger.info("LOV demo submit: category={}", model.getCategory());
-		TempTableEntity saved = lovDemoService.submit(model);
+		logger.info("Simple LOV demo submit: categoryId={}", model.getCategoryId());
+		TempTableEntity saved = simpleLovDemoService.submit(model);
 		return new BasicReadResponse<>(saved);
 	}
 }

@@ -51,6 +51,7 @@ import com.webutils.common.form.annotations.Format;
 import com.webutils.common.form.annotations.FullWidth;
 import com.webutils.common.form.annotations.Html;
 import com.webutils.common.form.annotations.Image;
+import com.webutils.common.form.annotations.Markdown;
 import com.webutils.common.form.annotations.LOV;
 import com.webutils.common.form.annotations.Model;
 import com.webutils.common.form.annotations.MultilineText;
@@ -402,6 +403,11 @@ public class FieldDefBuilder
 				else if(field.getAnnotation(Html.class) != null)
 				{
 					fieldDef.setFieldType(FieldType.HTML);
+					fieldDef.setFullWidth(true);
+				}
+				else if(field.getAnnotation(Markdown.class) != null)
+				{
+					fieldDef.setFieldType(FieldType.MARKDOWN);
 					fieldDef.setFullWidth(true);
 				}
 				else if(field.getAnnotation(Color.class) != null)

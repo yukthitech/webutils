@@ -19,7 +19,7 @@ Isolated Spring Boot harness for testing **new-stack** WebUtils UI widgets outsi
 3. From `dbschema/`: `mvn process-resources liquibase:update`  
    (Fresh reset: `mvn liquibase:dropAll liquibase:update`)
 
-Schema notes: `004-create-temp-table.xml` adds `TEMP_TABLE` used by the LOV demo submit path.
+Schema notes: `004-create-temp-table.xml` adds `TEMP_TABLE` used by the LOV demo submit paths.
 
 ## Login / session
 
@@ -49,9 +49,11 @@ mvn spring-boot:run "-Dspring-boot.run.jvmArguments=-Dapp.encryptor.keystore=tes
 
 Demo pages:
 
-- `/widgets/lov-demo.html` — single editable LOV (`CATEGORY`); submit runs `processModel` (case-map / create option) and inserts into `TEMP_TABLE`
+- `/widgets/editable-lov-demo.html` — editable LOV (`String` CATEGORY); submit runs `processModel` (case-map / create option) and inserts into `TEMP_TABLE`
+- `/widgets/simple-lov-demo.html` — simple LOV (`Long` category option id); submit resolves label and inserts into `TEMP_TABLE`
 - `/widgets/otp-demo.html` — OTP verification fields  
-- `/widgets/search-demo.html` — search form + results (`sampleItemSearch`)  
+- `/widgets/search-demo.html` — search form + results (`sampleItemSearch`)
+- `/widgets/markdown-demo.html` — markdown edit / live preview (`yk-markdown-editor`)
 
 Seeded `CATEGORY` labels: Electronics, Books, Clothing, Home.
 

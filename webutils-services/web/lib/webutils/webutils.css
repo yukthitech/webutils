@@ -639,5 +639,147 @@ button.webutils-info-close-button:hover
 	}
 }
 
+/*************************************************
+ *  Markdown editor (yk-markdown-editor)
+**************************************************/
+.yk-markdown-editor .yk-md-toolbar {
+	margin-bottom: 0.5rem;
+}
+
+.yk-md-split {
+	display: flex;
+	flex-direction: row;
+	align-items: stretch;
+	border: 1px solid #ced4da;
+	border-radius: 0.25rem;
+	overflow: hidden;
+	background: #fff;
+	min-height: 200px;
+}
+
+.yk-md-split.is-invalid {
+	border-color: #dc3545;
+}
+
+.yk-md-editor,
+.yk-md-preview {
+	min-width: 0;
+	overflow: auto;
+	height: 100%;
+}
+
+.yk-md-cm-host,
+.yk-md-cm-host .CodeMirror {
+	height: 100%;
+}
+
+.yk-md-cm-host .CodeMirror {
+	border: none;
+	font-size: 0.925rem;
+	line-height: 1.45;
+}
+
+.yk-md-handle {
+	flex: 0 0 6px;
+	cursor: col-resize;
+	background: #e9ecef;
+	border-left: 1px solid #ced4da;
+	border-right: 1px solid #ced4da;
+	position: relative;
+	z-index: 1;
+}
+
+.yk-md-handle:hover,
+.yk-md-handle:active {
+	background: #adb5bd;
+}
+
+.yk-md-preview {
+	background: #fff;
+	border-left: none;
+}
+
+.yk-md-preview-body {
+	padding: 1rem 1.25rem;
+	font-size: 0.95rem;
+	line-height: 1.6;
+	color: #212529;
+}
+
+.yk-md-preview-body h1,
+.yk-md-preview-body h2,
+.yk-md-preview-body h3,
+.yk-md-preview-body h4,
+.yk-md-preview-body h5,
+.yk-md-preview-body h6 {
+	margin-top: 1.25rem;
+	margin-bottom: 0.5rem;
+	font-weight: 600;
+	line-height: 1.25;
+}
+
+.yk-md-preview-body h1 { font-size: 1.75rem; border-bottom: 1px solid #e9ecef; padding-bottom: 0.3rem; }
+.yk-md-preview-body h2 { font-size: 1.4rem; border-bottom: 1px solid #e9ecef; padding-bottom: 0.25rem; }
+.yk-md-preview-body h3 { font-size: 1.2rem; }
+
+.yk-md-preview-body p {
+	margin-bottom: 0.75rem;
+}
+
+.yk-md-preview-body ul,
+.yk-md-preview-body ol {
+	padding-left: 1.5rem;
+	margin-bottom: 0.75rem;
+}
+
+.yk-md-preview-body code {
+	background: #f6f8fa;
+	padding: 0.15em 0.4em;
+	border-radius: 3px;
+	font-size: 0.9em;
+}
+
+.yk-md-preview-body pre {
+	background: #f6f8fa;
+	padding: 0.75rem 1rem;
+	border-radius: 4px;
+	overflow: auto;
+	margin-bottom: 0.75rem;
+}
+
+.yk-md-preview-body pre code {
+	background: transparent;
+	padding: 0;
+}
+
+.yk-md-preview-body blockquote {
+	border-left: 4px solid #ced4da;
+	margin: 0 0 0.75rem;
+	padding: 0.25rem 0 0.25rem 1rem;
+	color: #6c757d;
+}
+
+.yk-md-preview-body table {
+	border-collapse: collapse;
+	margin-bottom: 0.75rem;
+	width: 100%;
+}
+
+.yk-md-preview-body th,
+.yk-md-preview-body td {
+	border: 1px solid #dee2e6;
+	padding: 0.4rem 0.6rem;
+}
+
+.yk-md-preview-body img {
+	max-width: 100%;
+	height: auto;
+}
+
+.yk-md-preview-body hr {
+	border: 0;
+	border-top: 1px solid #dee2e6;
+	margin: 1rem 0;
+}
 
 
