@@ -102,6 +102,49 @@
 			<s:ui-log-screen-shot name="markdown-mode-split-restored"/>
 		</testCase>
 
+		<testCase name="markdownServerToClientAndSubmit">
+			<description>
+				Assert sample markdown from server is shown in CodeMirror, change it, submit, and assert echo.
+			</description>
+
+			<s:log level="INFO" message="Opening markdown demo for server-to-client round trip"/>
+			<s:ui-goto-page uri="/widgets/markdown-demo.html"/>
+			<s:ui-wait-for retry-count="40" retry-time-gap-millis="500">
+				<locator>css: #content-md-editor .CodeMirror</locator>
+			</s:ui-wait-for>
+			<s:sleep time="1000"/>
+
+			<s:ui-execute-js result-attribute="serverCmValue">
+				<script><![CDATA[
+					var host = document.getElementById('content-md-editor');
+					var cmEl = host.querySelector('.CodeMirror');
+					return cmEl.CodeMirror.getValue();
+				]]></script>
+			</s:ui-execute-js>
+			<s:assert-true value="condition: indexOf(attr.serverCmValue, 'ServerMd') gte 0"/>
+			<s:ui-log-screen-shot name="markdown-server-sample-loaded"/>
+
+			<s:ui-execute-js>
+				<script><![CDATA[
+					var host = document.getElementById('content-md-editor');
+					var cmEl = host.querySelector('.CodeMirror');
+					cmEl.CodeMirror.setValue('# ClientMd\n\nUpdated from **client**.');
+					return true;
+				]]></script>
+			</s:ui-execute-js>
+
+			<s:ui-click locator="id: markdown-demo-submit-btn"
+				post-visibility-locator="id: webutils-alert-ok-btn"
+				retry-count="10" retry-time-gap-millis="500"/>
+			<s:ui-click locator="id: webutils-alert-ok-btn"
+				post-visibility-locator="id: markdown-demo-response"
+				retry-count="10" retry-time-gap-millis="500"/>
+			<s:ui-log-screen-shot name="markdown-client-submitted"/>
+
+			<s:ui-assert-visibility
+				locator="xpath: //*[@id='markdown-demo-response'][contains(.,'ClientMd')]"/>
+		</testCase>
+
 	</testSuite>
 
 </testData>

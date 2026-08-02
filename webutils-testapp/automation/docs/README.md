@@ -55,6 +55,17 @@ File: `ui/ui-markdown-editor.xml`. Exercises `@Markdown` / `yk-markdown-editor` 
 |-----------|----------------|
 | `markdownLivePreviewAndSubmit` | Set CodeMirror markdown via JS → live preview → submit → echoed content in response panel |
 | `markdownViewModes` | Edit / Preview / Split toggles pane and resize-handle visibility |
+| `markdownServerToClientAndSubmit` | Sample from server shown in CM → edit → submit echo |
+
+## Suite: `webutils-ui-language-editor`
+
+File: `ui/ui-language-editor.xml`. Exercises `@Language` / `yk-language-editor` on `/widgets/language-demo.html` via `LanguageDemoModel`.
+
+| Test case | What it covers |
+|-----------|----------------|
+| `languageServerContentDisplayed` | GET sample → CodeMirror shows ServerJson / ServerXml / autoxSchema |
+| `languageValidSubmitEcho` | Submit valid sample → response echoes markers |
+| `languageInvalidJsonRejected` | Invalid JSON submit → error, no success alert/response |
 
 ## Run
 
@@ -70,6 +81,7 @@ Filter by suite / test case with AutoX `-ts` / `-tc` (do not use test-case `grou
 mvn exec:java "-Dexec.args=... -ts webutils-ui-editable-lov-field"
 mvn exec:java "-Dexec.args=... -ts webutils-ui-simple-lov-field"
 mvn exec:java "-Dexec.args=... -ts webutils-ui-markdown-editor"
+mvn exec:java "-Dexec.args=... -ts webutils-ui-language-editor"
 ```
 
 ## Environment

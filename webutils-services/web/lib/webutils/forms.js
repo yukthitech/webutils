@@ -578,9 +578,32 @@ formComponents['yk-model-form'] = {
 
 		/**
 		 * Returns the current form model (field name → value).
+		 * Syncs values from field widgets first so CodeMirror-backed editors
+		 * contribute their latest content even if a tick was missed.
 		 * @returns {object}
 		 */
 		"getModel": function() {
+			for(let group of this.modelFieldGroups)
+			{
+				for(let row of group.rows)
+				{
+					for(let fld of row.fields)
+					{
+						var refList = this.$refs["field_" + fld.index];
+						if(!refList || !refList[0])
+						{
+							continue;
+						}
+
+						var fldRef = refList[0];
+						if(fldRef.getFieldValue)
+						{
+							this.formData[fld.name] = fldRef.getFieldValue();
+						}
+					}
+				}
+			}
+
 			return this.formData;
 		},
 		

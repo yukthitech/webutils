@@ -60,6 +60,11 @@ public enum FieldType
 	 * Type to be used when markdown text is expected (edit + live preview).
 	 */
 	MARKDOWN("markdown", String.class),
+
+	/**
+	 * Type to be used for language content (JSON / XML / JSON Schema) with CodeMirror.
+	 */
+	LANGUAGE("language", String.class),
 	
 	/**
 	 * A field which in turns requires verification.

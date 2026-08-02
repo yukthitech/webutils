@@ -1,0 +1,135 @@
+<testData 
+	xmlns:s="http://autox.yukthitech.com/steps" 
+	xmlns:wrap="http://xmlbeanparser.yukthitech.com/wrap" 
+	xmlns:f="http://autox.yukthitech.com/functions">
+
+	<testSuite name="webutils-ui-language-editor" author="webutils"
+		description="LanguageDemoModel (@Language) — server sample display, valid echo, invalid JSON rejection">
+
+		<testCase name="languageServerContentDisplayed">
+			<description>
+				Open language demo, wait for sample from server, assert CodeMirror shows ServerJson / ServerXml / autoxSchema markers.
+			</description>
+
+			<s:log level="INFO" message="Opening language demo page"/>
+			<s:ui-goto-page uri="/widgets/language-demo.html"/>
+			<s:ui-wait-for retry-count="40" retry-time-gap-millis="500">
+				<locator>id: jsonContent</locator>
+			</s:ui-wait-for>
+			<s:ui-wait-for retry-count="40" retry-time-gap-millis="500">
+				<locator>css: #jsonContent-lang-editor .CodeMirror</locator>
+			</s:ui-wait-for>
+			<s:ui-wait-for retry-count="40" retry-time-gap-millis="500">
+				<locator>css: #xmlContent-lang-editor .CodeMirror</locator>
+			</s:ui-wait-for>
+			<s:ui-wait-for retry-count="40" retry-time-gap-millis="500">
+				<locator>css: #jsonSchemaContent-lang-editor .CodeMirror</locator>
+			</s:ui-wait-for>
+			<s:sleep time="1000"/>
+			<s:ui-log-screen-shot name="language-demo-loaded"/>
+
+			<s:log level="INFO" message="Assert CodeMirror values contain server sample markers"/>
+			<s:ui-execute-js result-attribute="cmValues">
+				<script><![CDATA[
+					function cmVal(id) {
+						var host = document.getElementById(id);
+						if(!host) { throw new Error(id + ' missing'); }
+						var cmEl = host.querySelector('.CodeMirror');
+						if(!cmEl || !cmEl.CodeMirror) { throw new Error(id + ' CodeMirror not ready'); }
+						return cmEl.CodeMirror.getValue();
+					}
+					return {
+						json: cmVal('jsonContent-lang-editor'),
+						xml: cmVal('xmlContent-lang-editor'),
+						schema: cmVal('jsonSchemaContent-lang-editor')
+					};
+				]]></script>
+			</s:ui-execute-js>
+			<s:assert-true value="condition: indexOf(attr.cmValues.json, 'ServerJson') gte 0"/>
+			<s:assert-true value="condition: indexOf(attr.cmValues.xml, 'ServerXml') gte 0"/>
+			<s:assert-true value="condition: indexOf(attr.cmValues.schema, 'autoxSchema') gte 0"/>
+		</testCase>
+
+		<testCase name="languageValidSubmitEcho">
+			<description>
+				With valid sample content, submit and assert echoed response contains markers.
+			</description>
+
+			<s:log level="INFO" message="Opening language demo for valid submit"/>
+			<s:ui-goto-page uri="/widgets/language-demo.html"/>
+			<s:ui-wait-for retry-count="40" retry-time-gap-millis="500">
+				<locator>css: #jsonContent-lang-editor .CodeMirror</locator>
+			</s:ui-wait-for>
+			<s:sleep time="1000"/>
+
+			<s:ui-execute-js>
+				<script><![CDATA[
+					document.getElementById('language-demo-submit-btn').scrollIntoView({block:'center'});
+					return true;
+				]]></script>
+			</s:ui-execute-js>
+			<s:ui-click locator="id: language-demo-submit-btn"
+				post-visibility-locator="id: webutils-alert-ok-btn"
+				retry-count="10" retry-time-gap-millis="500"/>
+			<s:ui-click locator="id: webutils-alert-ok-btn"
+				post-visibility-locator="id: language-demo-response"
+				retry-count="10" retry-time-gap-millis="500"/>
+			<s:ui-log-screen-shot name="language-demo-submitted"/>
+
+			<s:ui-assert-visibility
+				locator="xpath: //*[@id='language-demo-response'][contains(.,'ServerJson')]"/>
+			<s:ui-assert-visibility
+				locator="xpath: //*[@id='language-demo-response'][contains(.,'ServerXml')]"/>
+			<s:ui-assert-visibility
+				locator="xpath: //*[@id='language-demo-response'][contains(.,'autoxSchema')]"/>
+		</testCase>
+
+		<testCase name="languageInvalidJsonRejected">
+			<description>
+				Set invalid JSON in the JSON field, submit, expect error and no success response panel.
+			</description>
+
+			<s:log level="INFO" message="Opening language demo for invalid JSON"/>
+			<s:ui-goto-page uri="/widgets/language-demo.html"/>
+			<s:ui-wait-for retry-count="40" retry-time-gap-millis="500">
+				<locator>css: #jsonContent-lang-editor .CodeMirror</locator>
+			</s:ui-wait-for>
+			<s:sleep time="1000"/>
+
+			<s:ui-execute-js>
+				<script><![CDATA[
+					var host = document.getElementById('jsonContent-lang-editor');
+					var cmEl = host.querySelector('.CodeMirror');
+					cmEl.CodeMirror.setValue('{ not valid json');
+					return true;
+				]]></script>
+			</s:ui-execute-js>
+			<s:sleep time="500"/>
+
+			<s:ui-execute-js>
+				<script><![CDATA[
+					document.getElementById('language-demo-submit-btn').scrollIntoView({block:'center'});
+					return true;
+				]]></script>
+			</s:ui-execute-js>
+			<s:ui-click locator="id: language-demo-submit-btn" retry-count="10" retry-time-gap-millis="500"/>
+			<s:sleep time="1500"/>
+			<s:ui-log-screen-shot name="language-demo-invalid-json"/>
+
+			<s:ui-execute-js result-attribute="invalidOk">
+				<script><![CDATA[
+					var errEl = document.getElementById('language-demo-error');
+					var errText = (errEl && errEl.textContent) ? errEl.textContent.trim() : '';
+					var feedback = document.querySelector('#jsonContent .invalid-feedback');
+					var feedbackText = (feedback && feedback.textContent) ? feedback.textContent.trim() : '';
+					var combined = errText + ' ' + feedbackText;
+					var hasResponse = !!document.getElementById('language-demo-response');
+					return !hasResponse && (combined.indexOf('Invalid') >= 0 || combined.indexOf('Validation') >= 0);
+				]]></script>
+			</s:ui-execute-js>
+			<s:assert-true value="condition: attr.invalidOk"/>
+		</testCase>
+
+	</testSuite>
+
+</testData>

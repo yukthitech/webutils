@@ -51,6 +51,7 @@ import com.webutils.common.form.annotations.Format;
 import com.webutils.common.form.annotations.FullWidth;
 import com.webutils.common.form.annotations.Html;
 import com.webutils.common.form.annotations.Image;
+import com.webutils.common.form.annotations.Language;
 import com.webutils.common.form.annotations.Markdown;
 import com.webutils.common.form.annotations.LOV;
 import com.webutils.common.form.annotations.Model;
@@ -408,6 +409,13 @@ public class FieldDefBuilder
 				else if(field.getAnnotation(Markdown.class) != null)
 				{
 					fieldDef.setFieldType(FieldType.MARKDOWN);
+					fieldDef.setFullWidth(true);
+				}
+				else if(field.getAnnotation(Language.class) != null)
+				{
+					Language language = field.getAnnotation(Language.class);
+					fieldDef.setFieldType(FieldType.LANGUAGE);
+					fieldDef.setLanguageType(language.value());
 					fieldDef.setFullWidth(true);
 				}
 				else if(field.getAnnotation(Color.class) != null)

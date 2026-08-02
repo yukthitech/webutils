@@ -9,7 +9,8 @@ Webutils.newVueApp({
 			submitTried: false,
 			fieldErrors: {},
 			error: "",
-			lastResponse: null
+			lastResponse: null,
+			sampleLoaded: false
 		};
 	},
 	mounted: function() {
@@ -18,13 +19,14 @@ Webutils.newVueApp({
 	methods: {
 		loadSample: function() {
 			var self = this;
-			$restService.invokeGet("/api/testapp/markdown-demo/sample", null, {
+			$restService.invokeGet("/api/testapp/language-demo/sample", null, {
 				context: this,
 				onSuccess: function(result) {
 					var sample = result.response && result.response.value ? result.response.value : null;
 					if(sample)
 					{
 						self.formData = sample;
+						self.sampleLoaded = true;
 					}
 				},
 				onError: function(err) {
@@ -40,18 +42,18 @@ Webutils.newVueApp({
 			this.fieldErrors = {};
 			this.lastResponse = null;
 
-			if(!this.$refs.mdForm.validate())
+			if(!this.$refs.langForm.validate())
 			{
 				this.error = "Please fix validation errors.";
 				return;
 			}
 
-			var payload = this.$refs.mdForm.getModel();
-			$restService.invokePost("/api/testapp/markdown-demo/submit", payload, {
+			var payload = this.$refs.langForm.getModel();
+			$restService.invokePost("/api/testapp/language-demo/submit", payload, {
 				context: this,
 				onSuccess: function(result) {
 					this.lastResponse = result.response;
-					$utils.alert("Markdown demo submit succeeded.");
+					$utils.alert("Language demo submit succeeded.");
 				},
 				onError: function(err) {
 					this.error = (err && err.response && err.response.message) ? err.response.message : "Submit failed";

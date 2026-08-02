@@ -20,6 +20,7 @@ var $dataTypeMapping = {
 	
 	"HTML": {"componentType": "yk-html-editor", "inputType": "text"},
 	"MARKDOWN": {"componentType": "yk-markdown-editor", "inputType": "text"},
+	"LANGUAGE": {"componentType": "yk-language-editor", "inputType": "text"},
 
 };
 

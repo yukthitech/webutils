@@ -27,6 +27,7 @@ import java.lang.reflect.Field;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.webutils.common.form.annotations.LanguageType;
 import com.webutils.common.form.otp.VerificationType;
 
 import lombok.Data;
@@ -133,6 +134,11 @@ public class FieldDef
 	 * Type of verification needed by field.
 	 */
 	private VerificationType verificationType;
+
+	/**
+	 * Language type when {@link FieldType#LANGUAGE} (JSON / XML / JSON_SCHEMA).
+	 */
+	private LanguageType languageType;
 
 	/**
 	 * Group name for file field.

@@ -805,4 +805,30 @@ button.webutils-info-close-button:hover
 	margin: 1rem 0;
 }
 
+/*************************************************
+ *  Language editor (yk-language-editor)
+**************************************************/
+.yk-language-editor .yk-lang-editor-wrap {
+	border: 1px solid #ced4da;
+	border-radius: 0.25rem;
+	overflow: hidden;
+	background: #fff;
+	min-height: 160px;
+}
+
+.yk-language-editor .yk-lang-editor-wrap.is-invalid {
+	border-color: #dc3545;
+}
+
+.yk-language-editor .yk-lang-cm-host,
+.yk-language-editor .yk-lang-cm-host .CodeMirror {
+	height: 100%;
+}
+
+.yk-language-editor .yk-lang-cm-host .CodeMirror {
+	border: none;
+	font-size: 0.925rem;
+	line-height: 1.45;
+}
+
 
