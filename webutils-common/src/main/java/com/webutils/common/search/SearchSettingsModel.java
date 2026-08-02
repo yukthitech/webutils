@@ -8,6 +8,7 @@ import com.webutils.common.form.annotations.Model;
 import com.yukthitech.validation.annotations.MinLen;
 import com.yukthitech.validation.annotations.Required;
 
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -32,6 +33,7 @@ public class SearchSettingsModel
 	private List<SearchSettingsColumn> searchColumns;
 
 	@Min(1)
+	@Max(1000)
 	private int pageSize;
 
 	public void addSearchColumn(SearchSettingsColumn column)

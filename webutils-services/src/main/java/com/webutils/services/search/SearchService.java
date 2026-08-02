@@ -64,6 +64,9 @@ public class SearchService
 {
 	private static final Logger logger = LogManager.getLogger(SearchService.class);
 
+	/** Fallback page size when request and settings do not provide a valid value. */
+	private static final int DEFAULT_PAGE_SIZE = 100;
+
 	private static class SearchQueryDetails
 	{
 		private final Class<? extends ICrudRepository<?>> repositoryType;
@@ -353,9 +356,7 @@ public class SearchService
 		int pageSize = -1;
 		if(!searchExecutionModel.isFetchAll())
 		{
-			pageSize = searchExecutionModel.getPageSize() > 1
-					? searchExecutionModel.getPageSize()
-					: searchSettings.getPageSize();
+			pageSize = resolveEffectivePageSize(searchExecutionModel, searchSettings);
 		}
 
 		int pageNo = searchExecutionModel.getPageNumber();
@@ -370,6 +371,28 @@ public class SearchService
 		{
 			throw new InvalidStateException("An error occurred while executing search query - {}", searchQueryName, ex);
 		}
+	}
+
+	/**
+	 * Resolves page size for a paged search.
+	 * Order: persisted user search-settings (id set) → request pageSize → settings default → {@link #DEFAULT_PAGE_SIZE}.
+	 * Response always echoes this value so the client stays in sync.
+	 */
+	private int resolveEffectivePageSize(SearchExecutionModel searchExecutionModel, SearchSettingsEntity searchSettings)
+	{
+		// User-saved settings (from settings UI) override the form default
+		if(searchSettings != null && searchSettings.getId() != null
+				&& searchSettings.getPageSize() != null && searchSettings.getPageSize() >= 1)
+		{
+			return searchSettings.getPageSize();
+		}
+
+		if(searchExecutionModel.getPageSize() >= 1)
+		{
+			return searchExecutionModel.getPageSize();
+		}
+
+		return DEFAULT_PAGE_SIZE;
 	}
 
 	private Map<String, Object> buildExpressionContext(Object query)
@@ -521,6 +544,17 @@ public class SearchService
 		ExecuteSearchResponse response = new ExecuteSearchResponse(results);
 		response.setPageNumber(searchExecutionModel.getPageNumber());
 		response.setTotalCount(count);
+
+		int effectivePageSize;
+		if(searchExecutionModel.isFetchAll())
+		{
+			effectivePageSize = results == null ? 0 : results.size();
+		}
+		else
+		{
+			effectivePageSize = resolveEffectivePageSize(searchExecutionModel, searchSettings);
+		}
+		response.setPageSize(effectivePageSize);
 
 		for(SearchSettingsColumn column : searchSettings.getSearchColumns())
 		{

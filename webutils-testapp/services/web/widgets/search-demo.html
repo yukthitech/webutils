@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
@@ -34,6 +34,7 @@
 
 		<div class="testapp-hint">
 			Seeded SAMPLE_ITEM rows cover categories Electronics, Books, Clothing, and Home.
+			Page size is set to 5 so footer pagination is easy to exercise.
 		</div>
 
 		<section class="testapp-panel">
@@ -43,6 +44,7 @@
 					ref="searchForm"
 					query-name="sampleItemSearch"
 					:column-count="2"
+					:page-size="5"
 					@search="onSearch">
 				</yk-search-form>
 			</div>
@@ -53,11 +55,60 @@
 				<yk-search-results
 					id="sample-item-results-table"
 					ref="results"
-					@select="onSelectRow">
+					title="Sample Items"
+					query-name="sampleItemSearch"
+					@page-change="onPageChange"
+					@select="onSelectRow"
+					@settings-click="onSettingsClick"
+					@settings-saved="onSettingsSaved">
+					<yk-field-customizer field="category" v-slot="{ value }">
+						<span class="badge bg-secondary" id="search-demo-category-badge">{{ value }}</span>
+					</yk-field-customizer>
+					<yk-search-action
+						id="sample-add-action"
+						label="Add"
+						icon="bi-plus-lg"
+						color="#198754"
+						@action="onAddAction">
+					</yk-search-action>
+					<yk-search-action
+						id="sample-export-action"
+						label="Export"
+						icon="bi-download"
+						color="#0d6efd"
+						@action="onExportAction">
+					</yk-search-action>
+					<yk-search-action
+						id="sample-view-action"
+						label="View"
+						icon="bi-eye"
+						color="#6f42c1"
+						:row-action="true"
+						@action="onViewAction">
+					</yk-search-action>
+					<yk-search-action
+						id="sample-edit-action"
+						label="Edit"
+						icon="bi-pencil"
+						color="#fd7e14"
+						:row-action="true"
+						@action="onEditAction">
+					</yk-search-action>
+					<yk-search-action
+						id="sample-delete-action"
+						label="Delete"
+						icon="bi-trash"
+						color="#dc3545"
+						:row-action="true"
+						@action="onDeleteAction">
+					</yk-search-action>
 				</yk-search-results>
 			</div>
 			<div id="search-demo-selected" class="mt-2" v-if="selectedRow">
 				Selected: <code>{{ JSON.stringify(selectedRow) }}</code>
+			</div>
+			<div id="search-demo-action-msg" class="mt-2 text-muted" v-if="lastActionMsg">
+				{{ lastActionMsg }}
 			</div>
 		</section>
 

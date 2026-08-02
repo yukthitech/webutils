@@ -54,6 +54,7 @@ Demo pages:
 - `/widgets/otp-demo.html` — OTP verification fields  
 - `/widgets/search-demo.html` — search form + results (`sampleItemSearch`)
 - `/widgets/markdown-demo.html` — markdown edit / live preview (`yk-markdown-editor`)
+- `/widgets/language-demo.html` — JSON / XML / JSON Schema editor (`yk-language-editor`)
 
 Seeded `CATEGORY` labels: Electronics, Books, Clothing, Home.
 

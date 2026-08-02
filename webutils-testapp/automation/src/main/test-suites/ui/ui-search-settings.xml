@@ -1,0 +1,102 @@
+<testData 
+	xmlns:s="http://autox.yukthitech.com/steps" 
+	xmlns:wrap="http://xmlbeanparser.yukthitech.com/wrap" 
+	xmlns:f="http://autox.yukthitech.com/functions">
+
+	<testSuite name="webutils-ui-search-settings" author="webutils"
+		description="Search settings dialog on search-demo — page size, column visibility, order">
+
+		<setup>
+			<s:log level="INFO" message="UI search-settings setup: clear persisted settings for test user"/>
+			<s:sql-multi-dml-query>
+				<query>
+					DELETE ss FROM WEBUTILS_SEARCH_SETTINGS ss
+					INNER JOIN USER u ON u.ID = ss.USER_ID
+					WHERE u.EMAIL = 'test@test.com' AND u.CUSTOM_SPACE = 'test'
+					AND ss.SEARCH_QUERY_NAME = 'sampleItemSearch'
+				</query>
+			</s:sql-multi-dml-query>
+		</setup>
+
+		<testCase name="searchSettingsDialogPersistAndRefresh">
+			<description>
+				Open search demo, run search, open settings, set page size 3, hide Description,
+				move Status above Category, save, assert headers and footer range.
+			</description>
+
+			<s:log level="INFO" message="Open search demo and run search"/>
+			<s:ui-goto-page uri="/widgets/search-demo.html"/>
+			<s:ui-wait-for retry-count="40" retry-time-gap-millis="500">
+				<locator>id: yk-search-submit-sampleItemSearch</locator>
+			</s:ui-wait-for>
+			<s:ui-click locator="id: yk-search-submit-sampleItemSearch"
+				post-visibility-locator="id: yk-search-results-settings"
+				retry-count="30" retry-time-gap-millis="500"/>
+			<s:ui-log-screen-shot name="search-demo-results"/>
+
+			<s:log level="INFO" message="Open settings dialog"/>
+			<s:ui-click locator="id: yk-search-results-settings"
+				post-visibility-locator="id: yk-search-settings-page-size"
+				retry-count="20" retry-time-gap-millis="500"/>
+			<s:ui-log-screen-shot name="search-settings-opened"/>
+
+			<s:log level="INFO" message="Set page size to 3"/>
+			<s:ui-set-value locator="id: yk-search-settings-page-size" value="string: 3"/>
+
+			<s:log level="INFO" message="Hide Description column"/>
+			<s:ui-click locator="id: yk-search-settings-col-description-display"
+				retry-count="10" retry-time-gap-millis="300"/>
+
+			<s:log level="INFO" message="Move Status up (above Category)"/>
+			<s:ui-click locator="id: yk-search-settings-col-status-up"
+				retry-count="10" retry-time-gap-millis="300"/>
+			<s:ui-log-screen-shot name="search-settings-edited"/>
+
+			<s:log level="INFO" message="Save settings and wait for refreshed results"/>
+			<s:ui-click locator="id: yk-search-settings-save"
+				retry-count="10" retry-time-gap-millis="500"/>
+			<s:ui-wait-for retry-count="40" retry-time-gap-millis="500">
+				<locator>xpath: //*[contains(@class,'webutils-search-range') and contains(.,'(1-3) of')]</locator>
+			</s:ui-wait-for>
+			<s:ui-log-screen-shot name="search-settings-saved-refreshed"/>
+
+			<s:ui-assert-visibility
+				locator="xpath: //*[contains(@class,'webutils-search-range') and contains(.,'(1-3) of')]"/>
+			<s:ui-assert-visibility
+				locator="xpath: //table[contains(@class,'webutils-search-results')]//th[contains(.,'Status')]"/>
+			<s:ui-assert-visibility
+				locator="xpath: //table[contains(@class,'webutils-search-results')]//th[contains(.,'Category')]"/>
+
+			<!-- Description header must not be present -->
+			<s:ui-execute-js result-attribute="hasDescriptionHeader">
+				<script><![CDATA[
+					var ths = document.querySelectorAll('table.webutils-search-results thead th');
+					for(var i = 0; i < ths.length; i++) {
+						if((ths[i].textContent || '').indexOf('Description') >= 0) {
+							return true;
+						}
+					}
+					return false;
+				]]></script>
+			</s:ui-execute-js>
+			<s:assert-equals actual="attr: hasDescriptionHeader" expected="boolean: false"/>
+
+			<!-- Status column index before Category -->
+			<s:ui-execute-js result-attribute="statusBeforeCategory">
+				<script><![CDATA[
+					var ths = document.querySelectorAll('table.webutils-search-results thead th');
+					var statusIdx = -1, catIdx = -1;
+					for(var i = 0; i < ths.length; i++) {
+						var t = (ths[i].textContent || '').trim();
+						if(t.indexOf('Status') >= 0) { statusIdx = i; }
+						if(t.indexOf('Category') >= 0) { catIdx = i; }
+					}
+					return statusIdx >= 0 && catIdx >= 0 && statusIdx < catIdx;
+				]]></script>
+			</s:ui-execute-js>
+			<s:assert-equals actual="attr: statusBeforeCategory" expected="boolean: true"/>
+		</testCase>
+
+	</testSuite>
+
+</testData>

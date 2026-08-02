@@ -1,0 +1,51 @@
+{
+	"searchQueryName": "sampleItemSearch",
+	"pageSize": 3,
+	"searchColumns": [
+		{
+			"label": "Id",
+			"displayed": false,
+			"backend": true,
+			"required": true,
+			"order": 0,
+			"searchResultType": "NONE",
+			"fields": [{ "field": "id", "propertyName": "id" }]
+		},
+		{
+			"label": "Name",
+			"displayed": true,
+			"backend": false,
+			"required": false,
+			"order": 1,
+			"searchResultType": "NONE",
+			"fields": [{ "field": "name", "propertyName": "name" }]
+		},
+		{
+			"label": "Status",
+			"displayed": true,
+			"backend": false,
+			"required": false,
+			"order": 2,
+			"searchResultType": "NONE",
+			"fields": [{ "field": "status", "propertyName": "status" }]
+		},
+		{
+			"label": "Category",
+			"displayed": true,
+			"backend": false,
+			"required": false,
+			"order": 3,
+			"searchResultType": "NONE",
+			"fields": [{ "field": "category", "propertyName": "category" }]
+		},
+		{
+			"label": "Description",
+			"displayed": false,
+			"backend": false,
+			"required": false,
+			"order": 4,
+			"searchResultType": "NONE",
+			"fields": [{ "field": "description", "propertyName": "description" }]
+		}
+	]
+}

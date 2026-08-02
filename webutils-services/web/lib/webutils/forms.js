@@ -1,3 +1,4 @@
+import { h } from '/lib/vue-3.4.31/vue.esm-browser.js';
 import {$restService} from "./rest-service.js";
 import {$utils} from "./common.js";
 import {$modelDefService} from "./model-def-service.js";
@@ -80,10 +81,14 @@ formComponents['yk-form'] = {
 
 formComponents['yk-search-form'] = {
 	"props": {
-		//Name of the query to be displayed
 		"queryName": { "type": String, "required": true },
 		"columnCount": { "type": Number, "default": 2 },
-		"simpleSearch": { "type": Boolean, "default": false }
+		"simpleSearch": { "type": Boolean, "default": false },
+		/**
+		 * Listing default page size sent to execute-search.
+		 * Server may override via persisted search settings; the response pageSize is adopted so client stays in sync.
+		 */
+		"pageSize": { "type": Number, "default": 100 }
 	},
 	
 	"data": function() {
@@ -96,11 +101,27 @@ formComponents['yk-search-form'] = {
 				"errorFields": [],
 				"displayErrors": false
 			},
-			"searchPerformed": false
+			"searchPerformed": false,
+			"currentPage": 1,
+			/**
+			 * Working page size — starts from prop, then tracks server response.pageSize.
+			 */
+			"activePageSize": 5
+		}
+	},
+
+	"watch": {
+		"pageSize": function(newVal) {
+			if(typeof newVal === "number" && newVal >= 1)
+			{
+				this.activePageSize = newVal;
+			}
 		}
 	},
 	
 	"created": function() {
+		this.activePageSize = (this.pageSize >= 1) ? this.pageSize : 5;
+
 		$restService.invokeGet(
 				"/api/search/" + this.queryName + "/query/def", 
 				null,
@@ -122,16 +143,34 @@ formComponents['yk-search-form'] = {
 		},
 		
 		"refreshSearch": function() {
-			//if serarch is not performed yet, return
 			if(!this.searchPerformed)
 			{
 				return;
 			}
 			
-			this.search();
+			this.executeSearch(this.currentPage);
 		},
-		
+
+		/**
+		 * Runs a new search from page 1 (Search button).
+		 */
 		"search": function() {
+			this.executeSearch(1);
+		},
+
+		/**
+		 * Re-runs the last search criteria at the given page (pagination).
+		 */
+		"gotoPage": function(pageNumber) {
+			if(!this.searchPerformed)
+			{
+				return;
+			}
+
+			this.executeSearch(pageNumber);
+		},
+
+		"executeSearch": function(pageNumber) {
 			this.searchPerformed = true;
 			this.formData.displayErrors = true;
 			
@@ -139,13 +178,25 @@ formComponents['yk-search-form'] = {
 			{
 				return;
 			}
+
+			var pageNo = (typeof pageNumber === "number" && pageNumber > 0) ? pageNumber : 1;
+			this.currentPage = pageNo;
+
+			var pageSize = (this.activePageSize >= 1) ? this.activePageSize
+					: ((this.pageSize >= 1) ? this.pageSize : 5);
 			
 			var searchCriteria = JSON.stringify(this.formData.data);
 			var url = this.simpleSearch ? "/api/search/search/" : "/api/search/execute/";
+			var params = {
+				"queryModelJson": searchCriteria,
+				"pageNumber": pageNo,
+				"pageSize": pageSize,
+				"fetchCount": true
+			};
 			
 			$restService.invokeGet(
 					url + this.queryName, 
-					{"queryModelJson": searchCriteria},
+					params,
 					{
 						"context": this, 
 						"onSuccess": this.searchResults 
@@ -155,6 +206,11 @@ formComponents['yk-search-form'] = {
 		
 		"searchResults": function(result)
 		{
+			// Keep client page size in sync with whatever the server effectively used
+			if(result.response && result.response.pageSize >= 1)
+			{
+				this.activePageSize = result.response.pageSize;
+			}
 			this.$emit("search", result.response);
 		},
 		
@@ -167,138 +223,979 @@ formComponents['yk-search-form'] = {
 	template: `
 		<div class="webutils-search-box">
 			<div :key="row.index" class="row" v-for="row in modelFieldRows">
-	 			<component
-	 				:key="field.index"
-	 				:is="field.componentType"
-	 				:formData.sync="formData"
-	 				:field="field"
-	 				
-	 				v-for="field in row.fields"
-	 				/>
+				<div :class="field.fullWidth ? 'col-md-12' : columnClass"
+						:key="field.index"
+						v-for="field in row.fields">
+					<component
+						:is="field.componentType"
+						:field="field"
+						v-model="formData.data[field.name]"
+						:enable-error="formData.displayErrors"
+						/>
+				</div>
 			</div>
 			
-			<div style="width: 100%; text-align: right; margin-top: 0.2rem;">
+			<div class="webutils-search-actions">
 				<button :id="'yk-search-submit-' + queryName" type="button" class="btn btn-primary webutil-button" @click="search">Search</button>
 			</div>
 		</div>
 	`
 };
 
+/**
+ * Registers a custom cell renderer for a search-result column.
+ * Place as a child of yk-search-results; default slot receives { value, row }.
+ */
+formComponents['yk-field-customizer'] = {
+	"props": {
+		"field": { "type": String, "required": true }
+	},
+	"inject": {
+		"ykSearchResultsApi": { "default": null }
+	},
+	"mounted": function() {
+		if(this.ykSearchResultsApi)
+		{
+			this.ykSearchResultsApi.registerFieldCustomizer(this.field, this);
+		}
+	},
+	"unmounted": function() {
+		if(this.ykSearchResultsApi)
+		{
+			this.ykSearchResultsApi.unregisterFieldCustomizer(this.field, this);
+		}
+	},
+	"render": function() {
+		return null;
+	}
+};
+
+/**
+ * Action button for search results toolbar and floating selection panel.
+ *
+ * Props:
+ *   id, label, icon — identity / tooltip / Bootstrap Icons class (e.g. bi-pencil)
+ *   color — CSS color for the icon (default inherits toolbar style)
+ *   rowAction — when true, hidden until a row is selected; also shown in the floating panel.
+ *               when false (default), always visible in the toolbar (global: add, export, …).
+ */
+formComponents['yk-search-action'] = {
+	"props": {
+		"id": { "type": String, "required": false },
+		"label": { "type": String, "required": true },
+		"icon": { "type": String, "required": false, "default": "" },
+		"color": { "type": String, "required": false, "default": "" },
+		"rowAction": { "type": Boolean, "required": false, "default": false }
+	},
+	"emits": ["action"],
+	"inject": {
+		"ykSearchResultsApi": { "default": null }
+	},
+	"mounted": function() {
+		if(this.ykSearchResultsApi)
+		{
+			this.ykSearchResultsApi.registerAction(this);
+		}
+	},
+	"unmounted": function() {
+		if(this.ykSearchResultsApi)
+		{
+			this.ykSearchResultsApi.unregisterAction(this);
+		}
+	},
+	"methods": {
+		"trigger": function(row, event) {
+			this.$emit("action", { "row": row, "event": event });
+		}
+	},
+	"render": function() {
+		return null;
+	}
+};
+
+/**
+ * Renders a search cell using a registered field customizer or EMAIL/PHONE defaults.
+ */
+formComponents['yk-search-cell'] = {
+	"props": {
+		"customizer": { "type": Object, "default": null },
+		"value": {},
+		"row": { "type": Object, "required": true },
+		"searchResultType": { "type": String, "default": "NONE" }
+	},
+	"render": function() {
+		if(this.customizer && this.customizer.$slots && this.customizer.$slots.default)
+		{
+			return this.customizer.$slots.default({
+				"value": this.value,
+				"row": this.row
+			});
+		}
+
+		var display = (this.value === null || this.value === undefined) ? "" : String(this.value);
+		var type = (this.searchResultType || "NONE").toUpperCase();
+
+		if(display && type === "EMAIL")
+		{
+			return h("a", {
+				"href": "mailto:" + display,
+				"class": "webutils-search-cell-link",
+				"onClick": function(e) { e.stopPropagation(); }
+			}, display);
+		}
+
+		if(display && (type === "PHONE_NO" || type === "PHONE"))
+		{
+			return h("a", {
+				"href": "tel:" + display.replace(/\s+/g, ""),
+				"class": "webutils-search-cell-link",
+				"onClick": function(e) { e.stopPropagation(); }
+			}, display);
+		}
+
+		return h("span", display);
+	}
+};
+
 formComponents['yk-search-results'] = {
+	"props": {
+		"title": { "type": String, "default": "" },
+		/**
+		 * Search query name — required to open/save per-user search settings.
+		 */
+		"queryName": { "type": String, "default": "" }
+	},
+
+	"emits": ["select", "double-click", "page-change", "settings-click", "settings-saved"],
+
+	"provide": function() {
+		var self = this;
+		return {
+			"ykSearchResultsApi": {
+				"registerFieldCustomizer": function(field, cmp) { self.registerFieldCustomizer(field, cmp); },
+				"unregisterFieldCustomizer": function(field, cmp) { self.unregisterFieldCustomizer(field, cmp); },
+				"registerAction": function(cmp) { self.registerAction(cmp); },
+				"unregisterAction": function(cmp) { self.unregisterAction(cmp); }
+			}
+		};
+	},
+	
 	"data": function() {
 		return {
 			"headings": [],
 			"rows": [],
-			"rowCount": -1,
+			"rowCount": 0,
+			"totalCount": 0,
+			"pageNumber": 1,
+			"pageSize": 0,
 			"hasRows": false,
 			"searchExecuted": false,
 			"searchResult": null,
-			
-			"lastSelectedRow": -1
+			"lastSelectedRow": -1,
+			"selectedRowData": null,
+			"fieldCustomizers": {},
+			"actions": [],
+			"floatingPanel": {
+				"visible": false,
+				"x": 0,
+				"y": 0
+			},
+			"resizeState": null,
+			"_ignoreNextDocClick": false,
+			"_onDocMouseMove": null,
+			"_onDocMouseUp": null,
+			"_onDocClick": null,
+			"_onDocKeyDown": null,
+
+			"settingsLoading": false,
+			"settingsSaving": false,
+			"settingsId": null,
+			"settingsVersion": null,
+			"settingsPageSize": 5,
+			"settingsColumns": []
 		}
+	},
+
+	"computed": {
+		"totalPages": function() {
+			if(!this.pageSize || this.pageSize <= 0 || this.totalCount <= 0)
+			{
+				return this.hasRows ? 1 : 0;
+			}
+			return Math.max(1, Math.ceil(this.totalCount / this.pageSize));
+		},
+		"rangeLabel": function() {
+			if(!this.hasRows)
+			{
+				return "";
+			}
+
+			var total = this.totalCount > 0 ? this.totalCount : this.rowCount;
+			var size = this.pageSize > 0 ? this.pageSize : this.rowCount;
+			var page = this.pageNumber > 0 ? this.pageNumber : 1;
+			var start = (page - 1) * size + 1;
+			var end = Math.min(page * size, total);
+			if(end < start)
+			{
+				end = start + this.rowCount - 1;
+			}
+			return "(" + start + "-" + end + ") of " + total;
+		},
+		"pageOptions": function() {
+			var pages = [];
+			var total = this.totalPages;
+			for(var i = 1; i <= total; i++)
+			{
+				pages.push(i);
+			}
+			return pages;
+		},
+		"canGoFirstOrPrev": function() {
+			return this.pageNumber > 1;
+		},
+		"canGoNextOrLast": function() {
+			return this.pageNumber < this.totalPages;
+		},
+		"hasRowSelected": function() {
+			return this.lastSelectedRow >= 0 && this.selectedRowData != null;
+		},
+		"globalActions": function() {
+			return this.actions.filter(function(a) { return !a.rowAction; });
+		},
+		"rowActions": function() {
+			return this.actions.filter(function(a) { return !!a.rowAction; });
+		},
+		"toolbarActions": function() {
+			var list = this.globalActions.slice();
+			if(this.hasRowSelected)
+			{
+				list = list.concat(this.rowActions);
+			}
+			return list;
+		},
+		"showFloatingActions": function() {
+			return this.floatingPanel.visible && this.rowActions.length > 0 && this.hasRowSelected;
+		},
+		"tableStyle": function() {
+			var total = 0;
+			var headings = this.headings || [];
+			for(var i = 0; i < headings.length; i++)
+			{
+				total += headings[i].width > 0 ? headings[i].width : 0;
+			}
+			if(total <= 0)
+			{
+				return {};
+			}
+			return { "width": total + "px" };
+		},
+		"editableSettingsColumns": function() {
+			return this.settingsColumns.filter(function(c) { return !c.backend; });
+		}
+	},
+
+	"mounted": function() {
+		var self = this;
+		this._onDocMouseMove = function(e) { self.onColumnResizeMove(e); };
+		this._onDocMouseUp = function(e) { self.onColumnResizeEnd(e); };
+		this._onDocClick = function(e) { self.onDocumentClick(e); };
+		this._onDocKeyDown = function(e) {
+			if(e.key === "Escape")
+			{
+				self.hideFloatingPanel();
+			}
+		};
+		document.addEventListener("mousemove", this._onDocMouseMove);
+		document.addEventListener("mouseup", this._onDocMouseUp);
+		document.addEventListener("click", this._onDocClick);
+		document.addEventListener("keydown", this._onDocKeyDown);
+	},
+
+	"unmounted": function() {
+		document.removeEventListener("mousemove", this._onDocMouseMove);
+		document.removeEventListener("mouseup", this._onDocMouseUp);
+		document.removeEventListener("click", this._onDocClick);
+		document.removeEventListener("keydown", this._onDocKeyDown);
 	},
 	
 	"methods":
 	{
+		"registerFieldCustomizer": function(field, cmp) {
+			this.fieldCustomizers = Object.assign({}, this.fieldCustomizers, { [field]: cmp });
+		},
+
+		"unregisterFieldCustomizer": function(field, cmp) {
+			if(this.fieldCustomizers[field] === cmp)
+			{
+				var next = Object.assign({}, this.fieldCustomizers);
+				delete next[field];
+				this.fieldCustomizers = next;
+			}
+		},
+
+		"registerAction": function(cmp) {
+			if(this.actions.indexOf(cmp) < 0)
+			{
+				this.actions = this.actions.concat([cmp]);
+			}
+		},
+
+		"unregisterAction": function(cmp) {
+			this.actions = this.actions.filter(function(a) { return a !== cmp; });
+		},
+
 		"setSearchResults": function(searchResult) {
 			this.headings.splice(0, this.headings.length);
 			this.rows.splice(0, this.rows.length);
 			this.searchResult = searchResult;
 			this.lastSelectedRow = -1;
+			this.selectedRowData = null;
+			this.hideFloatingPanel();
 			
-			this.rowCount = searchResult.searchResults.length;
+			var resultRows = searchResult.searchResults || [];
+			this.rowCount = resultRows.length;
 			this.hasRows = (this.rowCount > 0);
 			this.searchExecuted = true;
+			this.pageNumber = searchResult.pageNumber > 0 ? searchResult.pageNumber : 1;
+			this.pageSize = searchResult.pageSize > 0 ? searchResult.pageSize : this.rowCount;
+			this.totalCount = searchResult.totalCount > 0 ? searchResult.totalCount : this.rowCount;
 			
 			var colIdx = 0;
 			
-			for(var col of searchResult.searchColumns)
+			for(var col of (searchResult.searchColumns || []))
 			{
 				if(!col.displayable)
 				{
 					continue;
 				}
-				
-				this.headings.push({"index": "heading-" + colIdx, "value": col.heading});
+
+				this.headings.push({
+					"index": "heading-" + colIdx,
+					"value": col.heading,
+					"name": col.name,
+					"searchResultType": col.searchResultType || "NONE",
+					"width": null
+				});
 				colIdx++;
 			}
 			
 			var rowIdx = 0;
 
-			for(var row of searchResult.searchResults)
+			for(var row of resultRows)
 			{
 				var searchRow = [];
-				var colIdx = 0;
+				var colIdxAll = 0;
 				var searchObj = {};
+				var displayColIdx = 0;
 				
 				for(var cellVal of row.data)
 				{
-					searchObj[searchResult.searchColumns[colIdx].name] = cellVal;
+					var fullCol = searchResult.searchColumns[colIdxAll];
+					searchObj[fullCol.name] = cellVal;
 					
-					if(!searchResult.searchColumns[colIdx].displayable)
+					if(!fullCol.displayable)
 					{
-						colIdx++;
+						colIdxAll++;
 						continue;
 					}
 
-					searchRow.push({"index": rowIdx + "-" + colIdx, "value": cellVal});
-					colIdx++;
+					searchRow.push({
+						"index": rowIdx + "-" + displayColIdx,
+						"value": cellVal,
+						"name": fullCol.name,
+						"searchResultType": fullCol.searchResultType || "NONE"
+					});
+					displayColIdx++;
+					colIdxAll++;
 				}
 				
-				this.rows.push({"index": "row-" + rowIdx, "rowId": "" + rowIdx, "data": searchRow, "dataMap": searchObj});
+				this.rows.push({
+					"index": "row-" + rowIdx,
+					"rowId": "" + rowIdx,
+					"data": searchRow,
+					"dataMap": searchObj
+				});
 				rowIdx++;
 			}
-			
-			//remove previous selections
-			var lastElem = $(this.$el).find("tr.selected");
-			$(lastElem).removeClass("selected");
-			
+
+			var self = this;
+			this.$nextTick(function() {
+				self.ensureColumnWidths();
+			});
+		},
+
+		"ensureColumnWidths": function() {
+			var n = this.headings.length;
+			if(n <= 0)
+			{
+				return;
+			}
+
+			var content = this.$el ? this.$el.querySelector(".content") : null;
+			var available = content && content.clientWidth > 0 ? content.clientWidth : 800;
+			var defaultW = Math.max(60, Math.floor(available / n));
+
+			for(var i = 0; i < n; i++)
+			{
+				if(!(this.headings[i].width > 0))
+				{
+					this.headings[i].width = defaultW;
+				}
+			}
 		},
 		
-		"selectRow": function(row) {
-			var idx = row.rowId;
-			
-			if(this.lastSelectedRow >= 0)
-			{
-				var lastElem = $(this.$el).find("tr[rowid='" + this.lastSelectedRow + "']");
-				$(lastElem).removeClass("selected");
-			}
-			
-			var selectElem = $(this.$el).find("tr[rowid='" + idx + "']");
-			$(selectElem).addClass("selected");
-			this.lastSelectedRow = parseInt(idx);
+		"selectRow": function(row, event) {
+			var idx = parseInt(row.rowId, 10);
+
+			// Single selection only — replace any previous selection
+			this.lastSelectedRow = idx;
+			this.selectedRowData = row.dataMap;
 			
 			this.$emit("select", row.dataMap);
+
+			if(this.rowActions.length > 0 && event)
+			{
+				this._ignoreNextDocClick = true;
+				this.showFloatingPanel(event.clientX, event.clientY);
+			}
+			else
+			{
+				this.hideFloatingPanel();
+			}
 		},
 
 		"onDoubleClick": function(row) {
 			this.$emit("double-click", row.dataMap);
+		},
+
+		"showFloatingPanel": function(clientX, clientY) {
+			var x = clientX + 8;
+			var y = clientY + 8;
+			var maxX = window.innerWidth - 180;
+			var maxY = window.innerHeight - 80;
+			if(x > maxX) { x = Math.max(8, maxX); }
+			if(y > maxY) { y = Math.max(8, maxY); }
+
+			this.floatingPanel = {
+				"visible": true,
+				"x": x,
+				"y": y
+			};
+		},
+
+		"hideFloatingPanel": function() {
+			this.floatingPanel = {
+				"visible": false,
+				"x": 0,
+				"y": 0
+			};
+		},
+
+		"onDocumentClick": function(event) {
+			if(this._ignoreNextDocClick)
+			{
+				this._ignoreNextDocClick = false;
+				return;
+			}
+
+			if(!this.floatingPanel.visible)
+			{
+				return;
+			}
+
+			var panel = this.$refs.floatingActions;
+			if(panel && panel.contains(event.target))
+			{
+				return;
+			}
+
+			this.hideFloatingPanel();
+		},
+
+		"actionButtonId": function(action, idx, suffix) {
+			var base = action.id || ("yk-search-action-" + idx);
+			return suffix ? (base + suffix) : base;
+		},
+
+		"actionIconStyle": function(action) {
+			if(action.color)
+			{
+				return { "color": action.color };
+			}
+			return {};
+		},
+
+		"onActionClick": function(action, event) {
+			event.stopPropagation();
+			action.trigger(this.selectedRowData, event);
+			this.hideFloatingPanel();
+		},
+
+		"onToolbarActionClick": function(action, event) {
+			event.stopPropagation();
+			var row = action.rowAction ? this.selectedRowData : null;
+			action.trigger(row, event);
+		},
+
+		"onSettingsClick": function(event) {
+			this.$emit("settings-click", event);
+			this.openSettingsDialog();
+		},
+
+		"openSettingsDialog": function() {
+			if(!this.queryName)
+			{
+				$utils.info("Search settings require query-name on yk-search-results.");
+				return;
+			}
+
+			this.settingsLoading = true;
+			$restService.invokeGet(
+					"/api/search/settings/read/" + encodeURIComponent(this.queryName),
+					null,
+					{
+						"context": this,
+						"onSuccess": this.onSettingsLoaded,
+						"onError": this.onSettingsLoadError
+					}
+				);
+		},
+
+		"onSettingsLoaded": function(result) {
+			this.settingsLoading = false;
+			var model = result.response.value || result.response.model;
+			if(!model)
+			{
+				$utils.info("Failed to load search settings.");
+				return;
+			}
+
+			this.settingsId = model.id || null;
+			this.settingsVersion = model.version || null;
+			this.settingsPageSize = model.pageSize >= 1 ? model.pageSize : 5;
+			this.settingsColumns = JSON.parse(JSON.stringify(model.searchColumns || []));
+
+			var self = this;
+			this.$nextTick(function() {
+				var el = document.getElementById("yk-search-settings-dialog");
+				if(el && typeof bootstrap !== "undefined")
+				{
+					bootstrap.Modal.getOrCreateInstance(el).show();
+				}
+			});
+		},
+
+		"onSettingsLoadError": function(result) {
+			this.settingsLoading = false;
+			var msg = (result && result.response && result.response.message)
+					? result.response.message : "Failed to load search settings.";
+			$utils.info(msg);
+		},
+
+		"settingsColumnKey": function(col) {
+			if(col.fields && col.fields.length && col.fields[0].propertyName)
+			{
+				return col.fields[0].propertyName;
+			}
+			if(col.fields && col.fields.length && col.fields[0].field)
+			{
+				return col.fields[0].field;
+			}
+			return (col.label || "col").replace(/\s+/g, "-").toLowerCase();
+		},
+
+		"editableColumnIndex": function(col) {
+			var editable = this.editableSettingsColumns;
+			for(var i = 0; i < editable.length; i++)
+			{
+				if(editable[i] === col)
+				{
+					return i;
+				}
+			}
+			return -1;
+		},
+
+		"moveSettingsColumn": function(col, direction) {
+			var editable = this.editableSettingsColumns;
+			var eidx = this.editableColumnIndex(col);
+			var swapWith = editable[eidx + direction];
+			if(!swapWith)
+			{
+				return;
+			}
+
+			var all = this.settingsColumns;
+			var a = all.indexOf(col);
+			var b = all.indexOf(swapWith);
+			if(a < 0 || b < 0)
+			{
+				return;
+			}
+
+			var copy = all.slice();
+			copy[a] = swapWith;
+			copy[b] = col;
+			this.settingsColumns = copy;
+		},
+
+		"moveSettingsColumnUp": function(col) {
+			this.moveSettingsColumn(col, -1);
+		},
+
+		"moveSettingsColumnDown": function(col) {
+			this.moveSettingsColumn(col, 1);
+		},
+
+		"closeSettingsDialog": function() {
+			var el = document.getElementById("yk-search-settings-dialog");
+			if(el && typeof bootstrap !== "undefined")
+			{
+				var instance = bootstrap.Modal.getInstance(el);
+				if(instance)
+				{
+					instance.hide();
+				}
+			}
+		},
+
+		"saveSettings": function() {
+			var pageSize = parseInt(this.settingsPageSize, 10);
+			if(isNaN(pageSize) || pageSize < 1 || pageSize > 1000)
+			{
+				$utils.info("Page size must be between 1 and 1000.");
+				return;
+			}
+
+			var columns = JSON.parse(JSON.stringify(this.settingsColumns));
+			for(var i = 0; i < columns.length; i++)
+			{
+				columns[i].order = i;
+				if(columns[i].required && !columns[i].backend)
+				{
+					columns[i].displayed = true;
+				}
+			}
+
+			var payload = {
+				"searchQueryName": this.queryName,
+				"pageSize": pageSize,
+				"searchColumns": columns
+			};
+			if(this.settingsId)
+			{
+				payload.id = this.settingsId;
+			}
+			if(this.settingsVersion != null)
+			{
+				payload.version = this.settingsVersion;
+			}
+			else
+			{
+				payload.version = 1;
+			}
+
+			this.settingsSaving = true;
+			$restService.invokePost(
+					"/api/search/settings/saveOrUpdate",
+					payload,
+					{
+						"context": this,
+						"onSuccess": this.onSettingsSaved,
+						"onError": this.onSettingsSaveError
+					}
+				);
+		},
+
+		"onSettingsSaved": function(result) {
+			this.settingsSaving = false;
+			if(result.response && result.response.id)
+			{
+				this.settingsId = result.response.id;
+			}
+			this.pageSize = parseInt(this.settingsPageSize, 10);
+			this.closeSettingsDialog();
+			this.$emit("settings-saved", {
+				"pageSize": this.pageSize,
+				"queryName": this.queryName
+			});
+		},
+
+		"onSettingsSaveError": function(result) {
+			this.settingsSaving = false;
+			var msg = (result && result.response && result.response.message)
+					? result.response.message : "Failed to save search settings.";
+			$utils.info(msg);
+		},
+
+		"changePage": function(pageNumber) {
+			var page = parseInt(pageNumber, 10);
+			if(isNaN(page) || page < 1 || page > this.totalPages || page === this.pageNumber)
+			{
+				return;
+			}
+			this.$emit("page-change", page);
+		},
+
+		"goFirstPage": function() {
+			this.changePage(1);
+		},
+
+		"goPrevPage": function() {
+			this.changePage(this.pageNumber - 1);
+		},
+
+		"goNextPage": function() {
+			this.changePage(this.pageNumber + 1);
+		},
+
+		"goLastPage": function() {
+			this.changePage(this.totalPages);
+		},
+
+		"onPageSelect": function(event) {
+			this.changePage(event.target.value);
+		},
+
+		"columnStyle": function(heading) {
+			if(heading && heading.width > 0)
+			{
+				return {
+					"width": heading.width + "px",
+					"min-width": heading.width + "px",
+					"max-width": heading.width + "px"
+				};
+			}
+			return {};
+		},
+
+		"cellColumnStyle": function(cellName) {
+			for(var i = 0; i < this.headings.length; i++)
+			{
+				if(this.headings[i].name === cellName)
+				{
+					return this.columnStyle(this.headings[i]);
+				}
+			}
+			return {};
+		},
+
+		"onColumnResizeStart": function(heading, event) {
+			event.preventDefault();
+			event.stopPropagation();
+			this.resizeState = {
+				"heading": heading,
+				"startX": event.clientX,
+				"startWidth": heading.width || event.target.parentElement.offsetWidth
+			};
+		},
+
+		"onColumnResizeMove": function(event) {
+			if(!this.resizeState)
+			{
+				return;
+			}
+			var delta = event.clientX - this.resizeState.startX;
+			var width = Math.max(60, this.resizeState.startWidth + delta);
+			this.resizeState.heading.width = width;
+		},
+
+		"onColumnResizeEnd": function() {
+			this.resizeState = null;
 		}
 	},
 	
 	template: `
 		<div class="webutils-search-results-container">
+			<div style="display:none"><slot></slot></div>
+
+			<div class="webutils-search-results-header" v-if="searchExecuted">
+				<div class="webutils-search-results-title">{{ title }}</div>
+				<button type="button"
+						class="btn btn-sm btn-light webutils-search-settings-btn"
+						id="yk-search-results-settings"
+						title="Settings"
+						@click="onSettingsClick">
+					<span class="bi bi-gear"></span>
+				</button>
+			</div>
+
+			<div class="webutils-search-results-actions" v-if="searchExecuted &amp;&amp; toolbarActions.length">
+				<button type="button"
+						class="webutils-search-action-btn"
+						:id="actionButtonId(action, idx, '')"
+						:key="'action-' + (action.id || idx)"
+						:title="action.label"
+						v-for="(action, idx) in toolbarActions"
+						@click="onToolbarActionClick(action, $event)">
+					<span :class="'bi ' + (action.icon || 'bi-circle')"
+							:style="actionIconStyle(action)"></span>
+				</button>
+			</div>
+
 			<div class="content" v-if="searchExecuted &amp;&amp; hasRows">
-				<table class="webutils-search-results">
-					<tr>
-						<th :key="heading.index" v-for="heading in headings">
-							{{heading.value}}
-						</th>
-					</tr>
-					<tr :key="row.index" :rowid="row.rowId" v-for="row in rows" @click="selectRow(row)" @dblclick="onDoubleClick(row)">
-						<td :key="cell.index" v-for="cell in row.data" v-html="cell.value">
-						</td>
-					</tr>
+				<table class="webutils-search-results" :style="tableStyle">
+					<thead>
+						<tr>
+							<th :key="heading.index"
+									v-for="heading in headings"
+									:style="columnStyle(heading)">
+								<span class="webutils-search-th-label">{{ heading.value }}</span>
+								<span class="webutils-search-col-resizer"
+										@mousedown="onColumnResizeStart(heading, $event)"></span>
+							</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr :key="row.index"
+								:rowid="row.rowId"
+								:class="{ selected: lastSelectedRow === parseInt(row.rowId, 10) }"
+								v-for="row in rows"
+								@click="selectRow(row, $event)"
+								@dblclick="onDoubleClick(row)">
+							<td :key="cell.index"
+									v-for="cell in row.data"
+									:style="cellColumnStyle(cell.name)">
+								<yk-search-cell
+									:customizer="fieldCustomizers[cell.name]"
+									:value="cell.value"
+									:row="row.dataMap"
+									:search-result-type="cell.searchResultType"
+									/>
+							</td>
+						</tr>
+					</tbody>
 				</table>
 			</div>
-			<div class="footer" v-if="hasRows">
-				Total Result Count: {{rowCount}} 
+
+			<div class="footer webutils-search-results-footer" v-if="hasRows">
+				<span class="webutils-search-range">{{ rangeLabel }}</span>
+				<span class="webutils-search-page-nav">
+					<button type="button" class="btn btn-sm btn-light"
+							id="yk-search-page-first"
+							title="First page"
+							:disabled="!canGoFirstOrPrev"
+							@click="goFirstPage">
+						<span class="bi bi-chevron-double-left"></span>
+					</button>
+					<button type="button" class="btn btn-sm btn-light"
+							id="yk-search-page-prev"
+							title="Previous page"
+							:disabled="!canGoFirstOrPrev"
+							@click="goPrevPage">
+						<span class="bi bi-chevron-left"></span>
+					</button>
+					<select class="form-select form-select-sm webutils-search-page-select"
+							id="yk-search-page-select"
+							:value="pageNumber"
+							@change="onPageSelect">
+						<option v-for="p in pageOptions" :key="'page-' + p" :value="p">{{ p }}</option>
+					</select>
+					<button type="button" class="btn btn-sm btn-light"
+							id="yk-search-page-next"
+							title="Next page"
+							:disabled="!canGoNextOrLast"
+							@click="goNextPage">
+						<span class="bi bi-chevron-right"></span>
+					</button>
+					<button type="button" class="btn btn-sm btn-light"
+							id="yk-search-page-last"
+							title="Last page"
+							:disabled="!canGoNextOrLast"
+							@click="goLastPage">
+						<span class="bi bi-chevron-double-right"></span>
+					</button>
+				</span>
 			</div>
 			<div class="footer" v-if="!searchExecuted">
 				No search is executed yet.
 			</div>
 			<div class="footer" v-if="searchExecuted &amp;&amp; !hasRows">
 				No records found with given criteria.
+			</div>
+
+			<div class="webutils-search-floating-actions"
+					ref="floatingActions"
+					v-if="showFloatingActions"
+					:style="{ left: floatingPanel.x + 'px', top: floatingPanel.y + 'px' }"
+					@click.stop>
+				<button type="button"
+						class="webutils-search-action-btn"
+						:id="actionButtonId(action, idx, '-float')"
+						:key="'float-action-' + (action.id || idx)"
+						:title="action.label"
+						v-for="(action, idx) in rowActions"
+						@click="onActionClick(action, $event)">
+					<span :class="'bi ' + (action.icon || 'bi-circle')"
+							:style="actionIconStyle(action)"></span>
+				</button>
+			</div>
+
+			<div class="modal fade" id="yk-search-settings-dialog" tabindex="-1" aria-labelledby="yk-search-settings-title">
+				<div class="modal-dialog modal-lg">
+					<div class="modal-content">
+						<div class="modal-header webutils-modal-header">
+							<span id="yk-search-settings-title">Search Settings</span>
+							<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+						</div>
+						<div class="modal-body">
+							<div class="mb-3">
+								<label class="form-label" for="yk-search-settings-page-size">Page size</label>
+								<input type="number"
+										id="yk-search-settings-page-size"
+										class="form-control form-control-sm"
+										min="1"
+										max="1000"
+										v-model.number="settingsPageSize"/>
+								<div class="form-text">Between 1 and 1000. Applied to this search query for your user.</div>
+							</div>
+
+							<div class="webutils-search-settings-columns">
+								<div class="webutils-search-settings-col-header">Columns</div>
+								<div class="webutils-search-settings-col-row"
+										:key="'settings-col-' + settingsColumnKey(col)"
+										v-for="(col, idx) in editableSettingsColumns">
+									<label class="webutils-search-settings-col-label">
+										<input type="checkbox"
+												:id="'yk-search-settings-col-' + settingsColumnKey(col) + '-display'"
+												v-model="col.displayed"
+												:disabled="col.required"/>
+										<span>{{ col.label }}</span>
+										<span class="text-muted" v-if="col.required"> (required)</span>
+									</label>
+									<span class="webutils-search-settings-col-order">
+										<button type="button"
+												class="btn btn-sm btn-light"
+												:id="'yk-search-settings-col-' + settingsColumnKey(col) + '-up'"
+												title="Move up"
+												:disabled="editableColumnIndex(col) &lt;= 0"
+												@click="moveSettingsColumnUp(col)">
+											<span class="bi bi-arrow-up"></span>
+										</button>
+										<button type="button"
+												class="btn btn-sm btn-light"
+												:id="'yk-search-settings-col-' + settingsColumnKey(col) + '-down'"
+												title="Move down"
+												:disabled="editableColumnIndex(col) &gt;= editableSettingsColumns.length - 1"
+												@click="moveSettingsColumnDown(col)">
+											<span class="bi bi-arrow-down"></span>
+										</button>
+									</span>
+								</div>
+							</div>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+							<button type="button"
+									id="yk-search-settings-save"
+									class="btn btn-primary btn-sm"
+									:disabled="settingsSaving || settingsLoading"
+									@click="saveSettings">
+								{{ settingsSaving ? 'Saving…' : 'Save' }}
+							</button>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 	`

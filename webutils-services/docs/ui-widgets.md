@@ -196,22 +196,81 @@ Prefer `yk-model-form` / `yk-model-form-dialog` when a simple column grid is suf
   ref="searchForm"
   query-name="sampleItemSearch"
   :column-count="2"
+  :page-size="10"
   @search="onSearch">
 </yk-search-form>
 
 <yk-search-results
   ref="results"
-  @select="onSelectRow">
+  title="Sample Items"
+  @select="onSelectRow"
+  @page-change="onPageChange"
+  @settings-click="onSettingsClick">
+  <yk-field-customizer field="category" v-slot="{ value, row }">
+    <span class="badge bg-secondary">{{ value }}</span>
+  </yk-field-customizer>
+  <yk-search-action id="sample-add-action" label="Add" icon="bi-plus-lg" color="#198754"
+    @action="onAddAction">
+  </yk-search-action>
+  <yk-search-action id="sample-edit-action" label="Edit" icon="bi-pencil" color="#fd7e14"
+    :row-action="true" @action="onEditAction">
+  </yk-search-action>
 </yk-search-results>
 ```
 
 ```js
 onSearch(searchResponse) {
   this.$refs.results.setSearchResults(searchResponse);
+},
+onPageChange(pageNumber) {
+  this.$refs.searchForm.gotoPage(pageNumber);
+},
+onEditAction({ row, event }) {
+  // row is the selected search row map (null for global actions)
 }
 ```
 
-`query-name` **must** match `@SearchQueryMethod(name = "…")` on the repository.
+### Search form props
+
+| Prop | Default | Notes |
+|------|---------|--------|
+| `query-name` | required | Must match `@SearchQueryMethod(name = "…")` |
+| `column-count` | `2` | Fields per row (Bootstrap grid flow) |
+| `page-size` | listing default | Sent on every execute. Persisted user search settings override this once saved |
+| `simple-search` | `false` | Uses `/api/search/search/` instead of `/execute/` |
+
+`yk-search-form` always sends `fetchCount=true`, `pageNumber`, and `pageSize`. Pagination is **server-side** (`LIMIT`/`OFFSET`). After each response, the form adopts `response.pageSize` so client and server stay in sync.
+
+### Search results props / events
+
+| Prop / event | Notes |
+|--------------|--------|
+| `title` | Header title (left) |
+| `query-name` | Same search query name — required for the settings dialog |
+| `@page-change` | Wire to `searchForm.gotoPage(n)` |
+| `@settings-saved` | Fired after settings persist — typically call `searchForm.refreshSearch()` |
+| `@settings-click` | Fired when the gear is clicked (dialog also opens) |
+
+### Search settings dialog
+
+The results gear opens a built-in dialog that loads `GET /api/search/settings/read/{queryName}` and saves via `POST /api/search/settings/saveOrUpdate`:
+
+- Page size (1–1000)
+- Enable/disable display of non-backend columns (`required` columns stay on)
+- Reorder columns (up/down)
+
+Persisted settings are per user + query. Execute-search then uses that page size and column visibility/order.
+
+### Search results features
+
+- Sticky header, drag-resizable columns (independent pixel widths; horizontal scroll when the table is wider than the pane), zebra rows; **single-row selection** only
+- Footer: `(start-end) of total` plus first / prev / page dropdown / next / last
+- Header bar: `title` on the left, settings gear on the right
+- `yk-field-customizer` for per-column cell rendering (`v-slot="{ value, row }"`)
+- Default links for `SearchResultType` `EMAIL` (`mailto:`) and `PHONE_NO` (`tel:`) when no customizer
+- `yk-search-action` — icon-only buttons (label as tooltip); optional `color` for the icon
+  - **Global** (`row-action` omitted/false): always in the toolbar (add, export, …); `@action` gets `row: null`
+  - **Row** (`:row-action="true"`): hidden until a row is selected; then shown in the toolbar and in the floating panel near the click; `@action` gets the selected row
 
 Reference: `webutils-testapp/services/web/widgets/search-demo.html` (+ `.js`). Product example: Sethu4U employer applications (`employerApplicationSearch`).
 

@@ -21,6 +21,7 @@ public class ExecuteSearchResponse extends BaseResponse
 	private List<SearchColumn> searchColumns;
 	private List<SearchRow> searchResults;
 	private int pageNumber;
+	private int pageSize;
 	private long totalCount;
 
 	@JsonIgnore

@@ -47,6 +47,15 @@ public class SearchSettingsController
 	}
 
 	@NoAuthentication
+	@PostMapping("/saveOrUpdate")
+	public BasicSaveResponse saveOrUpdate(@Valid @RequestBody SearchSettingsModel model)
+	{
+		validateSearchQueryName(model.getSearchQueryName());
+		SearchSettingsEntity entity = service.saveOrUpdate(model);
+		return new BasicSaveResponse(entity.getId() != null ? entity.getId() : 0L);
+	}
+
+	@NoAuthentication
 	@GetMapping("/read/{queryName}")
 	public BasicReadResponse<SearchSettingsModel> fetch(@PathVariable("queryName") String searchQueryName)
 	{

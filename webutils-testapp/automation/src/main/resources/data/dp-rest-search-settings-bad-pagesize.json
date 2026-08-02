@@ -1,0 +1,15 @@
+{
+	"searchQueryName": "sampleItemSearch",
+	"pageSize": 1001,
+	"searchColumns": [
+		{
+			"label": "Name",
+			"displayed": true,
+			"backend": false,
+			"required": false,
+			"order": 0,
+			"searchResultType": "NONE",
+			"fields": [{ "field": "name", "propertyName": "name" }]
+		}
+	]
+}

@@ -1,0 +1,182 @@
+<testData
+	xmlns:s="http://autox.yukthitech.com/steps"
+	xmlns:wrap="http://xmlbeanparser.yukthitech.com/wrap"
+	xmlns:f="http://autox.yukthitech.com/functions">
+
+	<!--
+		REST coverage for search settings (sampleItemSearch):
+		read defaults, saveOrUpdate page size / columns / order, execute reflects settings,
+		pageSize 1001 is rejected.
+	-->
+	<testSuite name="webutils-rest-search-settings" author="webutils"
+		description="Search settings API — read, saveOrUpdate, execute reflection, max page size">
+
+		<setup>
+			<s:log level="INFO" message="REST search-settings setup: delete prior settings for test user"/>
+			<s:sql-multi-dml-query>
+				<query>
+					DELETE ss FROM WEBUTILS_SEARCH_SETTINGS ss
+					INNER JOIN USER u ON u.ID = ss.USER_ID
+					WHERE u.EMAIL = 'test@test.com' AND u.CUSTOM_SPACE = 'test'
+					AND ss.SEARCH_QUERY_NAME = 'sampleItemSearch'
+				</query>
+			</s:sql-multi-dml-query>
+		</setup>
+
+		<function name="loginTestUser">
+			<s:rest-invoke-post uri="/testapp/auth/login">
+				<body><![CDATA[{
+					"username": "test@test.com",
+					"password": "test",
+					"userSpace": "test"
+				}]]></body>
+			</s:rest-invoke-post>
+			<s:assert-equals actual="prop: attr.result.statusCode" expected="int: 200"/>
+			<s:set expression="authToken" value="prop: attr.response.authToken"/>
+		</function>
+
+		<testCase name="readDefaultSearchSettings">
+			<description>GET defaults for sampleItemSearch — no id, columns present, pageSize default</description>
+
+			<f:loginTestUser/>
+			<s:rest-invoke-get uri="/search/settings/read/sampleItemSearch">
+				<request-header name="Authorization" value="Bearer ${attr.authToken}"/>
+			</s:rest-invoke-get>
+			<s:assert-equals actual="prop: attr.result.statusCode" expected="int: 200"/>
+			<s:assert-equals actual="prop: attr.response.value.searchQueryName" expected="sampleItemSearch"/>
+			<s:assert-null value="prop: attr.response.value.id"/>
+			<s:assert-true value="condition: attr.response.value.pageSize gte 1"/>
+			<s:assert-true value="condition: sizeOf(attr.response.value.searchColumns) gte 4"/>
+		</testCase>
+
+		<testCase name="saveOrUpdateAndExecuteReflectsSettings">
+			<description>
+				saveOrUpdate pageSize=3, hide Description, Status before Category;
+				re-read and execute must reflect settings
+			</description>
+
+			<f:loginTestUser/>
+
+			<s:log level="INFO" message="saveOrUpdate search settings"/>
+			<s:rest-invoke-post uri="/search/settings/saveOrUpdate">
+				<request-header name="Authorization" value="Bearer ${attr.authToken}"/>
+				<body><![CDATA[{
+	"searchQueryName": "sampleItemSearch",
+	"pageSize": 3,
+	"version": 1,
+	"searchColumns": [
+		{
+			"label": "Id",
+			"displayed": false,
+			"backend": true,
+			"required": true,
+			"order": 0,
+			"searchResultType": "NONE",
+			"fields": [{ "field": "id", "propertyName": "id" }]
+		},
+		{
+			"label": "Name",
+			"displayed": true,
+			"backend": false,
+			"required": false,
+			"order": 1,
+			"searchResultType": "NONE",
+			"fields": [{ "field": "name", "propertyName": "name" }]
+		},
+		{
+			"label": "Status",
+			"displayed": true,
+			"backend": false,
+			"required": false,
+			"order": 2,
+			"searchResultType": "NONE",
+			"fields": [{ "field": "status", "propertyName": "status" }]
+		},
+		{
+			"label": "Category",
+			"displayed": true,
+			"backend": false,
+			"required": false,
+			"order": 3,
+			"searchResultType": "NONE",
+			"fields": [{ "field": "category", "propertyName": "category" }]
+		},
+		{
+			"label": "Description",
+			"displayed": false,
+			"backend": false,
+			"required": false,
+			"order": 4,
+			"searchResultType": "NONE",
+			"fields": [{ "field": "description", "propertyName": "description" }]
+		}
+	]
+}]]></body>
+			</s:rest-invoke-post>
+			<s:assert-equals actual="prop: attr.result.statusCode" expected="int: 200"/>
+			<s:assert-true value="condition: attr.response.id gte 1"/>
+
+			<s:log level="INFO" message="Re-read persisted settings"/>
+			<s:rest-invoke-get uri="/search/settings/read/sampleItemSearch">
+				<request-header name="Authorization" value="Bearer ${attr.authToken}"/>
+			</s:rest-invoke-get>
+			<s:assert-equals actual="prop: attr.result.statusCode" expected="int: 200"/>
+			<s:assert-not-null value="prop: attr.response.value.id"/>
+			<s:assert-equals actual="prop: attr.response.value.pageSize" expected="int: 3"/>
+
+			<s:set expression="savedCols" value="prop: attr.response.value.searchColumns"/>
+			<s:assert-equals actual="prop: attr.savedCols[0].label" expected="Id"/>
+			<s:assert-equals actual="prop: attr.savedCols[2].label" expected="Status"/>
+			<s:assert-equals actual="prop: attr.savedCols[3].label" expected="Category"/>
+			<s:assert-equals actual="prop: attr.savedCols[4].label" expected="Description"/>
+			<s:assert-equals actual="prop: attr.savedCols[4].displayed" expected="boolean: false"/>
+
+			<s:log level="INFO" message="Execute search — expect pageSize 3 from persisted settings"/>
+			<s:rest-invoke-get uri="/search/execute/sampleItemSearch">
+				<request-header name="Authorization" value="Bearer ${attr.authToken}"/>
+				<request-param name="queryModelJson" value="{}"/>
+				<request-param name="pageNumber" value="1"/>
+				<request-param name="pageSize" value="5"/>
+				<request-param name="fetchCount" value="true"/>
+			</s:rest-invoke-get>
+			<s:assert-equals actual="prop: attr.result.statusCode" expected="int: 200"/>
+			<s:assert-equals actual="prop: attr.response.pageSize" expected="int: 3"/>
+			<s:assert-true value="condition: sizeOf(attr.response.searchResults) lte 3"/>
+
+			<!-- Response columns: Id(backend), Name, Status, Category (Description omitted) -->
+			<s:assert-equals actual="prop: attr.response.searchColumns[0].name" expected="id"/>
+			<s:assert-equals actual="prop: attr.response.searchColumns[1].heading" expected="Name"/>
+			<s:assert-equals actual="prop: attr.response.searchColumns[2].heading" expected="Status"/>
+			<s:assert-equals actual="prop: attr.response.searchColumns[3].heading" expected="Category"/>
+			<s:assert-true value="condition: sizeOf(attr.response.searchColumns) == 4"/>
+		</testCase>
+
+		<testCase name="pageSizeOverMaxRejected">
+			<description>saveOrUpdate with pageSize 1001 must fail validation</description>
+
+			<f:loginTestUser/>
+			<s:rest-invoke-post uri="/search/settings/saveOrUpdate">
+				<request-header name="Authorization" value="Bearer ${attr.authToken}"/>
+				<body><![CDATA[{
+	"searchQueryName": "sampleItemSearch",
+	"pageSize": 1001,
+	"version": 1,
+	"searchColumns": [
+		{
+			"label": "Name",
+			"displayed": true,
+			"backend": false,
+			"required": false,
+			"order": 0,
+			"searchResultType": "NONE",
+			"fields": [{ "field": "name", "propertyName": "name" }]
+		}
+	]
+}]]></body>
+			</s:rest-invoke-post>
+			<s:assert-true value="condition: attr.result.statusCode != 200"/>
+		</testCase>
+
+	</testSuite>
+
+</testData>

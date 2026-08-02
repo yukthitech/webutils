@@ -67,6 +67,24 @@ File: `ui/ui-language-editor.xml`. Exercises `@Language` / `yk-language-editor` 
 | `languageValidSubmitEcho` | Submit valid sample → response echoes markers |
 | `languageInvalidJsonRejected` | Invalid JSON submit → error, no success alert/response |
 
+## Suite: `webutils-rest-search-settings`
+
+File: `rest/rest-search-settings.xml`. Search settings APIs for `sampleItemSearch`.
+
+| Test case | What it covers |
+|-----------|----------------|
+| `readDefaultSearchSettings` | GET defaults — no id, columns present |
+| `saveOrUpdateAndExecuteReflectsSettings` | pageSize 3, hide Description, Status before Category; execute reflects |
+| `pageSizeOverMaxRejected` | pageSize 1001 rejected |
+
+## Suite: `webutils-ui-search-settings`
+
+File: `ui/ui-search-settings.xml`. Settings dialog on `/widgets/search-demo.html`.
+
+| Test case | What it covers |
+|-----------|----------------|
+| `searchSettingsDialogPersistAndRefresh` | page size 3, hide Description, move Status up → save → table/footer updated |
+
 ## Run
 
 From `automation/`:
@@ -78,10 +96,12 @@ mvn exec:java
 Filter by suite / test case with AutoX `-ts` / `-tc` (do not use test-case `groups`):
 
 ```bash
-mvn exec:java "-Dexec.args=... -ts webutils-ui-editable-lov-field"
-mvn exec:java "-Dexec.args=... -ts webutils-ui-simple-lov-field"
-mvn exec:java "-Dexec.args=... -ts webutils-ui-markdown-editor"
-mvn exec:java "-Dexec.args=... -ts webutils-ui-language-editor"
+mvn exec:java "-Dexec.args=src/main/config/app-configuration.xml -rf test-reports -prop src/main/config/app.properties -ts webutils-ui-editable-lov-field -rod true -dport 0"
+mvn exec:java "-Dexec.args=src/main/config/app-configuration.xml -rf test-reports -prop src/main/config/app.properties -ts webutils-ui-simple-lov-field -rod true -dport 0"
+mvn exec:java "-Dexec.args=src/main/config/app-configuration.xml -rf test-reports -prop src/main/config/app.properties -ts webutils-ui-markdown-editor -rod true -dport 0"
+mvn exec:java "-Dexec.args=src/main/config/app-configuration.xml -rf test-reports -prop src/main/config/app.properties -ts webutils-ui-language-editor -rod true -dport 0"
+mvn exec:java "-Dexec.args=src/main/config/app-configuration.xml -rf test-reports -prop src/main/config/app.properties -ts webutils-rest-search-settings -rod true -dport 0"
+mvn exec:java "-Dexec.args=src/main/config/app-configuration.xml -rf test-reports -prop src/main/config/app.properties -ts webutils-ui-search-settings -rod true -dport 0"
 ```
 
 ## Environment

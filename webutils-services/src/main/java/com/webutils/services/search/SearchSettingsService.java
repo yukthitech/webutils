@@ -37,7 +37,8 @@ import com.yukthitech.validation.annotations.Required;
 public class SearchSettingsService
 {
 	private static final Logger logger = LogManager.getLogger(SearchSettingsService.class);
-	private static final int DEFAULT_PAGE_SIZE = 1000;
+	private static final int DEFAULT_PAGE_SIZE = 5;
+	private static final int MAX_PAGE_SIZE = 1000;
 
 	@Autowired
 	private ISearchSettingsRepository repository;
@@ -146,10 +147,39 @@ public class SearchSettingsService
 
 		for(SearchSettingsColumn column : allSearchColumns.keySet())
 		{
-			filteredColumns.add(new SearchSettingsColumn(column.getLabel(), false, false));
+			filteredColumns.add(new SearchSettingsColumn(column.getLabel(), false, column.isBackend(),
+					column.getFields()));
 		}
 
 		settings.setSearchColumns(filteredColumns);
+	}
+
+	/**
+	 * Validates page size and normalizes columns (required always displayed; order = list index).
+	 */
+	private void normalizeForPersist(SearchSettingsModel model)
+	{
+		if(model.getPageSize() < 1 || model.getPageSize() > MAX_PAGE_SIZE)
+		{
+			throw new InvalidArgumentException("Page size must be between 1 and {}", MAX_PAGE_SIZE);
+		}
+
+		List<SearchSettingsColumn> columns = model.getSearchColumns();
+		if(columns == null)
+		{
+			return;
+		}
+
+		for(int i = 0; i < columns.size(); i++)
+		{
+			SearchSettingsColumn column = columns.get(i);
+			column.setOrder(i);
+			// Required UI columns must stay visible; backend-only columns stay non-displayable
+			if(column.isRequired() && !column.isBackend())
+			{
+				column.setDisplayed(true);
+			}
+		}
 	}
 
 	public SearchSettingsModel fetch(String searchQueryName)
@@ -187,6 +217,7 @@ public class SearchSettingsService
 			throw new InvalidStateException("Search settings repository is not available");
 		}
 
+		normalizeForPersist(model);
 		SearchSettingsEntity entity = toEntity(model);
 		Long userId = UserContext.getCurrentUserId();
 		entity.setUser(new UserEntity(userId));
@@ -225,6 +256,7 @@ public class SearchSettingsService
 			throw new InvalidArgumentException("Id is required for update");
 		}
 
+		normalizeForPersist(model);
 		Long userId = UserContext.getCurrentUserId();
 		SearchSettingsEntity entity = toEntity(model);
 		entity.setUpdatedBy(new UserEntity(userId));
@@ -251,6 +283,39 @@ public class SearchSettingsService
 		}
 	}
 
+	/**
+	 * Saves new settings or updates existing ones for the current user + query name.
+	 */
+	public SearchSettingsEntity saveOrUpdate(SearchSettingsModel model)
+	{
+		if(!isRepositoryAvailable())
+		{
+			throw new InvalidStateException("Search settings repository is not available");
+		}
+
+		Long userId = UserContext.getCurrentUserId();
+		if(userId == null)
+		{
+			throw new InvalidStateException("Authenticated user is required to save search settings");
+		}
+
+		SearchSettingsEntity existing = repository.fetchByName(userId, model.getSearchQueryName());
+		if(existing != null)
+		{
+			model.setId(existing.getId());
+			model.setVersion(existing.getVersion());
+			update(model);
+			return repository.fetchByName(userId, model.getSearchQueryName());
+		}
+
+		model.setId(null);
+		if(model.getVersion() == null)
+		{
+			model.setVersion(1);
+		}
+		return save(model);
+	}
+
 	public void deleteByName(String queryName)
 	{
 		if(!isRepositoryAvailable())
@@ -273,7 +338,7 @@ public class SearchSettingsService
 	{
 		SearchSettingsEntity entity = new SearchSettingsEntity();
 		entity.setId(model.getId());
-		entity.setVersion(model.getVersion());
+		entity.setVersion(model.getVersion() != null ? model.getVersion() : 1);
 		entity.setSearchQueryName(model.getSearchQueryName());
 		entity.setSearchColumns(model.getSearchColumns());
 		entity.setPageSize(model.getPageSize());
