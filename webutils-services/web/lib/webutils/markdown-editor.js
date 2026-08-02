@@ -435,20 +435,28 @@ newVueUiComponent('yk-markdown-editor', {
 
 	"template": `
 		<div class="form-group yk-markdown-editor" :id="fieldInfo.name">
-			<label class="webutil-field-label form-label" v-if="!hideLabel && fieldInfo.label && fieldInfo.label.length &gt; 0">{{fieldInfo.label}}:</label>
-			<div class="yk-md-toolbar btn-group btn-group-sm" role="group" aria-label="Markdown view mode">
-				<button type="button" class="btn btn-outline-secondary"
-					:id="fieldInfo.name + '-md-mode-edit'"
-					:class="{ active: activeViewMode === 'edit' }"
-					@click="setViewMode('edit')">Edit</button>
-				<button type="button" class="btn btn-outline-secondary"
-					:id="fieldInfo.name + '-md-mode-split'"
-					:class="{ active: activeViewMode === 'split' }"
-					@click="setViewMode('split')">Split</button>
-				<button type="button" class="btn btn-outline-secondary"
-					:id="fieldInfo.name + '-md-mode-preview'"
-					:class="{ active: activeViewMode === 'preview' }"
-					@click="setViewMode('preview')">Preview</button>
+			<div class="yk-md-header">
+				<label class="webutil-field-label form-label mb-0" v-if="!hideLabel && fieldInfo.label && fieldInfo.label.length &gt; 0">{{fieldInfo.label}}:</label>
+				<div class="yk-md-toolbar btn-group btn-group-sm" role="group" aria-label="Markdown view mode">
+					<button type="button" class="btn btn-outline-secondary"
+						:id="fieldInfo.name + '-md-mode-edit'"
+						:class="{ active: activeViewMode === 'edit' }"
+						title="Edit only"
+						aria-label="Edit only"
+						@click="setViewMode('edit')"><i class="bi bi-layout-sidebar" aria-hidden="true"></i></button>
+					<button type="button" class="btn btn-outline-secondary"
+						:id="fieldInfo.name + '-md-mode-split'"
+						:class="{ active: activeViewMode === 'split' }"
+						title="Split view"
+						aria-label="Split view"
+						@click="setViewMode('split')"><i class="bi bi-layout-split" aria-hidden="true"></i></button>
+					<button type="button" class="btn btn-outline-secondary"
+						:id="fieldInfo.name + '-md-mode-preview'"
+						:class="{ active: activeViewMode === 'preview' }"
+						title="Preview only"
+						aria-label="Preview only"
+						@click="setViewMode('preview')"><i class="bi bi-layout-sidebar-reverse" aria-hidden="true"></i></button>
+				</div>
 			</div>
 			<div class="yk-md-split" ref="splitContainer"
 				:class="{ 'is-invalid': displayError() }"

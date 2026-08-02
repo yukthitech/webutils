@@ -642,8 +642,31 @@ button.webutils-info-close-button:hover
 /*************************************************
  *  Markdown editor (yk-markdown-editor)
 **************************************************/
-.yk-markdown-editor .yk-md-toolbar {
+.yk-markdown-editor .yk-md-header {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 0.75rem;
 	margin-bottom: 0.5rem;
+	min-height: 1.75rem;
+}
+
+.yk-markdown-editor .yk-md-header .webutil-field-label {
+	margin-right: auto;
+}
+
+.yk-markdown-editor .yk-md-toolbar {
+	margin-bottom: 0;
+	flex-shrink: 0;
+}
+
+.yk-markdown-editor .yk-md-toolbar .btn {
+	padding: 0.2rem 0.45rem;
+	line-height: 1;
+}
+
+.yk-markdown-editor .yk-md-toolbar .bi {
+	font-size: 1rem;
 }
 
 .yk-md-split {
