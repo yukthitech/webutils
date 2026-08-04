@@ -12,7 +12,7 @@ WebUtils is a multi-tier framework based on Spring that provides common function
 |--------|---------|
 | `webutils-common` | Shared models, form annotations, validators, response types (`com.webutils.common`) |
 | `webutils-services` | Spring services, REST controllers, repositories, auth, search, mail, LOV (`com.webutils.services`); also hosts centralized UI assets under `web/lib/` |
-| `webutils-testapp` | Isolated harness for testing new-stack UI widgets (editable-lov, multi-editable-lov, OTP, search) with Liquibase + AutoX scaffold — not a product app. Login at `/login/login.html` as `test@test.com` / `test` (user space `test`) before using demos. |
+| `webutils-testapp` | Isolated harness for testing new-stack UI widgets (editable-lov, multi-editable-lov, OTP, search, markdown, language editors) with Liquibase + AutoX scaffold — not a product app. Login at `/login/login.html` as `test@test.com` / `test` (user space `test`) before using demos. |
 
 Built with Java 25 and Spring Boot 4.x. There is **no** shared Maven parent POM for these new modules (each is standalone / testapp has its own parent). Excludes legacy functionality and follows new patterns.
 
@@ -43,8 +43,8 @@ Cross-project guides under [`docs/`](./docs/README.md) (prefer these over inferr
 | Doc | Topic |
 |-----|--------|
 | [docs/setup-and-configuration.md](./docs/setup-and-configuration.md) | Maven, Spring Boot, Liquibase, `web/lib`, auth, properties |
-| [docs/services.md](./docs/services.md) | Controllers, entities, repos, search, LOV, OTP, responses |
-| [docs/ui-widgets.md](./docs/ui-widgets.md) | Vue bootstrap, form/search/LOV widgets, SPA patterns |
+| [docs/services.md](./docs/services.md) | Controllers, entities, repos, search, Markdown/Language, LOV, OTP, responses |
+| [docs/ui-widgets.md](./docs/ui-widgets.md) | Vue bootstrap, form/search/actions, markdown & language editors, SPA patterns |
 
 ## Working in this repo
 

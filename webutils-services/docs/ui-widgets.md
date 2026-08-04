@@ -5,7 +5,7 @@
 
 ## When to read this
 
-- Creating or fixing a page that uses WebUtils form/search/LOV/OTP widgets
+- Creating or fixing a page that uses WebUtils form/search/LOV/OTP/markdown/language widgets
 - Wiring Vue bootstrap (`newVueApp`), rest client, or SPA shells
 - Mapping Java `@Model` annotations to Vue components
 - Deciding app vs framework widget ownership
@@ -31,7 +31,7 @@ Static serving: `spring.web.resources.static-locations=file:./web/` (run Maven/`
 
 Every WebUtils page should:
 
-1. Load jQuery / Bootstrap / bootstrap-select (and icons as needed).
+1. Load jQuery / Bootstrap / **Bootstrap Icons** / bootstrap-select (icons required for `yk-search-action` and other icon buttons).
 2. Load `/lib/webutils/webutils.css` + app CSS.
 3. Include `#webutilsPageLoading` and `#ykApp` (initially hidden).
 4. Include `<yk-dialogs ref="ykDialogs"></yk-dialogs>` inside `#ykApp`.
@@ -41,6 +41,7 @@ Every WebUtils page should:
 
 ```html
 <link href="/lib/bootstrap-5.1.0/css/bootstrap.min.css" rel="stylesheet">
+<link href="/lib/bootstrap-icons-1.3.0/bootstrap-icons.css" rel="stylesheet">
 <link href="/lib/bootstrap-select-1.14.0/bootstrap-select.min.css" rel="stylesheet">
 <link href="/lib/webutils/webutils.css" rel="stylesheet">
 <link href="/common/app.css" rel="stylesheet">
@@ -89,9 +90,9 @@ Webutils.newVueApp({
 | `common.js` | `$utils`, `$appConfiguration`, merge helpers |
 | `model-def-service.js` | FieldType → Vue component mapping |
 | `input-fields.js` | Input / LOV / OTP / captcha / file / html / switch |
-| `markdown-editor.js` | `yk-markdown-editor` (split edit / live preview) |
-| `language-editor.js` | `yk-language-editor` (JSON / XML / JSON Schema + fold) |
-| `forms.js` | `yk-form`, `yk-model-form`, `yk-search-form`, `yk-search-results`, multi-row forms |
+| `markdown-editor.js` | `yk-markdown-editor` — CodeMirror + marked/DOMPurify; edit / split / preview |
+| `language-editor.js` | `yk-language-editor` — JSON / XML / JSON_SCHEMA + fold gutter |
+| `forms.js` | `yk-form`, `yk-model-form`, `yk-search-form`, `yk-search-results`, `yk-search-action`, multi-row forms |
 | `modal-dialogs.js` | `yk-dialogs`, modal / model-form dialogs |
 | `nav-bar.js` | `yk-route-nav-bar`, `yk-route-side-bar` |
 | `user-service.js` | Login/logout helpers |
@@ -117,8 +118,8 @@ Backend `@Model` fields drive `yk-model-form` via `/api/model/{name}`. Mapping l
 | CAPTCHA | `yk-captcha-field` |
 | FILE / IMAGE | `yk-input-file` / `yk-input-image` |
 | HTML (`@Html`) | `yk-html-editor` |
-| MARKDOWN (`@Markdown`) | `yk-markdown-editor` |
-| LANGUAGE (`@Language`) | `yk-language-editor` |
+| MARKDOWN (`@Markdown` on `String`) | `yk-markdown-editor` (full width; §5.2) |
+| LANGUAGE (`@Language(LanguageType.…)` on `String`) | `yk-language-editor` (full width; §5.3) — types: `JSON`, `XML`, `JSON_SCHEMA` |
 
 ### LOV choice (agents)
 
@@ -129,7 +130,7 @@ Backend `@Model` fields drive `yk-model-form` via `/api/model/{name}`. Mapping l
 | Multi labels | `List<String>` + `@LOV` | `yk-multi-editable-lov-field` |
 | Search filter only | `@LOV(…, persist = false)` | same widgets; no option create |
 
-Demos: `webutils-testapp/services/web/widgets/editable-lov-demo.*`, `simple-lov-demo.*`, `markdown-demo.*`, `language-demo.*`.
+Demos: `webutils-testapp/services/web/widgets/editable-lov-demo.*`, `simple-lov-demo.*`, `markdown-demo.*`, `language-demo.*`, `search-demo.*`.
 
 ---
 
@@ -187,32 +188,83 @@ Prefer `yk-model-form` / `yk-model-form-dialog` when a simple column grid is suf
 
 ---
 
+## 5.2 Markdown editor (`yk-markdown-editor`)
+
+**Backend:** `String` + `@Markdown` → `FieldType.MARKDOWN` (full width). No server-side markdown validation beyond normal string constraints (`@Required`, `@MaxLen`, …).
+
+**Frontend:** CodeMirror (markdown mode) + marked + DOMPurify. Libs load on demand from `/lib/codemirror-5.65.16`, `/lib/marked-15.0.7`, `/lib/dompurify-3.2.4`.
+
+| Prop | Default | Notes |
+|------|---------|--------|
+| `height` | `400px` | Editor / split container height |
+| `sync-scroll` | `true` | Keep edit ↔ preview scroll ratio in sync (split mode) |
+| `view-mode` | `split` | `edit` \| `split` \| `preview` (also emits `update:viewMode`) |
+
+**UI behavior:**
+
+- Toolbar: edit-only / split / preview-only (ids `{field}-md-mode-edit|split|preview`)
+- Split: drag resize handle (`{field}-md-handle`); left pane width clamped ~20–80%
+- Live preview HTML is sanitized before `v-html`
+- Works inside `yk-model-form` via model def; no extra page script beyond normal form wiring
+
+Demo: `/widgets/markdown-demo.html` (`MarkdownDemoModel`).
+
+---
+
+## 5.3 Language editor (`yk-language-editor`)
+
+**Backend:** `String` + `@Language(LanguageType.…)` → `FieldType.LANGUAGE` + `languageType` on the field def (full width). **Jakarta-validated** on submit (`LanguageValidator`).
+
+| `LanguageType` | Validated as | CodeMirror |
+|----------------|--------------|------------|
+| `JSON` | Parseable JSON | JS mode, `json: true` |
+| `XML` | Secure XML document | `xml` |
+| `JSON_SCHEMA` | JSON + draft 2020-12 meta-schema | JS mode, `json: true` |
+
+**Frontend:** CodeMirror with line numbers, fold gutter (`Ctrl-Q` / gutter fold), brace/XML fold addons. Libs load on demand from `/lib/codemirror-5.65.16`.
+
+| Prop | Default | Notes |
+|------|---------|--------|
+| `height` | `220px` | Editor wrap height |
+
+Invalid content is rejected by the server (field errors on the model form). Empty/blank skips language validation unless `@Required` is also present.
+
+Demo: `/widgets/language-demo.html` (`LanguageDemoModel` — JSON, XML, JSON Schema fields).
+
+---
+
 ## 6. Search listings (mandatory for tables)
 
 **Rule:** UI multi-row listings use WebUtils search — not custom list endpoints + hand-rolled tables.
+
+Wire three pieces: **query form** → **results table** → **actions** / customizers.
+
+**Do not** place separate page-level Add / Edit / Delete buttons beside the results. Put CRUD (and other) actions on `yk-search-results` via child `yk-search-action` widgets — global actions in the results toolbar, row actions after selection (toolbar + floating panel).
 
 ```html
 <yk-search-form
   ref="searchForm"
   query-name="sampleItemSearch"
   :column-count="2"
-  :page-size="10"
+  :page-size="5"
   @search="onSearch">
 </yk-search-form>
 
 <yk-search-results
   ref="results"
   title="Sample Items"
+  query-name="sampleItemSearch"
   @select="onSelectRow"
   @page-change="onPageChange"
-  @settings-click="onSettingsClick">
+  @settings-click="onSettingsClick"
+  @settings-saved="onSettingsSaved">
   <yk-field-customizer field="category" v-slot="{ value, row }">
     <span class="badge bg-secondary">{{ value }}</span>
   </yk-field-customizer>
-  <yk-search-action id="sample-add-action" label="Add" icon="bi-plus-lg" color="#198754"
+  <yk-search-action id="sample-add-action" label="Add" icon="bi-plus-square-fill" color="#198754"
     @action="onAddAction">
   </yk-search-action>
-  <yk-search-action id="sample-edit-action" label="Edit" icon="bi-pencil" color="#fd7e14"
+  <yk-search-action id="sample-edit-action" label="Edit" icon="bi-pencil-fill" color="#fd7e14"
     :row-action="true" @action="onEditAction">
   </yk-search-action>
 </yk-search-results>
@@ -225,54 +277,115 @@ onSearch(searchResponse) {
 onPageChange(pageNumber) {
   this.$refs.searchForm.gotoPage(pageNumber);
 },
+onSettingsSaved(payload) {
+  this.$refs.searchForm.refreshSearch();
+},
 onEditAction({ row, event }) {
   // row is the selected search row map (null for global actions)
 }
 ```
 
-### Search form props
+### 6.1 Query form (`yk-search-form`)
+
+Loads criteria fields from `GET /api/search/{queryName}/query/def`, then executes search.
 
 | Prop | Default | Notes |
 |------|---------|--------|
 | `query-name` | required | Must match `@SearchQueryMethod(name = "…")` |
 | `column-count` | `2` | Fields per row (Bootstrap grid flow) |
-| `page-size` | listing default | Sent on every execute. Persisted user search settings override this once saved |
-| `simple-search` | `false` | Uses `/api/search/search/` instead of `/execute/` |
+| `page-size` | `100` | Listing default sent on execute; persisted user settings override once saved |
+| `simple-search` | `false` | `true` → `/api/search/search/` instead of `/api/search/execute/` |
 
-`yk-search-form` always sends `fetchCount=true`, `pageNumber`, and `pageSize`. Pagination is **server-side** (`LIMIT`/`OFFSET`). After each response, the form adopts `response.pageSize` so client and server stay in sync.
+| Method | Role |
+|--------|------|
+| `search()` | New search from page 1 (Search button) |
+| `gotoPage(n)` | Re-run last criteria at page `n` |
+| `refreshSearch()` | Re-run current page after settings change (no-op if never searched) |
 
-### Search results props / events
+Always sends `fetchCount=true`, `pageNumber`, and `pageSize`. Pagination is **server-side** (`LIMIT`/`OFFSET`). After each response, the form adopts `response.pageSize` so client and server stay in sync.
+
+Event: `@search` → pass `searchResponse` into `results.setSearchResults(…)`.
+
+### 6.2 Results table (`yk-search-results`)
 
 | Prop / event | Notes |
 |--------------|--------|
 | `title` | Header title (left) |
-| `query-name` | Same search query name — required for the settings dialog |
+| `query-name` | Same search query name — **required** for the settings gear/dialog |
+| `@select` | Selected row `dataMap` (single-row selection) |
+| `@double-click` | Row `dataMap` on double-click |
 | `@page-change` | Wire to `searchForm.gotoPage(n)` |
-| `@settings-saved` | Fired after settings persist — typically call `searchForm.refreshSearch()` |
 | `@settings-click` | Fired when the gear is clicked (dialog also opens) |
+| `@settings-saved` | After settings persist — typically `searchForm.refreshSearch()` |
 
-### Search settings dialog
+**Table features:**
 
-The results gear opens a built-in dialog that loads `GET /api/search/settings/read/{queryName}` and saves via `POST /api/search/settings/saveOrUpdate`:
+- Sticky header, drag-resizable columns (independent pixel widths; horizontal scroll when wider than the pane), zebra rows
+- Footer: `(start-end) of total` plus first / prev / page dropdown / next / last
+- Header: `title` left, action icons + settings gear right
+- Default cell links when no customizer: `SearchResultType.EMAIL` → `mailto:`, `PHONE_NO` → `tel:`
 
-- Page size (1–1000)
-- Enable/disable display of non-backend columns (`required` columns stay on)
+### 6.3 Actions (`yk-search-action`)
+
+Place as children of `yk-search-results`. Icon-only toolbar buttons (Bootstrap Icons class — ensure `/lib/bootstrap-icons-1.3.0/bootstrap-icons.css` is loaded); `label` is the tooltip; optional `color` tints the icon.
+
+| Prop | Default | Notes |
+|------|---------|--------|
+| `id` | optional | Stable automation id |
+| `label` | required | Tooltip text |
+| `icon` | `""` | Prefer fill variants for color visibility, e.g. `bi-pencil-fill`, `bi-plus-square-fill`, `bi-trash-fill` |
+| `color` | `""` | CSS color for the icon |
+| `row-action` | `false` | See below |
+
+| Kind | `row-action` | Visibility | `@action` payload |
+|------|--------------|------------|-------------------|
+| **Global** | omitted / `false` | Always in toolbar (add, export, …) | `{ row: null, event }` |
+| **Row** | `true` | Hidden until a row is selected; then in toolbar **and** floating panel near the click | `{ row: selectedRowMap, event }` |
+
+Typical listing CRUD:
+
+```html
+<yk-search-results title="Agents" query-name="agentSearch"
+  @page-change="onPageChange" @settings-saved="onSettingsSaved">
+  <yk-search-action id="agent-add-action" label="Add Agent" icon="bi-plus-square-fill" color="#198754"
+    @action="onAddAction"></yk-search-action>
+  <yk-search-action id="agent-edit-action" label="Edit" icon="bi-pencil-fill" color="#fd7e14"
+    :row-action="true" @action="onEditAction"></yk-search-action>
+  <yk-search-action id="agent-delete-action" label="Delete" icon="bi-trash-fill" color="#dc3545"
+    :row-action="true" @action="onDeleteAction"></yk-search-action>
+</yk-search-results>
+```
+
+```js
+onAddAction() { /* open create dialog */ },
+onEditAction({ row }) { /* load + edit row.id */ },
+onDeleteAction({ row }) { /* confirm + delete row.id */ },
+onPageChange(pageNumber) { this.$refs.searchForm.gotoPage(pageNumber); },
+onSettingsSaved() { this.$refs.searchForm.refreshSearch(); }
+```
+
+Also set `title` and `query-name` on `yk-search-results` (settings gear needs `query-name`). Product examples: Twister Agents / LLM Models / Providers.
+
+### 6.4 Field customizers (`yk-field-customizer`)
+
+Child of `yk-search-results`. `field` must match a result column name. Default slot: `{ value, row }`.
+
+### 6.5 Search settings dialog
+
+Gear on `yk-search-results` (needs `query-name`):
+
+1. Load `GET /api/search/settings/read/{queryName}`
+2. Save `POST /api/search/settings/saveOrUpdate`
+
+Dialog supports:
+
+- Page size (**1–1000**)
+- Enable/disable display of non-backend columns (backend / required columns stay on)
 - Reorder columns (up/down)
 
-Persisted settings are per user + query. Execute-search then uses that page size and column visibility/order.
+Persisted per **user + query**. Execute then applies that page size and column visibility/order. On `@settings-saved`, call `searchForm.refreshSearch()`.
 
-### Search results features
-
-- Sticky header, drag-resizable columns (independent pixel widths; horizontal scroll when the table is wider than the pane), zebra rows; **single-row selection** only
-- Footer: `(start-end) of total` plus first / prev / page dropdown / next / last
-- Header bar: `title` on the left, settings gear on the right
-- `yk-field-customizer` for per-column cell rendering (`v-slot="{ value, row }"`)
-- Default links for `SearchResultType` `EMAIL` (`mailto:`) and `PHONE_NO` (`tel:`) when no customizer
-- `yk-search-action` — icon-only buttons (label as tooltip); optional `color` for the icon
-  - **Global** (`row-action` omitted/false): always in the toolbar (add, export, …); `@action` gets `row: null`
-  - **Row** (`:row-action="true"`): hidden until a row is selected; then shown in the toolbar and in the floating panel near the click; `@action` gets the selected row
-
-Reference: `webutils-testapp/services/web/widgets/search-demo.html` (+ `.js`). Product example: Sethu4U employer applications (`employerApplicationSearch`).
+Reference: `webutils-testapp/services/web/widgets/search-demo.html` (+ `.js`). Product example: Sethu4U employer applications (`employerApplicationSearch`). Backend details: [services.md](./services.md) §6.
 
 ---
 
@@ -409,7 +522,8 @@ If a style is used in 2+ modules, move it to `app.css`.
 |----------|---------|
 | Junction `/lib` to framework | testapp + Sethu4U |
 | `newVueApp` + `#ykApp` + `#webutilsPageLoading` + `yk-dialogs` | All demos |
-| Listings via `yk-search-form` / `yk-search-results` | `search-demo`, employer applications |
+| Listings via `yk-search-form` / `yk-search-results` + child `yk-search-action` (not page-level Add/Edit/Delete) | `search-demo`, Twister agents/LLM pages |
+| `@Markdown` / `@Language` for rich string fields | `markdown-demo`, `language-demo` |
 | `String` + `@LOV` → editable LOV | `EditableLovDemoModel` |
 | `Long` + `@LOV` → simple LOV | `SimpleLovDemoModel` |
 | `$restService` for API calls | Demo submit handlers |
@@ -422,6 +536,8 @@ If a style is used in 2+ modules, move it to `app.css`.
 | Anti-pattern | Why |
 |--------------|-----|
 | Hand-rolled listing tables | Breaks search settings / conventions |
+| Separate Add/Edit/Delete buttons outside `yk-search-results` | Use child `yk-search-action` (global vs `:row-action="true"`) |
+| Skip Bootstrap Icons CSS when using search actions | Icons will not render |
 | Copy `web/lib` into git | Drift; use junction + gitignore |
 | Skip login before authenticated demos | 401 / interceptor failures |
 | Put Sethu4U (or any product) widgets into WebUtils defaults | Coupling |
@@ -436,7 +552,7 @@ If a style is used in 2+ modules, move it to `app.css`.
 2. Add HTML skeleton with loading + `#ykApp` + `yk-dialogs` (page shell) **or** an HTML fragment + logic-only JS for SPA panels.
 3. Keep markup in `.html` and logic in `.js` — top-level tabs via `uri`/`script`; nested children via `fetchHtml`.
 4. For forms: prefer `yk-model-form` / `yk-model-form-dialog` when a simple grid is enough; use dynamic layout (`yk-model-field`, §5.1) for tabs, sections, or large single-field panes.
-5. For tables: add `@SearchQueryMethod` backend first, then `yk-search-form` / `yk-search-results` with matching `query-name`.
+5. For tables: add `@SearchQueryMethod` backend first, then `yk-search-form` / `yk-search-results` with matching `query-name`, wire `@page-change` / `@settings-saved`, and put Add/Edit/Delete on `yk-search-action` children.
 6. Use `$restService.invokePost` / `invokeGet` with `context: this` and field-error mapping.
 7. Confirm login + token before testing.
 8. Use testapp demos as templates when unsure:
@@ -446,8 +562,8 @@ If a style is used in 2+ modules, move it to `app.css`.
 | `/widgets/editable-lov-demo.html` | Editable LOV + model form submit |
 | `/widgets/simple-lov-demo.html` | Id LOV |
 | `/widgets/otp-demo.html` | OTP fields |
-| `/widgets/search-demo.html` | Search form + results |
-| `/widgets/markdown-demo.html` | Markdown edit / live preview |
-| `/widgets/language-demo.html` | Language editor (JSON / XML / JSON Schema) |
+| `/widgets/search-demo.html` | Search form + results + global/row actions + settings |
+| `/widgets/markdown-demo.html` | Markdown edit / split / preview + sync scroll |
+| `/widgets/language-demo.html` | Language editor — `JSON`, `XML`, `JSON_SCHEMA` |
 
 Login first: `/login/login.html`.

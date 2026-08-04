@@ -6,7 +6,7 @@
 ## When to read this
 
 - Adding entities, repositories, controllers, or `@Model` DTOs
-- Implementing search listings, LOV, OTP, or auth-related APIs
+- Implementing search listings, LOV, OTP, Markdown/Language fields, or auth-related APIs
 - Choosing response types / exception patterns
 - Deciding where code lives (`*-common` vs `*-services`)
 
@@ -221,11 +221,18 @@ public interface ISampleItemRepository extends ICrudRepository<SampleItemEntity>
 }
 ```
 
-### Search result column order
+### Search result columns
 
-Search result columns are shown in the order fields are declared on the result model. Prefer declaring fields in the desired display order.
+Search result columns follow **field declaration order** on the result model. Prefer declaring fields in the desired display order.
 
-Use `@SearchFieldInfo` only when you need non-default column metadata (e.g. `resultType`). Do **not** use `@SearchFieldInfo(order = …)` solely to control column order.
+| Annotation / type | Use |
+|-------------------|-----|
+| Field declaration order | Default column order in results + settings |
+| `@SearchFieldInfo(resultType = …)` | Special cell rendering — `SearchResultType.EMAIL`, `PHONE_NO`, or `NONE` (default) |
+| `@NonDisplayable` | Hide from UI columns |
+| `@NonDisplayable(backend = true)` | Hidden from display/settings toggles but kept as a backend key (e.g. row `id`) |
+
+Use `@SearchFieldInfo` only for non-default metadata (e.g. `resultType`). Do **not** use `@SearchFieldInfo(order = …)` solely to control column order.
 
 ### Context filters
 
@@ -234,12 +241,25 @@ Use `@SearchFieldInfo` only when you need non-default column metadata (e.g. `res
 
 ### Search HTTP (framework)
 
-- `GET /api/search/{name}/query/def`
-- `GET /api/search/{name}/result/def`
-- `GET /api/search/execute/{name}`
-- `GET /api/search/export/{name}`
+| Method | Path | Purpose |
+|--------|------|---------|
+| GET | `/api/search/{name}/query/def` | Query model def for `yk-search-form` |
+| GET | `/api/search/{name}/result/def` | Result model def |
+| GET | `/api/search/execute/{name}` | Execute search (`queryModelJson`, `pageNumber`, `pageSize`, `fetchCount`) |
+| GET | `/api/search/search/{name}` | Simple-search variant (same params; used when UI `simple-search` is true) |
+| GET | `/api/search/export/{name}` | Export |
+| GET | `/api/search/settings/read/{queryName}` | Per-user settings (or defaults) |
+| POST | `/api/search/settings/saveOrUpdate` | Persist page size + column visibility/order |
+| POST | `/api/search/settings/save` | Insert settings |
+| POST | `/api/search/settings/update` | Update settings |
+| DELETE | `/api/search/settings/delete/{queryName}` | Delete user settings for query |
+| DELETE | `/api/search/settings/deleteAll` | Delete all settings for current user |
+
+**Page size resolution** (execute): persisted user settings (row with id) → request `pageSize` → settings default → framework default. Valid page size is **1–1000** (`SearchSettingsModel`).
 
 Ensure `app.classScanner.packagesToScan` includes packages that contain `@SearchQueryMethod` repos / models.
+
+Reference: `webutils-testapp` `sampleItemSearch` (`SampleItemSearchQuery` / `SampleItemSearchResult`).
 
 ---
 
@@ -254,6 +274,8 @@ Common annotations (`com.webutils.common.form.annotations`):
 | `@Label` / `@Description` | UI label / help |
 | `@LOV` | LOV binding (see below) |
 | `@Password` / `@MultilineText` / `@Html` | Field widgets |
+| `@Markdown` | Markdown string → `FieldType.MARKDOWN` → `yk-markdown-editor` (full width) |
+| `@Language(LanguageType.…)` | Language string → `FieldType.LANGUAGE` → `yk-language-editor` (full width); **server-validated** |
 | `@File` / `@Image` | File/image fields |
 | `@DateTime` / `@Color` | Specialized inputs |
 | `@ReadOnly` / `@NonDisplayable` / `@IgnoreField` | Visibility |
@@ -262,7 +284,50 @@ Common annotations (`com.webutils.common.form.annotations`):
 | `@SearchFieldInfo` | Optional search result column metadata (e.g. `resultType`). **Not** needed for column order — declaration order is used |
 | `@ContextAttribute` | Inject search context values |
 
-Validation: Yukthi (`@Required`, `@MaxLen`, …) and/or Jakarta (`@Valid` on controllers).
+Validation: Yukthi (`@Required`, `@MaxLen`, …) and/or Jakarta (`@Valid` on controllers). `@Language` is a Jakarta `@Constraint` (`LanguageValidator`).
+
+### Markdown fields (`@Markdown`)
+
+Marker annotation on a `String` field. No server-side markdown parsing — store/return the raw string. `FieldDefBuilder` sets `FieldType.MARKDOWN` and `fullWidth=true`.
+
+```java
+@Label("Content")
+@Markdown
+@Required
+@MaxLen(10000)
+private String content;
+```
+
+Demo: `MarkdownDemoModel` → `/widgets/markdown-demo.html`.
+
+### Language fields (`@Language`)
+
+Annotate a `String` with a required `LanguageType`. Content is validated on `@Valid` submit:
+
+| `LanguageType` | Server validation | UI CodeMirror mode |
+|----------------|-------------------|--------------------|
+| `JSON` | Parse as JSON (`ObjectMapper`) | `javascript` + `json: true` |
+| `XML` | Secure XML parse (XXE hardened) | `xml` |
+| `JSON_SCHEMA` | Parse JSON + validate against JSON Schema meta-schema (draft 2020-12 via networknt) | `javascript` + `json: true` |
+
+Blank / null values skip language validation (combine with `@Required` when empty is not allowed).
+
+```java
+@Label("JSON")
+@Language(LanguageType.JSON)
+@Required
+private String jsonContent;
+
+@Label("XML")
+@Language(LanguageType.XML)
+private String xmlContent;
+
+@Label("JSON Schema")
+@Language(LanguageType.JSON_SCHEMA)
+private String jsonSchemaContent;
+```
+
+`FieldDefBuilder` sets `FieldType.LANGUAGE`, `languageType`, and `fullWidth=true`. Demo: `LanguageDemoModel` → `/widgets/language-demo.html`.
 
 ---
 
@@ -400,3 +465,4 @@ When adding a model-driven form:
 2. Controller accepts `@Valid` model; service may call `processModel` for LOV/files.
 3. UI: `yk-model-form model-name="YourModel"` or explicit field components.
 4. Return `BasicReadResponse` / `BasicSaveResponse`.
+5. For rich text: `@Markdown` (preview only on client) or `@Language(LanguageType.…)` (validated on server).

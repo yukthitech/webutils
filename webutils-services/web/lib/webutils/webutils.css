@@ -271,7 +271,6 @@ button.webutils-info-close-button:hover
 	align-items: center;
 	flex-wrap: wrap;
 	gap: 0.15rem;
-	padding: 0.35rem 0.6rem;
 	border-bottom: 1px solid #eee;
 	background: #fafafa;
 	min-height: 2rem;
