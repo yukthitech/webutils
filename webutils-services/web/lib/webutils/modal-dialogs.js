@@ -84,7 +84,19 @@ var $modalManager = {
 			}
 		}, {"modalStack": this.modalStack, "config": config, "id": id}));
 		
-		bootstrap.Modal.getOrCreateInstance(el).show();
+		var modalOpts = {};
+		// Progress overlay should not steal focus (avoids aria-hidden + focus conflict on hide).
+		if(id === "webutilsInProgressDialog")
+		{
+			modalOpts.focus = false;
+		}
+
+		var instance = bootstrap.Modal.getInstance(el);
+		if(!instance)
+		{
+			instance = new bootstrap.Modal(el, modalOpts);
+		}
+		instance.show();
 	},
 	
 	"closeModal": function(id)
@@ -94,6 +106,14 @@ var $modalManager = {
 		if(!el)
 		{
 			return;
+		}
+
+		// Blur focus inside the modal before Bootstrap sets aria-hidden,
+		// otherwise Chrome warns that a focused descendant is being hidden.
+		var active = document.activeElement;
+		if(active && el.contains(active) && typeof active.blur === "function")
+		{
+			active.blur();
 		}
 
 		var instance = bootstrap.Modal.getInstance(el);

@@ -1,3 +1,4 @@
+import {markRaw} from "/lib/vue-3.4.31/vue.esm-browser.js";
 import {$userService} from "./user-service.js";
 import {$pageUrl} from "./common.js";
 
@@ -124,7 +125,9 @@ navBarComponents['yk-route-nav-bar'] = {
 			let htmlContent = await response.text();
 			
 			componentDef.template = htmlContent;
-			activeItem.componentDef = componentDef;
+			// markRaw: nav items live in reactive data; wrapping a component
+			// definition causes Vue's "Component that was made a reactive object" warning.
+			activeItem.componentDef = markRaw(componentDef);
 			
 			callback(activeItem);
 			$.application.component(activeItem.componentName, componentDef);

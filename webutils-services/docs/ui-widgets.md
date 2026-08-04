@@ -432,7 +432,7 @@ Preferred pattern (Sethu4U admin / Twister dashboard):
 2. Nav items declare `componentName`, `uri` (HTML fragment), `script` (JS module), `route`, `label` — **not** preloaded `componentDef`.
 3. `yk-route-nav-bar` lazy-loads on first click: `import(script)` + `fetch(uri)`, then sets `componentDef.template`.
 4. Shell content: `<component :is="activeComponent"></component>`.
-5. On `@nav-changed`, set `activeComponent = navItem.componentDef` (the loaded component **object**).
+5. On `@nav-changed`, set `activeComponent = markRaw(navItem.componentDef)` (the loaded component **object**; `markRaw` avoids Vue’s reactive-component warning).
 6. Hash routing owned by nav bar — do not navigate to separate `.html` files for in-app sections.
 
 ```js
@@ -446,9 +446,11 @@ Preferred pattern (Sethu4U admin / Twister dashboard):
   script: "/agents/agents.js"
 }
 
-// shell onNavChange
+// shell onNavChange — import { markRaw } from "/lib/vue-3.4.31/vue.esm-browser.js"
 onNavChange: function(navItem) {
-  this.activeComponent = navItem.componentDef;
+  this.activeComponent = navItem.componentDef
+    ? markRaw(navItem.componentDef)
+    : null;
 }
 ```
 
