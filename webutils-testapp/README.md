@@ -50,11 +50,12 @@ mvn spring-boot:run "-Dspring-boot.run.jvmArguments=-Dapp.encryptor.keystore=tes
 Demo pages:
 
 - `/widgets/editable-lov-demo.html` — editable LOV (`String` CATEGORY); submit runs `processModel` (case-map / create option) and inserts into `TEMP_TABLE`
+- `/widgets/multi-editable-lov-demo.html` — multi editable LOV (`List<String>` CATEGORY); submit persists JSON into `TEMP_TABLE.CATEGORIES`
 - `/widgets/simple-lov-demo.html` — simple LOV (`Long` category option id); submit resolves label and inserts into `TEMP_TABLE`
 - `/widgets/otp-demo.html` — OTP verification fields  
 - `/widgets/search-demo.html` — search form + results (`sampleItemSearch`)
 - `/widgets/markdown-demo.html` — markdown edit / live preview (`yk-markdown-editor`)
-- `/widgets/language-demo.html` — JSON / XML / JSON Schema editor (`yk-language-editor`)
+- `/widgets/language-demo.html` — JSON / XML / JSON Schema / Python editor (`yk-language-editor`)
 
 Seeded `CATEGORY` labels: Electronics, Books, Clothing, Home.
 
