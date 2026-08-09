@@ -136,7 +136,7 @@ public class FieldDef
 	private VerificationType verificationType;
 
 	/**
-	 * Language type when {@link FieldType#LANGUAGE} (JSON / XML / JSON_SCHEMA).
+	 * Language type when {@link FieldType#LANGUAGE} (JSON / XML / JSON_SCHEMA / PYTHON).
 	 */
 	private LanguageType languageType;
 

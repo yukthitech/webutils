@@ -7,5 +7,6 @@ public enum LanguageType
 {
 	JSON,
 	XML,
-	JSON_SCHEMA
+	JSON_SCHEMA,
+	PYTHON
 }

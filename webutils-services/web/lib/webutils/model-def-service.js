@@ -41,6 +41,8 @@ export var $modelDefService = {
 			typeMapping = $dataTypeMapping[dataType];
 		}
 
+		// String LOVs → editable / multi-editable (taggable gated by lovDetails.persist).
+		// Enum / Long LOVs stay on yk-lov-field; multiValued enables multiselect there.
 		if(dataType == "LIST_OF_VALUES" && fieldDef.lovDetails &&
 			(fieldDef.lovDetails.editableLov || fieldDef.lovDetails.actualType === "STRING"))
 		{

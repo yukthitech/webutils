@@ -1,0 +1,84 @@
+<testData 
+	xmlns:s="http://autox.yukthitech.com/steps" 
+	xmlns:wrap="http://xmlbeanparser.yukthitech.com/wrap" 
+	xmlns:f="http://autox.yukthitech.com/functions">
+
+	<testSuite name="webutils-ui-enum-lov-field" author="webutils"
+		description="Enum single + multi LOV (STATIC via yk-lov-field / vue-multiselect)">
+
+		<testCase name="enumLovSingleSelectAndSearch">
+			<description>
+				DemoItemStatus has 5 values so search is enabled. Filter Act, select Active, submit echoes status.
+			</description>
+
+			<s:log level="INFO" message="Open enum LOV demo"/>
+			<s:ui-goto-page uri="/widgets/enum-lov-demo.html"/>
+			<s:ui-wait-for retry-count="30" retry-time-gap-millis="500">
+				<locator>css: #status .multiselect</locator>
+			</s:ui-wait-for>
+			<s:sleep time="1500"/>
+
+			<s:ui-click locator="css: #status .multiselect__tags" retry-count="10" retry-time-gap-millis="300"/>
+			<s:ui-wait-for retry-count="15" retry-time-gap-millis="300">
+				<locator>css: #status .multiselect--active .multiselect__input</locator>
+			</s:ui-wait-for>
+			<s:ui-assert-visibility locator="css: #status .multiselect--active .multiselect__input"/>
+			<s:ui-set-value locator="css: #status .multiselect--active .multiselect__input" value="string: Act" press-enter-at-end="false"/>
+			<s:ui-wait-for retry-count="20" retry-time-gap-millis="300">
+				<locator>xpath: //div[@id='status']//span[contains(@class,'multiselect__option') and contains(normalize-space(.),'Active')]</locator>
+			</s:ui-wait-for>
+			<s:ui-click
+				locator="xpath: //div[@id='status']//span[contains(@class,'multiselect__option') and contains(normalize-space(.),'Active')]"
+				retry-count="10" retry-time-gap-millis="300"/>
+
+			<s:ui-fill-form>
+				<data>json: {
+					"c:ykLov:statuses": "Draft"
+				}</data>
+			</s:ui-fill-form>
+			<s:ui-fill-form>
+				<data>json: {
+					"c:ykLov:statuses": "Pending"
+				}</data>
+			</s:ui-fill-form>
+			<s:ui-log-screen-shot name="enum-lov-filled"/>
+
+			<s:ui-click locator="id: enum-lov-demo-submit-btn"
+				post-visibility-locator="id: webutils-alert-ok-btn"
+				retry-count="20" retry-time-gap-millis="500"/>
+			<s:ui-click locator="id: webutils-alert-ok-btn"
+				post-visibility-locator="id: enum-lov-demo-response"
+				retry-count="15" retry-time-gap-millis="500"/>
+			<s:ui-log-screen-shot name="enum-lov-submitted"/>
+
+			<s:ui-assert-visibility locator="xpath: //pre[@id='enum-lov-demo-response'][contains(.,'ACTIVE')]"/>
+			<s:ui-assert-visibility locator="xpath: //pre[@id='enum-lov-demo-response'][contains(.,'DRAFT')]"/>
+			<s:ui-assert-visibility locator="xpath: //pre[@id='enum-lov-demo-response'][contains(.,'PENDING')]"/>
+		</testCase>
+
+		<testCase name="enumLovNoCreateAffordance">
+			<description>
+				Enum LOV is never taggable — typing a new label must not create a tag option.
+			</description>
+
+			<s:ui-goto-page uri="/widgets/enum-lov-demo.html"/>
+			<s:ui-wait-for retry-count="30" retry-time-gap-millis="500">
+				<locator>css: #status .multiselect</locator>
+			</s:ui-wait-for>
+			<s:sleep time="1000"/>
+
+			<s:ui-click locator="css: #status .multiselect__tags" retry-count="10" retry-time-gap-millis="300"/>
+			<s:ui-wait-for retry-count="15" retry-time-gap-millis="300">
+				<locator>css: #status .multiselect--active .multiselect__input</locator>
+			</s:ui-wait-for>
+			<s:ui-set-value locator="css: #status .multiselect--active .multiselect__input" value="string: NotARealStatus" press-enter-at-end="false"/>
+			<s:sleep time="800"/>
+			<s:ui-assert-visibility
+				locator="xpath: //div[@id='status']//span[contains(@class,'multiselect__option') and contains(.,'No elements found')]"
+				retry-count="10" retry-time-gap-millis="300"/>
+			<s:ui-log-screen-shot name="enum-lov-no-create"/>
+		</testCase>
+
+	</testSuite>
+
+</testData>

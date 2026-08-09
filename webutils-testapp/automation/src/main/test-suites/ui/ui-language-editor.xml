@@ -8,7 +8,7 @@
 
 		<testCase name="languageServerContentDisplayed">
 			<description>
-				Open language demo, wait for sample from server, assert CodeMirror shows ServerJson / ServerXml / autoxSchema markers.
+				Open language demo, wait for sample from server, assert CodeMirror shows ServerJson / ServerXml / autoxSchema / ServerPython markers.
 			</description>
 
 			<s:log level="INFO" message="Opening language demo page"/>
@@ -24,6 +24,9 @@
 			</s:ui-wait-for>
 			<s:ui-wait-for retry-count="40" retry-time-gap-millis="500">
 				<locator>css: #jsonSchemaContent-lang-editor .CodeMirror</locator>
+			</s:ui-wait-for>
+			<s:ui-wait-for retry-count="40" retry-time-gap-millis="500">
+				<locator>css: #pythonContent-lang-editor .CodeMirror</locator>
 			</s:ui-wait-for>
 			<s:sleep time="1000"/>
 			<s:ui-log-screen-shot name="language-demo-loaded"/>
@@ -41,13 +44,15 @@
 					return {
 						json: cmVal('jsonContent-lang-editor'),
 						xml: cmVal('xmlContent-lang-editor'),
-						schema: cmVal('jsonSchemaContent-lang-editor')
+						schema: cmVal('jsonSchemaContent-lang-editor'),
+						python: cmVal('pythonContent-lang-editor')
 					};
 				]]></script>
 			</s:ui-execute-js>
 			<s:assert-true value="condition: indexOf(attr.cmValues.json, 'ServerJson') gte 0"/>
 			<s:assert-true value="condition: indexOf(attr.cmValues.xml, 'ServerXml') gte 0"/>
 			<s:assert-true value="condition: indexOf(attr.cmValues.schema, 'autoxSchema') gte 0"/>
+			<s:assert-true value="condition: indexOf(attr.cmValues.python, 'ServerPython') gte 0"/>
 		</testCase>
 
 		<testCase name="languageValidSubmitEcho">
@@ -82,6 +87,8 @@
 				locator="xpath: //*[@id='language-demo-response'][contains(.,'ServerXml')]"/>
 			<s:ui-assert-visibility
 				locator="xpath: //*[@id='language-demo-response'][contains(.,'autoxSchema')]"/>
+			<s:ui-assert-visibility
+				locator="xpath: //*[@id='language-demo-response'][contains(.,'ServerPython')]"/>
 		</testCase>
 
 		<testCase name="languageInvalidJsonRejected">

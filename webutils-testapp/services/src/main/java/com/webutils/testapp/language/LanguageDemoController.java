@@ -13,7 +13,7 @@ import com.webutils.common.response.BasicReadResponse;
 import jakarta.validation.Valid;
 
 /**
- * Sample + submit endpoints for language editor demo (JSON / XML / JSON Schema).
+ * Sample + submit endpoints for language editor demo (JSON / XML / JSON Schema / Python).
  */
 @RestController
 @RequestMapping("/api/testapp/language-demo")
@@ -35,6 +35,10 @@ public class LanguageDemoController
 			+ "  \"required\": [\"autoxSchema\"]\n"
 			+ "}";
 
+	public static final String SAMPLE_PYTHON = "def greet(name):\n"
+			+ "    # ServerPython\n"
+			+ "    return f\"Hello, {name}\"\n";
+
 	@GetMapping("/sample")
 	public BasicReadResponse<LanguageDemoModel> sample()
 	{
@@ -42,14 +46,16 @@ public class LanguageDemoController
 		model.setJsonContent(SAMPLE_JSON);
 		model.setXmlContent(SAMPLE_XML);
 		model.setJsonSchemaContent(SAMPLE_JSON_SCHEMA);
+		model.setPythonContent(SAMPLE_PYTHON);
 		return new BasicReadResponse<>(model);
 	}
 
 	@PostMapping("/submit")
 	public BasicReadResponse<LanguageDemoModel> submit(@RequestBody @Valid LanguageDemoModel model)
 	{
-		logger.info("Language demo submit: jsonLen={}, xmlLen={}, schemaLen={}",
-				len(model.getJsonContent()), len(model.getXmlContent()), len(model.getJsonSchemaContent()));
+		logger.info("Language demo submit: jsonLen={}, xmlLen={}, schemaLen={}, pythonLen={}",
+				len(model.getJsonContent()), len(model.getXmlContent()),
+				len(model.getJsonSchemaContent()), len(model.getPythonContent()));
 		return new BasicReadResponse<>(model);
 	}
 

@@ -1,0 +1,145 @@
+<testData 
+	xmlns:s="http://autox.yukthitech.com/steps" 
+	xmlns:wrap="http://xmlbeanparser.yukthitech.com/wrap" 
+	xmlns:f="http://autox.yukthitech.com/functions">
+
+	<testSuite name="webutils-ui-multi-editable-lov-field" author="webutils"
+		description="CATEGORY multi-editable LOV — persist true/false and TEMP_TABLE.CATEGORIES">
+
+		<setup>
+			<s:log level="INFO" message="Suite setup: clear TEMP_TABLE and Autox multi LOV option rows"/>
+			<s:sql-multi-dml-query>
+				<query>DELETE FROM TEMP_TABLE</query>
+				<query>
+					DELETE FROM STORED_LOV_OPTION
+					WHERE LABEL = 'AutoxMultiLovGadgets'
+						AND LOV_ID = (SELECT ID FROM STORED_LOV WHERE NAME = 'CATEGORY')
+				</query>
+			</s:sql-multi-dml-query>
+		</setup>
+
+		<testCase name="lovCategoriesSelectClickPersist">
+			<description>
+				Select Electronics and Books; submit persists both into TEMP_TABLE.CATEGORIES JSON.
+			</description>
+
+			<s:ui-goto-page uri="/widgets/multi-editable-lov-demo.html"/>
+			<s:ui-wait-for retry-count="30" retry-time-gap-millis="500">
+				<locator>css: #categories .multiselect</locator>
+			</s:ui-wait-for>
+			<s:sleep time="1500"/>
+
+			<s:ui-fill-form>
+				<data>json: {
+					"c:ykMultiEditableLov:categories": "Electronics"
+				}</data>
+			</s:ui-fill-form>
+			<s:ui-assert-visibility
+				locator="xpath: //div[@id='categories']//span[contains(@class,'multiselect__tag') and contains(normalize-space(.),'Electronics')]"/>
+
+			<s:ui-fill-form>
+				<data>json: {
+					"c:ykMultiEditableLov:categories": "Books"
+				}</data>
+			</s:ui-fill-form>
+			<s:ui-assert-visibility
+				locator="xpath: //div[@id='categories']//span[contains(@class,'multiselect__tag') and contains(normalize-space(.),'Books')]"/>
+			<s:ui-log-screen-shot name="multi-editable-lov-click-filled"/>
+
+			<s:ui-click locator="id: multi-editable-lov-demo-submit-btn"
+				post-visibility-locator="id: webutils-alert-ok-btn"
+				retry-count="20" retry-time-gap-millis="500"/>
+			<s:ui-click locator="id: webutils-alert-ok-btn"
+				post-visibility-locator="id: multi-editable-lov-demo-response"
+				retry-count="15" retry-time-gap-millis="500"/>
+
+			<s:sql-load-query-row-map contextAttribute="tempRow" processAllRows="false">
+				<query><![CDATA[
+					SELECT CATEGORIES FROM TEMP_TABLE ORDER BY ID DESC LIMIT 1
+				]]></query>
+			</s:sql-load-query-row-map>
+			<s:assert-deep-equals actual="json: ${attr.tempRow.CATEGORIES}" expected="json: [&quot;Books&quot;, &quot;Electronics&quot;]"/>
+		</testCase>
+
+		<testCase name="lovCategoriesNewOptionPersist">
+			<description>
+				Typing AutoxMultiLovGadgets creates option and TEMP_TABLE.CATEGORIES entry.
+			</description>
+
+			<s:ui-goto-page uri="/widgets/multi-editable-lov-demo.html"/>
+			<s:ui-wait-for retry-count="30" retry-time-gap-millis="500">
+				<locator>css: #categories .multiselect</locator>
+			</s:ui-wait-for>
+			<s:sleep time="1500"/>
+
+			<s:ui-click locator="css: #categories .multiselect__tags" retry-count="10" retry-time-gap-millis="300"/>
+			<s:ui-wait-for retry-count="15" retry-time-gap-millis="300">
+				<locator>css: #categories .multiselect--active .multiselect__input</locator>
+			</s:ui-wait-for>
+			<s:ui-set-value locator="css: #categories .multiselect--active .multiselect__input" value="string: AutoxMultiLovGadgets" press-enter-at-end="true"/>
+			<s:ui-assert-visibility
+				locator="xpath: //div[@id='categories']//span[contains(@class,'multiselect__tag') and contains(normalize-space(.),'AutoxMultiLovGadgets')]"
+				retry-count="20" retry-time-gap-millis="300"/>
+			<s:ui-log-screen-shot name="multi-editable-lov-new-option-typed"/>
+
+			<s:ui-click locator="id: multi-editable-lov-demo-submit-btn"
+				post-visibility-locator="id: webutils-alert-ok-btn"
+				retry-count="20" retry-time-gap-millis="500"/>
+			<s:ui-click locator="id: webutils-alert-ok-btn"
+				post-visibility-locator="id: multi-editable-lov-demo-response"
+				retry-count="15" retry-time-gap-millis="500"/>
+
+			<s:sql-load-query-row-map contextAttribute="tempRow" processAllRows="false">
+				<query><![CDATA[
+					SELECT CATEGORIES FROM TEMP_TABLE ORDER BY ID DESC LIMIT 1
+				]]></query>
+			</s:sql-load-query-row-map>
+			<s:assert-deep-equals actual="json: ${attr.tempRow.CATEGORIES}" expected="json: [&quot;AutoxMultiLovGadgets&quot;]"/>
+
+			<s:sql-fetch-value-query context-attribute="newOptionCount">
+				<query><![CDATA[
+					SELECT COUNT(*)
+					FROM STORED_LOV_OPTION
+					WHERE LABEL = 'AutoxMultiLovGadgets'
+						AND LOV_ID = (SELECT ID FROM STORED_LOV WHERE NAME = 'CATEGORY')
+				]]></query>
+			</s:sql-fetch-value-query>
+			<s:assert-equals actual="attr: newOptionCount" expected="int: 1"/>
+		</testCase>
+
+		<testCase name="lovCategoriesPersistFalseNoCreate">
+			<description>
+				categoryFilters has persist=false — multi select-only; no create for unknown label.
+			</description>
+
+			<s:ui-goto-page uri="/widgets/multi-editable-lov-demo.html"/>
+			<s:ui-wait-for retry-count="30" retry-time-gap-millis="500">
+				<locator>css: #categoryFilters .multiselect</locator>
+			</s:ui-wait-for>
+			<s:sleep time="1500"/>
+
+			<s:ui-click locator="css: #categoryFilters .multiselect__tags" retry-count="10" retry-time-gap-millis="300"/>
+			<s:ui-wait-for retry-count="15" retry-time-gap-millis="300">
+				<locator>css: #categoryFilters .multiselect--active .multiselect__input</locator>
+			</s:ui-wait-for>
+			<s:ui-set-value locator="css: #categoryFilters .multiselect--active .multiselect__input" value="string: AutoxMultiNoPersist" press-enter-at-end="false"/>
+			<s:sleep time="800"/>
+			<s:ui-assert-visibility
+				locator="xpath: //div[@id='categoryFilters']//span[contains(@class,'multiselect__option') and contains(.,'No elements found')]"
+				retry-count="10" retry-time-gap-millis="300"/>
+			<s:ui-log-screen-shot name="multi-editable-lov-persist-false-no-create"/>
+
+			<s:sql-fetch-value-query context-attribute="noPersistCount">
+				<query><![CDATA[
+					SELECT COUNT(*)
+					FROM STORED_LOV_OPTION
+					WHERE LABEL = 'AutoxMultiNoPersist'
+						AND LOV_ID = (SELECT ID FROM STORED_LOV WHERE NAME = 'CATEGORY')
+				]]></query>
+			</s:sql-fetch-value-query>
+			<s:assert-equals actual="attr: noPersistCount" expected="int: 0"/>
+		</testCase>
+
+	</testSuite>
+
+</testData>

@@ -64,10 +64,12 @@ function ensureLanguageLibs()
 	_langLibsPromise = loadScript(CM_BASE + '/lib/codemirror.js')
 		.then(function() { return loadScript(CM_BASE + '/mode/javascript/javascript.js'); })
 		.then(function() { return loadScript(CM_BASE + '/mode/xml/xml.js'); })
+		.then(function() { return loadScript(CM_BASE + '/mode/python/python.js'); })
 		.then(function() { return loadScript(CM_BASE + '/addon/fold/foldcode.js'); })
 		.then(function() { return loadScript(CM_BASE + '/addon/fold/foldgutter.js'); })
 		.then(function() { return loadScript(CM_BASE + '/addon/fold/brace-fold.js'); })
-		.then(function() { return loadScript(CM_BASE + '/addon/fold/xml-fold.js'); });
+		.then(function() { return loadScript(CM_BASE + '/addon/fold/xml-fold.js'); })
+		.then(function() { return loadScript(CM_BASE + '/addon/fold/indent-fold.js'); });
 
 	return _langLibsPromise;
 }
@@ -77,6 +79,11 @@ function resolveCmMode(languageType)
 	if(languageType === 'XML')
 	{
 		return 'xml';
+	}
+
+	if(languageType === 'PYTHON')
+	{
+		return 'python';
 	}
 
 	// JSON and JSON_SCHEMA
@@ -140,14 +147,15 @@ newVueUiComponent('yk-language-editor', {
 			var self = this;
 			var languageType = this.fieldInfo.languageType || 'JSON';
 			var mode = resolveCmMode(languageType);
+			var indent = (languageType === 'PYTHON') ? 4 : 2;
 
 			this._cm = CodeMirror(this.$refs.cmHost, {
 				"value": this.fieldValue ? this.fieldValue : '',
 				"mode": mode,
 				"lineNumbers": true,
 				"lineWrapping": false,
-				"tabSize": 2,
-				"indentUnit": 2,
+				"tabSize": indent,
+				"indentUnit": indent,
 				"foldGutter": true,
 				"gutters": ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
 				"extraKeys": {

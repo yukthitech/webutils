@@ -730,84 +730,92 @@ button.webutils-info-close-button:hover
 	outline-offset: 2px;
 }
 
-.yuk-autocomplete
-{
-  position: relative;
-  width: 100%;
-  display: inline-block;
+/*************************************************
+ *  vue-multiselect LOV theme overrides
+ *************************************************/
+.yk-lov-multiselect-wrap {
+	position: relative;
+}
+
+.yk-lov-field .multiselect,
+.yk-editable-lov-field .multiselect,
+.yk-multi-editable-lov-field .multiselect {
+	min-height: 38px;
+	color: #212529;
+}
+
+.yk-lov-field .multiselect__tags,
+.yk-editable-lov-field .multiselect__tags,
+.yk-multi-editable-lov-field .multiselect__tags {
+	border: 1px solid #ced4da;
+	border-radius: 0.25rem;
+	min-height: 38px;
+	padding: 6px 40px 0 8px;
+	background: #fff;
+}
+
+.yk-lov-field .multiselect__tag,
+.yk-editable-lov-field .multiselect__tag,
+.yk-multi-editable-lov-field .multiselect__tag {
+	background: #0d6efd;
+	color: #fff;
+	border-radius: 0.25rem;
+	margin-bottom: 4px;
+}
+
+.yk-lov-field .multiselect__tag-icon::after,
+.yk-editable-lov-field .multiselect__tag-icon::after,
+.yk-multi-editable-lov-field .multiselect__tag-icon::after {
+	color: #cfe2ff;
+}
+
+.yk-lov-field .multiselect__tag-icon:hover::after,
+.yk-editable-lov-field .multiselect__tag-icon:hover::after,
+.yk-multi-editable-lov-field .multiselect__tag-icon:hover::after {
+	color: #fff;
+}
+
+.yk-lov-field .multiselect__option--highlight,
+.yk-editable-lov-field .multiselect__option--highlight,
+.yk-multi-editable-lov-field .multiselect__option--highlight {
+	background: #0d6efd;
+	color: #fff;
+}
+
+.yk-lov-field .multiselect__option--highlight::after,
+.yk-editable-lov-field .multiselect__option--highlight::after,
+.yk-multi-editable-lov-field .multiselect__option--highlight::after {
+	background: #0d6efd;
+	color: #fff;
+}
+
+.yk-lov-field .multiselect__option--selected.multiselect__option--highlight,
+.yk-editable-lov-field .multiselect__option--selected.multiselect__option--highlight,
+.yk-multi-editable-lov-field .multiselect__option--selected.multiselect__option--highlight {
+	background: #dc3545;
+	color: #fff;
+}
+
+.yk-lov-field .multiselect.is-invalid .multiselect__tags,
+.yk-editable-lov-field .multiselect.is-invalid .multiselect__tags,
+.yk-multi-editable-lov-field .multiselect.is-invalid .multiselect__tags {
+	border-color: #dc3545;
 }
 
 .new-tag {
 	position: absolute;
 	top: 0;
 	right: 0;
-	background-color: blue;
+	background-color: #0d6efd;
 	color: white;
 	font-size: 0.7rem;
 	font-weight: bold;
 	padding: 2px 4px;
 	transform-origin: top right;
-	pointer-events: none; /* Ensure tag is not clickable */
+	pointer-events: none;
 	font-family: sans-serif;
 	border-bottom-left-radius: 5px;
-}
-
-.yuk-autocomplete ul
-{
-  position: absolute;
-  width: 100%;
-  max-height: 150px;
-  overflow-y: auto;
-  background-color: white;
-  border: 1px solid #ccc;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  z-index: 1000;
-  border-radius: 5px;
-}
-
-.yuk-autocomplete li
-{
-  padding: 8px;
-  cursor: pointer;
-}
-
-.yuk-autocomplete li.highlighted
-{
-  background-color: #007bff;
-  color: white;
-}
-
-.yuk-autocomplete span.match
-{
-	color: #FF9800;
-	font-weight: bold;
-}
-
-.yk-multi-editable-lov-field
-{
-	border: 1px ridge rgb(200, 200, 200);
-	padding: 5px 5px;
-}
-
-.yk-multi-editable-lov-field .selected-tag
-{
-	border: 1px ridge rgb(200, 200, 200);
-	padding: 5px 10px;
-	border-radius: 15px;
-	display: inline-flex;
-	align-items: center;
-	margin: 5px;
-	position: relative;
-}
-
-.remove-button
-{
-	cursor: pointer;
-	color: red;
-    font-weight: bold;
-    margin-left: 0.3rem;	
+	z-index: 2;
 }
 
 /*************************************************

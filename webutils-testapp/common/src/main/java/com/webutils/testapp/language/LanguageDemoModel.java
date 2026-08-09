@@ -35,4 +35,10 @@ public class LanguageDemoModel
 	@Required
 	@MaxLen(10000)
 	private String jsonSchemaContent;
+
+	@Label("Python")
+	@Language(LanguageType.PYTHON)
+	@Required
+	@MaxLen(10000)
+	private String pythonContent;
 }

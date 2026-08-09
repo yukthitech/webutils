@@ -13,6 +13,9 @@
 			<column name="CATEGORY" type="VARCHAR(100)">
 				<constraints nullable="true"/>
 			</column>
+			<column name="CATEGORIES" type="VARCHAR(2000)">
+				<constraints nullable="true"/>
+			</column>
 		</createTable>
 	</changeSet>
 </databaseChangeLog>

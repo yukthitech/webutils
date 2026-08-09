@@ -8,7 +8,7 @@ REST and UI automation against the WebUtils widget harness.
 |------|---------|
 | `src/main/config/` | `app-configuration.xml`, `app.properties` |
 | `src/main/test-suites/rest/` | REST suites |
-| `src/main/test-suites/ui/` | UI suites (e.g. `ui-editable-lov-field.xml`, `ui-simple-lov-field.xml`) |
+| `src/main/test-suites/ui/` | UI suites (e.g. `ui-editable-lov-field.xml`, `ui-multi-editable-lov-field.xml`, `ui-simple-lov-field.xml`) |
 | `src/main/test-suites/common/` | Shared locators, functions, global setup |
 | `src/main/resources/data/` | Data providers |
 
@@ -18,7 +18,7 @@ REST and UI automation against the WebUtils widget harness.
 |------|---------|
 | `common/global.xml` | Global `<setup>` (login + enable `$restService` API tracking) and `<cleanup>` (quit browser) |
 | `common/common-functions.xml` | `enableTrackedApiCalls` / `fetchTrackedApiCalls` / `clearTrackedApiCalls` |
-| `common/common-ui-locators.xml` | `ykLov` / `ykEditableLov` custom locators |
+| `common/common-ui-locators.xml` | `ykLov` / `ykEditableLov` / `ykMultiEditableLov` custom locators |
 
 ## Suite: `webutils-ui-editable-lov-field`
 
@@ -35,6 +35,27 @@ File: `ui/ui-editable-lov-field.xml`. Exercises single-field CATEGORY editable L
 Suite setup deletes `TEMP_TABLE` rows and any prior `AutoxLovGadgets` option under CATEGORY.
 
 When selecting with `-tc lovCategoryNewOptionAvailableOnReload`, also include `lovCategoryNewOptionPersist` (AutoX skips dependents if the dependency is not run / failed).
+
+## Suite: `webutils-ui-enum-lov-field`
+
+File: `ui/ui-enum-lov-field.xml`. Enum single + multi on `/widgets/enum-lov-demo.html` (`DemoItemStatus`, 5 values → search on).
+
+| Test case | What it covers |
+|-----------|----------------|
+| `enumLovSingleSelectAndSearch` | Search + select Active; multi select Draft+Pending; submit echoes |
+| `enumLovNoCreateAffordance` | Unknown typed value → no create (No elements found) |
+
+## Suite: `webutils-ui-multi-editable-lov-field`
+
+File: `ui/ui-multi-editable-lov-field.xml`. Exercises multi-field CATEGORY editable LOV on `/widgets/multi-editable-lov-demo.html`.
+
+| Test case | What it covers |
+|-----------|----------------|
+| `lovCategoriesSelectClickPersist` | Select Electronics + Books → submit → `TEMP_TABLE.CATEGORIES` JSON has both |
+| `lovCategoriesNewOptionPersist` | Type `AutoxMultiLovGadgets` → submit → new `STORED_LOV_OPTION` + `CATEGORIES` JSON |
+| `lovCategoriesPersistFalseNoCreate` | `categoryFilters` persist=false → unknown value shows No elements found |
+
+Suite setup deletes `TEMP_TABLE` rows and any prior `AutoxMultiLovGadgets` option under CATEGORY.
 
 ## Suite: `webutils-ui-simple-lov-field`
 
@@ -63,7 +84,7 @@ File: `ui/ui-language-editor.xml`. Exercises `@Language` / `yk-language-editor` 
 
 | Test case | What it covers |
 |-----------|----------------|
-| `languageServerContentDisplayed` | GET sample → CodeMirror shows ServerJson / ServerXml / autoxSchema |
+| `languageServerContentDisplayed` | GET sample → CodeMirror shows ServerJson / ServerXml / autoxSchema / ServerPython |
 | `languageValidSubmitEcho` | Submit valid sample → response echoes markers |
 | `languageInvalidJsonRejected` | Invalid JSON submit → error, no success alert/response |
 
@@ -97,6 +118,8 @@ Filter by suite / test case with AutoX `-ts` / `-tc` (do not use test-case `grou
 
 ```bash
 mvn exec:java "-Dexec.args=src/main/config/app-configuration.xml -rf test-reports -prop src/main/config/app.properties -ts webutils-ui-editable-lov-field -rod true -dport 0"
+mvn exec:java "-Dexec.args=src/main/config/app-configuration.xml -rf test-reports -prop src/main/config/app.properties -ts webutils-ui-multi-editable-lov-field -rod true -dport 0"
+mvn exec:java "-Dexec.args=src/main/config/app-configuration.xml -rf test-reports -prop src/main/config/app.properties -ts webutils-ui-enum-lov-field -rod true -dport 0"
 mvn exec:java "-Dexec.args=src/main/config/app-configuration.xml -rf test-reports -prop src/main/config/app.properties -ts webutils-ui-simple-lov-field -rod true -dport 0"
 mvn exec:java "-Dexec.args=src/main/config/app-configuration.xml -rf test-reports -prop src/main/config/app.properties -ts webutils-ui-markdown-editor -rod true -dport 0"
 mvn exec:java "-Dexec.args=src/main/config/app-configuration.xml -rf test-reports -prop src/main/config/app.properties -ts webutils-ui-language-editor -rod true -dport 0"

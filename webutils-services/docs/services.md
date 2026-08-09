@@ -309,6 +309,7 @@ Annotate a `String` with a required `LanguageType`. Content is validated on `@Va
 | `JSON` | Parse as JSON (`ObjectMapper`) | `javascript` + `json: true` |
 | `XML` | Secure XML parse (XXE hardened) | `xml` |
 | `JSON_SCHEMA` | Parse JSON + validate against JSON Schema meta-schema (draft 2020-12 via networknt) | `javascript` + `json: true` |
+| `PYTHON` | None (accepted as-is for now) | `python` |
 
 Blank / null values skip language validation (combine with `@Required` when empty is not allowed).
 
@@ -325,6 +326,10 @@ private String xmlContent;
 @Label("JSON Schema")
 @Language(LanguageType.JSON_SCHEMA)
 private String jsonSchemaContent;
+
+@Label("Python")
+@Language(LanguageType.PYTHON)
+private String pythonContent;
 ```
 
 `FieldDefBuilder` sets `FieldType.LANGUAGE`, `languageType`, and `fullWidth=true`. Demo: `LanguageDemoModel` → `/widgets/language-demo.html`.

@@ -28,4 +28,10 @@ public class TempTableEntity
 
 	@Column(name = "CATEGORY", nullable = true, length = 100)
 	private String category;
+
+	/**
+	 * JSON array of category labels from multi-editable LOV demo submits.
+	 */
+	@Column(name = "CATEGORIES", nullable = true, length = 2000)
+	private String categories;
 }

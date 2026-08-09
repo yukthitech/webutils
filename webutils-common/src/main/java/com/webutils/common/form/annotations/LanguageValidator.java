@@ -61,6 +61,9 @@ public class LanguageValidator implements ConstraintValidator<Language, String>
 				case JSON_SCHEMA:
 					validateJsonSchema(value);
 					return true;
+				case PYTHON:
+					// No syntax validation yet — accept any non-blank content
+					return true;
 				default:
 					return false;
 			}

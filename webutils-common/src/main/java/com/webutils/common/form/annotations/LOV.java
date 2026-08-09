@@ -33,12 +33,16 @@ public @interface LOV
 	public DynLovType type() default DynLovType.DYNAMIC_TYPE;
 	
 	/**
-	 * Used to mark editable lov as not-persist for new options.
-	 * 
-	 * This can be set to 'false' on editable-lov (which is getting converted to string), which can take help of existing lov values.
-	 * However the new items will not be persisted as lov options, if this flag is set to false.
-	 * 
-	 * @return
+	 * Controls whether new typed values are allowed on String editable / multi-editable LOVs.
+	 * <p>
+	 * When {@code false}:
+	 * <ul>
+	 * <li>UI create/tagging is disabled (select existing options only)</li>
+	 * <li>Server {@code processModel} will not create new {@code STORED_LOV_OPTION} rows</li>
+	 * </ul>
+	 * Use for search filters and other select-only String LOV fields.
+	 *
+	 * @return whether new LOV options may be created
 	 */
 	public boolean persist() default true;
 }

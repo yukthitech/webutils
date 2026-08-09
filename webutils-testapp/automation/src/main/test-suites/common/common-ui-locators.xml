@@ -3,37 +3,71 @@
 	xmlns:wrap="http://xmlbeanparser.yukthitech.com/wrap"
 	xmlns:f="http://autox.yukthitech.com/functions">
 
-	<!-- Readonly yk-lov-field: open dropdown and select by exact label -->
+	<!-- yk-lov-field (vue-multiselect): open and select by exact label -->
 	<custom-ui-locator name="ykLov">
 		<set-function>
-			<s:ui-click locator="id: ${param.context.effectiveExpression}" retry-count="10" retry-time-gap-millis="300"/>
-			<s:ui-click locator="xpath: //input[@id='${param.context.effectiveExpression}']/ancestor::div[contains(@class,'yuk-autocomplete')]//li[not(.//input) and normalize-space(.)='${param.context.value}']" retry-count="10" retry-time-gap-millis="300"/>
+			<s:ui-click locator="css: #${param.context.effectiveExpression} .multiselect__tags" retry-count="10" retry-time-gap-millis="300"/>
+			<s:ui-wait-for retry-count="15" retry-time-gap-millis="300">
+				<locator>css: #${param.context.effectiveExpression} .multiselect--active</locator>
+			</s:ui-wait-for>
+			<s:ui-wait-for retry-count="20" retry-time-gap-millis="300">
+				<locator>xpath: //div[@id='${param.context.effectiveExpression}']//span[contains(@class,'multiselect__option') and not(contains(@class,'multiselect__option--disabled')) and normalize-space(.)='${param.context.value}']</locator>
+			</s:ui-wait-for>
+			<s:ui-click
+				locator="xpath: //div[@id='${param.context.effectiveExpression}']//span[contains(@class,'multiselect__option') and not(contains(@class,'multiselect__option--disabled')) and normalize-space(.)='${param.context.value}']"
+				retry-count="10" retry-time-gap-millis="300"/>
 		</set-function>
 		<get-function>
-			<s:return value="uiVal: id: ${param.context.effectiveExpression}"/>
+			<s:return value="uiVal: css: #${param.context.effectiveExpression} .multiselect__single"/>
 		</get-function>
 	</custom-ui-locator>
 
-	<!-- Editable yk-editable-lov-field: type value and click matching suggestion -->
+	<!-- yk-editable-lov-field: type + Enter (selects highlight or creates tag when taggable) -->
 	<custom-ui-locator name="ykEditableLov">
 		<set-function>
-			<s:ui-click locator="id: ${param.context.effectiveExpression}" retry-count="10" retry-time-gap-millis="300"/>
-			<s:ui-set-value locator="id: ${param.context.effectiveExpression}" value="prop: param.context.value" press-enter-at-end="false"/>
-
-			<s:set expression="valueLocator" value="//input[@id='${param.context.effectiveExpression}']/ancestor::div[contains(@class,'yuk-autocomplete')]//ul//li[contains(normalize-space(.),'${param.context.value}')]"/>
-
-			<s:sleep time="1000"/>
-			<s:if condition="uiIsVisible(attr.valueLocator)">
-				<s:ui-click 
-					locator="xpath: //input[@id='${param.context.effectiveExpression}']/ancestor::div[contains(@class,'yuk-autocomplete')]//ul//li[contains(normalize-space(.),'${param.context.value}')]" 
-					retry-count="5" retry-time-gap-millis="500"/>
-			</s:if>
-			<s:else>
-				<s:ui-set-value locator="id: ${param.context.effectiveExpression}" value="prop: param.context.value" press-enter-at-end="true"/>
-			</s:else>
+			<s:ui-click locator="css: #${param.context.effectiveExpression} .multiselect__tags" retry-count="10" retry-time-gap-millis="300"/>
+			<s:ui-wait-for retry-count="15" retry-time-gap-millis="300">
+				<locator>css: #${param.context.effectiveExpression} .multiselect--active .multiselect__input</locator>
+			</s:ui-wait-for>
+			<s:ui-set-value locator="css: #${param.context.effectiveExpression} .multiselect--active .multiselect__input" value="prop: param.context.value" press-enter-at-end="true"/>
+			<s:sleep time="500"/>
 		</set-function>
 		<get-function>
-			<s:return value="uiVal: id: ${param.context.effectiveExpression}"/>
+			<s:return value="uiVal: css: #${param.context.effectiveExpression} .multiselect__single"/>
+		</get-function>
+	</custom-ui-locator>
+
+	<!-- yk-multi-editable-lov-field: open, prefer exact option click, else type+Enter -->
+	<custom-ui-locator name="ykMultiEditableLov">
+		<set-function>
+			<s:ui-click locator="css: #${param.context.effectiveExpression} .multiselect__tags" retry-count="10" retry-time-gap-millis="300"/>
+			<s:ui-wait-for retry-count="15" retry-time-gap-millis="300">
+				<locator>css: #${param.context.effectiveExpression} .multiselect--active</locator>
+			</s:ui-wait-for>
+			<s:ui-wait-for retry-count="10" retry-time-gap-millis="300">
+				<locator>xpath: //div[@id='${param.context.effectiveExpression}']//span[contains(@class,'multiselect__option') and not(contains(@class,'multiselect__option--disabled')) and normalize-space(.)='${param.context.value}']</locator>
+			</s:ui-wait-for>
+			<s:ui-click
+				locator="xpath: //div[@id='${param.context.effectiveExpression}']//span[contains(@class,'multiselect__option') and not(contains(@class,'multiselect__option--disabled')) and normalize-space(.)='${param.context.value}']"
+				retry-count="10" retry-time-gap-millis="300"/>
+		</set-function>
+		<get-function>
+			<s:return value="uiVal: css: #${param.context.effectiveExpression} .multiselect__tags"/>
+		</get-function>
+	</custom-ui-locator>
+
+	<!-- Multi editable create-new: type + Enter (for new tags not in the option list) -->
+	<custom-ui-locator name="ykMultiEditableLovCreate">
+		<set-function>
+			<s:ui-click locator="css: #${param.context.effectiveExpression} .multiselect__tags" retry-count="10" retry-time-gap-millis="300"/>
+			<s:ui-wait-for retry-count="15" retry-time-gap-millis="300">
+				<locator>css: #${param.context.effectiveExpression} .multiselect--active .multiselect__input</locator>
+			</s:ui-wait-for>
+			<s:ui-set-value locator="css: #${param.context.effectiveExpression} .multiselect--active .multiselect__input" value="prop: param.context.value" press-enter-at-end="true"/>
+			<s:sleep time="500"/>
+		</set-function>
+		<get-function>
+			<s:return value="uiVal: css: #${param.context.effectiveExpression} .multiselect__tags"/>
 		</get-function>
 	</custom-ui-locator>
 

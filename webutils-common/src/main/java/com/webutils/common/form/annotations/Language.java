@@ -10,8 +10,8 @@ import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
 /**
- * Marks a string field as language content (JSON / XML / JSON Schema) edited via CodeMirror.
- * Content is validated on the server according to {@link #value()}.
+ * Marks a string field as language content (JSON / XML / JSON Schema / Python) edited via CodeMirror.
+ * Content is validated on the server according to {@link #value()} (Python currently has no syntax check).
  *
  * @author akiran
  */

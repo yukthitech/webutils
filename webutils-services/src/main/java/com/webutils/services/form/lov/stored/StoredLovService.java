@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -298,5 +299,56 @@ public class StoredLovService
 	public boolean isValidLov(String lovName)
 	{
 		return (lovCache.get(lovName) != null);
+	}
+
+	/**
+	 * Validates that each value is an existing option id under the named stored LOV.
+	 * Used for non-editable (Long / List&lt;Long&gt;) LOV fields that bind option ids, not labels.
+	 *
+	 * @param lovName stored LOV name
+	 * @param optionIds option id values from the model
+	 */
+	public void validateLovOptionIds(String lovName, Collection<?> optionIds)
+	{
+		if(optionIds == null || optionIds.isEmpty())
+		{
+			return;
+		}
+
+		List<StoredLovOptionEntity> allOptions = lovOptionRepository.fetchLovOptions(lovName);
+		Set<String> validIds = new HashSet<>();
+
+		if(allOptions != null)
+		{
+			for(StoredLovOptionEntity opt : allOptions)
+			{
+				if(opt.getId() != null)
+				{
+					validIds.add(String.valueOf(opt.getId()));
+				}
+			}
+		}
+
+		TreeSet<String> missing = new TreeSet<>();
+
+		for(Object optionId : optionIds)
+		{
+			if(optionId == null || StringUtils.isBlank(String.valueOf(optionId)))
+			{
+				continue;
+			}
+
+			String idStr = String.valueOf(optionId).trim();
+
+			if(!validIds.contains(idStr))
+			{
+				missing.add(idStr);
+			}
+		}
+
+		if(!missing.isEmpty())
+		{
+			throw new InvalidStateException("Following lov option ids are not present [Under Lov: {}]: {}", lovName, missing);
+		}
 	}
 }

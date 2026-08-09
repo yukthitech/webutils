@@ -3,7 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Language Editor Demo</title>
+	<title>Multi Editable LOV Demo</title>
 	<link href="/lib/bootstrap-5.1.0/css/bootstrap.min.css" rel="stylesheet">
 	<link href="/lib/bootstrap-select-1.14.0/bootstrap-select.min.css" rel="stylesheet">
 	<link href="/lib/bootstrap-icons-1.3.0/bootstrap-icons.css" rel="stylesheet">
@@ -19,34 +19,36 @@
 	<div id="webutilsPageLoading" class="p-3">Loading…</div>
 	<div id="ykApp" class="container" style="display:none;">
 		<header class="testapp-header">
-			<h1 id="language-demo-title">Language Editor Demo</h1>
-			<p>yk-language-editor via LanguageDemoModel (@Language JSON / XML / JSON_SCHEMA / PYTHON). Loads sample from server; submit echoes content (Python is not syntax-validated yet).</p>
+			<h1 id="multi-editable-lov-demo-title">Multi Editable LOV Demo</h1>
+			<p>Multi editable LOV (persist=true) plus multi select-only filters (persist=false). Submit persists categories JSON into TEMP_TABLE.CATEGORIES.</p>
 		</header>
 
 		<nav class="testapp-nav">
 			<a href="/index.html">Home</a>
 			<a href="/login/login.html">Login</a>
 			<a href="/widgets/editable-lov-demo.html">Editable LOV</a>
+			<a class="active" href="/widgets/multi-editable-lov-demo.html">Multi Editable LOV</a>
 			<a href="/widgets/simple-lov-demo.html">Simple LOV</a>
+			<a href="/widgets/enum-lov-demo.html">Enum LOV</a>
 			<a href="/widgets/otp-demo.html">OTP</a>
 			<a href="/widgets/search-demo.html">Search</a>
 			<a href="/widgets/markdown-demo.html">Markdown</a>
-			<a class="active" href="/widgets/language-demo.html">Language</a>
+			<a href="/widgets/language-demo.html">Language</a>
 		</nav>
 
 		<div class="testapp-hint">
-			Sample content is loaded from <code>GET /api/testapp/language-demo/sample</code>.
-			Invalid JSON / XML / JSON Schema is rejected by server-side <code>@Language</code> validation. Python has no syntax check yet.
+			Uses stored LOV <code>CATEGORY</code> seeded by Liquibase. Submit calls
+			<code>/api/testapp/multi-editable-lov-demo/submit</code>, maps/creates LOV options, and inserts JSON into <code>TEMP_TABLE.CATEGORIES</code>.
 		</div>
 
 		<section class="testapp-panel">
 			<h2>Model form</h2>
-			<yk-model-form id="language-demo-form" ref="langForm" model-name="LanguageDemoModel" :column-count="1"
+			<yk-model-form id="multi-editable-lov-demo-form" ref="lovForm" model-name="MultiEditableLovDemoModel" :column-count="1"
 				v-model="formData" :enable-error="submitTried" :server-errors="fieldErrors">
 				<template #footer>
-					<div class="language-demo-footer clearfix">
-						<div id="language-demo-error" class="webutils-error">{{ error }}</div>
-						<button id="language-demo-submit-btn" type="button" class="webutils-btn-primary"
+					<div style="float: right;">
+						<div id="multi-editable-lov-demo-error" class="webutils-error">{{ error }}</div>
+						<button id="multi-editable-lov-demo-submit-btn" type="button" class="webutils-btn-primary"
 							@click.prevent="submitForm">Submit</button>
 					</div>
 				</template>
@@ -55,12 +57,12 @@
 
 		<section class="testapp-panel" v-if="lastResponse">
 			<h2>Last response</h2>
-			<pre id="language-demo-response">{{ JSON.stringify(lastResponse, null, 2) }}</pre>
+			<pre id="multi-editable-lov-demo-response">{{ JSON.stringify(lastResponse, null, 2) }}</pre>
 		</section>
 
 		<yk-dialogs ref="ykDialogs"></yk-dialogs>
 	</div>
 
-	<script type="module" src="/widgets/language-demo.js"></script>
+	<script type="module" src="/widgets/multi-editable-lov-demo.js"></script>
 </body>
 </html>

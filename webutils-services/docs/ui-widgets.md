@@ -89,9 +89,10 @@ Webutils.newVueApp({
 | `rest-service.js` | `$restService` — HTTP + Bearer from `sessionStorage.authToken` |
 | `common.js` | `$utils`, `$appConfiguration`, merge helpers |
 | `model-def-service.js` | FieldType → Vue component mapping |
-| `input-fields.js` | Input / LOV / OTP / captcha / file / html / switch |
+| `input-fields.js` | Input / OTP / captcha / file / html / switch |
+| `lov-fields.js` | `yk-lov-field`, `yk-editable-lov-field`, `yk-multi-editable-lov-field` (vue-multiselect) |
 | `markdown-editor.js` | `yk-markdown-editor` — CodeMirror + marked/DOMPurify; edit / split / preview |
-| `language-editor.js` | `yk-language-editor` — JSON / XML / JSON_SCHEMA + fold gutter |
+| `language-editor.js` | `yk-language-editor` — JSON / XML / JSON_SCHEMA / PYTHON + fold gutter |
 | `forms.js` | `yk-form`, `yk-model-form`, `yk-search-form`, `yk-search-results`, `yk-search-action`, multi-row forms |
 | `modal-dialogs.js` | `yk-dialogs`, modal / model-form dialogs |
 | `nav-bar.js` | `yk-route-nav-bar`, `yk-route-side-bar` |
@@ -119,7 +120,7 @@ Backend `@Model` fields drive `yk-model-form` via `/api/model/{name}`. Mapping l
 | FILE / IMAGE | `yk-input-file` / `yk-input-image` |
 | HTML (`@Html`) | `yk-html-editor` |
 | MARKDOWN (`@Markdown` on `String`) | `yk-markdown-editor` (full width; §5.2) |
-| LANGUAGE (`@Language(LanguageType.…)` on `String`) | `yk-language-editor` (full width; §5.3) — types: `JSON`, `XML`, `JSON_SCHEMA` |
+| LANGUAGE (`@Language(LanguageType.…)` on `String`) | `yk-language-editor` (full width; §5.3) — types: `JSON`, `XML`, `JSON_SCHEMA`, `PYTHON` |
 
 ### LOV choice (agents)
 
@@ -130,7 +131,7 @@ Backend `@Model` fields drive `yk-model-form` via `/api/model/{name}`. Mapping l
 | Multi labels | `List<String>` + `@LOV` | `yk-multi-editable-lov-field` |
 | Search filter only | `@LOV(…, persist = false)` | same widgets; no option create |
 
-Demos: `webutils-testapp/services/web/widgets/editable-lov-demo.*`, `simple-lov-demo.*`, `markdown-demo.*`, `language-demo.*`, `search-demo.*`.
+Demos: `webutils-testapp/services/web/widgets/editable-lov-demo.*`, `multi-editable-lov-demo.*`, `simple-lov-demo.*`, `markdown-demo.*`, `language-demo.*`, `search-demo.*`.
 
 ---
 
@@ -220,16 +221,17 @@ Demo: `/widgets/markdown-demo.html` (`MarkdownDemoModel`).
 | `JSON` | Parseable JSON | JS mode, `json: true` |
 | `XML` | Secure XML document | `xml` |
 | `JSON_SCHEMA` | JSON + draft 2020-12 meta-schema | JS mode, `json: true` |
+| `PYTHON` | None (accepted as-is for now) | `python` |
 
-**Frontend:** CodeMirror with line numbers, fold gutter (`Ctrl-Q` / gutter fold), brace/XML fold addons. Libs load on demand from `/lib/codemirror-5.65.16`.
+**Frontend:** CodeMirror with line numbers, fold gutter (`Ctrl-Q` / gutter fold), brace/XML/indent fold addons. Libs load on demand from `/lib/codemirror-5.65.16`.
 
 | Prop | Default | Notes |
 |------|---------|--------|
 | `height` | `220px` | Editor wrap height |
 
-Invalid content is rejected by the server (field errors on the model form). Empty/blank skips language validation unless `@Required` is also present.
+Invalid JSON / XML / JSON Schema is rejected by the server (field errors on the model form). Python currently skips language validation. Empty/blank skips language validation unless `@Required` is also present.
 
-Demo: `/widgets/language-demo.html` (`LanguageDemoModel` — JSON, XML, JSON Schema fields).
+Demo: `/widgets/language-demo.html` (`LanguageDemoModel` — JSON, XML, JSON Schema, Python fields).
 
 ---
 
@@ -562,10 +564,11 @@ If a style is used in 2+ modules, move it to `app.css`.
 | Demo URL | Covers |
 |----------|--------|
 | `/widgets/editable-lov-demo.html` | Editable LOV + model form submit |
+| `/widgets/multi-editable-lov-demo.html` | Multi editable LOV + TEMP_TABLE.CATEGORIES persist |
 | `/widgets/simple-lov-demo.html` | Id LOV |
 | `/widgets/otp-demo.html` | OTP fields |
 | `/widgets/search-demo.html` | Search form + results + global/row actions + settings |
 | `/widgets/markdown-demo.html` | Markdown edit / split / preview + sync scroll |
-| `/widgets/language-demo.html` | Language editor — `JSON`, `XML`, `JSON_SCHEMA` |
+| `/widgets/language-demo.html` | Language editor — `JSON`, `XML`, `JSON_SCHEMA`, `PYTHON` |
 
 Login first: `/login/login.html`.

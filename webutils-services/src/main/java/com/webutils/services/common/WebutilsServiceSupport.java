@@ -307,8 +307,15 @@ public class WebutilsServiceSupport
 		}
 		else if(lovDetails.getLovType() == LovType.STORED_TYPE)
 		{
+			// Long / List<Long> LOVs bind option ids — validate ids and leave model values unchanged
+			if(!lovDetails.isEditableLov())
+			{
+				storedLovService.validateLovOptionIds(lovDetails.getLovName(), lovValues);
+				return;
+			}
+
 			LovConfig lovConfig = new LovConfig()
-				.setSaveMissingOptions(lovDetails.isEditableLov())
+				.setSaveMissingOptions(true)
 				;
 
 			if(lovDetails.getParentField() != null)
@@ -331,6 +338,9 @@ public class WebutilsServiceSupport
 
 				lovConfig.setParentOptionLabel("" + parentValue);
 			}
+
+			// persist=false: do not create missing STORED_LOV_OPTION rows
+			lovConfig.setSaveMissingOptions(lovDetails.isPersist());
 
 			Set<String> stringLovValues = lovValues.stream().map(Object::toString).collect(Collectors.toSet());
 			Set<String> savedLovValues = storedLovService.checkAndSaveLovOption(lovConfig, lovDetails.getLovName(), stringLovValues);

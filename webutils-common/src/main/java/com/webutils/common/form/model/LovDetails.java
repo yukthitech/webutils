@@ -59,8 +59,9 @@ public class LovDetails
 	private boolean editableLov;
 
 	/**
-	 * When {@code editableLov} is true, whether newly typed options should be persisted
-	 * as stored LOV options. Defaults to true; set via {@code @LOV(persist = false)}.
+	 * When {@code editableLov} is true, whether newly typed options are allowed in the UI
+	 * and persisted as stored LOV options. Defaults to true; set via {@code @LOV(persist = false)}
+	 * to force select-only (no tagging) behavior.
 	 */
 	private boolean persist = true;
 	
