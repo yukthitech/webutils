@@ -21,6 +21,12 @@ public @interface Captcha
 {
 	public String message() default "Invalid captcha value specified";
 
+	/**
+	 * Message used when the captcha token exists but has expired.
+	 * Users should refresh the captcha (or reload the page) and try again.
+	 */
+	public String expiredMessage() default "Captcha has expired. Please refresh the captcha or reload the page and try again.";
+
 	public Class<?>[] groups() default {};
 
 	public Class<? extends Payload>[] payload() default {};

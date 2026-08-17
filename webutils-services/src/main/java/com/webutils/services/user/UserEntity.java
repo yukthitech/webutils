@@ -30,8 +30,8 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 @Table(name = "USER")
 @UniqueConstraints(value = {
-    @UniqueConstraint(name = "UQ_IDX_USER_EMAIL_CUSTOM_SPACE", fields = { "email", "customSpace" }),
-    @UniqueConstraint(name = "UQ_IDX_USER_MOBILE_CUSTOM_SPACE", fields = { "mobile", "customSpace" })
+    @UniqueConstraint(name = "UQ_IDX_USER_EMAIL_CUSTOM_SPACE", fields = { "email", "customSpace" }, finalName = true, message = "Specified email id is already in use"),
+    @UniqueConstraint(name = "UQ_IDX_USER_MOBILE_CUSTOM_SPACE", fields = { "mobile", "customSpace" }, finalName = true, message = "Specified mobile number is already in use")
 })
 public class UserEntity 
 {

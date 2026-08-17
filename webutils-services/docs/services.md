@@ -6,7 +6,7 @@
 ## When to read this
 
 - Adding entities, repositories, controllers, or `@Model` DTOs
-- Implementing search listings, LOV, OTP, Markdown/Language fields, or auth-related APIs
+- Implementing search listings, LOV, OTP, captcha, Markdown/Language fields, or auth-related APIs
 - Choosing response types / exception patterns
 - Deciding where code lives (`*-common` vs `*-services`)
 
@@ -377,7 +377,24 @@ References: `EditableLovDemoModel` (`String`), `SimpleLovDemoModel` (`Long`).
 
 ---
 
-## 10. Auth / user integration
+## 10. Captcha
+
+- Model field: `ValueWithToken` + `@Captcha`.
+- Generate API: `GET /api/captcha` (returns image base64 + token stored in `FORM_TOKEN`).
+- Default expiry: `webutils.form.captcha.expiryTimeSec` (600 seconds).
+- UI widget: `yk-captcha-field` (field type CAPTCHA).
+- Validation messages on the captcha field:
+
+| Condition | Annotation attribute | Default message |
+|-----------|----------------------|-----------------|
+| Token missing / already consumed, or value does not match | `@Captcha.message` | `Invalid captcha value specified` |
+| Token exists but `EXPIRES_AT` has passed | `@Captcha.expiredMessage` | `Captcha has expired. Please refresh the captcha or reload the page and try again.` |
+
+Token lifecycle: generate persists `FORM_TOKEN`; submit looks up the token without collapsing expiry into not-found so the expired message can be returned. Users should refresh the captcha image (or reload the page) after expiry.
+
+---
+
+## 11. Auth / user integration
 
 Implement `IWebutilsService` in the app:
 
@@ -394,7 +411,7 @@ Session storage: `AUTH_TOKEN` via `AuthTokenService`. Product login: `/api/auth/
 
 ---
 
-## 11. Responses and errors
+## 12. Responses and errors
 
 | Type | Use |
 |------|-----|
@@ -410,12 +427,15 @@ Throwables handled by `GlobalExceptionHandler`:
 - `UnauthenticatedRequestException`
 - `UnauthorizedRequestException`
 - `BeanValidationException`
+- `UniqueConstraintViolationException`
 
 Response shape includes `success`, `message`, `errors` / field errors as applicable.
 
+**Unique constraints:** put the user-facing text on `@UniqueConstraint(name = "...", finalName = true, message = "...")`. Yukthi Data throws `UniqueConstraintViolationException` with that `message` and `constraintName`. The global handler returns HTTP 400 with `message` set to the annotation text and `errorParameters.constraintName` for diagnostics. **Do not** catch unique violations in services or controllers. **Do not** map them to per-field `errors` — UI shows `message` in the form-level error banner.
+
 ---
 
-## 12. Mail (optional)
+## 13. Mail (optional)
 
 - Configure `webutils.email.*` → `EmailServerSettings` + `EmailService`.
 - Optional DB templates: `WEBUTILS_MAIL_TEMPLATE`.
@@ -423,7 +443,7 @@ Response shape includes `success`, `message`, `errors` / field errors as applica
 
 ---
 
-## 13. Coding DO / DON'T
+## 14. Coding DO / DON'T
 
 ### DO
 
@@ -448,12 +468,12 @@ Response shape includes `success`, `message`, `errors` / field errors as applica
 | Enable Spring Liquibase in services | Schema owned by `dbschema` module |
 | Nested duplicate `scanBasePackages` | Double repo registration |
 | Legacy table/package names | Wrong schema (`WEBUTILS_USERS` vs `USER`) |
-| Log passwords / tokens | Security |
+| Catch unique violations in services | Use `@UniqueConstraint(message=..., finalName=true)`; `GlobalExceptionHandler` returns the message |
 | Put product-only widgets into framework defaults | Keep app widgets in app `web/common/widgets` |
 
 ---
 
-## 14. Agent implementation recipe
+## 15. Agent implementation recipe
 
 When adding a new searchable listing feature:
 

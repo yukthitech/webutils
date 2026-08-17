@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import com.webutils.common.response.BaseResponse;
+import com.yukthitech.persistence.UniqueConstraintViolationException;
 
 /**
  * Global exception handler for the Acharya application
@@ -68,6 +69,20 @@ public class GlobalExceptionHandler
 			.setSuccess(false)
 			.setErrors(errors)
 			.setMessage("Validation errors");
+
+		return ResponseEntity.badRequest()
+			.contentType(MediaType.APPLICATION_JSON)
+			.body(response);
+	}
+
+	@ExceptionHandler(UniqueConstraintViolationException.class)
+	public ResponseEntity<BaseResponse> handleUniqueConstraintViolation(UniqueConstraintViolationException ex)
+	{
+		logger.debug("Unique constraint violated [{}]: {}", ex.getConstraintName(), ex.getMessage());
+
+		BaseResponse response = new BaseResponse()
+			.setSuccess(false)
+			.setMessage(ex.getMessage());
 
 		return ResponseEntity.badRequest()
 			.contentType(MediaType.APPLICATION_JSON)

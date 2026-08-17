@@ -102,6 +102,37 @@ public class TokenManager
 	}
 
 	/**
+	 * Looks up a token and distinguishes missing vs expired vs valid.
+	 * Does not check purpose or user (for captcha and other unbound tokens).
+	 */
+	public TokenLookupResult lookupToken(String token)
+	{
+		if(disabled)
+		{
+			throw new InvalidStateException("Token manager is disabled");
+		}
+
+		if(StringUtils.isBlank(token))
+		{
+			return TokenLookupResult.notFound();
+		}
+
+		TokenEntity entity = tokenRepository.fetchByToken(token);
+
+		if(entity == null)
+		{
+			return TokenLookupResult.notFound();
+		}
+
+		if(!entity.getExpiresAt().after(new Date()))
+		{
+			return TokenLookupResult.expired(entity);
+		}
+
+		return TokenLookupResult.valid(entity);
+	}
+
+	/**
 	 * Returns the value for the given token only if it exists, is unexpired,
 	 * and both purpose and userId match the stored values.
 	 */
@@ -146,19 +177,8 @@ public class TokenManager
 
 	private TokenEntity fetchValidEntity(String token)
 	{
-		if(disabled)
-		{
-			throw new InvalidStateException("Token manager is disabled");
-		}
-
-		TokenEntity entity = tokenRepository.fetchByToken(token);
-
-		if(entity == null || entity.getExpiresAt().before(new Date()))
-		{
-			return null;
-		}
-
-		return entity;
+		TokenLookupResult lookup = lookupToken(token);
+		return lookup.isValid() ? lookup.getEntity() : null;
 	}
 
 	private void cleanupTokens()

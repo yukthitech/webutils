@@ -59,6 +59,10 @@ Do **not** use Lombok `@Data` on persistence entities (or embedded subentities).
 
 Use `@Getter` and `@Setter` instead (optionally with `@NoArgsConstructor` / `@Accessors` as needed). `@Data` remains fine for DTOs, models, and other non-entity POJOs.
 
+### Unique constraints
+
+Put the user-facing text on `@UniqueConstraint(..., finalName = true, message = "...")`. Do **not** catch `UniqueConstraintViolationException` in services or controllers. `GlobalExceptionHandler` returns HTTP 400 with that message; UI shows it in the form-level error banner (not per-field `errors`).
+
 ### webutils-testapp login
 
 APIs require a session. Open `/login/login.html` and sign in as:

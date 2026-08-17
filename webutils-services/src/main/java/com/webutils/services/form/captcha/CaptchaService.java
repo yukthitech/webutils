@@ -3,6 +3,7 @@ package com.webutils.services.form.captcha;
 import java.awt.Color;
 import java.io.ByteArrayOutputStream;
 import java.util.Base64;
+import java.util.Objects;
 import java.util.Random;
 
 import javax.imageio.ImageIO;
@@ -14,8 +15,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.webutils.common.form.captcha.CaptchaResponse;
+import com.webutils.common.form.captcha.CaptchaValidationResult;
 import com.webutils.common.form.captcha.CaptchaValidator;
 import com.webutils.services.form.captcha.CaptchaValueFactory.CaptchaValue;
+import com.webutils.services.form.token.TokenLookupResult;
 import com.webutils.services.form.token.TokenManager;
 import com.yukthitech.utils.exceptions.InvalidStateException;
 
@@ -84,7 +87,7 @@ public class CaptchaService
 		{
 			if(valueWithToken == null)
 			{
-				return true;
+				return CaptchaValidationResult.VALID;
 			}
 
 			return validate(valueWithToken.getToken(), valueWithToken.getValue());
@@ -119,29 +122,34 @@ public class CaptchaService
 	
 	/**
 	 * Validates user answer for corresponding token.
-	 * @param token
-	 * @param userAns
+	 * Distinguishes expired tokens from missing or mismatched values.
 	 */
-	public boolean validate(String token, String userAns)
+	public CaptchaValidationResult validate(String token, String userAns)
 	{
 		if(tokenManager.isDisabled())
 		{
 			throw new InvalidStateException("Captcha service is disabled");
 		}
 
-		String expectedAns = tokenManager.fetchToken(token);
+		TokenLookupResult lookup = tokenManager.lookupToken(token);
 
-		if(expectedAns == null)
+		if(lookup.isNotFound())
 		{
-			logger.trace("User specified invalid or expired token: {}", token);
-			return false;
+			logger.trace("User specified invalid captcha token: {}", token);
+			return CaptchaValidationResult.NOT_FOUND;
 		}
-		
-		if(!expectedAns.equals(userAns))
+
+		if(lookup.isExpired())
 		{
-			return false;
+			logger.trace("User specified expired captcha token: {}", token);
+			return CaptchaValidationResult.EXPIRED;
 		}
-		
-		return true;
+
+		if(!Objects.equals(lookup.getValue(), userAns))
+		{
+			return CaptchaValidationResult.INVALID_VALUE;
+		}
+
+		return CaptchaValidationResult.VALID;
 	}
 }
