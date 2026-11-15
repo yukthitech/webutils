@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+	<!--
+		Template seed for the TEST-role user used by POST /api/test/config.
+		Copy into the consuming app dbschema (local/test installer only).
+		CUSTOM_SPACE=test causes IWebutilsService.getUserDetails to grant role TEST.
+		Password plain text: Admin@123 (jasypt StrongPasswordEncryptor hash).
+		Do not grant TEST to product users (ADMIN, JOB_SEEKER, EMPLOYER, ...).
+	-->
+	<changeSet author="webutils" id="seed-webutils-test-user">
+		<preConditions onFail="MARK_RAN">
+			<sqlCheck expectedResult="0">
+				SELECT COUNT(*) FROM USER
+				WHERE EMAIL = 'test@test.com' AND CUSTOM_SPACE = 'test'
+			</sqlCheck>
+		</preConditions>
+		<insert tableName="USER">
+			<column name="NAME" value="WebUtils Test User"/>
+			<column name="EMAIL" value="test@test.com"/>
+			<column name="MOBILE" value="9000000000"/>
+			<column name="PASSWORD" value="hsMPM5Iu1uzRXMwuBwh8bJR8LRHSS2FOeE9g+bhRQw8pnMKehvbiDicL+MhhOQsv"/>
+			<column name="CUSTOM_SPACE" value="test"/>
+			<column name="IS_ACTIVE" valueBoolean="true"/>
+			<column name="CREATED_ON" valueComputed="CURRENT_TIMESTAMP"/>
+			<column name="UPDATED_ON" valueComputed="CURRENT_TIMESTAMP"/>
+		</insert>
+	</changeSet>
+</databaseChangeLog>

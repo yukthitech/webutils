@@ -436,7 +436,7 @@ newVueUiComponent('yk-markdown-editor', {
 	"template": `
 		<div class="form-group yk-markdown-editor" :id="fieldInfo.name">
 			<div class="yk-md-header">
-				<label class="webutil-field-label form-label mb-0" v-if="!hideLabel && fieldInfo.label && fieldInfo.label.length &gt; 0">{{fieldInfo.label}}:</label>
+				<label class="webutil-field-label form-label mb-0" v-if="!hideLabel && fieldInfo.label && fieldInfo.label.length &gt; 0">{{fieldInfo.label}}<span v-if="isRequired()" style="color:#e74c3c;">*</span>:</label>
 				<div class="yk-md-toolbar btn-group btn-group-sm" role="group" aria-label="Markdown view mode">
 					<button type="button" class="btn btn-outline-secondary"
 						:id="fieldInfo.name + '-md-mode-edit'"

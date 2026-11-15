@@ -234,7 +234,7 @@ newVueUiComponent('yk-language-editor', {
 
 	"template": `
 		<div class="form-group yk-language-editor" :id="fieldInfo.name">
-			<label class="webutil-field-label form-label" v-if="!hideLabel && fieldInfo.label && fieldInfo.label.length &gt; 0">{{fieldInfo.label}}:</label>
+			<label class="webutil-field-label form-label" v-if="!hideLabel && fieldInfo.label && fieldInfo.label.length &gt; 0">{{fieldInfo.label}}<span v-if="isRequired()" style="color:#e74c3c;">*</span>:</label>
 			<div class="yk-lang-editor-wrap"
 				:class="{ 'is-invalid': displayError() }"
 				:style="{ height: height }">

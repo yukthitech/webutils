@@ -395,7 +395,7 @@ newVueUiComponent('yk-lov-field', {
 
 	"template": `
 		<div class="form-group yk-lov-field" :id="fieldInfo.name" :style="'display:' + display">
-			<label class="webutil-field-label form-label" v-if="!hideLabel && fieldInfo.label">{{fieldInfo.label}}:</label>
+			<label class="webutil-field-label form-label" v-if="!hideLabel && fieldInfo.label">{{fieldInfo.label}}<span v-if="isRequired()" style="color:#e74c3c;">*</span>:</label>
 			<Multiselect
 				:model-value="isMultiValued() ? selectedOptions : selectedOption"
 				@update:model-value="onSimpleSelect"
@@ -495,7 +495,7 @@ newVueUiComponent('yk-editable-lov-field', {
 
 	"template": `
 		<div class="form-group yk-editable-lov-field" :id="fieldInfo.name" :style="'display:' + display">
-			<label class="webutil-field-label form-label" v-if="!hideLabel && fieldInfo.label">{{fieldInfo.label}}:</label>
+			<label class="webutil-field-label form-label" v-if="!hideLabel && fieldInfo.label">{{fieldInfo.label}}<span v-if="isRequired()" style="color:#e74c3c;">*</span>:</label>
 			<div class="yk-lov-multiselect-wrap" :class="{'yk-lov-is-new': selectedOption && selectedOption.isNew}">
 				<Multiselect
 					:model-value="selectedOption"
@@ -675,7 +675,7 @@ newVueUiComponent('yk-multi-editable-lov-field', {
 
 	"template": `
 		<div class="form-group yk-multi-editable-lov-field" :id="fieldInfo.name" :style="'display:' + display">
-			<label class="webutil-field-label form-label" v-if="!hideLabel && fieldInfo.label">{{fieldInfo.label}}:</label>
+			<label class="webutil-field-label form-label" v-if="!hideLabel && fieldInfo.label">{{fieldInfo.label}}<span v-if="isRequired()" style="color:#e74c3c;">*</span>:</label>
 			<Multiselect
 				:model-value="selectedOptions"
 				@update:model-value="onMultiSelect"

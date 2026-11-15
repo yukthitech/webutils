@@ -149,6 +149,22 @@ export function newVueUiComponent(name, vueData){
 				return this.fieldInfo.error && this.enableError;
 			},
 
+			"isRequired": function() {
+				var validations = this.fieldInfo && this.fieldInfo.validations;
+				if(!validations || !validations.length)
+				{
+					return false;
+				}
+				for(var i = 0; i < validations.length; i++)
+				{
+					if(validations[i] && validations[i].name == 'required')
+					{
+						return true;
+					}
+				}
+				return false;
+			},
+
 			"validate": function() {
 				this.fieldInfo.error = null;
 				
@@ -389,7 +405,7 @@ newVueUiComponent('yk-input-field', {
 	
 	"template": `
 		<div class="form-group">
-			<label v-if="!hideLabel" class="webutil-field-label">{{fieldInfo.label}}:</label>
+			<label v-if="!hideLabel" class="webutil-field-label">{{fieldInfo.label}}<span v-if="isRequired()" style="color:#e74c3c;">*</span>:</label>
 			<div class="input-group">
 				<input
 					:name="fieldInfo.name"
@@ -505,7 +521,7 @@ newVueUiComponent('yk-input-file', {
 	
 	"template": `
 		<div class="form-group">
-			<label v-if="!hideLabel" class="webutil-field-label">{{fieldInfo.label}}:</label>
+			<label v-if="!hideLabel" class="webutil-field-label">{{fieldInfo.label}}<span v-if="isRequired()" style="color:#e74c3c;">*</span>:</label>
 			<div class="input-group">
 				<div style="width: 100%; display: inline; border: 1px solid #ced4da; border-radius: 5px;">
 					<div style="display: inline-block; padding: 3px 3px 3px 0.5rem; height: 100%;">
@@ -663,7 +679,7 @@ newVueUiComponent('yk-input-image', {
 	
 	"template": `
 		<div class="form-group">
-			<label v-if="!hideLabel" class="webutil-field-label">{{fieldInfo.label}}:</label>
+			<label v-if="!hideLabel" class="webutil-field-label">{{fieldInfo.label}}<span v-if="isRequired()" style="color:#e74c3c;">*</span>:</label>
 			<div class="input-group">
 				<div style="display: inline; border: 1px solid #ced4da; border-radius: 5px;">
 					<div ref="contentDiv" :style="'display: inline-block; width: ' + width + 'px; height: ' + height + 'px;'">
@@ -1140,7 +1156,7 @@ newVueUiComponent('yk-ver-input-field', {
 	
 	"template": `
 		<div class="form-group">
-			<label v-if="!hideLabel" class="webutil-field-label">{{fieldInfo.label}}:</label>
+			<label v-if="!hideLabel" class="webutil-field-label">{{fieldInfo.label}}<span v-if="isRequired()" style="color:#e74c3c;">*</span>:</label>
 			
 			<!-- Contact Input Field -->
 			<div class="input-group" style="margin-bottom: 0.5rem;">
@@ -1278,7 +1294,7 @@ newVueUiComponent('yk-captcha-field', {
 	
 	"template": `
 		<div class="form-group">
-			<label v-if="!hideLabel" class="webutil-field-label">Retype the characters from image:</label><br/>
+			<label v-if="!hideLabel" class="webutil-field-label">{{fieldInfo.label || 'Retype the characters from image'}}<span v-if="isRequired()" style="color:#e74c3c;">*</span>:</label><br/>
 			<img class="captchaImg" :id="fieldInfo.name + '-image'" src="" width="200" height="50" style="width: 200px; height: 50px;">
 			<span style="cursor: pointer; color: blue; font-size: 1.5rem;" title="Refresh" @click="onLoadCaptcha">
 				<i class="bi bi-arrow-repeat"></i>
@@ -1296,7 +1312,7 @@ newVueUiComponent('yk-captcha-field', {
 newVueUiComponent('yk-textarea-field', {
 	"template": `
 		<div class="form-group">
-			<label v-if="!hideLabel" class="webutil-field-label form-label">{{fieldInfo.label}}:</label>
+			<label v-if="!hideLabel" class="webutil-field-label form-label">{{fieldInfo.label}}<span v-if="isRequired()" style="color:#e74c3c;">*</span>:</label>
 			<textarea
 				:name="fieldInfo.name"
 				:id="fieldInfo.name"
@@ -1414,7 +1430,7 @@ newVueUiComponent('yk-html-editor', {
 	
 	"template": `
 		<div class="form-group yk-html-editor">
-			<label class="webutil-field-label form-label" v-if="!hideLabel && fieldInfo.label && fieldInfo.label.length &gt; 0">{{fieldInfo.label}}:</label>
+			<label class="webutil-field-label form-label" v-if="!hideLabel && fieldInfo.label && fieldInfo.label.length &gt; 0">{{fieldInfo.label}}<span v-if="isRequired()" style="color:#e74c3c;">*</span>:</label>
 			<div
 				:id="fieldInfo.name"
 				:class="{'is-invalid': displayError()}"
@@ -1466,9 +1482,10 @@ newVueUiComponent('yk-switch', {
 	},
 	"template": `
 		<div class="form-group">
-			<label v-if="!hideLabel" class="webutil-field-label form-label">{{fieldInfo.label}}:</label>
+			<label v-if="!hideLabel" class="webutil-field-label form-label">{{fieldInfo.label}}<span v-if="isRequired()" style="color:#e74c3c;">*</span>:</label>
 			<div class="form-check form-switch">
-			  <input class="form-check-input webutil-switch" type="checkbox" :name="fieldInfo.name" :id="fieldInfo.name" v-model="fieldValue">
+			  <input class="form-check-input webutil-switch" type="checkbox" :name="fieldInfo.name" :id="fieldInfo.name"
+				v-model="fieldValue" :disabled="fieldInfo.readOnly">
 			</div>			
 			<div class="invalid-feedback" v-if="displayError()">{{fieldInfo.error}}</div>
 		</div>

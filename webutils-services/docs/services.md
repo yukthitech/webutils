@@ -98,11 +98,14 @@ public class EditableLovDemoController {
 | `/api/lov/fetch/{STATIC\|DYNAMIC\|STORED}/{name}` | LOV options |
 | `/api/model/{name}` | Model field definitions for `yk-model-form` |
 | `/api/otp/send/{fieldId}/{value}` | OTP send |
+| `/api/test/config` | Test-only runtime bean field override (role `TEST`) |
 | `/api/user/**` | User APIs |
 | `/api/file/**` | File download/upload helpers |
 | `/api/payment/**` | Payment |
 
 Auth annotations: `@NoAuthentication`, `@Authorization({"ROLE"})`.
+
+App-specific state/business rules (for example “this job seeker already verified contacts”) **must not** be implemented in webutils. Override `IWebutilsService.checkOperationState(StateCheckRequest)` in the consuming app. `OtpController` calls this after role checks with `StateOperation.OTP`, `fieldId`, and `value`.
 
 ---
 
@@ -220,6 +223,39 @@ public interface ISampleItemRepository extends ICrudRepository<SampleItemEntity>
     List<SampleItemSearchResult> searchSampleItems(SearchQuery searchQuery);
 }
 ```
+
+### Calling search from Java (services / tools)
+
+Prefer `@SearchQueryMethod` for filtered listing/search. The repository method takes yukthi `SearchQuery`; from application services pass the **query-model bean** to `SearchService`, which adapts it to `SearchQuery` and invokes the repo method:
+
+```java
+@Autowired
+private SearchService searchService;
+
+public List<SampleItemSearchResult> searchForAgent(SampleItemSearchQuery query) {
+    // pageNumber=1, fetchCount=false, fetchAll=true
+    ExecuteSearchResponse response = searchService.executeSearch(
+            "sampleItemSearch", query, new SearchExecutionModel(1, false, true));
+    if(response.getActualResults() == null) {
+        return List.of();
+    }
+    @SuppressWarnings("unchecked")
+    List<SampleItemSearchResult> rows =
+            (List<SampleItemSearchResult>) (List<?>) response.getActualResults();
+    return rows;
+}
+```
+
+**Rules**
+
+| Do | Don't |
+|----|--------|
+| Declare `@SearchQueryMethod` + query/result models | Ad-hoc `findByOwnerId` + in-memory filter for the same search |
+| `SearchService.executeSearch(name, queryModel, …)` from Java | Hand-build `SearchQuery`/`SearchCondition` that duplicates the query model |
+| Put filters on the query model (`@Condition`) | Invent shared wrappers around `SearchService` (e.g. `AgentSearchSupport`) |
+| Use `getActualResults()` for typed rows when `fetchAll` | Bypass search for UI/agent listing that already has a search query |
+
+UI still uses `/api/search/execute/{name}` (same `SearchService` pipeline). Java and HTTP share one repository search method.
 
 ### Search result columns
 
@@ -372,6 +408,7 @@ References: `EditableLovDemoModel` (`String`), `SimpleLovDemoModel` (`Long`).
 
 - Model field: `OtpVerification` + `@Otp(type = EMAIL | MOBILE)`.
 - Send API: `POST /api/otp/send/{fieldId}/{value}`.
+- After role checks from `@Authorization` on the OTP field, the framework calls `IWebutilsService.checkOperationState(new StateCheckRequest(StateOperation.OTP, fieldId, value))`. Apps override that method to reject OTP when the current user/domain state forbids it. Do **not** put app status checks in `OtpController`.
 - With `app.devEnvironment=true`, delivery is skipped; read code from `FORM_TOKEN` for local tests.
 - UI widget: `yk-ver-input-field` (field type VERIFICATION).
 
@@ -402,8 +439,11 @@ Implement `IWebutilsService` in the app:
 @Service
 public class TestAppWebutilsService implements IWebutilsService {
     // Override getUserDetails(UserEntity) to attach roles / domain ids when needed
+    // Override checkOperationState(StateCheckRequest) to reject operations illegal in current user state
 }
 ```
+
+Default `getUserDetails` grants role `TEST` when `CUSTOM_SPACE` is `test` (see Test config API below). Product spaces must overwrite roles in the app override so product users never receive `TEST`.
 
 Use `UserContext.getCurrentUser()` inside services for the authenticated principal.
 
@@ -470,10 +510,31 @@ Response shape includes `success`, `message`, `errors` / field errors as applica
 | Legacy table/package names | Wrong schema (`WEBUTILS_USERS` vs `USER`) |
 | Catch unique violations in services | Use `@UniqueConstraint(message=..., finalName=true)`; `GlobalExceptionHandler` returns the message |
 | Put product-only widgets into framework defaults | Keep app widgets in app `web/common/widgets` |
+| App status/business rules in webutils (`OtpController`, etc.) | Override `IWebutilsService.checkOperationState` in the app |
+| Grant role `TEST` to product users | Only the seeded `CUSTOM_SPACE=test` user may call `/api/test/config` |
 
 ---
 
-## 15. Agent implementation recipe
+## 15. Test config API (AutoX / local only)
+
+`POST /api/test/config` mutates an in-memory Spring bean field via reflection. Use it from AutoX to shorten OTP retry windows and similar test-only overrides. Do **not** add JVM-only test flags for this.
+
+```json
+{
+  "className": "com.webutils.services.form.otp.OtpService",
+  "propertyName": "minRetryDurationSec",
+  "value": "5"
+}
+```
+
+- `@Authorization(IWebUtilsConstants.ROLE_TEST)` — only role `TEST`.
+- Default `IWebutilsService.getUserDetails` assigns `TEST` when `USER.CUSTOM_SPACE` is `test`.
+- Seed that user in the app Liquibase installer (template: `webutils-services/dbschema/webutils/004-seed-test-user.xml`). Suggested login: `test@test.com` / `Admin@123` / `userSpace=test` (product `/api/auth/login` requires password min length 8). testapp already seeds `test@test.com` / `test` / space `test`.
+- In-memory only: restart restores `@Value` defaults. Never grant `TEST` to ADMIN, JOB_SEEKER, EMPLOYER, or other product roles.
+
+---
+
+## 16. Agent implementation recipe
 
 When adding a new searchable listing feature:
 

@@ -42,6 +42,11 @@ New-stack tables (`USER`, `STORED_LOV`, `FORM_TOKEN`, `WEBUTILS_SEARCH_SETTINGS`
 - Use `@Getter` and `@Setter` on entities instead (plus `@NoArgsConstructor` / `@Accessors` when needed).
 - `@Data` is fine for DTOs, models, and other non-entity POJOs.
 
+## App-specific logic
+
+- Do **not** put consuming-app status or business rules in webutils (`OtpController`, etc.). Apps override `IWebutilsService.checkOperationState(StateCheckRequest)`.
+- For AutoX/runtime test overrides, use `POST /api/test/config` (role `TEST`, seeded `CUSTOM_SPACE=test` user). Do not add JVM-only test flags. Never grant `TEST` to product roles.
+
 ## Unique constraints
 
 - Put user-facing text on `@UniqueConstraint(name = "...", finalName = true, message = "...")`.

@@ -231,7 +231,7 @@
 		<dependency>
 			<groupId>com.yukthitech</groupId>
 			<artifactId>yukthi-data</artifactId>
-			<version>1.3.13-SNAPSHOT</version>
+			<version>1.3.14-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.yukthitech</groupId>
@@ -243,7 +243,7 @@
 		<dependency>
 			<groupId>com.yukthitech.webutils</groupId>
 			<artifactId>webutils-commons</artifactId>
-			<version>1.0.3-SNAPSHOT</version>
+			<version>1.0.4-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -274,7 +274,7 @@
 	<parent>
 		<groupId>com.yukthitech.webutils</groupId>
 		<artifactId>WebUtils</artifactId>
-		<version>1.0.3-SNAPSHOT</version>
+		<version>1.0.4-SNAPSHOT</version>
 		<relativePath>../WebUtils</relativePath>
 	</parent>
 </project>

@@ -47,6 +47,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.yukthitech.persistence.annotations.DataType;
+import com.yukthitech.persistence.conversion.ConverterContext;
 import com.yukthitech.persistence.conversion.impl.JsonWithTypeConverter;
 import com.yukthitech.utils.exceptions.InvalidArgumentException;
 import com.yukthitech.utils.exceptions.InvalidStateException;
@@ -134,7 +135,7 @@ public class ExtensionController extends BaseController implements IExtensionCon
 				throw new InvalidRequestException("No LOV options specified for LOV field");
 			}
 			
-			String lovOptStr = (String) jsonConverter.convertToDBType(extensionField.getLovOptions(), DataType.STRING);
+			String lovOptStr = (String) jsonConverter.convertToDBType(new ConverterContext(), extensionField.getLovOptions(), DataType.STRING);
 			
 			if(lovOptStr.length() > IWebUtilsInternalConstants.MAX_EXT_FIELD_LENGTH)
 			{

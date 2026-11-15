@@ -67,7 +67,7 @@ App `Application` class **must**:
 2. Enable Yukthi repositories for both.
 3. Provide `RepositoryFactory` bean from `app.db.*`.
 4. Provide `Encryptor` bean from `app.encryptor.*`.
-5. Provide `@Service implements IWebutilsService` (defaults OK; enrich for roles/domain ids).
+5. Provide `@Service implements IWebutilsService` (defaults OK; enrich for roles/domain ids; override `checkOperationState` for app state gates).
 
 ### Scan packages — DO / DON'T
 
@@ -228,12 +228,13 @@ Contents include: `vue-3.4.31`, `bootstrap-*`, `jquery-*`, `tinymce-*`, `webutil
 | Framework login | `POST /api/auth/login` (password min length enforced) |
 | Logout | `POST /api/auth/logout` |
 | Public endpoints | `@NoAuthentication` |
-| Role checks | `@Authorization({"ROLE"})` |
+| Role checks | `@Authorization({"ROLE"})`. App state gates: override `IWebutilsService.checkOperationState` — do not put app status/business rules in webutils. |
+| Test runtime config | `POST /api/test/config` (role `TEST` only). Seed `CUSTOM_SPACE=test` user in Liquibase. Never grant `TEST` to product roles. |
 | Security model | Spring Security permits broadly; `SecurityInterceptor` enforces token |
 
 When `app.webutils.userSpaceEnabled=true`, clients must send `userSpace` on login.
 
-**testapp note:** short demo password uses `POST /api/testapp/auth/login` (`test@test.com` / `test` / space `test`). Product apps use framework `/api/auth/login`.
+**testapp note:** short demo password uses `POST /api/testapp/auth/login` (`test@test.com` / `test` / space `test`). That user also receives role `TEST` (space `test`) and can call `POST /api/test/config`. Product apps use framework `/api/auth/login` with the seeded test-space user (`Admin@123`).
 
 ---
 

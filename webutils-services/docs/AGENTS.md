@@ -59,6 +59,11 @@ Do **not** use Lombok `@Data` on persistence entities (or embedded subentities).
 
 Use `@Getter` and `@Setter` instead (optionally with `@NoArgsConstructor` / `@Accessors` as needed). `@Data` remains fine for DTOs, models, and other non-entity POJOs.
 
+### App-specific logic and test config
+
+- Do **not** put consuming-app status or business rules in webutils. Apps override `IWebutilsService.checkOperationState(StateCheckRequest)`.
+- For AutoX/runtime test overrides of `@Value` fields, call `POST /api/test/config` as the seeded `CUSTOM_SPACE=test` user (role `TEST`). Do not add JVM-only test flags. Never grant `TEST` to product roles.
+
 ### Unique constraints
 
 Put the user-facing text on `@UniqueConstraint(..., finalName = true, message = "...")`. Do **not** catch `UniqueConstraintViolationException` in services or controllers. `GlobalExceptionHandler` returns HTTP 400 with that message; UI shows it in the form-level error banner (not per-field `errors`).

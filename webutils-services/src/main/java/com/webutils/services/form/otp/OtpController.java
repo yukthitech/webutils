@@ -29,6 +29,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.webutils.common.auth.StateCheckRequest;
+import com.webutils.common.auth.StateOperation;
 import com.webutils.common.form.model.FieldDef;
 import com.webutils.common.form.model.FieldType;
 import com.webutils.common.form.otp.SendOtpResponse;
@@ -69,7 +71,9 @@ public class OtpController
 			throw new InvalidRequestException("Field is not an OTP field: {}", fieldId);
 		}
 
-		securityService.checkAuthorization(fieldDef.getField());
+		securityService.checkAuthorization(
+			fieldDef.getField(),
+			new StateCheckRequest(StateOperation.OTP, fieldId, value));
 		
 		VerificationType verificationType = fieldDef.getVerificationType();
 		

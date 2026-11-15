@@ -12,6 +12,7 @@ import com.webutils.common.FileInfo;
 import com.webutils.common.UserDetails;
 import com.webutils.common.auth.Authorization;
 import com.webutils.common.auth.NoAuthentication;
+import com.webutils.common.auth.StateCheckRequest;
 import com.webutils.services.auth.UserContext;
 
 @Service
@@ -75,12 +76,43 @@ public class SecurityService
 	 */
 	public void checkAuthorization(AnnotatedElement annotatedElement)
 	{
+		checkAuthorization(annotatedElement, null);
+	}
+
+	/**
+	 * Role check plus optional app-state check for the given operation.
+	 */
+	public void checkAuthorization(AnnotatedElement annotatedElement, StateCheckRequest stateCheckRequest)
+	{
 		Authorization authorization = annotatedElement.getAnnotation(Authorization.class);
 		
 		checkAuthorization(
 				annotatedElement.getAnnotation(NoAuthentication.class) == null, 
 				authorization == null ? null : Set.of(authorization.value())
 				);
+
+		checkOperationState(stateCheckRequest);
+	}
+
+	private void checkOperationState(StateCheckRequest stateCheckRequest)
+	{
+		if(stateCheckRequest == null)
+		{
+			return;
+		}
+
+		try
+		{
+			webutilsService.checkOperationState(stateCheckRequest);
+		}
+		catch(UnauthorizedRequestException ex)
+		{
+			throw ex;
+		}
+		catch(Exception ex)
+		{
+			throw new UnauthorizedRequestException("{}", ex.getMessage());
+		}
 	}
 	
 	public void checkFileAuthorization(FileInfo fileInfo)

@@ -53,6 +53,7 @@ import com.yukthitech.webutils.security.WebutilsSecurityService;
 import com.yukthitech.webutils.services.BaseCrudService;
 import com.yukthitech.webutils.services.ClassScannerService;
 import com.yukthitech.webutils.services.CurrentUserService;
+import com.yukthitech.webutils.services.IWebutilsRepositoryProxy;
 import com.yukthitech.webutils.services.RequestCache;
 import com.yukthitech.webutils.services.dynamic.DynamicMethod;
 import com.yukthitech.webutils.services.dynamic.DynamicMethodException;
@@ -153,6 +154,11 @@ public class StoredLovService extends BaseCrudService<StoredLovEntity, IStoredLo
 	private void init()
 	{
 		this.lovValRepository = super.webutilsRepositoryFactory.getRepository(IStoredLovOptionRepository.class);
+		
+		if(!((IWebutilsRepositoryProxy)lovValRepository).isRepositoryEnabled())
+		{
+			return;
+		}
 		
 		logger.debug("Fetching default LOV option id (to act as default parent) with [LOV: {}, Option: {}]", defaultLovName, defaultLovOption);
 		

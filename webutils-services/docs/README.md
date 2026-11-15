@@ -26,5 +26,8 @@ Agent-oriented documentation for **`webutils-common`** and **`webutils-services`
 1. Prefer new-stack modules; do not invent APIs from legacy packages.
 2. App owns Liquibase under `{app}/dbschema` — never Spring Liquibase at runtime.
 3. UI listings always use search queries + `yk-search-form` / `yk-search-results`, with Add/Edit/Delete (and similar) as child `yk-search-action` widgets — not separate page buttons.
-4. Entities: `@Getter`/`@Setter` only — never `@Data` on persistence entities.
-5. Framework UI libs live in `webutils-services/web/lib`; apps junction `services/web/lib` to that folder.
+4. From Java services, call search via `SearchService.executeSearch` with the query-model bean (`TodoSearchQuery`, etc.) so the framework adapts it to yukthi `SearchQuery` and invokes the `@SearchQueryMethod` repository method — do not hand-build `SearchQuery`, invent search helper beans, or replace search with `findBy*` + in-memory filters. See [services.md § Calling search from Java](./services.md#calling-search-from-java-services--tools).
+5. Entities: `@Getter`/`@Setter` only — never `@Data` on persistence entities.
+6. Framework UI libs live in `webutils-services/web/lib`; apps junction `services/web/lib` to that folder.
+7. Do not put app status/business rules in webutils — override `IWebutilsService.checkOperationState`.
+8. AutoX runtime `@Value` overrides use `POST /api/test/config` (role `TEST`); never grant `TEST` to product users.
