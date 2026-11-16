@@ -180,4 +180,27 @@ public class TestPropertyCopyService
 		source = propertyCopyService.cloneBean(target, SourceWithId.class);
 		Assert.assertEquals(source.getLov(), (Long) 10L);
 	}
+
+	@Data
+	@AllArgsConstructor
+	@NoArgsConstructor
+	public static class ModelWithRelationId
+	{
+		private Long lovId;
+	}
+
+	@Test
+	public void testRelationIdSuffixMapping()
+	{
+		// Model.lovId (Long) -> Entity.lov (StoredLovEntity)
+		ModelWithRelationId model = new ModelWithRelationId(25L);
+		TargetWithEntity entity = propertyCopyService.cloneBean(model, TargetWithEntity.class);
+
+		Assert.assertNotNull(entity.getLov());
+		Assert.assertEquals(entity.getLov().getId(), (Long) 25L);
+
+		// Entity.lov -> Model.lovId
+		ModelWithRelationId copiedModel = propertyCopyService.cloneBean(entity, ModelWithRelationId.class);
+		Assert.assertEquals(copiedModel.getLovId(), (Long) 25L);
+	}
 }

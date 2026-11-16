@@ -200,9 +200,22 @@ public class PropertyCopyService
 			String propName = entry.getKey();
 		
 			Property sourcePd = entry.getValue();
+			
+			if(sourcePd.getGetter() == null)
+			{
+				continue;
+			}
+			
 			Property targetPd = targetProps.get(propName);
 
-			if(sourcePd.getGetter() == null || targetPd == null || targetPd.getSetter() == null)
+			// Exact name match first. If missing, try model xxxId <-> entity xxx relation bridge
+			// (replaces former @PropertyMapping(from = "xxxId", subproperty = "id") support).
+			if(targetPd == null || targetPd.getSetter() == null)
+			{
+				targetPd = findRelationIdMappedProperty(targetProps, sourcePd, propName);
+			}
+
+			if(targetPd == null || targetPd.getSetter() == null)
 			{
 				continue;
 			}
@@ -225,6 +238,51 @@ public class PropertyCopyService
 				throw new RuntimeException("Error copying property: " + propName, e);
 			}
 		}
+	}
+	
+	/**
+	 * Resolves relation id bridge properties when names differ by {@code Id} suffix.
+	 * Maps {@code xxxId} (Long) &lt;-&gt; {@code xxx} (WebutilsBaseEntity) in either direction.
+	 *
+	 * @param targetProps target bean properties
+	 * @param sourcePd source property
+	 * @param propName source property name
+	 * @return matching target property, or null when no valid relation-id mapping exists
+	 */
+	private Property findRelationIdMappedProperty(Map<String, Property> targetProps, Property sourcePd, String propName)
+	{
+		String altName = null;
+		
+		if(propName.length() > 2 && propName.endsWith("Id"))
+		{
+			altName = propName.substring(0, propName.length() - 2);
+		}
+		else
+		{
+			altName = propName + "Id";
+		}
+		
+		Property targetPd = targetProps.get(altName);
+		
+		if(targetPd == null || targetPd.getSetter() == null)
+		{
+			return null;
+		}
+		
+		Class<?> srcType = sourcePd.getType();
+		Class<?> tgtType = targetPd.getType();
+		
+		boolean srcIsId = Long.class.equals(srcType) || long.class.equals(srcType);
+		boolean tgtIsId = Long.class.equals(tgtType) || long.class.equals(tgtType);
+		boolean srcIsEntity = WebutilsBaseEntity.class.isAssignableFrom(srcType);
+		boolean tgtIsEntity = WebutilsBaseEntity.class.isAssignableFrom(tgtType);
+		
+		if((srcIsId && tgtIsEntity) || (srcIsEntity && tgtIsId))
+		{
+			return targetPd;
+		}
+		
+		return null;
 	}
 
 	private Object convertValue(Object srcValue, CopyContext copyContext)
